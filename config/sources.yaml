@@ -1,0 +1,185 @@
+# Configurable News Sources
+# Add/remove sources here without touching code.
+# The pipeline reads this file on every run.
+
+# ── RSS Feeds ────────────────────────────────────────────
+rss_feeds:
+  # Major national outlets
+  - name: ESPN NFL
+    url: https://www.espn.com/espn/rss/nfl/news
+    category: national
+
+  - name: Pro Football Talk
+    url: https://profootballtalk.nbcsports.com/feed/
+    category: national
+
+  # NFL.com RSS is often malformed — uncomment if it works for you:
+  # - name: NFL.com News
+  #   url: https://www.nfl.com/rss/rsslanding?searchString=home
+  #   category: national
+
+  # The Ringer no longer serves RSS — uncomment if restored:
+  # - name: The Ringer NFL
+  #   url: https://www.theringer.com/rss/nfl/index.xml
+  #   category: national
+
+  # Football Outsiders may be down — uncomment if accessible:
+  # - name: Football Outsiders
+  #   url: https://www.footballoutsiders.com/rss.xml
+  #   category: analytics
+
+  # Add more feeds here:
+  # - name: Your Feed Name
+  #   url: https://example.com/feed
+  #   category: national | team | analytics
+
+# ── Beat Writers & Insiders ──────────────────────────────
+# These are used by the Twitter/Nitter collector (Phase 2b)
+# and for filtering RSS content by author.
+# Add your favorite writers here.
+
+beat_writers:
+  # National insiders
+  - name: Adam Schefter
+    handle: AdamSchefter
+    outlet: ESPN
+    teams: []  # empty = national/all teams
+    role: insider
+
+  - name: Ian Rapoport
+    handle: RapSheet
+    outlet: NFL Network
+    teams: []
+    role: insider
+
+  - name: Tom Pelissero
+    handle: TomPelissero
+    outlet: NFL Network
+    teams: []
+    role: insider
+
+  - name: Field Yates
+    handle: FieldYates
+    outlet: ESPN
+    teams: []
+    role: insider
+
+  - name: Josina Anderson
+    handle: JosinaAnderson
+    outlet: CBS Sports
+    teams: []
+    role: insider
+
+  - name: Jay Glazer
+    handle: JayGlazer
+    outlet: FOX Sports
+    teams: []
+    role: insider
+
+  - name: Mike Garafolo
+    handle: MikeGarafolo
+    outlet: NFL Network
+    teams: []
+    role: insider
+
+  - name: Jeremy Fowler
+    handle: JFowlerESPN
+    outlet: ESPN
+    teams: []
+    role: insider
+
+  - name: Jordan Schultz
+    handle: Schultz_Report
+    outlet: Independent
+    teams: []
+    role: insider
+
+  - name: Dianna Russini
+    handle: daborussini
+    outlet: The Athletic
+    teams: []
+    role: insider
+
+  # ── Team-specific beat writers ──
+  # Add writers for teams you care about:
+  #
+  # - name: Jeff Zrebiec
+  #   handle: jeffzrebiec
+  #   outlet: The Athletic
+  #   teams: [BAL]
+  #   role: beat
+  #
+  # - name: Albert Breer
+  #   handle: AlbertBreer
+  #   outlet: Sports Illustrated
+  #   teams: [NE]
+  #   role: beat
+
+# ── Web Scraping Targets ─────────────────────────────────
+web_sources:
+  - name: NFL Transactions
+    url: https://www.nfl.com/transactions/
+    type: transactions
+    enabled: true
+
+  - name: NFL Injuries
+    url: https://www.nfl.com/injuries/
+    type: injuries
+    enabled: true
+
+  - name: The Athletic NFL
+    url: https://www.nytimes.com/athletic/nfl/
+    type: athletic_nfl
+    category: national
+    enabled: true
+    max_items_per_team: 5
+
+# ── YouTube Video Keywords ────────────────────────────────
+# Videos matching ANY of these keywords in their title will be collected.
+# Covers press conferences, interviews, and media availabilities.
+youtube_keywords:
+  # Press conferences
+  - "press conference"
+  - "presser"
+  - "postgame"
+  - "podium"
+  - "media availability"
+  - "introductory press"
+  - "draft press"
+  # Interviews
+  - "interview"
+  - "1-on-1"
+  - "one-on-one"
+  - "sits down"
+  - "speaks to"
+  - "speaks at"
+  - "speaks"
+  - "Q&A"
+  - "exclusive"
+  # Coaches & GMs
+  - "head coach"
+  - "coordinator"
+  - "general manager"
+  - "GM"
+  - "offensive coordinator"
+  - "defensive coordinator"
+  # Player announcements
+  - "signing"
+  - "sign with"
+  - "signed with"
+  - "chose to sign"
+  - "free agency"
+  - "introductory"
+  - "welcome"
+  - "extension"
+  - "trade"
+  - "on joining"
+  - "joins the"
+  # Owners & league events
+  - "owner"
+  - "owners meeting"
+  - "combine"
+  - "pro day"
+  - "minicamp"
+  - "OTA"
+  - "training camp"

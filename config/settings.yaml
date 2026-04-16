@@ -1,0 +1,67 @@
+# NFL News Agent — Settings
+# Runtime configuration. API keys go in .env (not here).
+
+schedule:
+  run_time: "06:00"
+  timezone: "America/New_York"
+
+summarization:
+  provider: "openai"  # anthropic | openai | ollama
+  max_output_tokens: 4096
+  daily_token_budget: 500000  # Safety cap to control costs
+
+openai:
+  model: "gpt-5.4-mini"
+  reasoning_effort: "high"
+  service_tier: "default"
+
+ollama:
+  model: "gemma3:4b"
+  base_url: "http://localhost:11434"
+  timeout_seconds: 180
+  temperature: 0.2
+
+anthropic:
+  model: "claude-sonnet-4-20250514"
+  use_prompt_caching: true
+
+collection:
+  # How far back to look for new content (hours)
+  lookback_hours: 28  # Slightly > 24h to avoid gaps
+  # Max videos to check per YouTube channel
+  youtube_max_per_channel: 5
+  # Delay between web requests (seconds) — be polite
+  request_delay: 2.0
+  # Request timeout (seconds)
+  request_timeout: 30
+  # User agent for web requests
+  user_agent: "NFL-News-Agent/1.0 (personal project)"
+
+nitter:
+  # Nitter instances for Twitter RSS (tried in order)
+  # Update these if instances go down
+  instances:
+    - https://nitter.privacydev.net
+    - https://nitter.poast.org
+    - https://nitter.woodland.cafe
+  enabled: false  # Set to true when Twitter collector is ready
+
+transcription:
+  # Whisper model: tiny, base, small, medium, large
+  whisper_model: "small"
+  # Delete audio files after transcription to save disk space
+  delete_audio_after: true
+
+dashboard:
+  port: 8501
+  host: "localhost"
+
+storage:
+  # How many days of reports to keep (older get deleted)
+  reports_to_keep: 90
+  # How many days of raw data to keep
+  raw_data_to_keep: 7
+
+logging:
+  level: INFO
+  # Log file is auto-named by date in data/logs/
