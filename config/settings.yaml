@@ -38,13 +38,12 @@ collection:
   user_agent: "NFL-News-Agent/1.0 (personal project)"
 
 nitter:
-  # Nitter instances for Twitter RSS (tried in order)
-  # Update these if instances go down
-  instances:
-    - https://nitter.privacydev.net
-    - https://nitter.poast.org
-    - https://nitter.woodland.cafe
-  enabled: false  # Set to true when Twitter collector is ready
+  # Nitter instances for Twitter RSS (tried in order).
+  # As of April 2026 all major public Nitter instances are dead.
+  # To re-enable: self-host a Nitter fork with your own Twitter
+  # session tokens, or use a paid RSS bridge service (e.g. RSS.app).
+  instances: []
+  enabled: false
 
 transcription:
   # Whisper model: tiny, base, small, medium, large
