@@ -29,6 +29,7 @@ from collectors.web_scraper import (
     get_last_web_source_status,
     save_web_results,
 )
+from collectors.reddit_collector import collect_reddit, save_reddit_results
 from collectors.youtube_collector import collect_youtube, save_youtube_results
 from processing.deduplicator import deduplicate, flatten_groups
 from processing.source_health import get_health_alerts, record_source_result
@@ -160,6 +161,7 @@ def run():
 
     rss_items = []
     web_items = []
+    reddit_items = []
     transcripts = []
     collector_alerts: list[dict] = []
 
@@ -175,17 +177,20 @@ def run():
             })
             return []
 
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         future_rss = executor.submit(collect_rss)
         future_web = executor.submit(collect_web)
+        future_reddit = executor.submit(collect_reddit)
         future_yt = executor.submit(collect_youtube, date_str)
 
     rss_items = _safe_result(future_rss, "RSS")
     web_items = _safe_result(future_web, "Web")
+    reddit_items = _safe_result(future_reddit, "Reddit")
     transcripts = _safe_result(future_yt, "YouTube")
 
     save_rss_results(rss_items, date_str)
     save_web_results(web_items, date_str)
+    save_reddit_results(reddit_items, date_str)
     save_youtube_results(transcripts, date_str)
 
     # Record source health
@@ -193,6 +198,8 @@ def run():
                          error=next((a["message"] for a in collector_alerts if "RSS" in a.get("source", "")), ""))
     record_source_result("Web Scraper", len(web_items),
                          error=next((a["message"] for a in collector_alerts if "Web" in a.get("source", "")), ""))
+    record_source_result("Reddit", len(reddit_items),
+                         error=next((a["message"] for a in collector_alerts if "Reddit" in a.get("source", "")), ""))
     record_source_result("YouTube", len(transcripts),
                          error=next((a["message"] for a in collector_alerts if "YouTube" in a.get("source", "")), ""))
 
@@ -201,7 +208,7 @@ def run():
     source_alerts = collector_alerts + _build_source_alerts(web_source_status) + health_alerts
     _log_source_alerts(logger, source_alerts)
 
-    all_news = rss_items + web_items
+    all_news = rss_items + web_items + reddit_items
     logger.info(
         "Collection complete: %d news items, %d transcripts",
         len(all_news),
