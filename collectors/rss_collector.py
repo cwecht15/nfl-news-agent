@@ -158,6 +158,119 @@ def collect_rss(
     return items
 
 
+# ESPN API team IDs (abbreviation -> ESPN numeric ID)
+ESPN_TEAM_IDS = {
+    "ARI": 22, "ATL": 1, "BAL": 33, "BUF": 2, "CAR": 29, "CHI": 3,
+    "CIN": 4, "CLE": 5, "DAL": 6, "DEN": 7, "DET": 8, "GB": 9,
+    "HOU": 34, "IND": 11, "JAX": 30, "KC": 12, "LAC": 24, "LAR": 14,
+    "LV": 13, "MIA": 15, "MIN": 16, "NE": 17, "NO": 18, "NYG": 19,
+    "NYJ": 20, "PHI": 21, "PIT": 23, "SEA": 26, "SF": 25, "TB": 27,
+    "TEN": 10, "WAS": 28,
+}
+
+
+def collect_espn_team_news(
+    lookback_hours: Optional[int] = None,
+    teams_by_abbr: Optional[dict] = None,
+) -> list[NewsItem]:
+    """Collect team-specific news from ESPN's API for all 32 teams.
+
+    Returns NewsItem objects with team pre-tagged from the API.
+    """
+    import requests
+
+    settings = get_settings()
+    if not settings.get("espn_team_feeds", {}).get("enabled", True):
+        logger.info("ESPN team feeds disabled in settings.")
+        return []
+
+    if lookback_hours is None:
+        lookback_hours = settings["collection"]["lookback_hours"]
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=lookback_hours)
+    delay = settings["collection"].get("request_delay", 2.0)
+    user_agent = settings["collection"].get("user_agent", "NFL-News-Agent/1.0")
+
+    if teams_by_abbr is None:
+        from config_loader import get_teams_by_abbr
+        teams_by_abbr = get_teams_by_abbr()
+
+    items: list[NewsItem] = []
+    seen_ids: set[int] = set()  # dedupe across teams (articles appear for multiple teams)
+
+    logger.info("Collecting ESPN team-specific news for %d teams...", len(ESPN_TEAM_IDS))
+
+    for abbr, espn_id in ESPN_TEAM_IDS.items():
+        try:
+            resp = requests.get(
+                f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/news?team={espn_id}",
+                headers={"User-Agent": user_agent},
+                timeout=settings["collection"].get("request_timeout", 30),
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+            for article in data.get("articles", []):
+                article_id = article.get("id")
+                if article_id in seen_ids:
+                    continue
+                seen_ids.add(article_id)
+
+                headline = article.get("headline", "").strip()
+                if not headline:
+                    continue
+
+                # Parse published date
+                pub_str = article.get("published", "")
+                try:
+                    pub_date = datetime.fromisoformat(pub_str.replace("Z", "+00:00"))
+                except (ValueError, AttributeError):
+                    pub_date = datetime.now(timezone.utc)
+
+                if pub_date < cutoff:
+                    continue
+
+                description = article.get("description", "").strip()
+
+                # Extract teams from API categories
+                api_teams = []
+                for cat in article.get("categories", []):
+                    if cat.get("type") == "team":
+                        # Map ESPN abbreviation to our abbreviation
+                        team_desc = cat.get("description", "")
+                        for our_abbr, team_info in teams_by_abbr.items():
+                            if team_info["name"].lower() in team_desc.lower():
+                                api_teams.append(our_abbr)
+                                break
+
+                # Fallback: use the team we queried for
+                if not api_teams:
+                    api_teams = [abbr]
+
+                # Also detect from text for any missed teams
+                text_teams = _detect_teams(f"{headline} {description}", teams_by_abbr)
+                all_teams = list(dict.fromkeys(api_teams + text_teams))
+
+                items.append(NewsItem(
+                    title=headline,
+                    url=article.get("links", {}).get("web", {}).get("href", ""),
+                    source=f"ESPN {abbr}",
+                    source_type="espn_api",
+                    published=pub_date,
+                    summary=description,
+                    teams=all_teams,
+                    category="news",
+                ))
+
+        except Exception as e:
+            logger.warning("ESPN API failed for %s: %s", abbr, e)
+
+        time.sleep(delay / 2)  # lighter delay for API calls
+
+    logger.info("Collected %d unique articles from ESPN team feeds.", len(items))
+    return items
+
+
 def save_rss_results(items: list[NewsItem], date_str: str):
     """Save collected RSS items to a JSON file."""
     import json

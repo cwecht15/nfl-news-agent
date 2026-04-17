@@ -23,7 +23,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from config_loader import get_data_dir, get_settings, get_summary_provider
-from collectors.rss_collector import collect_rss, save_rss_results
+from collectors.rss_collector import collect_rss, collect_espn_team_news, save_rss_results
 from collectors.web_scraper import (
     collect_web,
     get_last_web_source_status,
@@ -177,18 +177,20 @@ def run():
             })
             return []
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
         future_rss = executor.submit(collect_rss)
+        future_espn = executor.submit(collect_espn_team_news)
         future_web = executor.submit(collect_web)
         future_reddit = executor.submit(collect_reddit)
         future_yt = executor.submit(collect_youtube, date_str)
 
     rss_items = _safe_result(future_rss, "RSS")
+    espn_items = _safe_result(future_espn, "ESPN Teams")
     web_items = _safe_result(future_web, "Web")
     reddit_items = _safe_result(future_reddit, "Reddit")
     transcripts = _safe_result(future_yt, "YouTube")
 
-    save_rss_results(rss_items, date_str)
+    save_rss_results(rss_items + espn_items, date_str)
     save_web_results(web_items, date_str)
     save_reddit_results(reddit_items, date_str)
     save_youtube_results(transcripts, date_str)
@@ -196,6 +198,8 @@ def run():
     # Record source health
     record_source_result("RSS Feeds", len(rss_items),
                          error=next((a["message"] for a in collector_alerts if "RSS" in a.get("source", "")), ""))
+    record_source_result("ESPN Teams", len(espn_items),
+                         error=next((a["message"] for a in collector_alerts if "ESPN" in a.get("source", "")), ""))
     record_source_result("Web Scraper", len(web_items),
                          error=next((a["message"] for a in collector_alerts if "Web" in a.get("source", "")), ""))
     record_source_result("Reddit", len(reddit_items),
@@ -208,7 +212,7 @@ def run():
     source_alerts = collector_alerts + _build_source_alerts(web_source_status) + health_alerts
     _log_source_alerts(logger, source_alerts)
 
-    all_news = rss_items + web_items + reddit_items
+    all_news = rss_items + espn_items + web_items + reddit_items
     logger.info(
         "Collection complete: %d news items, %d transcripts",
         len(all_news),
