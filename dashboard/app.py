@@ -32,6 +32,7 @@ st.sidebar.title("Navigation")
 st.sidebar.markdown("""
 - **Daily Report** — Today's full briefing
 - **Team View** — Filter by team
+- **Projections** — Projection changes & player lookup
 - **Transcripts** — Download for NotebookLM
 - **Trends** — Historical patterns & cost tracking
 - **Digest** — Weekly rollup reports
@@ -46,7 +47,8 @@ _STEPS = [
     ("Step 2", "Deduplicating stories"),
     ("Step 3", "Summarizing"),
     ("Step 4", "Building daily report"),
-    ("Step 5", "Cleaning up old data"),
+    ("Step 5", "Snapshotting projections"),
+    ("Step 6", "Cleaning up old data"),
 ]
 
 # Patterns to extract useful info from log lines
