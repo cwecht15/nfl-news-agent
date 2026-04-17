@@ -106,7 +106,25 @@ for key, section_data in report.sections.items():
     with st.expander(f"{title}{badge}", expanded=True):
         display_summary = _filter_paragraphs(summary, search_query) if search_query else summary
         st.markdown(display_summary)
-        render_sources(sources)
+
+        # Numbered sources (analysis section with inline citations)
+        numbered_sources = section_data.get("numbered_sources")
+        if numbered_sources:
+            st.caption("Sources")
+            lines = []
+            for src in numbered_sources:
+                num = src.get("num", "")
+                title_text = src.get("title", "Source")
+                source_name = src.get("source", "")
+                url = src.get("url", "")
+                suffix = f" ({source_name})" if source_name else ""
+                if url:
+                    lines.append(f"[{num}] [{title_text}]({url}){suffix}")
+                else:
+                    lines.append(f"[{num}] {title_text}{suffix}")
+            st.markdown("\n\n".join(lines))
+        else:
+            render_sources(sources)
 
 # Team highlights
 if report.team_highlights:

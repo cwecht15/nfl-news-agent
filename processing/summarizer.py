@@ -975,8 +975,14 @@ def summarize_analysis(
     transcripts: list[Transcript],
     client: Optional[Any] = None,
     usage_tracker: Optional[dict[str, Any]] = None,
-) -> str:
-    """Generate an analysis / what-to-watch section."""
+) -> tuple[str, list[dict]]:
+    """Generate an analysis / what-to-watch section with inline citations.
+
+    Returns:
+        Tuple of (summary_text, numbered_sources). The summary contains
+        bracketed citation numbers like [1], [3, 7] that map to the
+        numbered_sources list (1-indexed).
+    """
     client, runtime = _resolve_client_and_runtime(client)
     selected_transcripts = _select_press_transcripts(transcripts, limit=PRESS_MAX_ITEMS)
     ordered_news = sorted(
@@ -986,12 +992,30 @@ def summarize_analysis(
     )
 
     headlines = []
+    numbered_sources: list[dict] = []
+    source_num = 1
     for item in ordered_news[:ANALYSIS_NEWS_LIMIT]:
-        headlines.append(_build_news_context_line(item, detail_chars=280))
+        line = _build_news_context_line(item, detail_chars=280)
+        headlines.append(f"[{source_num}] {line}")
+        numbered_sources.append({
+            "num": source_num,
+            "title": item.title,
+            "source": item.source,
+            "url": item.url,
+        })
+        source_num += 1
 
     transcript_titles = []
     for t in selected_transcripts:
-        transcript_titles.append(_build_transcript_context_line(t, detail_chars=220))
+        line = _build_transcript_context_line(t, detail_chars=220)
+        transcript_titles.append(f"[{source_num}] {line}")
+        numbered_sources.append({
+            "num": source_num,
+            "title": t.title,
+            "source": t.channel_name,
+            "url": t.url,
+        })
+        source_num += 1
 
     prompt = f"""Based only on today's NFL news and press conferences, write a detailed "Analysis & What to Watch" section for a knowledgeable NFL reader.
 
@@ -1009,6 +1033,7 @@ Call out the most meaningful player-specific or position-group developments.
 List 3-6 concrete follow-ups for the next few days.
 
 Rules:
+- Cite sources inline using the bracketed numbers, e.g. [1], [3, 7]. Place citations at the end of the sentence or claim they support.
 - Synthesize related items instead of listing headlines one by one.
 - When several items point to one team's direction, connect them into a mini-dossier.
 - Name specific players, coaches, executives, and teams whenever the source material supports it.
@@ -1023,7 +1048,7 @@ Today's news headlines:
 Press conferences covered:
 {chr(10).join(transcript_titles) if transcript_titles else "None today."}"""
 
-    return _call_model(
+    text = _call_model(
         client,
         prompt,
         runtime,
@@ -1033,6 +1058,7 @@ Press conferences covered:
         verbosity="medium",
         reasoning_effort="medium",
     )
+    return text, numbered_sources
 
 
 def generate_team_highlights(
@@ -1184,13 +1210,15 @@ def run_summarization(
     }
 
     logger.info("Generating analysis...")
+    analysis_text, analysis_sources = summarize_analysis(
+        news_items,
+        transcripts,
+        client,
+        usage_tracker=usage_tracker,
+    )
     sections["analysis"] = {
-        "summary": summarize_analysis(
-            news_items,
-            transcripts,
-            client,
-            usage_tracker=usage_tracker,
-        ),
+        "summary": analysis_text,
+        "numbered_sources": analysis_sources,
     }
 
     logger.info("Generating team highlights...")
