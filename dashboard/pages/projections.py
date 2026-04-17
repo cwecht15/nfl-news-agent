@@ -71,9 +71,9 @@ if not dates:
     st.warning("No projection snapshots yet. Run `python scripts/snapshot_projections.py` to create one.")
     st.stop()
 
-tab_changes, tab_rankings, tab_weekly, tab_lookup, tab_history, tab_teams = st.tabs([
+tab_changes, tab_rankings, tab_weekly, tab_txn, tab_lookup, tab_history, tab_teams = st.tabs([
     "Today's Changes", "Fantasy Rankings", "Weekly Summary",
-    "Player Lookup", "Player History", "Team Projections",
+    "Transactions", "Player Lookup", "Player History", "Team Projections",
 ])
 
 # ─── Tab 1: Today's Changes ───
@@ -437,7 +437,71 @@ with tab_weekly:
                 st.warning("Missing fantasy snapshots for weekly comparison.")
 
 
-# ─── Tab 4: Player Lookup ───
+# ─── Tab 4: Transaction Reconciliation ───
+
+with tab_txn:
+    st.subheader("Transaction Reconciliation")
+    st.caption("Cross-references recent transactions with your projections. Only QB, RB, WR, TE, K.")
+
+    try:
+        from scripts.transaction_reconciler import (
+            reconcile, load_overrides, add_override, remove_override,
+        )
+
+        lookback_days = st.slider("Lookback window (days)", 7, 90, 30, key="txn_lookback")
+        alerts = reconcile(days=lookback_days)
+
+        if alerts:
+            st.warning(f"{len(alerts)} unresolved transaction(s)")
+
+            for i, alert in enumerate(alerts):
+                alert_type = alert["type"].upper()
+                with st.container():
+                    col_info, col_action = st.columns([4, 1])
+                    with col_info:
+                        st.markdown(
+                            f"**[{alert_type}]** {alert['message']}  \n"
+                            f"*{alert['transaction']}* — {alert['date']}"
+                        )
+                    with col_action:
+                        reason = st.text_input(
+                            "Reason (optional)",
+                            key=f"txn_reason_{i}",
+                            placeholder="e.g. depth player",
+                            label_visibility="collapsed",
+                        )
+                        if st.button("Dismiss", key=f"txn_dismiss_{i}"):
+                            add_override(
+                                alert["player"],
+                                reason=reason or "Dismissed from projections page",
+                            )
+                            st.rerun()
+                    st.divider()
+        else:
+            st.success("All recent transactions are accounted for in projections.")
+
+        # Manage overrides
+        overrides = load_overrides()
+        if overrides:
+            st.subheader(f"Dismissed Players ({len(overrides)})")
+            st.caption("Players you've chosen not to project. Restore to re-enable alerts.")
+
+            for name, info in sorted(overrides.items()):
+                col_name, col_reason, col_btn = st.columns([3, 3, 1])
+                with col_name:
+                    st.markdown(f"**{name.title()}**")
+                with col_reason:
+                    st.caption(info.get("reason", "") or "No reason given")
+                with col_btn:
+                    if st.button("Restore", key=f"txn_restore_{name}"):
+                        remove_override(name)
+                        st.rerun()
+
+    except Exception as e:
+        st.error(f"Transaction reconciliation error: {e}")
+
+
+# ─── Tab 5: Player Lookup ───
 
 with tab_lookup:
     lookup_date = st.selectbox("Snapshot date", dates, index=0, key="lookup_date")

@@ -194,4 +194,24 @@ if report.llm_usage:
     if usage.get("tracking_note"):
         st.caption(usage["tracking_note"])
 
+# Transaction reconciliation
+try:
+    from scripts.transaction_reconciler import reconcile, add_override
+
+    txn_alerts = reconcile()
+    if txn_alerts:
+        st.subheader(f"Projection Alerts ({len(txn_alerts)})")
+        st.caption("Transactions not yet reflected in your projections. Dismiss if intentionally not projecting.")
+        for i, alert in enumerate(txn_alerts):
+            col_msg, col_btn = st.columns([5, 1])
+            with col_msg:
+                icon = "missing" if alert["type"] == "missing" else "wrong team"
+                st.warning(f"**[{icon.upper()}]** {alert['message']}  \n*{alert['transaction']}* ({alert['date']})")
+            with col_btn:
+                if st.button("Dismiss", key=f"dismiss_txn_{i}"):
+                    add_override(alert["player"], reason="Dismissed from daily report")
+                    st.rerun()
+except Exception:
+    pass  # Non-fatal — don't break the report page
+
 st.caption(f"Generated: {report.generated_at}")
