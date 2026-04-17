@@ -225,8 +225,12 @@ def reconcile(days: int = 30) -> list[dict]:
         dc_info = dc_lookup(player_name) if dc_lookup else None
         dc_pos = dc_info.get("generic_pos") if dc_info else None
 
-        # Skip non-skill positions using depth chart data
+        # Skip non-skill positions, and skip unknown positions (not on any
+        # depth chart AND not in projections = not worth alerting on)
         if dc_pos and dc_pos not in TRACKED_POSITIONS:
+            continue
+        if not dc_pos and dc_lookup:
+            # Have depth chart data but player isn't on any chart — skip
             continue
 
         # Find in projections
