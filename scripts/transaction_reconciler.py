@@ -123,22 +123,29 @@ def save_overrides(overrides: dict):
         json.dump(overrides, f, indent=2, ensure_ascii=False)
 
 
-def add_override(player_name: str, reason: str = ""):
-    """Add an override for a player (intentionally not projected)."""
+def _override_key(player_name: str, transaction: str) -> str:
+    """Build a unique key for a specific transaction dismissal."""
+    return f"{_normalize_name(player_name)}::{transaction.strip()}"
+
+
+def add_override(player_name: str, transaction: str, reason: str = ""):
+    """Dismiss a specific transaction for a player."""
     overrides = load_overrides()
-    overrides[_normalize_name(player_name)] = {
+    key = _override_key(player_name, transaction)
+    overrides[key] = {
+        "player": player_name,
+        "transaction": transaction,
         "reason": reason,
         "added": datetime.now().isoformat(),
     }
     save_overrides(overrides)
 
 
-def remove_override(player_name: str):
-    """Remove an override for a player."""
+def remove_override(key: str):
+    """Remove a specific transaction override by key."""
     overrides = load_overrides()
-    norm = _normalize_name(player_name)
-    if norm in overrides:
-        del overrides[norm]
+    if key in overrides:
+        del overrides[key]
         save_overrides(overrides)
 
 
@@ -199,25 +206,47 @@ def reconcile(days: int = 30) -> list[dict]:
             continue
         seen_players.add(_normalize_name(player_name))
 
-        # Check override
-        if _normalize_name(player_name) in overrides:
+        # Check override (per-transaction, not per-player)
+        txn_title = txn.get("title", "")
+        if _override_key(player_name, txn_title) in overrides:
             continue
 
         new_team_news = _extract_new_team(txn.get("title", ""), txn.get("teams", []))
         new_team_proj = _normalize_team(new_team_news) if new_team_news else None
 
+        # Look up position from depth charts
+        from collectors.depth_chart_collector import lookup_player
+        dc_info = lookup_player(player_name)
+        dc_pos = dc_info.get("generic_pos") if dc_info else None
+
+        # Skip non-skill positions using depth chart data
+        if dc_pos and dc_pos not in TRACKED_POSITIONS:
+            continue
+
         # Find in projections
         matches = _find_player_in_projections(player_name, players)
 
         if not matches:
-            # Player not in projections at all
+            # Player not in projections at all — only alert for skill positions
+            # If we don't have depth chart data, we can't confirm position, so include it
+            pos_label = f" ({dc_pos})" if dc_pos else ""
+            dc_team = dc_info.get("team", "") if dc_info else ""
+            dc_depth = dc_info.get("depth", 0) if dc_info else 0
+
             alerts.append({
                 "type": "missing",
                 "player": player_name,
+                "pos": dc_pos or "unknown",
+                "depth": dc_depth,
+                "dc_team": dc_team,
                 "transaction": txn.get("title", ""),
                 "new_team": new_team_news,
                 "date": txn.get("_date", ""),
-                "message": f"{player_name} signed with {new_team_news} but not found in projections",
+                "message": (
+                    f"{player_name}{pos_label} signed with {new_team_news} "
+                    f"but not found in projections"
+                    + (f" (depth chart: {dc_team} #{dc_depth})" if dc_team else "")
+                ),
             })
             continue
 
@@ -233,11 +262,13 @@ def reconcile(days: int = 30) -> list[dict]:
                     "type": "wrong_team",
                     "player": player_name,
                     "player_id": pid,
+                    "pos": pos,
+                    "depth": dc_info.get("depth", 0) if dc_info else 0,
+                    "dc_team": dc_info.get("team", "") if dc_info else "",
                     "transaction": txn.get("title", ""),
                     "proj_team": proj_team,
                     "new_team": new_team_news,
                     "new_team_proj": new_team_proj,
-                    "pos": pos,
                     "date": txn.get("_date", ""),
                     "message": (
                         f"{player_name} ({pos}) moved to {new_team_news} "

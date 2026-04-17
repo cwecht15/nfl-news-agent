@@ -205,11 +205,14 @@ try:
         for i, alert in enumerate(txn_alerts):
             col_msg, col_btn = st.columns([5, 1])
             with col_msg:
-                icon = "missing" if alert["type"] == "missing" else "wrong team"
-                st.warning(f"**[{icon.upper()}]** {alert['message']}  \n*{alert['transaction']}* ({alert['date']})")
+                icon = "MISSING" if alert["type"] == "missing" else "WRONG TEAM"
+                pos = alert.get("pos", "")
+                depth = alert.get("depth", 0)
+                depth_label = f" | Depth #{depth}" if depth else ""
+                st.warning(f"**[{icon}]** {alert['message']}  \n*{alert['transaction']}* ({alert['date']})")
             with col_btn:
                 if st.button("Dismiss", key=f"dismiss_txn_{i}"):
-                    add_override(alert["player"], reason="Dismissed from daily report")
+                    add_override(alert["player"], alert.get("transaction", ""), reason="Dismissed from daily report")
                     st.rerun()
 except Exception:
     pass  # Non-fatal — don't break the report page

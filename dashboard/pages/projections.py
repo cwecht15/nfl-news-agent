@@ -459,8 +459,11 @@ with tab_txn:
                 with st.container():
                     col_info, col_action = st.columns([4, 1])
                     with col_info:
+                        pos = alert.get("pos", "")
+                        depth = alert.get("depth", 0)
+                        depth_str = f" (Depth #{depth})" if depth else ""
                         st.markdown(
-                            f"**[{alert_type}]** {alert['message']}  \n"
+                            f"**[{alert_type}]** {alert['message']}{depth_str}  \n"
                             f"*{alert['transaction']}* — {alert['date']}"
                         )
                     with col_action:
@@ -473,6 +476,7 @@ with tab_txn:
                         if st.button("Dismiss", key=f"txn_dismiss_{i}"):
                             add_override(
                                 alert["player"],
+                                alert.get("transaction", ""),
                                 reason=reason or "Dismissed from projections page",
                             )
                             st.rerun()
@@ -483,18 +487,20 @@ with tab_txn:
         # Manage overrides
         overrides = load_overrides()
         if overrides:
-            st.subheader(f"Dismissed Players ({len(overrides)})")
-            st.caption("Players you've chosen not to project. Restore to re-enable alerts.")
+            st.subheader(f"Dismissed Transactions ({len(overrides)})")
+            st.caption("Specific transactions you've dismissed. Restore to re-enable the alert. Future transactions for the same player will still be flagged.")
 
-            for name, info in sorted(overrides.items()):
-                col_name, col_reason, col_btn = st.columns([3, 3, 1])
+            for key, info in sorted(overrides.items(), key=lambda x: x[1].get("added", ""), reverse=True):
+                col_name, col_txn, col_reason, col_btn = st.columns([2, 3, 2, 1])
                 with col_name:
-                    st.markdown(f"**{name.title()}**")
+                    st.markdown(f"**{info.get('player', key.split('::')[0]).title()}**")
+                with col_txn:
+                    st.caption(info.get("transaction", ""))
                 with col_reason:
                     st.caption(info.get("reason", "") or "No reason given")
                 with col_btn:
-                    if st.button("Restore", key=f"txn_restore_{name}"):
-                        remove_override(name)
+                    if st.button("Restore", key=f"txn_restore_{key}"):
+                        remove_override(key)
                         st.rerun()
 
     except Exception as e:
