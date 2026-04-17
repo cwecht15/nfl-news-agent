@@ -991,10 +991,35 @@ def summarize_analysis(
         reverse=True,
     )
 
+    # Ensure source diversity — don't let high-volume feeds crowd out
+    # quality sources like The Athletic. Take at least 3 from each source,
+    # then fill remaining slots by recency.
+    selected_news: list[NewsItem] = []
+    source_counts: dict[str, int] = {}
+    MIN_PER_SOURCE = 3
+    remaining: list[NewsItem] = []
+
+    for item in ordered_news:
+        src = item.source
+        count = source_counts.get(src, 0)
+        if count < MIN_PER_SOURCE:
+            selected_news.append(item)
+            source_counts[src] = count + 1
+        else:
+            remaining.append(item)
+
+    # Fill up to limit with remaining items by recency
+    slots_left = ANALYSIS_NEWS_LIMIT - len(selected_news)
+    if slots_left > 0:
+        selected_news.extend(remaining[:slots_left])
+
+    # Re-sort by recency for the prompt
+    selected_news.sort(key=lambda item: item.published, reverse=True)
+
     headlines = []
     numbered_sources: list[dict] = []
     source_num = 1
-    for item in ordered_news[:ANALYSIS_NEWS_LIMIT]:
+    for item in selected_news:
         line = _build_news_context_line(item, detail_chars=280)
         headlines.append(f"[{source_num}] {line}")
         numbered_sources.append({

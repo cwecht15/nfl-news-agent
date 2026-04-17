@@ -105,11 +105,42 @@ for key, section_data in report.sections.items():
 
     with st.expander(f"{title}{badge}", expanded=True):
         display_summary = _filter_paragraphs(summary, search_query) if search_query else summary
-        st.markdown(display_summary)
 
         # Numbered sources (analysis section with inline citations)
         numbered_sources = section_data.get("numbered_sources")
         if numbered_sources:
+            # Build a lookup from source number to URL
+            source_url_map = {}
+            for src in numbered_sources:
+                num = src.get("num", "")
+                url = src.get("url", "")
+                title_text = src.get("title", "Source")
+                source_name = src.get("source", "")
+                if url:
+                    source_url_map[str(num)] = (url, title_text, source_name)
+
+            # Replace inline [N] citations with clickable links
+            import re as _re
+            def _replace_citation(match):
+                nums = match.group(1)
+                parts = []
+                for num_str in _re.split(r"[,\s]+", nums):
+                    num_str = num_str.strip()
+                    if num_str in source_url_map:
+                        url, title_text, _ = source_url_map[num_str]
+                        parts.append(f"[[{num_str}]]({url})")
+                    elif num_str:
+                        parts.append(f"[{num_str}]")
+                return " ".join(parts)
+
+            linked_summary = _re.sub(
+                r"\[(\d+(?:[,\s]+\d+)*)\]",
+                _replace_citation,
+                display_summary,
+            )
+            st.markdown(linked_summary, unsafe_allow_html=True)
+
+            # Source reference list
             st.caption("Sources")
             lines = []
             for src in numbered_sources:
@@ -119,11 +150,12 @@ for key, section_data in report.sections.items():
                 url = src.get("url", "")
                 suffix = f" ({source_name})" if source_name else ""
                 if url:
-                    lines.append(f"[{num}] [{title_text}]({url}){suffix}")
+                    lines.append(f"**[{num}]** [{title_text}]({url}){suffix}")
                 else:
-                    lines.append(f"[{num}] {title_text}{suffix}")
+                    lines.append(f"**[{num}]** {title_text}{suffix}")
             st.markdown("\n\n".join(lines))
         else:
+            st.markdown(display_summary)
             render_sources(sources)
 
 # Team highlights
