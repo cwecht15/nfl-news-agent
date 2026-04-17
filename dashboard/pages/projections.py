@@ -71,7 +71,7 @@ if not dates:
     st.warning("No projection snapshots yet. Run `python scripts/snapshot_projections.py` to create one.")
     st.stop()
 
-tab_changes, tab_lookup, tab_history = st.tabs(["Today's Changes", "Player Lookup", "Player History"])
+tab_changes, tab_lookup, tab_history, tab_teams = st.tabs(["Today's Changes", "Player Lookup", "Player History", "Team Projections"])
 
 # ─── Tab 1: Today's Changes ───
 
@@ -328,3 +328,110 @@ with tab_history:
                         for m in selected_metrics
                     }, index=[d for d, _ in history])
                     st.line_chart(chart_df)
+
+
+# ─── Tab 4: Team Projections ───
+
+with tab_teams:
+    team_date = st.selectbox("Snapshot date", dates, index=0, key="team_date")
+    team_snapshot = _load_snapshot(team_date, "teams")
+
+    if not team_snapshot:
+        st.warning("No team snapshot for this date.")
+        st.stop()
+
+    team_list = sorted(team_snapshot.keys())
+    selected_team = st.selectbox("Select team", team_list)
+
+    if selected_team and selected_team in team_snapshot:
+        metrics = team_snapshot[selected_team].get("metrics", {})
+
+        # Show adjustments at the top
+        adjs = {k: v for k, v in metrics.items() if "adj" in k.lower() and v is not None and v != 0}
+        if adjs:
+            st.subheader("Active Adjustments")
+            adj_cols = st.columns(min(len(adjs), 4))
+            for i, (k, v) in enumerate(adjs.items()):
+                adj_cols[i % len(adj_cols)].metric(k, v)
+
+        # Key stats
+        st.subheader("Team Projections")
+        key_team_stats = [
+            "Plays/G", "Pass Rate", "DB/G", "Des RuAtt/G",
+            "Proj Drives/G", "TDs/Drive",
+            "Pass Yds/G", "Pass TDs/G", "Pass YPA", "CMP Rate", "INTs/G",
+            "Des Rush Yds/G", "Des YPC", "Des Rush TDs/G",
+            "Sacks Allowed/G", "Scrm/G", "Scrm Yds/G",
+        ]
+
+        cols = st.columns(4)
+        shown = 0
+        for stat in key_team_stats:
+            val = metrics.get(stat)
+            if val is not None:
+                fmt = f"{val:.1f}%" if "rate" in stat.lower() else (f"{val:.2f}" if isinstance(val, float) else str(val))
+                cols[shown % 4].metric(stat, fmt)
+                shown += 1
+
+        # Positional route/target shares
+        share_stats = {
+            k: v for k, v in metrics.items()
+            if any(x in k for x in ["Routes/DB", "TGT Share", "Share"])
+            and v is not None and "adj" not in k.lower()
+        }
+        if share_stats:
+            st.subheader("Positional Shares")
+            share_cols = st.columns(min(len(share_stats), 4))
+            for i, (k, v) in enumerate(share_stats.items()):
+                share_cols[i % len(share_cols)].metric(k, f"{v:.1f}%")
+
+        # Full metrics
+        with st.expander("All metrics"):
+            all_data = [{"Metric": k, "Value": v} for k, v in sorted(metrics.items()) if v is not None]
+            st.dataframe(all_data, use_container_width=True, hide_index=True)
+
+    # Team history across snapshots
+    if len(dates) >= 2 and selected_team:
+        st.subheader(f"{selected_team} — History")
+
+        team_history = []
+        for d in sorted(dates):
+            snap = _load_snapshot(d, "teams")
+            if snap and selected_team in snap:
+                team_history.append((d, snap[selected_team]))
+
+        if len(team_history) >= 2:
+            history_metrics = ["Plays/G", "Pass Rate", "Pass Yds/G", "Pass TDs/G",
+                               "Des Rush Yds/G", "Des Rush TDs/G", "TDs/Drive"]
+
+            hist_data = {"Date": [d for d, _ in team_history]}
+            for m in history_metrics:
+                hist_data[m] = [t.get("metrics", {}).get(m) for _, t in team_history]
+            st.dataframe(hist_data, use_container_width=True, hide_index=True)
+
+            # Adjustment history
+            all_team_adj = set()
+            for _, t in team_history:
+                for k, v in t.get("metrics", {}).items():
+                    if "adj" in k.lower() and v is not None and v != 0:
+                        all_team_adj.add(k)
+            if all_team_adj:
+                st.markdown("**Adjustment History:**")
+                adj_hist = {"Date": [d for d, _ in team_history]}
+                for k in sorted(all_team_adj):
+                    adj_hist[k] = [t.get("metrics", {}).get(k) for _, t in team_history]
+                st.dataframe(adj_hist, use_container_width=True, hide_index=True)
+
+            selected_team_metrics = st.multiselect(
+                "Chart metrics",
+                history_metrics,
+                default=history_metrics[:3],
+                key="team_chart",
+            )
+            if selected_team_metrics:
+                import pandas as pd
+                chart_df = pd.DataFrame({
+                    m: [t.get("metrics", {}).get(m) for _, t in team_history]
+                    for m in selected_team_metrics
+                }, index=[d for d, _ in team_history])
+                st.line_chart(chart_df)
