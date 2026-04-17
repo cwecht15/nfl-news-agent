@@ -25,6 +25,22 @@ def _matches_search(text: str, query: str) -> bool:
     return query.lower() in text.lower()
 
 
+def _filter_paragraphs(summary: str, query: str) -> str:
+    """For long summaries, return only paragraphs containing the query.
+
+    Short summaries (under 5 paragraphs) are returned in full.
+    """
+    paragraphs = summary.split("\n\n")
+    if len(paragraphs) <= 4:
+        return summary
+
+    query_lower = query.lower()
+    matching = [p for p in paragraphs if query_lower in p.lower()]
+    if not matching:
+        return summary
+    return "\n\n".join(matching)
+
+
 # Date selector
 available = list_available_reports()
 
@@ -88,7 +104,8 @@ for key, section_data in report.sections.items():
     badge = f" ({count} items)" if count else ""
 
     with st.expander(f"{title}{badge}", expanded=True):
-        st.markdown(summary)
+        display_summary = _filter_paragraphs(summary, search_query) if search_query else summary
+        st.markdown(display_summary)
         render_sources(sources)
 
 # Team highlights
