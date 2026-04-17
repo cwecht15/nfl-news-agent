@@ -193,6 +193,14 @@ def reconcile(days: int = 30) -> list[dict]:
 
     transactions = _collect_recent_transactions(days)
     overrides = load_overrides()
+
+    # Load depth chart data for position filtering
+    try:
+        from collectors.depth_chart_collector import lookup_player as dc_lookup
+    except Exception:
+        dc_lookup = None
+        logger.warning("Depth chart collector not available — position filtering disabled.")
+
     alerts = []
     seen_players = set()  # dedupe by player name
 
@@ -214,9 +222,7 @@ def reconcile(days: int = 30) -> list[dict]:
         new_team_news = _extract_new_team(txn.get("title", ""), txn.get("teams", []))
         new_team_proj = _normalize_team(new_team_news) if new_team_news else None
 
-        # Look up position from depth charts
-        from collectors.depth_chart_collector import lookup_player
-        dc_info = lookup_player(player_name)
+        dc_info = dc_lookup(player_name) if dc_lookup else None
         dc_pos = dc_info.get("generic_pos") if dc_info else None
 
         # Skip non-skill positions using depth chart data
