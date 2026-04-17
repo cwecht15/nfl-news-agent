@@ -47,6 +47,20 @@ PLAYER_SLOT_COL = 4      # col E = Slot (e.g. "ARZ QB1")
 PLAYER_COL_START = 7    # col H (0-indexed)
 PLAYER_COL_END = 205    # col GW + 1 (exclusive)
 
+# Fantasy points sheet config (Preseason_Projections)
+FANTASY_SHEET = "Preseason_Projections"
+FANTASY_HEADER_ROW = 2       # row 2 has headers
+FANTASY_DATA_START = 3       # data starts row 3
+FANTASY_GSIS_COL = 2         # col C = GSIS ID (matches player_id)
+FANTASY_NAME_COL = 4         # col E = Name
+FANTASY_POS_COL = 5          # col F = POS
+FANTASY_TEAM_COL = 6         # col G = TEAM
+FANTASY_HALF_PPR_COL = 9     # col J = Half PPR
+FANTASY_PPR_COL = 10         # col K = PPR
+FANTASY_GAMES_COL = 11       # col L = Games
+FANTASY_PPRG_COL = 12        # col M = PPR/G
+FANTASY_RANK_COL = 13        # col N = POS RANK
+
 # Team sheet config (Working_Tm_Proj)
 TEAM_SHEET = "Working_Tm_Proj"
 # Team columns are read dynamically from the header row (row 1).
@@ -263,6 +277,182 @@ def snapshot_teams(gc: gspread.Client, date_str: str) -> dict:
     return teams
 
 
+def snapshot_fantasy(gc: gspread.Client, date_str: str) -> dict:
+    """Take a snapshot of fantasy point projections and position ranks."""
+    sheet = gc.open_by_key(SPREADSHEET_ID)
+    ws = sheet.worksheet(FANTASY_SHEET)
+    all_rows = ws.get_all_values()
+
+    players = {}
+    for row in all_rows[FANTASY_DATA_START - 1:]:
+        if len(row) <= FANTASY_RANK_COL:
+            continue
+        gsis_id = row[FANTASY_GSIS_COL].strip()
+        if not gsis_id:
+            continue
+
+        name = row[FANTASY_NAME_COL].strip()
+        pos = row[FANTASY_POS_COL].strip()
+        team = row[FANTASY_TEAM_COL].strip()
+
+        players[gsis_id] = {
+            "name": name,
+            "pos": pos,
+            "team": team,
+            "half_ppr": _safe_float(row[FANTASY_HALF_PPR_COL]),
+            "ppr": _safe_float(row[FANTASY_PPR_COL]),
+            "games": _safe_float(row[FANTASY_GAMES_COL]),
+            "ppr_g": _safe_float(row[FANTASY_PPRG_COL]),
+            "pos_rank": row[FANTASY_RANK_COL].strip(),
+        }
+
+    path = _snapshot_path(date_str, "fantasy")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(players, f, indent=2, ensure_ascii=False)
+
+    logger.info("Saved fantasy snapshot: %d players to %s", len(players), path)
+    return players
+
+
+def _parse_rank_number(rank_str: str) -> int | None:
+    """Extract numeric rank from a string like 'QB3' or 'RB12'."""
+    import re
+    m = re.search(r"(\d+)$", str(rank_str))
+    return int(m.group(1)) if m else None
+
+
+def diff_fantasy(
+    current: dict,
+    previous: dict,
+    adjusted_ids: set[str] | None = None,
+) -> list[dict]:
+    """Compare fantasy snapshots. Only reports rank changes for adjusted players.
+
+    If adjusted_ids is None, determines adjusted players by comparing
+    the current and previous player working projection snapshots.
+    """
+    if adjusted_ids is None:
+        # Figure out which players had adjustment changes
+        cur_players = _latest_snapshot("players")
+        # Find the second-latest snapshot for players
+        if SNAPSHOT_DIR.exists():
+            dates = sorted(
+                [d.name for d in SNAPSHOT_DIR.iterdir() if d.is_dir()],
+                reverse=True,
+            )
+            prev_players = None
+            for d in dates[1:]:
+                p = SNAPSHOT_DIR / d / "players.json"
+                if p.exists():
+                    with open(p, encoding="utf-8") as f:
+                        prev_players = json.load(f)
+                    break
+
+            if cur_players and prev_players:
+                adjusted_ids = set()
+                for pid, cur_data in cur_players.items():
+                    prev_data = prev_players.get(pid)
+                    if not prev_data:
+                        adjusted_ids.add(pid)
+                        continue
+                    cur_m = cur_data.get("metrics", {})
+                    prev_m = prev_data.get("metrics", {})
+                    for k in cur_m:
+                        if "adj" in k.lower() and cur_m.get(k) != prev_m.get(k):
+                            adjusted_ids.add(pid)
+                            break
+            else:
+                adjusted_ids = set()
+        else:
+            adjusted_ids = set()
+
+    changes = []
+    for pid, cur in current.items():
+        prev = previous.get(pid)
+        if not prev:
+            continue
+
+        cur_ppr = cur.get("ppr")
+        prev_ppr = prev.get("ppr")
+        cur_half = cur.get("half_ppr")
+        prev_half = prev.get("half_ppr")
+        cur_pprg = cur.get("ppr_g")
+        prev_pprg = prev.get("ppr_g")
+        cur_rank = cur.get("pos_rank", "")
+        prev_rank = prev.get("pos_rank", "")
+
+        has_point_change = (cur_ppr != prev_ppr or cur_half != prev_half
+                           or cur_pprg != prev_pprg)
+        has_rank_change = cur_rank != prev_rank
+
+        if not has_point_change and not has_rank_change:
+            continue
+
+        # Only include rank context for players whose adjustments changed
+        include_rank = pid in adjusted_ids
+
+        change = {
+            "key": pid,
+            "label": cur.get("name", pid),
+            "type": "fantasy_change",
+            "pos": cur.get("pos", ""),
+            "team": cur.get("team", ""),
+        }
+
+        if cur_ppr != prev_ppr:
+            change["ppr_old"] = prev_ppr
+            change["ppr_new"] = cur_ppr
+        if cur_half != prev_half:
+            change["half_ppr_old"] = prev_half
+            change["half_ppr_new"] = cur_half
+        if cur_pprg != prev_pprg:
+            change["ppr_g_old"] = prev_pprg
+            change["ppr_g_new"] = cur_pprg
+        if include_rank and has_rank_change:
+            change["rank_old"] = prev_rank
+            change["rank_new"] = cur_rank
+            change["adjusted"] = True
+
+            # Build rank neighbors (who they were near before and after)
+            change["neighbors_old"] = _get_rank_neighbors(
+                previous, prev_rank, cur.get("pos", ""), pid,
+            )
+            change["neighbors_new"] = _get_rank_neighbors(
+                current, cur_rank, cur.get("pos", ""), pid,
+            )
+
+        changes.append(change)
+
+    return changes
+
+
+def _get_rank_neighbors(
+    snapshot: dict, rank_str: str, pos: str, exclude_pid: str, window: int = 2,
+) -> list[dict]:
+    """Get players ranked near a given rank within the same position."""
+    rank_num = _parse_rank_number(rank_str)
+    if rank_num is None:
+        return []
+
+    neighbors = []
+    for pid, data in snapshot.items():
+        if pid == exclude_pid or data.get("pos", "") != pos:
+            continue
+        other_rank = _parse_rank_number(data.get("pos_rank", ""))
+        if other_rank is None:
+            continue
+        if abs(other_rank - rank_num) <= window:
+            neighbors.append({
+                "name": data.get("name", pid),
+                "rank": data.get("pos_rank", ""),
+                "ppr": data.get("ppr"),
+                "ppr_g": data.get("ppr_g"),
+            })
+
+    neighbors.sort(key=lambda x: _parse_rank_number(x["rank"]) or 999)
+    return neighbors
+
+
 def diff_snapshots(current: dict, previous: dict, kind: str) -> list[dict]:
     """Compare two snapshots and return a list of changes."""
     changes = []
@@ -384,6 +574,16 @@ def run_snapshot():
         write_changelog(player_changes, date_str, "player")
     else:
         logger.info("No previous player snapshot — this is the baseline.")
+
+    # Fantasy points
+    prev_fantasy = _latest_snapshot("fantasy")
+    cur_fantasy = snapshot_fantasy(gc, date_str)
+    if prev_fantasy:
+        fantasy_changes = diff_fantasy(cur_fantasy, prev_fantasy)
+        logger.info("Fantasy changes: %d players with point/rank changes", len(fantasy_changes))
+        write_changelog(fantasy_changes, date_str, "fantasy")
+    else:
+        logger.info("No previous fantasy snapshot — this is the baseline.")
 
     # Teams
     prev_teams = _latest_snapshot("teams")

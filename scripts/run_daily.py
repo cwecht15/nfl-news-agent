@@ -305,28 +305,39 @@ def run():
             _get_client as _get_sheets_client,
             snapshot_players,
             snapshot_teams,
+            snapshot_fantasy,
             diff_snapshots,
+            diff_fantasy,
             write_changelog,
             _latest_snapshot,
         )
         gc = _get_sheets_client()
         prev_players = _latest_snapshot("players")
         cur_players = snapshot_players(gc, date_str)
+
+        prev_fantasy = _latest_snapshot("fantasy")
+        cur_fantasy = snapshot_fantasy(gc, date_str)
+
         prev_teams = _latest_snapshot("teams")
         cur_teams = snapshot_teams(gc, date_str)
 
         player_changes = diff_snapshots(cur_players, prev_players, "player") if prev_players else []
+        fantasy_changes = diff_fantasy(cur_fantasy, prev_fantasy) if prev_fantasy else []
         team_changes = diff_snapshots(cur_teams, prev_teams, "team") if prev_teams else []
         if player_changes:
             write_changelog(player_changes, date_str, "player")
+        if fantasy_changes:
+            write_changelog(fantasy_changes, date_str, "fantasy")
         if team_changes:
             write_changelog(team_changes, date_str, "team")
 
         adj_count = len([c for c in player_changes if "Adj" in c.get("metric", "")])
         proj_count = len([c for c in player_changes if c.get("type") == "metric_change" and "Adj" not in c.get("metric", "")])
+        rank_changes = len([c for c in fantasy_changes if c.get("adjusted")])
         logger.info(
-            "Projection snapshot: %d players, %d teams | %d adj tweaks, %d projection shifts, %d team changes",
-            len(cur_players), len(cur_teams), adj_count, proj_count, len(team_changes),
+            "Projection snapshot: %d players, %d fantasy, %d teams | %d adj tweaks, %d projection shifts, %d rank changes, %d team changes",
+            len(cur_players), len(cur_fantasy), len(cur_teams),
+            adj_count, proj_count, rank_changes, len(team_changes),
         )
     except Exception as e:
         logger.warning("Projection snapshot failed (non-fatal): %s", e)

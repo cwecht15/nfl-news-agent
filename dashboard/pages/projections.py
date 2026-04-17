@@ -71,7 +71,10 @@ if not dates:
     st.warning("No projection snapshots yet. Run `python scripts/snapshot_projections.py` to create one.")
     st.stop()
 
-tab_changes, tab_lookup, tab_history, tab_teams = st.tabs(["Today's Changes", "Player Lookup", "Player History", "Team Projections"])
+tab_changes, tab_rankings, tab_weekly, tab_lookup, tab_history, tab_teams = st.tabs([
+    "Today's Changes", "Fantasy Rankings", "Weekly Summary",
+    "Player Lookup", "Player History", "Team Projections",
+])
 
 # ─── Tab 1: Today's Changes ───
 
@@ -169,7 +172,272 @@ with tab_changes:
             st.dataframe(team_data, use_container_width=True, hide_index=True)
 
 
-# ─── Tab 2: Player Lookup ───
+# ─── Tab 2: Fantasy Rankings ───
+
+with tab_rankings:
+    rank_date = st.selectbox("Snapshot date", dates, index=0, key="rank_date")
+    fantasy = _load_snapshot(rank_date, "fantasy")
+
+    if not fantasy:
+        st.warning("No fantasy snapshot for this date. Run the pipeline to generate one.")
+    else:
+        # Load changelog for fantasy changes on this date
+        fantasy_day = [c for c in _load_changelog()
+                       if c.get("date") == rank_date and c.get("kind") == "fantasy"]
+
+        # Show adjusted players with rank changes
+        adjusted_changes = [c for c in fantasy_day if c.get("type") == "fantasy_change"]
+
+        # We need to reconstruct rank changes from the changelog
+        # The changelog stores fantasy changes as individual rows per field
+        # Let's load the raw fantasy snapshots and compare directly
+        prev_dates = [d for d in sorted(_get_snapshot_dates()) if d < rank_date]
+        prev_fantasy = _load_snapshot(prev_dates[-1], "fantasy") if prev_dates else None
+
+        if prev_fantasy:
+            # Find players whose adjustments changed (check player snapshots)
+            cur_players_snap = _load_snapshot(rank_date, "players")
+            prev_players_snap = _load_snapshot(prev_dates[-1], "players") if prev_dates else None
+
+            adjusted_ids = set()
+            if cur_players_snap and prev_players_snap:
+                for pid, cur_p in cur_players_snap.items():
+                    prev_p = prev_players_snap.get(pid)
+                    if not prev_p:
+                        adjusted_ids.add(pid)
+                        continue
+                    cur_m = cur_p.get("metrics", {})
+                    prev_m = prev_p.get("metrics", {})
+                    for k in cur_m:
+                        if "adj" in k.lower() and cur_m.get(k) != prev_m.get(k):
+                            adjusted_ids.add(pid)
+                            break
+
+            if adjusted_ids:
+                st.subheader("Rank Changes (Adjusted Players Only)")
+                st.caption("Only showing rank movement for players whose projection adjustments changed.")
+
+                for pid in adjusted_ids:
+                    cur_f = fantasy.get(pid)
+                    prev_f = prev_fantasy.get(pid)
+                    if not cur_f or not prev_f:
+                        continue
+
+                    cur_rank = cur_f.get("pos_rank", "")
+                    prev_rank = prev_f.get("pos_rank", "")
+                    if cur_rank == prev_rank:
+                        continue
+
+                    name = cur_f.get("name", pid)
+                    pos = cur_f.get("pos", "")
+                    team = cur_f.get("team", "")
+                    cur_ppr = cur_f.get("ppr")
+                    prev_ppr = prev_f.get("ppr")
+                    cur_pprg = cur_f.get("ppr_g")
+                    prev_pprg = prev_f.get("ppr_g")
+
+                    # Rank direction
+                    import re
+                    cur_num = int(m.group(1)) if (m := re.search(r"(\d+)$", cur_rank)) else None
+                    prev_num = int(m.group(1)) if (m := re.search(r"(\d+)$", prev_rank)) else None
+                    if cur_num and prev_num:
+                        direction = prev_num - cur_num  # positive = moved up
+                        arrow = f"{'up' if direction > 0 else 'down'} {abs(direction)}"
+                    else:
+                        arrow = ""
+
+                    with st.expander(f"{name} ({team} {pos}) — {prev_rank} -> {cur_rank} ({arrow})", expanded=True):
+                        cols = st.columns(4)
+                        cols[0].metric("Rank", cur_rank, f"{direction:+d}" if cur_num and prev_num else None)
+                        if cur_ppr is not None and prev_ppr is not None:
+                            cols[1].metric("PPR", f"{cur_ppr:.1f}", f"{cur_ppr - prev_ppr:+.1f}")
+                        if cur_pprg is not None and prev_pprg is not None:
+                            cols[2].metric("PPR/G", f"{cur_pprg:.1f}", f"{cur_pprg - prev_pprg:+.1f}")
+                        cur_half = cur_f.get("half_ppr")
+                        prev_half = prev_f.get("half_ppr")
+                        if cur_half is not None and prev_half is not None:
+                            cols[3].metric("Half PPR", f"{cur_half:.1f}", f"{cur_half - prev_half:+.1f}")
+
+                        # Show who they were ranked near before and after
+                        def _neighbors(snap, rank_str, pos, exclude_pid, window=2):
+                            rank_num = int(m.group(1)) if (m := re.search(r"(\d+)$", rank_str)) else None
+                            if not rank_num:
+                                return []
+                            result = []
+                            for p, d in snap.items():
+                                if p == exclude_pid or d.get("pos", "") != pos:
+                                    continue
+                                other = int(m.group(1)) if (m := re.search(r"(\d+)$", d.get("pos_rank", ""))) else None
+                                if other and abs(other - rank_num) <= window:
+                                    result.append({"Name": d["name"], "Rank": d["pos_rank"],
+                                                   "PPR": d.get("ppr"), "PPR/G": d.get("ppr_g")})
+                            result.sort(key=lambda x: int(m.group(1)) if (m := re.search(r"(\d+)$", x["Rank"])) else 999)
+                            return result
+
+                        col_before, col_after = st.columns(2)
+                        with col_before:
+                            st.markdown(f"**Previously near ({prev_rank}):**")
+                            neighbors_old = _neighbors(prev_fantasy, prev_rank, pos, pid)
+                            if neighbors_old:
+                                st.dataframe(neighbors_old, use_container_width=True, hide_index=True)
+                        with col_after:
+                            st.markdown(f"**Now near ({cur_rank}):**")
+                            neighbors_new = _neighbors(fantasy, cur_rank, pos, pid)
+                            if neighbors_new:
+                                st.dataframe(neighbors_new, use_container_width=True, hide_index=True)
+
+            else:
+                st.info("No adjustment changes detected — no rank movements to show.")
+        else:
+            st.info("Need at least 2 snapshots to show rank changes.")
+
+        # Full rankings table
+        st.subheader("Current Rankings")
+        pos_filter = st.multiselect("Filter by position", ["QB", "RB", "WR", "TE"], key="rank_pos")
+
+        rank_data = []
+        for pid, data in fantasy.items():
+            if pos_filter and data.get("pos") not in pos_filter:
+                continue
+            rank_data.append({
+                "Rank": data.get("pos_rank", ""),
+                "Name": data.get("name", ""),
+                "Team": data.get("team", ""),
+                "Pos": data.get("pos", ""),
+                "PPR": data.get("ppr"),
+                "Half PPR": data.get("half_ppr"),
+                "Games": data.get("games"),
+                "PPR/G": data.get("ppr_g"),
+            })
+
+        import re as _re
+        rank_data.sort(key=lambda x: int(m.group(1)) if (m := _re.search(r"(\d+)$", x.get("Rank", ""))) else 9999)
+        st.dataframe(rank_data, use_container_width=True, hide_index=True)
+
+
+# ─── Tab 3: Weekly Summary ───
+
+with tab_weekly:
+    st.subheader("Weekly Projection Summary")
+
+    if len(dates) < 2:
+        st.info("Need at least 2 snapshots to generate a weekly summary.")
+    else:
+        # Find dates in the last 7 days
+        from datetime import datetime as _dt, timedelta as _td
+        cutoff = (_dt.now() - _td(days=7)).strftime("%Y-%m-%d")
+        week_dates = sorted([d for d in dates if d >= cutoff])
+
+        if len(week_dates) < 2:
+            st.info("Not enough snapshots in the last 7 days for a weekly summary.")
+        else:
+            oldest = week_dates[0]
+            newest = week_dates[-1]
+            st.markdown(f"Comparing **{oldest}** to **{newest}** ({len(week_dates)} snapshots)")
+
+            old_fantasy = _load_snapshot(oldest, "fantasy")
+            new_fantasy = _load_snapshot(newest, "fantasy")
+            old_players = _load_snapshot(oldest, "players")
+            new_players = _load_snapshot(newest, "players")
+
+            if old_fantasy and new_fantasy:
+                # Find all adjustment changes across the week
+                adjusted_ids = set()
+                if old_players and new_players:
+                    for pid, cur_p in new_players.items():
+                        prev_p = old_players.get(pid)
+                        if not prev_p:
+                            continue
+                        cur_m = cur_p.get("metrics", {})
+                        prev_m = prev_p.get("metrics", {})
+                        for k in cur_m:
+                            if "adj" in k.lower() and cur_m.get(k) != prev_m.get(k):
+                                adjusted_ids.add(pid)
+                                break
+
+                # Biggest PPR movers (adjusted players only)
+                movers = []
+                for pid in adjusted_ids:
+                    cur_f = new_fantasy.get(pid)
+                    old_f = old_fantasy.get(pid)
+                    if not cur_f or not old_f:
+                        continue
+                    cur_ppr = cur_f.get("ppr")
+                    old_ppr = old_f.get("ppr")
+                    if cur_ppr is None or old_ppr is None:
+                        continue
+                    delta = cur_ppr - old_ppr
+                    if abs(delta) < 0.1:
+                        continue
+
+                    import re as _re2
+                    cur_rank = cur_f.get("pos_rank", "")
+                    old_rank = old_f.get("pos_rank", "")
+                    cur_num = int(m.group(1)) if (m := _re2.search(r"(\d+)$", cur_rank)) else None
+                    old_num = int(m.group(1)) if (m := _re2.search(r"(\d+)$", old_rank)) else None
+                    rank_delta = old_num - cur_num if cur_num and old_num else None
+
+                    movers.append({
+                        "Name": cur_f.get("name", pid),
+                        "Pos": cur_f.get("pos", ""),
+                        "Team": cur_f.get("team", ""),
+                        "PPR (old)": f"{old_ppr:.1f}",
+                        "PPR (new)": f"{cur_ppr:.1f}",
+                        "PPR Delta": f"{delta:+.1f}",
+                        "PPR/G": f"{cur_f.get('ppr_g', 0):.1f}",
+                        "Rank": f"{old_rank} -> {cur_rank}",
+                        "Rank Delta": f"{rank_delta:+d}" if rank_delta else "",
+                        "_sort": abs(delta),
+                    })
+
+                if movers:
+                    movers.sort(key=lambda x: x["_sort"], reverse=True)
+
+                    # Risers
+                    risers = [m for m in movers if float(m["PPR Delta"]) > 0]
+                    fallers = [m for m in movers if float(m["PPR Delta"]) < 0]
+
+                    if risers:
+                        st.subheader(f"Risers ({len(risers)})")
+                        display_risers = [{k: v for k, v in m.items() if k != "_sort"} for m in risers]
+                        st.dataframe(display_risers, use_container_width=True, hide_index=True)
+
+                    if fallers:
+                        st.subheader(f"Fallers ({len(fallers)})")
+                        display_fallers = [{k: v for k, v in m.items() if k != "_sort"} for m in fallers]
+                        st.dataframe(display_fallers, use_container_width=True, hide_index=True)
+
+                    if not risers and not fallers:
+                        st.info("No significant PPR changes among adjusted players this week.")
+                else:
+                    st.info("No adjustment changes this week.")
+
+                # Adjustment summary
+                if adjusted_ids and old_players and new_players:
+                    st.subheader("Adjustments Made This Week")
+                    adj_summary = []
+                    for pid in adjusted_ids:
+                        cur_p = new_players.get(pid, {})
+                        prev_p = old_players.get(pid, {})
+                        cur_m = cur_p.get("metrics", {})
+                        prev_m = prev_p.get("metrics", {})
+                        for k in sorted(cur_m.keys()):
+                            if "adj" in k.lower() and cur_m.get(k) != prev_m.get(k):
+                                adj_summary.append({
+                                    "Player": cur_p.get("name", pid),
+                                    "Pos": cur_p.get("pos", ""),
+                                    "Team": cur_p.get("team", ""),
+                                    "Adjustment": k,
+                                    "Old": prev_m.get(k),
+                                    "New": cur_m.get(k),
+                                })
+                    if adj_summary:
+                        st.dataframe(adj_summary, use_container_width=True, hide_index=True)
+            else:
+                st.warning("Missing fantasy snapshots for weekly comparison.")
+
+
+# ─── Tab 4: Player Lookup ───
 
 with tab_lookup:
     lookup_date = st.selectbox("Snapshot date", dates, index=0, key="lookup_date")
@@ -233,6 +501,18 @@ with tab_lookup:
                             cols[shown % len(cols)].metric(stat, f"{val:.2f}" if isinstance(val, float) else val)
                             shown += 1
 
+                    # Fantasy points from Preseason_Projections
+                    fantasy_snap = _load_snapshot(lookup_date, "fantasy")
+                    if fantasy_snap and key in fantasy_snap:
+                        fp = fantasy_snap[key]
+                        st.markdown("**Fantasy Points:**")
+                        fp_cols = st.columns(5)
+                        fp_cols[0].metric("PPR", f"{fp['ppr']:.1f}" if fp.get("ppr") is not None else "-")
+                        fp_cols[1].metric("Half PPR", f"{fp['half_ppr']:.1f}" if fp.get("half_ppr") is not None else "-")
+                        fp_cols[2].metric("PPR/G", f"{fp['ppr_g']:.1f}" if fp.get("ppr_g") is not None else "-")
+                        fp_cols[3].metric("Games", fp.get("games", "-"))
+                        fp_cols[4].metric("Pos Rank", fp.get("pos_rank", "-"))
+
                     # Full metrics in an expandable table
                     with st.expander("All metrics"):
                         all_data = [{"Metric": k, "Value": v} for k, v in sorted(metrics.items()) if v is not None]
@@ -242,7 +522,7 @@ with tab_lookup:
                 st.caption(f"Showing first 10 of {len(matches)} matches.")
 
 
-# ─── Tab 3: Player History ───
+# ─── Tab 5: Player History ───
 
 with tab_history:
     hist_snapshot = _load_snapshot(dates[0], "players") if dates else {}
