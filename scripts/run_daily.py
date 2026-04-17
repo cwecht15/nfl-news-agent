@@ -342,8 +342,36 @@ def run():
     except Exception as e:
         logger.warning("Projection snapshot failed (non-fatal): %s", e)
 
-    write_status("Step 6", "running", "Cleaning up old data")
-    logger.info("Step 6: Cleaning up old data...")
+    write_status("Step 6", "running", "Updating depth charts")
+    logger.info("Step 6: Updating depth charts...")
+    try:
+        from collectors.depth_chart_collector import (
+            scrape_all_teams, save_depth_charts, load_latest_depth_charts,
+            diff_depth_charts, get_depth_chart_dates,
+        )
+        # Load previous before scraping new
+        prev_dc = load_latest_depth_charts()
+        cur_dc = scrape_all_teams(delay=1.5)
+        save_depth_charts(cur_dc, date_str)
+
+        if prev_dc:
+            dc_changes = diff_depth_charts(cur_dc, prev_dc)
+            promos = [c for c in dc_changes if c["type"] == "promoted"]
+            demos = [c for c in dc_changes if c["type"] == "demoted"]
+            adds = [c for c in dc_changes if c["type"] == "added"]
+            removes = [c for c in dc_changes if c["type"] == "removed"]
+            team_moves = [c for c in dc_changes if c["type"] == "team_change"]
+            logger.info(
+                "Depth chart changes: %d promotions, %d demotions, %d added, %d removed, %d team moves",
+                len(promos), len(demos), len(adds), len(removes), len(team_moves),
+            )
+        else:
+            logger.info("First depth chart snapshot — no changes to compare.")
+    except Exception as e:
+        logger.warning("Depth chart update failed (non-fatal): %s", e)
+
+    write_status("Step 7", "running", "Cleaning up old data")
+    logger.info("Step 7: Cleaning up old data...")
     cleanup_old_data(logger)
 
     logger.info("=" * 60)

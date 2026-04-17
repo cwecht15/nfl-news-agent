@@ -156,6 +156,105 @@ def load_latest_depth_charts() -> dict | None:
         return json.load(f)
 
 
+def load_depth_chart_by_date(date_str: str) -> dict | None:
+    """Load depth chart data for a specific date."""
+    path = DEPTH_CHART_DIR / f"{date_str}.json"
+    if not path.exists():
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_depth_chart_dates() -> list[str]:
+    """Return available depth chart snapshot dates, newest first."""
+    if not DEPTH_CHART_DIR.exists():
+        return []
+    return sorted(
+        [f.stem for f in DEPTH_CHART_DIR.glob("*.json")],
+        reverse=True,
+    )
+
+
+def diff_depth_charts(current: dict, previous: dict) -> list[dict]:
+    """Compare two depth chart snapshots and return changes.
+
+    Tracks: promotions, demotions, additions, removals, team changes.
+    """
+    changes = []
+
+    for name, cur in current.items():
+        prev = previous.get(name)
+
+        if prev is None:
+            # New player on a depth chart
+            changes.append({
+                "type": "added",
+                "name": cur["name"],
+                "team": cur["team"],
+                "pos": cur["pos"],
+                "generic_pos": cur["generic_pos"],
+                "depth": cur["depth"],
+                "message": f"{cur['name']} added to {cur['team']} depth chart at {cur['pos']} #{cur['depth']}",
+            })
+            continue
+
+        # Team change
+        if cur["team"] != prev["team"]:
+            changes.append({
+                "type": "team_change",
+                "name": cur["name"],
+                "pos": cur["pos"],
+                "generic_pos": cur["generic_pos"],
+                "old_team": prev["team"],
+                "new_team": cur["team"],
+                "old_depth": prev["depth"],
+                "new_depth": cur["depth"],
+                "message": f"{cur['name']} ({cur['pos']}) moved from {prev['team']} to {cur['team']} (#{prev['depth']} -> #{cur['depth']})",
+            })
+            continue
+
+        # Same team — check position or depth change
+        if cur["pos"] != prev["pos"]:
+            changes.append({
+                "type": "position_change",
+                "name": cur["name"],
+                "team": cur["team"],
+                "old_pos": prev["pos"],
+                "new_pos": cur["pos"],
+                "generic_pos": cur["generic_pos"],
+                "depth": cur["depth"],
+                "message": f"{cur['name']} ({cur['team']}) position change: {prev['pos']} -> {cur['pos']}",
+            })
+
+        if cur["depth"] != prev["depth"] and cur["pos"] == prev["pos"]:
+            direction = "promoted" if cur["depth"] < prev["depth"] else "demoted"
+            changes.append({
+                "type": direction,
+                "name": cur["name"],
+                "team": cur["team"],
+                "pos": cur["pos"],
+                "generic_pos": cur["generic_pos"],
+                "old_depth": prev["depth"],
+                "new_depth": cur["depth"],
+                "message": f"{cur['name']} ({cur['team']} {cur['pos']}) {direction}: #{prev['depth']} -> #{cur['depth']}",
+            })
+
+    # Removed players
+    for name, prev in previous.items():
+        if name not in current:
+            changes.append({
+                "type": "removed",
+                "name": prev["name"],
+                "team": prev["team"],
+                "pos": prev["pos"],
+                "generic_pos": prev["generic_pos"],
+                "depth": prev["depth"],
+                "message": f"{prev['name']} removed from {prev['team']} depth chart ({prev['pos']} #{prev['depth']})",
+            })
+
+    return changes
+
+
 def lookup_player(name: str, depth_charts: dict | None = None) -> dict | None:
     """Look up a player in the depth chart data.
 
