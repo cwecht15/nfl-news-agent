@@ -39,14 +39,26 @@ def _get_embedding_model():
 
     try:
         from sentence_transformers import SentenceTransformer
-        logger.info("Loading embedding model '%s' for deduplication...", EMBEDDING_MODEL_NAME)
-        _embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-        _embedding_available = True
-        return _embedding_model
     except ImportError:
         logger.info(
             "sentence-transformers not installed — using SequenceMatcher fallback. "
             "Install with: pip install sentence-transformers"
+        )
+        _embedding_available = False
+        return None
+
+    try:
+        logger.info("Loading embedding model '%s' for deduplication...", EMBEDDING_MODEL_NAME)
+        _embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        _embedding_available = True
+        return _embedding_model
+    except Exception as e:
+        # Model load can fail for many reasons (HF Hub rate limit, network
+        # blip, cache corruption). Log the actual error so the intermittent
+        # failures stop looking like "package missing".
+        logger.warning(
+            "Embedding model load failed (%s: %s) — using SequenceMatcher fallback.",
+            type(e).__name__, e,
         )
         _embedding_available = False
         return None

@@ -37,6 +37,8 @@ st.sidebar.markdown("""
 - **Transcripts** — Download for NotebookLM
 - **Trends** — Historical patterns & cost tracking
 - **Digest** — Weekly rollup reports
+- **Flagged** — Items you've flagged across reports
+- **Config** — Edit sources.yaml, settings.yaml
 """)
 
 # --- Pipeline status helpers ---
@@ -74,19 +76,38 @@ def _read_status() -> dict | None:
         # Check if the process is still alive
         pid = data.get("pid")
         if pid:
-            import ctypes
-            kernel32 = ctypes.windll.kernel32
-            handle = kernel32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
-            if handle:
-                kernel32.CloseHandle(handle)
+            alive = _pid_alive(pid)
+            if alive:
                 return data
-            else:
-                # Process is gone — stale status file
-                STATUS_FILE.unlink(missing_ok=True)
-                return None
+            # Process is gone — stale status file
+            STATUS_FILE.unlink(missing_ok=True)
+            return None
         return data
     except (json.JSONDecodeError, OSError):
         return None
+
+
+def _pid_alive(pid: int) -> bool:
+    """Cross-platform check: is the given PID currently running?"""
+    if sys.platform == "win32":
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if handle:
+            kernel32.CloseHandle(handle)
+            return True
+        return False
+    import os
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        # Process exists but is owned by another user — count as alive.
+        return True
+    except OSError:
+        return False
 
 
 def _step_index(step_name: str) -> int:
@@ -147,7 +168,7 @@ def _show_pipeline_already_running(status: dict):
     st.rerun()
 
 
-def _run_pipeline_with_progress():
+def _run_pipeline_with_progress(lookback_hours: int | None = None):
     """Launch the pipeline subprocess and stream progress to the main page."""
     progress_bar = st.progress(0, text="Starting pipeline...")
 
@@ -156,8 +177,12 @@ def _run_pipeline_with_progress():
     details: list[str] = []
     error_lines: list[str] = []
 
+    cmd = [sys.executable, "-u", str(PROJECT_ROOT / "scripts" / "run_daily.py")]
+    if lookback_hours:
+        cmd += ["--lookback-hours", str(int(lookback_hours))]
+
     proc = subprocess.Popen(
-        [sys.executable, "-u", str(PROJECT_ROOT / "scripts" / "run_daily.py")],
+        cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
@@ -238,6 +263,50 @@ def _run_pipeline_with_progress():
                 st.text(err)
 
 
+# --- PDF export ---
+
+
+def _render_pdf_export():
+    """Render a PDF export widget so users can download any report as a PDF."""
+    from reports.report_builder import list_available_reports
+    from reports.pdf_exporter import build_daily_pdf
+
+    available = list_available_reports()
+    if not available:
+        return
+
+    st.subheader("Download PDF Report")
+    st.caption(
+        "Combines news sections, team highlights, projection changes, "
+        "and depth chart diffs into a single PDF."
+    )
+
+    col_date, col_btn = st.columns([2, 1])
+    with col_date:
+        selected = st.selectbox("Report date", available, index=0, key="pdf_date")
+    with col_btn:
+        st.write("")  # vertical alignment
+        generate = st.button("Build PDF", use_container_width=True)
+
+    pdf_key = f"pdf_bytes_{selected}"
+    if generate:
+        try:
+            with st.spinner(f"Building PDF for {selected}..."):
+                st.session_state[pdf_key] = build_daily_pdf(selected)
+        except Exception as e:
+            st.error(f"Failed to build PDF: {e}")
+            return
+
+    if pdf_key in st.session_state:
+        st.download_button(
+            label=f"Download {selected}.pdf",
+            data=st.session_state[pdf_key],
+            file_name=f"nfl_daily_report_{selected}.pdf",
+            mime="application/pdf",
+            use_container_width=True,
+        )
+
+
 # --- Main page logic ---
 
 st.sidebar.divider()
@@ -254,14 +323,41 @@ run_clicked = st.sidebar.button(
     disabled=pipeline_running,
 )
 
-if pipeline_running and not run_clicked:
+with st.sidebar.expander("Catch-up mode", expanded=False):
+    st.caption(
+        "If the PC was off for a while, widen the collection window on "
+        "this run so more of the missed news (still in RSS) gets picked "
+        "up. Leave at 0 to use the default 28-hour lookback."
+    )
+    catchup_hours = st.number_input(
+        "Extra lookback (hours)",
+        min_value=0,
+        max_value=240,
+        value=0,
+        step=12,
+        help="24 = 1 day, 72 = 3 days. Max 240 = 10 days.",
+        key="catchup_hours",
+        disabled=pipeline_running,
+    )
+    catchup_clicked = st.button(
+        "Run catch-up now",
+        use_container_width=True,
+        disabled=pipeline_running or catchup_hours == 0,
+        key="catchup_run",
+    )
+
+if pipeline_running and not (run_clicked or catchup_clicked):
     # Pipeline is running in the background (e.g. after a page refresh)
     _show_pipeline_already_running(existing_status)
 elif run_clicked:
     # User just clicked the button — run with live progress
     _run_pipeline_with_progress()
+elif catchup_clicked:
+    _run_pipeline_with_progress(lookback_hours=int(catchup_hours))
 else:
     st.info(
         "Select a page from the sidebar to get started. "
         "Reports are generated daily at 6:00 AM ET."
     )
+    st.divider()
+    _render_pdf_export()

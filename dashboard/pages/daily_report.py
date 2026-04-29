@@ -1,13 +1,28 @@
 """Daily Report Page."""
 
+import re as _re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
+
+st.set_page_config(page_title="Daily Report", page_icon="🏈", layout="wide")
+
+from config_loader import get_teams_by_abbr
 from dashboard.helpers import highlight_summary, highlight_sources, render_sources
+from reports.flagged_findings import (
+    CATEGORIES,
+    add_or_update_flag,
+    get_flag,
+    get_flag_id,
+    remove_flag,
+)
 from reports.report_builder import list_available_reports, load_report
+
+ALL_TEAMS = sorted(get_teams_by_abbr().keys())
+NONE_TEAM = "(none)"
 
 st.header("Daily Report")
 
@@ -41,6 +56,168 @@ def _filter_paragraphs(summary: str, query: str) -> str:
     return "\n\n".join(matching)
 
 
+def _parse_flaggable_items(summary: str) -> list[tuple[str, str]]:
+    """Split a markdown summary into (kind, content) units.
+
+    kind is "heading" (not flaggable), "table", "bullet", or "paragraph".
+    """
+    items: list[tuple[str, str]] = []
+    for block in summary.split("\n\n"):
+        block = block.strip("\n")
+        if not block.strip():
+            continue
+        lines = block.split("\n")
+        if any(line.lstrip().startswith("|") for line in lines):
+            items.append(("table", block))
+            continue
+
+        prose: list[str] = []
+
+        def _flush():
+            if prose:
+                items.append(("paragraph", " ".join(prose).strip()))
+                prose.clear()
+
+        i = 0
+        while i < len(lines):
+            stripped = lines[i].strip()
+            if not stripped:
+                i += 1
+                continue
+            if stripped.startswith("#"):
+                _flush()
+                items.append(("heading", stripped))
+                i += 1
+                continue
+            if stripped.startswith(("- ", "* ")):
+                _flush()
+                bullet = stripped[2:].strip()
+                i += 1
+                while i < len(lines):
+                    nxt = lines[i].strip()
+                    if not nxt or nxt.startswith(("- ", "* ", "#")):
+                        break
+                    bullet += " " + nxt
+                    i += 1
+                items.append(("bullet", bullet))
+                continue
+            prose.append(stripped)
+            i += 1
+        _flush()
+    return items
+
+
+def _build_citation_linker(numbered_sources):
+    """Return a function that linkifies `[N]` citations in markdown text.
+
+    Returns None when no numbered_sources are available.
+    """
+    if not numbered_sources:
+        return None
+    url_map: dict[str, str] = {}
+    for src in numbered_sources:
+        num = str(src.get("num", ""))
+        url = src.get("url", "")
+        if num and url:
+            url_map[num] = url
+
+    def _linkify(text: str) -> str:
+        def _sub(m):
+            parts = []
+            for n in _re.split(r"[,\s]+", m.group(1)):
+                n = n.strip()
+                if n in url_map:
+                    parts.append(f"[[{n}]]({url_map[n]})")
+                elif n:
+                    parts.append(f"[{n}]")
+            return " ".join(parts)
+
+        return _re.sub(r"\[(\d+(?:[,\s]+\d+)*)\]", _sub, text)
+
+    return _linkify
+
+
+def _citations_for(content: str, numbered_sources) -> list[dict]:
+    """Return the subset of numbered_sources referenced by [N] in content."""
+    if not numbered_sources:
+        return []
+    nums = set()
+    for m in _re.finditer(r"\[(\d+(?:[,\s]+\d+)*)\]", content):
+        for n in _re.split(r"[,\s]+", m.group(1)):
+            n = n.strip()
+            if n:
+                nums.add(n)
+    if not nums:
+        return []
+    return [s for s in numbered_sources if str(s.get("num", "")) in nums]
+
+
+def _flag_control(content: str, report_date: str, section_id: str,
+                   section_label: str, key_prefix: str,
+                   default_team: str = "", attached_sources=None) -> None:
+    """Render a popover flag control for a single content item."""
+    fid = get_flag_id(report_date, section_id, content)
+    existing = get_flag(fid)
+    icon = "🚩" if existing else "⚐"
+    with st.popover(icon, use_container_width=False):
+        cur_cat = existing.get("category") if existing else CATEGORIES[0]
+        cur_note = existing.get("note", "") if existing else ""
+        cur_team = existing.get("team") if existing else default_team
+        cat_idx = CATEGORIES.index(cur_cat) if cur_cat in CATEGORIES else 0
+        cat = st.selectbox(
+            "Category", CATEGORIES, index=cat_idx, key=f"{key_prefix}_cat",
+        )
+
+        team_options = [NONE_TEAM] + ALL_TEAMS
+        team_idx = team_options.index(cur_team) if cur_team in team_options else 0
+        team_choice = st.selectbox(
+            "Team", team_options, index=team_idx, key=f"{key_prefix}_team",
+        )
+        team = "" if team_choice == NONE_TEAM else team_choice
+
+        note = st.text_area(
+            "Note (optional)", value=cur_note, height=80, key=f"{key_prefix}_note",
+        )
+        if st.button("Save flag", key=f"{key_prefix}_save", type="primary"):
+            add_or_update_flag(
+                report_date, section_id, section_label, content, cat, note,
+                team=team, sources=attached_sources or [],
+            )
+            st.rerun()
+        if existing and st.button("Unflag", key=f"{key_prefix}_unflag"):
+            remove_flag(fid)
+            st.rerun()
+
+
+def _render_flaggable(summary: str, report_date: str, section_id: str,
+                      section_label: str, key_prefix: str,
+                      linkify=None, default_team: str = "",
+                      section_sources=None, numbered_sources=None) -> None:
+    """Render a markdown summary as item-by-item flaggable units."""
+    items = _parse_flaggable_items(summary)
+    for idx, (kind, content) in enumerate(items):
+        display = linkify(content) if linkify else content
+        if kind == "heading":
+            st.markdown(display)
+            continue
+        if numbered_sources:
+            attached = _citations_for(content, numbered_sources)
+        else:
+            attached = list(section_sources or [])
+        col_l, col_r = st.columns([24, 1])
+        with col_l:
+            if kind == "bullet":
+                st.markdown(f"- {display}")
+            else:
+                st.markdown(display)
+        with col_r:
+            _flag_control(
+                content, report_date, section_id, section_label,
+                key_prefix=f"{key_prefix}_{idx}",
+                default_team=default_team, attached_sources=attached,
+            )
+
+
 # Date selector
 available = list_available_reports()
 
@@ -58,8 +235,15 @@ except Exception as e:
     st.error(f"Failed to load report: {e}")
     st.stop()
 
-# Search box
-search_query = st.text_input("Search report", placeholder="Player, team, or keyword...")
+# Search box + flag-mode toggle
+search_col, flag_col = st.columns([4, 1])
+with search_col:
+    search_query = st.text_input(
+        "Search report", placeholder="Player, team, or keyword...",
+    )
+with flag_col:
+    flag_mode = st.toggle("🚩 Flag mode", value=False, key="flag_mode",
+                          help="Show flag controls beside each bullet/paragraph")
 
 if report.alerts:
     for alert in report.alerts:
@@ -106,41 +290,21 @@ for key, section_data in report.sections.items():
     with st.expander(f"{title}{badge}", expanded=True):
         display_summary = _filter_paragraphs(summary, search_query) if search_query else summary
 
-        # Numbered sources (analysis section with inline citations)
         numbered_sources = section_data.get("numbered_sources")
-        if numbered_sources:
-            # Build a lookup from source number to URL
-            source_url_map = {}
-            for src in numbered_sources:
-                num = src.get("num", "")
-                url = src.get("url", "")
-                title_text = src.get("title", "Source")
-                source_name = src.get("source", "")
-                if url:
-                    source_url_map[str(num)] = (url, title_text, source_name)
+        linkify = _build_citation_linker(numbered_sources)
 
-            # Replace inline [N] citations with clickable links
-            import re as _re
-            def _replace_citation(match):
-                nums = match.group(1)
-                parts = []
-                for num_str in _re.split(r"[,\s]+", nums):
-                    num_str = num_str.strip()
-                    if num_str in source_url_map:
-                        url, title_text, _ = source_url_map[num_str]
-                        parts.append(f"[[{num_str}]]({url})")
-                    elif num_str:
-                        parts.append(f"[{num_str}]")
-                return " ".join(parts)
-
-            linked_summary = _re.sub(
-                r"\[(\d+(?:[,\s]+\d+)*)\]",
-                _replace_citation,
-                display_summary,
+        if flag_mode:
+            _render_flaggable(
+                display_summary, selected_date, key, title,
+                key_prefix=f"sec_{key}", linkify=linkify,
+                section_sources=sources, numbered_sources=numbered_sources,
             )
-            st.markdown(linked_summary, unsafe_allow_html=True)
+        elif linkify:
+            st.markdown(linkify(display_summary), unsafe_allow_html=True)
+        else:
+            st.markdown(display_summary)
 
-            # Source reference list
+        if numbered_sources:
             st.caption("Sources")
             lines = []
             for src in numbered_sources:
@@ -155,7 +319,6 @@ for key, section_data in report.sections.items():
                     lines.append(f"**[{num}]** {title_text}{suffix}")
             st.markdown("\n\n".join(lines))
         else:
-            st.markdown(display_summary)
             render_sources(sources)
 
 # Team highlights
@@ -187,8 +350,16 @@ if report.team_highlights:
 
         matched += 1
         st.markdown(f"**{team}**")
-        st.markdown(summary_text)
-        render_sources(highlight_sources(highlight))
+        team_srcs = highlight_sources(highlight)
+        if flag_mode:
+            _render_flaggable(
+                summary_text, selected_date, f"team:{team}", f"Team: {team}",
+                key_prefix=f"team_{team}",
+                default_team=team, section_sources=team_srcs,
+            )
+        else:
+            st.markdown(summary_text)
+        render_sources(team_srcs)
         st.divider()
 
     if search_query and matched == 0:

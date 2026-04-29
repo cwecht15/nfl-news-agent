@@ -1,0 +1,12 @@
+# Place at ~/.cloudflared/config.yml on the VM.
+# Fill in the UUID and credentials-file path that `cloudflared tunnel create`
+# printed, and the hostname you routed DNS to.
+
+tunnel: REPLACE_WITH_TUNNEL_UUID
+credentials-file: /home/ubuntu/.cloudflared/REPLACE_WITH_TUNNEL_UUID.json
+
+ingress:
+  - hostname: nfl.yourdomain.com
+    service: http://127.0.0.1:8502
+  # Catch-all — required last rule.
+  - service: http_status:404

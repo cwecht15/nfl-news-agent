@@ -8,8 +8,14 @@ Main entry point that runs the full pipeline:
 
 Run manually: python scripts/run_daily.py
 Or via Task Scheduler using run_daily.bat
+
+Catch-up mode: when the PC has been off for multiple days, widen the
+collection window on a single run so more of the missed news still in
+feeds is captured:
+    python scripts/run_daily.py --lookback-hours 96   # 4 days
 """
 
+import argparse
 import logging
 import os
 import shutil
@@ -31,6 +37,11 @@ from collectors.web_scraper import (
 )
 from collectors.reddit_collector import collect_reddit, save_reddit_results
 from collectors.youtube_collector import collect_youtube, save_youtube_results
+from collectors.beat_writer_collector import (
+    collect_beat_writers,
+    save_beat_writer_results,
+)
+from processing.cross_day_filter import filter_recent_duplicates
 from processing.deduplicator import deduplicate, flatten_groups
 from processing.source_health import get_health_alerts, record_source_result
 from processing.summarizer import run_summarization
@@ -142,8 +153,15 @@ def clear_status():
     _status_file().unlink(missing_ok=True)
 
 
-def run():
-    """Execute the full daily pipeline."""
+def run(lookback_hours: int | None = None):
+    """Execute the full daily pipeline.
+
+    Args:
+        lookback_hours: Optional override for how far back each collector
+            should look. Use for catch-up runs after missed days. When
+            None, collectors fall back to `collection.lookback_hours` in
+            settings.yaml (default 28).
+    """
     date_str = datetime.now().strftime("%Y-%m-%d")
     setup_logging(date_str)
     logger = logging.getLogger("orchestrator")
@@ -152,6 +170,8 @@ def run():
 
     logger.info("=" * 60)
     logger.info("NFL News Agent - Daily Run: %s", date_str)
+    if lookback_hours is not None:
+        logger.info("Catch-up mode: lookback window = %d hours", lookback_hours)
     logger.info("=" * 60)
 
     summary_provider = get_summary_provider()
@@ -177,23 +197,38 @@ def run():
             })
             return []
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        future_rss = executor.submit(collect_rss)
-        future_espn = executor.submit(collect_espn_team_news)
-        future_web = executor.submit(collect_web)
-        future_reddit = executor.submit(collect_reddit)
-        future_yt = executor.submit(collect_youtube, date_str)
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        future_rss = executor.submit(collect_rss, lookback_hours=lookback_hours)
+        future_espn = executor.submit(
+            collect_espn_team_news, lookback_hours=lookback_hours
+        )
+        future_web = executor.submit(collect_web, lookback_hours=lookback_hours)
+        future_reddit = executor.submit(
+            collect_reddit, lookback_hours=lookback_hours
+        )
+        future_yt = executor.submit(
+            collect_youtube, date_str, lookback_hours=lookback_hours
+        )
+        future_bw = executor.submit(
+            collect_beat_writers, date_str, lookback_hours=lookback_hours
+        )
 
     rss_items = _safe_result(future_rss, "RSS")
     espn_items = _safe_result(future_espn, "ESPN Teams")
     web_items = _safe_result(future_web, "Web")
     reddit_items = _safe_result(future_reddit, "Reddit")
     transcripts = _safe_result(future_yt, "YouTube")
+    bw_result = _safe_result(future_bw, "Beat Writers")
+    if isinstance(bw_result, tuple) and len(bw_result) == 2:
+        bw_items, bw_transcripts = bw_result
+    else:
+        bw_items, bw_transcripts = [], []
 
     save_rss_results(rss_items + espn_items, date_str)
     save_web_results(web_items, date_str)
     save_reddit_results(reddit_items, date_str)
     save_youtube_results(transcripts, date_str)
+    save_beat_writer_results(bw_items, bw_transcripts, date_str)
 
     # Record source health
     record_source_result("RSS Feeds", len(rss_items),
@@ -206,13 +241,16 @@ def run():
                          error=next((a["message"] for a in collector_alerts if "Reddit" in a.get("source", "")), ""))
     record_source_result("YouTube", len(transcripts),
                          error=next((a["message"] for a in collector_alerts if "YouTube" in a.get("source", "")), ""))
+    record_source_result("Beat Writers", len(bw_items) + len(bw_transcripts),
+                         error=next((a["message"] for a in collector_alerts if "Beat Writers" in a.get("source", "")), ""))
 
     web_source_status = get_last_web_source_status()
     health_alerts = get_health_alerts()
     source_alerts = collector_alerts + _build_source_alerts(web_source_status) + health_alerts
     _log_source_alerts(logger, source_alerts)
 
-    all_news = rss_items + espn_items + web_items + reddit_items
+    all_news = rss_items + espn_items + web_items + reddit_items + bw_items
+    transcripts = transcripts + bw_transcripts
     logger.info(
         "Collection complete: %d news items, %d transcripts",
         len(all_news),
@@ -228,6 +266,25 @@ def run():
         len(all_news),
         len(deduped_news),
     )
+
+    cross_day_cfg = get_settings().get("cross_day_dedup", {})
+    if cross_day_cfg.get("enabled", False):
+        write_status("Step 2b", "running", "Filtering cross-day duplicates")
+        logger.info("Step 2b: Filtering cross-day duplicates...")
+        skip = set(cross_day_cfg.get("skip_categories") or [])
+        before = len(deduped_news)
+        deduped_news, _dropped = filter_recent_duplicates(
+            deduped_news,
+            raw_dir=PROJECT_ROOT / "data" / "raw",
+            current_date=date_str,
+            lookback_days=int(cross_day_cfg.get("lookback_days", 2)),
+            threshold=float(cross_day_cfg.get("threshold", 0.82)),
+            skip_categories=skip,
+        )
+        logger.info(
+            "Cross-day filter: %d -> %d unique stories (%d suppressed as repeats)",
+            before, len(deduped_news), before - len(deduped_news),
+        )
 
     write_status("Step 3", "running", f"Summarizing with {_summary_provider_label(summary_provider)}")
     logger.info(
@@ -464,8 +521,24 @@ def cleanup_old_data(logger: logging.Logger):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run the NFL News Agent daily pipeline."
+    )
+    parser.add_argument(
+        "--lookback-hours",
+        type=int,
+        default=None,
+        help=(
+            "Override the collection lookback window (hours). Use for "
+            "catch-up runs after missed days, e.g. --lookback-hours 96 "
+            "after a long weekend off. Falls back to settings.yaml "
+            "(default 28) when omitted."
+        ),
+    )
+    args = parser.parse_args()
+
     try:
-        run()
+        run(lookback_hours=args.lookback_hours)
     except Exception:
         clear_status()
         raise

@@ -7,12 +7,38 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
 
+st.set_page_config(page_title="Depth Charts", page_icon="🏈", layout="wide")
+
 from collectors.depth_chart_collector import (
+    annotate_depth_changes,
     diff_depth_charts,
     get_depth_chart_dates,
     load_depth_chart_by_date,
     load_latest_depth_charts,
 )
+from reports.report_builder import load_report
+
+
+def _news_items_for_date(date_str: str) -> list[dict]:
+    """Pull a flat list of news-title dicts from the daily report on `date_str`.
+
+    Used to annotate depth chart changes with related news context.
+    Silently returns an empty list if the report is missing.
+    """
+    try:
+        report = load_report(date_str)
+    except Exception:
+        return []
+
+    items: list[dict] = []
+    for section in (report.sections or {}).values():
+        if isinstance(section, dict):
+            items.extend(section.get("sources") or [])
+            items.extend(section.get("numbered_sources") or [])
+    for highlight in (report.team_highlights or {}).values():
+        if isinstance(highlight, dict):
+            items.extend(highlight.get("sources") or [])
+    return items
 
 st.header("Depth Charts")
 
@@ -49,6 +75,7 @@ with tab_changes:
         st.stop()
 
     changes = diff_depth_charts(new_dc, old_dc)
+    annotate_depth_changes(changes, _news_items_for_date(compare_to))
 
     if not changes:
         st.success("No depth chart changes between these dates.")
@@ -111,6 +138,7 @@ with tab_changes:
                 "Position": c["pos"],
                 "Old Depth": f"#{c['old_depth']}",
                 "New Depth": f"#{c['new_depth']}",
+                "Context": c.get("context", "") or "—",
             })
         st.dataframe(promo_data, use_container_width=True, hide_index=True)
 
@@ -124,6 +152,7 @@ with tab_changes:
                 "Position": c["pos"],
                 "Old Depth": f"#{c['old_depth']}",
                 "New Depth": f"#{c['new_depth']}",
+                "Context": c.get("context", "") or "—",
             })
         st.dataframe(demo_data, use_container_width=True, hide_index=True)
 

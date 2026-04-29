@@ -1,0 +1,8 @@
+# NFL News Agent — daily pipeline at 06:00 America/New_York.
+# Install via: crontab -e   (then paste the line below)
+#
+# TZ= makes cron interpret the time in America/New_York regardless of
+# the VM's system timezone (Oracle VMs default to UTC).
+
+TZ=America/New_York
+0 6 * * * cd /home/ubuntu/nfl_agent && .venv/bin/python scripts/run_daily.py >> data/logs/cron.log 2>&1

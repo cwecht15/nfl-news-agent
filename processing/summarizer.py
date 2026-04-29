@@ -567,6 +567,16 @@ def _call_openai(
         )
         text = _extract_openai_text(response)
         if text:
+            incomplete_details = _obj_get(response, "incomplete_details")
+            incomplete_reason = _obj_get(incomplete_details, "reason")
+            if incomplete_reason:
+                logger.warning(
+                    "OpenAI truncated %s output at max_output_tokens=%d (reason=%s); "
+                    "consider raising the cap for this call",
+                    usage_label or "summary",
+                    max_tokens,
+                    incomplete_reason,
+                )
             return text
 
         if _should_retry_openai_no_text(response, text):
@@ -959,9 +969,10 @@ Transcript:
             client,
             individual_prompt,
             runtime,
-            max_tokens=220,
+            max_tokens=1200,
             usage_tracker=usage_tracker,
             usage_label=f"press:{t.team}",
+            reasoning_effort="low",
         )
         summary = _normalize_bullet_summary(summary, max_bullets=2)
         t.ai_summary = summary
@@ -1077,7 +1088,7 @@ Press conferences covered:
         client,
         prompt,
         runtime,
-        max_tokens=8192,
+        max_tokens=16384,
         usage_tracker=usage_tracker,
         usage_label="analysis",
         verbosity="medium",

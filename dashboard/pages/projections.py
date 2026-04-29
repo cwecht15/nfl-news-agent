@@ -10,6 +10,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
 
+st.set_page_config(page_title="Projections", page_icon="🏈", layout="wide")
+
 PROJ_DIR = Path(__file__).parent.parent.parent / "data" / "projections"
 
 st.header("Projections")
@@ -61,6 +63,14 @@ def _find_player(snapshot: dict, query: str) -> list[tuple[str, dict]]:
                 or query_lower == pid):
             matches.append((key, data))
     return matches
+
+
+def _safe_delta(old, new) -> float | None:
+    """Numeric delta `new - old`, or None if either side isn't numeric."""
+    try:
+        return float(new) - float(old)
+    except (TypeError, ValueError):
+        return None
 
 
 # --- Page layout ---
@@ -381,31 +391,37 @@ with tab_weekly:
                         "Name": cur_f.get("name", pid),
                         "Pos": cur_f.get("pos", ""),
                         "Team": cur_f.get("team", ""),
-                        "PPR (old)": f"{old_ppr:.1f}",
-                        "PPR (new)": f"{cur_ppr:.1f}",
-                        "PPR Delta": f"{delta:+.1f}",
-                        "PPR/G": f"{cur_f.get('ppr_g', 0):.1f}",
+                        "PPR (old)": round(old_ppr, 1),
+                        "PPR (new)": round(cur_ppr, 1),
+                        "PPR Delta": round(delta, 1),
+                        "PPR/G": round(cur_f.get("ppr_g") or 0, 1),
                         "Rank": f"{old_rank} -> {cur_rank}",
-                        "Rank Delta": f"{rank_delta:+d}" if rank_delta else "",
-                        "_sort": abs(delta),
+                        "Rank Delta": rank_delta,
                     })
 
                 if movers:
-                    movers.sort(key=lambda x: x["_sort"], reverse=True)
+                    movers.sort(key=lambda x: abs(x["PPR Delta"]), reverse=True)
 
-                    # Risers
-                    risers = [m for m in movers if float(m["PPR Delta"]) > 0]
-                    fallers = [m for m in movers if float(m["PPR Delta"]) < 0]
+                    risers = [m for m in movers if m["PPR Delta"] > 0]
+                    fallers = [m for m in movers if m["PPR Delta"] < 0]
+
+                    movers_col_config = {
+                        "PPR (old)": st.column_config.NumberColumn(format="%.1f"),
+                        "PPR (new)": st.column_config.NumberColumn(format="%.1f"),
+                        "PPR Delta": st.column_config.NumberColumn(format="%+.1f"),
+                        "PPR/G": st.column_config.NumberColumn(format="%.1f"),
+                        "Rank Delta": st.column_config.NumberColumn(format="%+d"),
+                    }
 
                     if risers:
                         st.subheader(f"Risers ({len(risers)})")
-                        display_risers = [{k: v for k, v in m.items() if k != "_sort"} for m in risers]
-                        st.dataframe(display_risers, use_container_width=True, hide_index=True)
+                        st.dataframe(risers, use_container_width=True, hide_index=True,
+                                     column_config=movers_col_config)
 
                     if fallers:
                         st.subheader(f"Fallers ({len(fallers)})")
-                        display_fallers = [{k: v for k, v in m.items() if k != "_sort"} for m in fallers]
-                        st.dataframe(display_fallers, use_container_width=True, hide_index=True)
+                        st.dataframe(fallers, use_container_width=True, hide_index=True,
+                                     column_config=movers_col_config)
 
                     if not risers and not fallers:
                         st.info("No significant PPR changes among adjusted players this week.")
@@ -441,7 +457,7 @@ with tab_weekly:
 
 with tab_txn:
     st.subheader("Transaction Reconciliation")
-    st.caption("Cross-references recent transactions with your projections. Only QB, RB, WR, TE, K.")
+    st.caption("Cross-references recent transactions with your projections. Only QB, RB, WR, TE, K, FB.")
 
     try:
         from scripts.transaction_reconciler import (
@@ -603,23 +619,18 @@ with tab_history:
     hist_query = st.text_input("Player name", placeholder="e.g. Bijan Robinson", key="hist_query")
 
     if hist_query:
-        # Find the player across all snapshots
+        # Re-search each snapshot rather than locking to a key — both
+        # player_id and the name's team suffix can change for rookies
+        # (ROOKIE027 / "Jeremiyah Love FA" -> 00-0033119 / "Jeremiyah Love ARZ"),
+        # which would otherwise sever the history at the swap.
         history = []
-        player_key = None
         for date in sorted(dates):
             snap = _load_snapshot(date, "players")
             if not snap:
                 continue
-            if player_key is None:
-                # Find the key from first match
-                matches = _find_player(snap, hist_query)
-                if matches:
-                    player_key = matches[0][0]
-                else:
-                    continue
-
-            if player_key in snap:
-                history.append((date, snap[player_key]))
+            matches = _find_player(snap, hist_query)
+            if matches:
+                history.append((date, matches[0][1]))
 
         if not history:
             st.warning(f"No history found for '{hist_query}'")
@@ -627,6 +638,121 @@ with tab_history:
             player_name = history[0][1].get("name", hist_query)
             pos = history[0][1].get("pos", "")
             st.subheader(f"{player_name} — Projection History")
+
+            if len(history) >= 2:
+                hist_dates = [d for d, _ in history]
+                hist_by_date = dict(history)
+
+                st.markdown("### Change Summary")
+                from_col, to_col = st.columns(2)
+                with from_col:
+                    from_date = st.selectbox("From", hist_dates, index=0, key="hist_from")
+                with to_col:
+                    to_date = st.selectbox("To", hist_dates, index=len(hist_dates) - 1, key="hist_to")
+
+                if from_date == to_date:
+                    st.info("Pick two different dates to compare.")
+                else:
+                    old_p = hist_by_date[from_date]
+                    new_p = hist_by_date[to_date]
+
+                    old_fantasy_snap = _load_snapshot(from_date, "fantasy") or {}
+                    new_fantasy_snap = _load_snapshot(to_date, "fantasy") or {}
+                    old_f_matches = _find_player(old_fantasy_snap, hist_query)
+                    new_f_matches = _find_player(new_fantasy_snap, hist_query)
+                    old_f = old_f_matches[0][1] if old_f_matches else None
+                    new_f = new_f_matches[0][1] if new_f_matches else None
+
+                    import re as _re_hist
+
+                    def _ppr_card(col, label, key, fmt=":+.1f"):
+                        old_v = old_f.get(key) if old_f else None
+                        new_v = new_f.get(key) if new_f else None
+                        if new_v is None:
+                            col.metric(label, "—")
+                            return
+                        delta = _safe_delta(old_v, new_v)
+                        delta_str = f"{delta:+.1f}" if delta is not None else None
+                        col.metric(label, f"{new_v:.1f}", delta_str)
+
+                    cards = st.columns(3)
+                    _ppr_card(cards[0], "PPR", "ppr")
+                    _ppr_card(cards[1], "PPR/G", "ppr_g")
+
+                    old_rank = old_f.get("pos_rank") if old_f else None
+                    new_rank = new_f.get("pos_rank") if new_f else None
+                    if new_rank:
+                        old_num_m = _re_hist.search(r"(\d+)$", str(old_rank or ""))
+                        new_num_m = _re_hist.search(r"(\d+)$", str(new_rank))
+                        rank_delta_str = None
+                        if old_num_m and new_num_m:
+                            rank_delta_str = f"{int(old_num_m.group(1)) - int(new_num_m.group(1)):+d}"
+                        cards[2].metric("Pos Rank", new_rank, rank_delta_str)
+                    else:
+                        cards[2].metric("Pos Rank", "—")
+
+                    context_rows = []
+                    for label, old_v, new_v in [
+                        ("Team", old_p.get("team"), new_p.get("team")),
+                        ("Slot", old_p.get("slot"), new_p.get("slot")),
+                        ("Position", old_p.get("pos"), new_p.get("pos")),
+                        ("Games", old_p.get("games"), new_p.get("games")),
+                    ]:
+                        if old_v != new_v and (old_v or new_v):
+                            context_rows.append((label, old_v, new_v))
+
+                    if context_rows:
+                        st.markdown("**Context changes:**")
+                        for label, old_v, new_v in context_rows:
+                            st.markdown(f"- **{label}:** {old_v} → {new_v}")
+
+                    old_metrics = old_p.get("metrics", {})
+                    new_metrics = new_p.get("metrics", {})
+                    all_keys = set(old_metrics) | set(new_metrics)
+
+                    movers = []
+                    adj_changes = []
+                    for k in all_keys:
+                        old_v = old_metrics.get(k)
+                        new_v = new_metrics.get(k)
+                        is_adj = "adj" in k.lower()
+                        if is_adj:
+                            if old_v != new_v:
+                                adj_changes.append({"Adjustment": k, "Old": old_v, "New": new_v})
+                        else:
+                            delta = _safe_delta(old_v, new_v)
+                            if delta is None:
+                                continue
+                            if (old_v or 0) == 0 and (new_v or 0) == 0:
+                                continue
+                            movers.append({
+                                "Metric": k,
+                                "Old": old_v,
+                                "New": new_v,
+                                "Delta": f"{delta:+.3g}",
+                                "_abs": abs(delta),
+                            })
+
+                    if movers:
+                        movers.sort(key=lambda r: r["_abs"], reverse=True)
+                        st.markdown("**Top metric movers:**")
+                        display_movers = [{k: v for k, v in r.items() if k != "_abs"} for r in movers[:8]]
+                        st.dataframe(
+                            display_movers,
+                            use_container_width=True,
+                            hide_index=True,
+                            column_config={
+                                "Old": st.column_config.NumberColumn(format="%.3g"),
+                                "New": st.column_config.NumberColumn(format="%.3g"),
+                            },
+                        )
+
+                    if adj_changes:
+                        adj_changes.sort(key=lambda r: r["Adjustment"])
+                        st.markdown("**Adjustment changes:**")
+                        st.dataframe(adj_changes, use_container_width=True, hide_index=True)
+
+                st.markdown("### Full History")
 
             if len(history) < 2:
                 st.info("Only one snapshot available. Run the pipeline again tomorrow to start tracking changes.")

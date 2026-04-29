@@ -32,7 +32,7 @@ NEWS_TO_PROJ_TEAM = {
 
 PROJ_TO_NEWS_TEAM = {v: k for k, v in NEWS_TO_PROJ_TEAM.items()}
 
-TRACKED_POSITIONS = {"QB", "RB", "WR", "TE", "K"}
+TRACKED_POSITIONS = {"QB", "RB", "WR", "TE", "K", "FB"}
 
 
 def _normalize_team(news_abbr: str) -> str:
@@ -225,18 +225,18 @@ def reconcile(days: int = 30) -> list[dict]:
         dc_info = dc_lookup(player_name) if dc_lookup else None
         dc_pos = dc_info.get("generic_pos") if dc_info else None
 
-        # Skip non-skill positions, and skip unknown positions (not on any
-        # depth chart AND not in projections = not worth alerting on)
-        if dc_pos and dc_pos not in TRACKED_POSITIONS:
-            continue
-        if not dc_pos and dc_lookup:
-            # Have depth chart data but player isn't on any chart — skip
-            continue
-
-        # Find in projections
+        # Find in projections first — projection-matched players always reconcile,
+        # even if they're no longer on a depth chart (e.g., just terminated).
         matches = _find_player_in_projections(player_name, players)
 
         if not matches:
+            # Not in projections — apply position filters before alerting "missing"
+            # to avoid noise from non-skill players and unknown/practice-squad signings.
+            if dc_pos and dc_pos not in TRACKED_POSITIONS:
+                continue
+            if not dc_pos and dc_lookup:
+                continue
+
             # Player not in projections at all — only alert for skill positions
             # If we don't have depth chart data, we can't confirm position, so include it
             pos_label = f" ({dc_pos})" if dc_pos else ""

@@ -7,11 +7,57 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
+
+st.set_page_config(page_title="Weekly Digest", page_icon="🏈", layout="wide")
+
 from config_loader import get_data_dir
 from dashboard.helpers import render_sources
+from scripts.run_digest import run_digest
 
 st.header("Weekly Digest")
 st.markdown("Multi-day rollup reports synthesizing daily briefings into themes.")
+
+# --- Generate new digest ---
+with st.container(border=True):
+    st.subheader("Generate new digest")
+    col_days, col_btn = st.columns([1, 2])
+    with col_days:
+        days = st.number_input(
+            "Days to cover",
+            min_value=2,
+            max_value=30,
+            value=7,
+            step=1,
+            key="digest_days",
+        )
+    with col_btn:
+        st.write("")  # vertical spacing
+        generate = st.button(
+            "Generate digest",
+            type="primary",
+            use_container_width=True,
+            key="digest_generate",
+        )
+
+    if generate:
+        try:
+            with st.spinner(
+                f"Synthesizing the last {int(days)} days... "
+                "this calls the LLM and may take 30-90 seconds."
+            ):
+                path = run_digest(days=int(days))
+            if path:
+                st.success(f"Digest generated: {Path(path).name}")
+                st.rerun()
+            else:
+                st.warning(
+                    "Digest generator returned no path — check that at least "
+                    "2 daily reports exist for the selected window."
+                )
+        except Exception as e:
+            st.error(f"Digest failed: {e}")
+
+st.divider()
 
 # Find available digest files
 reports_dir = get_data_dir("reports")
@@ -22,9 +68,8 @@ digest_files = sorted(
 )
 
 if not digest_files:
-    st.warning(
-        "No digest reports available. Generate one with:\n\n"
-        "`python scripts/run_digest.py --days 7`"
+    st.info(
+        "No digest reports yet. Click **Generate digest** above to build one."
     )
     st.stop()
 

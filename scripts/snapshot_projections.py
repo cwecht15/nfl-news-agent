@@ -28,7 +28,25 @@ logger = logging.getLogger(__name__)
 # --- Config ---
 
 SPREADSHEET_ID = "1bQtJKplmdOAEmKA1zCdSe8TeVFdOqO3fd-vUgtP1dH0"
-SERVICE_ACCOUNT_KEY = Path(r"C:\Users\cwech\Documents\Football\Keys\fp-data-357113-a6174bb87054.json")
+
+
+def _resolve_service_account_key() -> Path:
+    """Locate the Google service-account JSON.
+
+    Order: $GOOGLE_SERVICE_ACCOUNT_KEY env var, then ./secrets/service_account.json
+    (Linux/deploy layout), then the legacy Windows dev path.
+    """
+    import os
+    env_path = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY", "").strip()
+    if env_path:
+        return Path(env_path).expanduser()
+    deploy_default = PROJECT_ROOT / "secrets" / "service_account.json"
+    if deploy_default.exists():
+        return deploy_default
+    return Path(r"C:\Users\cwech\Documents\Football\Keys\fp-data-357113-a6174bb87054.json")
+
+
+SERVICE_ACCOUNT_KEY = _resolve_service_account_key()
 SNAPSHOT_DIR = PROJECT_ROOT / "data" / "projections"
 
 # Player sheet config (PreSeas_Working_Plyr_Proj)

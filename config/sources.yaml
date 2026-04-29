@@ -31,86 +31,83 @@ rss_feeds:
   #   category: national | team | analytics
 
 # ── Beat Writers & Insiders ──────────────────────────────
-# These are used by the Twitter/Nitter collector (Phase 2b)
-# and for filtering RSS content by author.
-# Add your favorite writers here.
+# Each writer can declare any subset of sources: rss_feeds,
+# youtube_channels, podcast_feeds. Items are tagged with the writer's
+# name (author), outlet (part of source label), and declared teams
+# (for team highlights). Items flow into the existing pipeline
+# sections — no UI changes needed.
+#
+# Fields per writer:
+#   name:    Display name; becomes `author` on each item.
+#   outlet:  Display outlet; combined with name for the `source` label.
+#   teams:   List of team abbreviations, e.g. ["BAL"]. Empty = national.
+#            QUOTE "NO" (Saints) — unquoted NO parses as YAML false.
+#   role:    "insider" | "beat" (metadata only).
+#
+# Source blocks (all optional — include whatever you have URLs for):
+#   rss_feeds:        List of author/byline RSS URLs (Substacks, author
+#                     archive feeds, outlet byline feeds).
+#   youtube_channels: List of channel entries. Fields:
+#                       id                     YouTube channel ID (required)
+#                       handle                 e.g. "@NOF" (display only)
+#                       keyword_filter         true = require global
+#                                              youtube_keywords match in title
+#                                              (default: false)
+#                       transcribe             captions + Whisper fallback
+#                                              (default: true)
+#                       min_duration_seconds   drop videos shorter than this
+#                                              — e.g. Shorts (default: 180)
+#                       team_focus             require the writer's team to be
+#                                              named in the title (default:
+#                                              true when `teams` is set, else
+#                                              false — i.e. national writers
+#                                              get no team filter)
+#   podcast_feeds:    List of {url, transcribe} entries.
+#                     transcribe: false (default) = use episode show notes
+#                     transcribe: true  = download MP3 + Whisper it (slow)
+#
+# Spotify note: Spotify audio is DRM-protected; use the show's
+# underlying RSS feed instead (usually listed on Apple Podcasts or
+# the show's website; podcastindex.org works as a lookup).
 
 beat_writers:
-  # National insiders
-  - name: Adam Schefter
-    handle: AdamSchefter
-    outlet: ESPN
-    teams: []  # empty = national/all teams
-    role: insider
+  - name: Nick Underhill
+    outlet: NewOrleans.Football
+    teams: ["NO"]    # quoted because NO is a YAML boolean otherwise
+    role: beat
+    custom_feeds:
+      - type: neworleans_football
+        url: https://neworleans.football/api/feed
+        authors: ["Nick Underhill"]   # omit/empty to include all site authors
+        quickposts: false             # true = also include short live-feed posts
+    youtube_channels:
+      - id: UCO3-HuPUXFliHV_u-qc33bQ
+        handle: "@NOF"
+        keyword_filter: false
+        transcribe: true
 
-  - name: Ian Rapoport
-    handle: RapSheet
-    outlet: NFL Network
-    teams: []
-    role: insider
-
-  - name: Tom Pelissero
-    handle: TomPelissero
-    outlet: NFL Network
-    teams: []
-    role: insider
-
-  - name: Field Yates
-    handle: FieldYates
-    outlet: ESPN
-    teams: []
-    role: insider
-
-  - name: Josina Anderson
-    handle: JosinaAnderson
-    outlet: CBS Sports
-    teams: []
-    role: insider
-
-  - name: Jay Glazer
-    handle: JayGlazer
-    outlet: FOX Sports
-    teams: []
-    role: insider
-
-  - name: Mike Garafolo
-    handle: MikeGarafolo
-    outlet: NFL Network
-    teams: []
-    role: insider
-
-  - name: Jeremy Fowler
-    handle: JFowlerESPN
-    outlet: ESPN
-    teams: []
-    role: insider
-
-  - name: Jordan Schultz
-    handle: Schultz_Report
-    outlet: Independent
-    teams: []
-    role: insider
-
-  - name: Dianna Russini
-    handle: daborussini
-    outlet: The Athletic
-    teams: []
-    role: insider
-
-  # ── Team-specific beat writers ──
-  # Add writers for teams you care about:
-  #
-  # - name: Jeff Zrebiec
-  #   handle: jeffzrebiec
-  #   outlet: The Athletic
-  #   teams: [BAL]
-  #   role: beat
-  #
-  # - name: Albert Breer
-  #   handle: AlbertBreer
-  #   outlet: Sports Illustrated
-  #   teams: [NE]
-  #   role: beat
+# Example entries — copy, uncomment, fill in real URLs/IDs to enable:
+#
+#   - name: Adam Schefter
+#     outlet: ESPN
+#     teams: []
+#     role: insider
+#     rss_feeds:
+#       - https://www.espn.com/espn/rss/nfl/news
+#     youtube_channels:
+#       - id: UCxxxxxxxxxxxxxxxxx
+#         handle: "@AdamSchefter"
+#         keyword_filter: false
+#     podcast_feeds:
+#       - url: https://feeds.example.com/adam-schefter-show.xml
+#         transcribe: false
+#
+#   - name: Jeff Zrebiec
+#     outlet: The Athletic
+#     teams: [BAL]
+#     role: beat
+#     rss_feeds:
+#       - https://example-athletic-author-feed/zrebiec.xml
 
 # ── Web Scraping Targets ─────────────────────────────────
 web_sources:
@@ -141,6 +138,8 @@ youtube_keywords:
   - "postgame"
   - "podium"
   - "media availability"
+  - "the media"  # catches "addresses/talks to/meets the media" variants
+  - "recap"     # "Recap Day X" GM/HC pressers; relevance scorer gates filler
   - "introductory press"
   - "draft press"
   # Interviews

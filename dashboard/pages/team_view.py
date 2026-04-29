@@ -7,6 +7,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
+
+st.set_page_config(page_title="Team View", page_icon="🏈", layout="wide")
+
 from config_loader import get_teams, get_data_dir
 from dashboard.helpers import highlight_summary, highlight_sources, render_sources
 from reports.report_builder import list_available_reports, load_report

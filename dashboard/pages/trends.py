@@ -7,6 +7,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
+
+st.set_page_config(page_title="Historical Trends", page_icon="🏈", layout="wide")
+
 from reports.report_builder import list_available_reports, load_report
 
 st.header("Historical Trends")

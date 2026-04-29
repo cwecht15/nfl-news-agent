@@ -424,10 +424,21 @@ def save_report(report: DailyReport):
 
 
 def list_available_reports() -> list[str]:
-    """List available report dates (YYYY-MM-DD), most recent first."""
+    """List available daily report dates (YYYY-MM-DD), most recent first.
+
+    Excludes digest files and any other non-date-named JSON in the reports
+    directory.
+    """
     reports_dir = get_data_dir("reports")
-    dates = sorted([path.stem for path in reports_dir.glob("*.json")], reverse=True)
-    return dates
+    dates: list[str] = []
+    for path in reports_dir.glob("*.json"):
+        stem = path.stem
+        try:
+            datetime.strptime(stem, "%Y-%m-%d")
+        except ValueError:
+            continue
+        dates.append(stem)
+    return sorted(dates, reverse=True)
 
 
 def load_report(date_str: str) -> DailyReport:

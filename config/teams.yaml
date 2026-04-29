@@ -4,7 +4,11 @@
 # youtube_channels: list of channels to scan per team
 #   - id: YouTube channel ID
 #     handle: YouTube handle (for reference)
-#     scan_streams: true to also check the /streams tab (live recordings)
+#     scan_streams: false to skip the /streams tab (defaults to true —
+#       most teams publish pressers as live streams that land there)
+#     keyword_filter: false to accept every video on the channel —
+#       use only on dedicated press-conference channels where every
+#       upload is a presser and the keyword filter loses signal
 
 teams:
   - abbr: ARI
@@ -60,7 +64,11 @@ teams:
     youtube_channels:
       - id: UCnQUpSnJ39KsjZKbT0CprHQ
         handle: "@Bengals"
-        scan_streams: true
+      # Supplemental: official Bengals channel rarely posts press conferences,
+      # this fan/community channel reposts/streams them. Keyword + player-quote
+      # filters still apply, so analysis and mock-draft content stays out.
+      - id: UCIs_LnL98oXupcixZDoSovQ
+        handle: "@BengalsTalk"
     conference: AFC
     division: North
 
@@ -93,7 +101,6 @@ teams:
     youtube_channels:
       - id: UCv5J06V-ESk5_1uriG65f3w
         handle: "@detroitlionsnfl"
-        scan_streams: true
     conference: NFC
     division: North
 
@@ -134,7 +141,6 @@ teams:
     youtube_channels:
       - id: UC-hXefb6XBFSubWz6Ezf_lA
         handle: "@KansasCityChiefs"
-        scan_streams: true
     conference: AFC
     division: West
 
@@ -159,7 +165,6 @@ teams:
     youtube_channels:
       - id: UCyJ6yZdVUkBvt2vl4R03jcA
         handle: "@LARams"
-        scan_streams: true
     conference: NFC
     division: West
 
@@ -184,6 +189,10 @@ teams:
     youtube_channels:
       - id: UCMm_V8YjmnZRhToXIqDYDuw
         handle: "@patriots"
+      # Dedicated press-conference channel — accept all uploads.
+      - id: UCCmDMJ4OF5Vvik1vLp2M9lA
+        handle: "@patriotspressconferences"
+        keyword_filter: false
     conference: AFC
     division: East
 
@@ -216,6 +225,7 @@ teams:
     youtube_channels:
       - id: UCvXmskEtQk46alHAPPHaAxw
         handle: "@EaglesPressConferences"
+        keyword_filter: false  # 100% pressers — accept all
     conference: NFC
     division: East
 
@@ -240,6 +250,7 @@ teams:
     youtube_channels:
       - id: UCePXu-1RLT0s6EE0Dh0JqgQ
         handle: "@SeahawksPressers"
+        keyword_filter: false  # 100% pressers — accept all
     conference: NFC
     division: West
 
@@ -256,6 +267,7 @@ teams:
     youtube_channels:
       - id: UCysetst5Aek6_vK_89qGtVQ
         handle: "@TitansPressConferences"
+        keyword_filter: false  # 100% pressers — accept all
     conference: AFC
     division: South
 
@@ -264,6 +276,5 @@ teams:
     youtube_channels:
       - id: UC2a0ENbCZqIO5C1fWXGXZXA
         handle: "@commanders"
-        scan_streams: true
     conference: NFC
     division: East

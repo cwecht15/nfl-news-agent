@@ -10,6 +10,7 @@ import logging
 import re
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
@@ -115,21 +116,29 @@ def scrape_team(team_slug: str, delay: float = 2.0) -> list[dict]:
     return players
 
 
-def scrape_all_teams(delay: float = 2.0) -> dict:
-    """Scrape depth charts for all 32 teams.
+def scrape_all_teams(delay: float = 2.0, max_workers: int = 6) -> dict:
+    """Scrape depth charts for all 32 teams in parallel.
+
+    The `delay` arg is kept for backward compatibility but is unused —
+    each team is an independent OurLads page, so we fan out instead of
+    serializing with a polite sleep.
 
     Returns dict keyed by normalized player name -> player info.
     """
-    all_players = {}
-    for team in TEAM_SLUGS:
-        logger.info("Scraping %s depth chart...", team)
-        players = scrape_team(team, delay)
-        for p in players:
-            key = p["name"].lower()
-            # If player appears on multiple teams, keep the latest
-            all_players[key] = p
-        time.sleep(delay)
-
+    all_players: dict = {}
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = {ex.submit(scrape_team, team): team for team in TEAM_SLUGS}
+        for fut in as_completed(futures):
+            team = futures[fut]
+            try:
+                players = fut.result()
+            except Exception as e:
+                logger.warning("Team %s scrape failed: %s", team, e)
+                continue
+            for p in players:
+                key = p["name"].lower()
+                # If player appears on multiple teams, keep the latest
+                all_players[key] = p
     return all_players
 
 
@@ -251,6 +260,132 @@ def diff_depth_charts(current: dict, previous: dict) -> list[dict]:
                 "depth": prev["depth"],
                 "message": f"{prev['name']} removed from {prev['team']} depth chart ({prev['pos']} #{prev['depth']})",
             })
+
+    return changes
+
+
+_NAME_SUFFIXES = {"jr", "jr.", "sr", "sr.", "ii", "iii", "iv", "v"}
+
+
+def _last_name(name: str) -> str:
+    """Return the last meaningful token of a player name (strips Jr./III)."""
+    tokens = [t for t in re.split(r"\s+", name.strip()) if t]
+    while tokens and tokens[-1].lower().strip(".") in _NAME_SUFFIXES:
+        tokens.pop()
+    return tokens[-1] if tokens else ""
+
+
+def _change_team(change: dict) -> str:
+    return change.get("team") or change.get("new_team") or change.get("old_team") or ""
+
+
+def _change_pos(change: dict) -> str:
+    return (
+        change.get("generic_pos")
+        or change.get("pos")
+        or change.get("new_pos")
+        or ""
+    )
+
+
+def _describe_related_change(other: dict, anchor_team: str) -> str:
+    """Render a one-phrase description of a sibling change in the same slot."""
+    t = other.get("type", "")
+    name = other.get("name", "?")
+
+    if t == "removed":
+        return f"{name} removed from depth chart"
+    if t == "added":
+        return f"{name} added to depth chart"
+    if t == "team_change":
+        if other.get("old_team") == anchor_team:
+            return f"{name} left for {other.get('new_team', '?')}"
+        return f"{name} arrived from {other.get('old_team', '?')}"
+    if t == "promoted":
+        return f"{name} promoted #{other.get('old_depth', '?')} → #{other.get('new_depth', '?')}"
+    if t == "demoted":
+        return f"{name} demoted #{other.get('old_depth', '?')} → #{other.get('new_depth', '?')}"
+    if t == "position_change":
+        return f"{name} moved {other.get('old_pos', '?')} → {other.get('new_pos', '?')}"
+    return other.get("message", "")
+
+
+def annotate_depth_changes(
+    changes: list[dict],
+    news_items: list[dict] | None = None,
+) -> list[dict]:
+    """Attach a `context` string to each promotion/demotion explaining why.
+
+    Context draws from two signals:
+      1. Concurrent depth-chart changes at the same (team, generic_pos) —
+         e.g. the player above got released, traded, or demoted.
+      2. Any news item whose title mentions the displaced/arriving player
+         (matched on last name, case-insensitive).
+
+    `news_items` should be a list of dicts with at least a `title` key
+    (e.g. flattened from `report.sections.*.sources` + team highlight
+    sources). Pass `None` to rely only on sibling depth-chart changes.
+
+    Returns the same list, mutated with a `context` key on every entry
+    (empty string if nothing found). Safe to call on an already-annotated
+    list — it will recompute and overwrite.
+    """
+    if not changes:
+        return changes
+
+    # Group by (team, generic_pos) so we can find sibling moves.
+    by_slot: dict[tuple[str, str], list[dict]] = {}
+    for c in changes:
+        key = (_change_team(c), _change_pos(c))
+        by_slot.setdefault(key, []).append(c)
+
+    # Build last-name -> list of news titles
+    news_index: dict[str, list[str]] = {}
+    for item in news_items or []:
+        title = (item.get("title") or "").strip()
+        if not title:
+            continue
+        for token in re.findall(r"[A-Za-z][A-Za-z'\-.]+", title):
+            key = token.lower().strip(".")
+            if len(key) < 3 or key in _NAME_SUFFIXES:
+                continue
+            news_index.setdefault(key, []).append(title)
+
+    for c in changes:
+        if c.get("type") not in {"promoted", "demoted"}:
+            c.setdefault("context", "")
+            continue
+
+        team = _change_team(c)
+        pos = _change_pos(c)
+        siblings = [other for other in by_slot.get((team, pos), []) if other is not c]
+
+        pieces: list[str] = [
+            _describe_related_change(other, team) for other in siblings
+        ]
+
+        # Pull news titles for each sibling player (and the change player).
+        related_names = [c.get("name", "")] + [s.get("name", "") for s in siblings]
+        seen_titles: set[str] = set()
+        news_snippets: list[str] = []
+        for full_name in related_names:
+            last = _last_name(full_name).lower().strip(".")
+            if not last or len(last) < 3:
+                continue
+            for title in news_index.get(last, []):
+                if title in seen_titles:
+                    continue
+                seen_titles.add(title)
+                news_snippets.append(f'"{title}"')
+                if len(news_snippets) >= 2:
+                    break
+            if len(news_snippets) >= 2:
+                break
+
+        if news_snippets:
+            pieces.append("news: " + "; ".join(news_snippets))
+
+        c["context"] = " · ".join(p for p in pieces if p)
 
     return changes
 

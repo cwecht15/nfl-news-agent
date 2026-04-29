@@ -14,14 +14,14 @@ if errorlevel 1 (
 
 echo Starting NFL News Agent dashboard...
 echo.
-echo Dashboard URL: http://localhost:8501
+echo Dashboard URL: http://localhost:8502
 echo Leave this window open while the app is running.
 echo Close it to stop the dashboard.
 echo.
 
-start "" cmd /c "timeout /t 5 /nobreak >nul && start http://localhost:8501"
+start "" cmd /c "timeout /t 5 /nobreak >nul && start http://localhost:8502"
 
-python -m streamlit run dashboard\app.py --server.address localhost --server.port 8501
+python -m streamlit run dashboard\app.py --server.address localhost --server.port 8502 --server.headless true
 
 if errorlevel 1 (
     echo.

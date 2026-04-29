@@ -25,11 +25,30 @@ anthropic:
   model: "claude-sonnet-4-20250514"
   use_prompt_caching: true
 
+cross_day_dedup:
+  # Suppress today's items whose title is a near-duplicate of something
+  # already collected in the prior `lookback_days` days. Runs after
+  # intra-day dedup and before summarization, so filtered items do not
+  # consume LLM tokens.
+  enabled: true
+  lookback_days: 2
+  # Cosine similarity (0-1) at which an item is considered a repeat.
+  # Higher = stricter (fewer items suppressed). Intra-day dedup uses 0.75.
+  threshold: 0.82
+  # Categories exempt from cross-day suppression. Transactions are usually
+  # unique events per day, but similar structural wording ("Player X:
+  # Exclusive rights signing") can trip the filter.
+  skip_categories: ["transaction"]
+
 collection:
   # How far back to look for new content (hours)
   lookback_hours: 28  # Slightly > 24h to avoid gaps
   # Max videos to check per YouTube channel
   youtube_max_per_channel: 5
+  # Concurrent team scans in the YouTube collector. Each team is a
+  # separate channel so per-channel politeness still holds. Lower if
+  # you start hitting YouTube rate limits.
+  youtube_workers: 6
   # Delay between web requests (seconds) — be polite
   request_delay: 2.0
   # Request timeout (seconds)
@@ -53,9 +72,14 @@ transcription:
   whisper_model: "small"
   # Delete audio files after transcription to save disk space
   delete_audio_after: true
+  # Skip Whisper fallback for videos over this duration (seconds).
+  # CPU inference on a 49-min stream can take 60-90+ minutes and has
+  # hung the daily run. Captions are still tried first regardless.
+  # Set to 0 to disable the gate.
+  whisper_max_duration_seconds: 1800
 
 dashboard:
-  port: 8501
+  port: 8502
   host: "localhost"
 
 storage:
