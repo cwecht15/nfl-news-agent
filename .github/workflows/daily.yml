@@ -126,19 +126,33 @@ jobs:
           git config user.name "nfl-news-agent-bot"
           git config user.email "nfl-news-agent-bot@users.noreply.github.com"
 
-          # data/ is gitignored for local convenience; force-add the
-          # produced artifacts so the dashboard can read them.
-          git add -f \
-            data/raw \
-            data/reports \
-            data/projections \
-            data/depth_charts \
-            data/transcripts \
-            data/logs \
-            data/source_health.json \
-            data/youtube_seen.json \
-            data/notebooklm_pushed.json \
-            2>/dev/null || true
+          echo "=== data/ contents before staging ==="
+          du -sh data/* 2>/dev/null || echo "(no data/)"
+
+          # data/ is gitignored for local convenience; force-add each
+          # produced artifact independently so a single missing path
+          # doesn't abort the whole stage.
+          for path in \
+              data/raw \
+              data/reports \
+              data/projections \
+              data/depth_charts \
+              data/transcripts \
+              data/logs \
+              data/source_health.json \
+              data/youtube_seen.json \
+              data/notebooklm_pushed.json; do
+            if [ -e "$path" ]; then
+              git add -f "$path"
+              echo "Staged: $path"
+            else
+              echo "Skipped (missing): $path"
+            fi
+          done
+
+          echo ""
+          echo "=== Staged file count: $(git diff --staged --name-only | wc -l) ==="
+          git diff --staged --name-only | head -20
 
           if git diff --staged --quiet; then
             echo "No data changes to commit."
