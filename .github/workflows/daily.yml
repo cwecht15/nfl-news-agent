@@ -84,9 +84,20 @@ jobs:
           fi
 
           # YouTube cookies (optional but required for transcripts on CI —
-          # YouTube blocks unauthenticated datacenter IPs)
+          # YouTube blocks unauthenticated datacenter IPs).
+          # We always prepend a known-good Netscape magic header line, then
+          # the user's content. yt-dlp's MozillaCookieJar checks magic on the
+          # very first line; user-provided headers (also starting with #) are
+          # treated as comments and ignored. This sidesteps any subtle byte
+          # mismatch in the user's exported header (BOM, alternate Unicode,
+          # etc.) without losing any actual cookie data.
           if [ -n "${YOUTUBE_COOKIES}" ]; then
-            printf '%s' "${YOUTUBE_COOKIES}" > secrets/youtube_cookies.txt
+            {
+              printf '# Netscape HTTP Cookie File\n'
+              printf '%s' "${YOUTUBE_COOKIES}"
+              # Ensure trailing newline so the last cookie line is parsed.
+              printf '\n'
+            } > secrets/youtube_cookies.txt
             chmod 600 secrets/youtube_cookies.txt
           fi
 
