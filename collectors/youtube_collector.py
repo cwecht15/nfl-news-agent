@@ -8,6 +8,7 @@ Keywords configured in config/sources.yaml.
 """
 
 import logging
+import os
 import re
 import json
 import sys
@@ -17,6 +18,20 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
+
+
+def _ydl_cookie_opts() -> dict:
+    """Return yt-dlp options for cookie authentication if configured.
+
+    YouTube blocks unauthenticated requests from datacenter IPs (e.g. CI
+    runners). Setting YOUTUBE_COOKIES_PATH to a Netscape-format cookies
+    file lets yt-dlp authenticate. On a residential IP this is unset and
+    yt-dlp works without it.
+    """
+    path = os.environ.get("YOUTUBE_COOKIES_PATH")
+    if path and os.path.isfile(path):
+        return {"cookiefile": path}
+    return {}
 
 # Whisper / PyTorch inference is not safe to call from multiple threads
 # concurrently. Keep team scans + caption downloads parallel, but serialize
@@ -101,6 +116,7 @@ def _fetch_video_details(video_url: str) -> dict:
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
+        **_ydl_cookie_opts(),
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -133,6 +149,7 @@ def _scan_single_url(
         "no_warnings": True,
         "extract_flat": True,
         "playlistend": max_videos,
+        **_ydl_cookie_opts(),
     }
 
     results = []
@@ -310,6 +327,7 @@ def download_captions(
         "subtitleslangs": ["en"],
         "subtitlesformat": "vtt",
         "outtmpl": str(output_dir / f"{video_id}.%(ext)s"),
+        **_ydl_cookie_opts(),
     }
 
     try:
@@ -350,6 +368,7 @@ def download_audio(
             "preferredcodec": "mp3",
             "preferredquality": "64",
         }],
+        **_ydl_cookie_opts(),
     }
 
     try:

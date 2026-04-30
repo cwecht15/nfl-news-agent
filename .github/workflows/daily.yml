@@ -59,6 +59,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           ATHLETIC_COOKIES: ${{ secrets.ATHLETIC_COOKIES }}
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
         run: |
           mkdir -p secrets
           # .env for the pipeline to load via python-dotenv
@@ -67,6 +68,7 @@ jobs:
             if [ -n "${ANTHROPIC_API_KEY}" ]; then echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}"; fi
             echo "GOOGLE_SERVICE_ACCOUNT_KEY=${GITHUB_WORKSPACE}/secrets/service_account.json"
             if [ -n "${ATHLETIC_COOKIES}" ]; then echo "ATHLETIC_COOKIES_PATH=${GITHUB_WORKSPACE}/secrets/athletic_cookies.txt"; fi
+            if [ -n "${YOUTUBE_COOKIES}" ]; then echo "YOUTUBE_COOKIES_PATH=${GITHUB_WORKSPACE}/secrets/youtube_cookies.txt"; fi
           } > .env
 
           # Google service-account JSON (required for projection snapshots)
@@ -79,6 +81,13 @@ jobs:
           if [ -n "${ATHLETIC_COOKIES}" ]; then
             printf '%s' "${ATHLETIC_COOKIES}" > secrets/athletic_cookies.txt
             chmod 600 secrets/athletic_cookies.txt
+          fi
+
+          # YouTube cookies (optional but required for transcripts on CI —
+          # YouTube blocks unauthenticated datacenter IPs)
+          if [ -n "${YOUTUBE_COOKIES}" ]; then
+            printf '%s' "${YOUTUBE_COOKIES}" > secrets/youtube_cookies.txt
+            chmod 600 secrets/youtube_cookies.txt
           fi
 
       - name: Run daily pipeline

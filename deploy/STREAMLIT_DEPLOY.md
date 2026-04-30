@@ -27,6 +27,7 @@ add the following repository secrets:
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | The **entire contents** of `C:\Users\cwech\Documents\Football\Keys\fp-data-357113-a6174bb87054.json` (open in Notepad, copy all, paste) |
 | `ANTHROPIC_API_KEY` | (Optional) only if you actually use Anthropic |
 | `ATHLETIC_COOKIES` | (Optional) entire contents of your athletic cookies file |
+| `YOUTUBE_COOKIES` | (Optional, but required for press-conference transcripts on CI — YouTube blocks unauthenticated datacenter IPs) See "YouTube cookies" section below |
 
 The workflow at `.github/workflows/daily.yml` reads these and reconstructs
 `.env` and `secrets/service_account.json` on the runner.
@@ -103,6 +104,35 @@ If you want `dash.nfl-news-agent.com` instead of `*.streamlit.app`:
    can do this).
 
 For most users, `nfl-news-agent.streamlit.app` is fine.
+
+## YouTube cookies (for press-conference transcripts on CI)
+
+YouTube blocks unauthenticated requests from datacenter IPs (all GitHub
+Actions runners). Without cookies, the YouTube collector logs `ERROR: Sign
+in to confirm you're not a bot` for each video and returns no transcripts
+for the day. The rest of the pipeline still works.
+
+To enable YouTube transcripts on CI:
+
+**1. Export cookies from your browser (one-time):**
+- Install the **"Get cookies.txt LOCALLY"** Chrome extension:
+  https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc
+- Visit https://www.youtube.com and make sure you're logged in
+- Click the extension icon → "Export As → cookies.txt"
+- Save the file (e.g., `C:\Users\cwech\Documents\youtube_cookies.txt`)
+
+**2. Add as GitHub secret:**
+- Open the cookies file in Notepad
+- Copy the entire contents (including all lines starting with `#`)
+- https://github.com/cwecht15/nfl-news-agent/settings/secrets/actions
+- Click **New repository secret** → Name: `YOUTUBE_COOKIES`, Value: paste the contents
+- Click **Add secret**
+
+**3. Re-run the workflow** — YouTube transcripts will now download.
+
+**Cookie expiry:** YouTube cookies typically last several months. If you start seeing the bot-check errors again in the workflow logs, repeat steps 1–2 with a fresh export.
+
+**Privacy note:** these cookies authenticate as YOU. The repository secret is encrypted at rest and only readable by your workflows, but treat the cookies file with the same care as a password.
 
 ## Switching back to the Oracle/Hetzner path later
 
