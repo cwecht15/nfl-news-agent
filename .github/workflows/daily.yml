@@ -143,6 +143,26 @@ jobs:
               echo "  After fix:"
               head -2 secrets/youtube_cookies.txt | cat -A | sed 's/^/    /'
             fi
+            echo ""
+            echo "--- Python MozillaCookieJar load test (the actual yt-dlp parser) ---"
+            python3 - <<'PYEOF' || echo "  Python validation crashed (continuing)"
+          import http.cookiejar as cj
+          import re
+          path = 'secrets/youtube_cookies.txt'
+          with open(path, 'rb') as f:
+              first = f.readline()
+          print(f'  First line bytes (repr): {first!r}')
+          magic_re = re.compile('#( Netscape)? HTTP Cookie File')
+          first_str = first.decode('utf-8', errors='replace')
+          m = magic_re.search(first_str)
+          print(f'  Magic regex match: {m is not None} (match obj: {m!r})')
+          try:
+              j = cj.MozillaCookieJar(path)
+              j.load(ignore_discard=True, ignore_expires=True)
+              print(f'  SUCCESS: loaded {len(j)} cookies')
+          except Exception as e:
+              print(f'  FAIL: {type(e).__name__}: {e}')
+          PYEOF
           else
             echo "youtube_cookies.txt: MISSING (cookies will not be applied)"
           fi
