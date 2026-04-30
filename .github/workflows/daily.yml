@@ -181,4 +181,17 @@ jobs:
 
           # [skip ci] prevents this commit from re-triggering workflows
           git commit -m "Daily pipeline run $(date -u +%F) [skip ci]"
-          git push origin HEAD:master
+
+          # Push with retry — master may have moved while the pipeline ran.
+          # Rebase our commit onto the latest master and try again.
+          for attempt in 1 2 3; do
+            if git push origin HEAD:master; then
+              echo "Push succeeded on attempt $attempt."
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt). Rebasing onto latest master..."
+            git fetch origin master
+            git rebase origin/master
+          done
+          echo "Push failed after 3 attempts."
+          exit 1
