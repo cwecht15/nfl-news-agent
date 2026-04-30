@@ -10,6 +10,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Weekly Digest", page_icon="🏈", layout="wide")
 
+from dashboard.auth import require_password
+require_password()
+
 from config_loader import get_data_dir
 from dashboard.helpers import render_sources
 from scripts.run_digest import run_digest

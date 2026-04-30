@@ -9,6 +9,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Depth Charts", page_icon="🏈", layout="wide")
 
+from dashboard.auth import require_password
+require_password()
+
 from collectors.depth_chart_collector import (
     annotate_depth_changes,
     diff_depth_charts,

@@ -10,6 +10,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Daily Report", page_icon="🏈", layout="wide")
 
+from dashboard.auth import require_password
+require_password()
+
 from config_loader import get_teams_by_abbr
 from dashboard.helpers import highlight_summary, highlight_sources, render_sources
 from reports.flagged_findings import (

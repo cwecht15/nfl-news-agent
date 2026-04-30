@@ -11,6 +11,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Transcripts", page_icon="🏈", layout="wide")
 
+from dashboard.auth import require_password
+require_password()
+
 from config_loader import get_data_dir, get_teams
 
 st.header("YouTube Videos & Transcripts")

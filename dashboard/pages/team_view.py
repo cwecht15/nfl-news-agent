@@ -10,6 +10,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Team View", page_icon="🏈", layout="wide")
 
+from dashboard.auth import require_password
+require_password()
+
 from config_loader import get_teams, get_data_dir
 from dashboard.helpers import highlight_summary, highlight_sources, render_sources
 from reports.report_builder import list_available_reports, load_report

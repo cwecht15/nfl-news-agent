@@ -12,6 +12,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Projections", page_icon="🏈", layout="wide")
 
+from dashboard.auth import require_password
+require_password()
+
 PROJ_DIR = Path(__file__).parent.parent.parent / "data" / "projections"
 
 st.header("Projections")

@@ -15,6 +15,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Config", page_icon="🏈", layout="wide")
 
+from dashboard.auth import require_password
+require_password()
+
 import yaml
 
 import config_loader

@@ -25,38 +25,9 @@ st.set_page_config(
 )
 
 
-def _require_password() -> None:
-    """Gate the dashboard behind a shared password from st.secrets.
+from dashboard.auth import require_password
 
-    If no password is configured (no secrets.toml — local dev), allow
-    access. On Streamlit Cloud you MUST set `dashboard_password` in the
-    app's secrets, otherwise the dashboard will be publicly readable.
-    """
-    try:
-        expected = st.secrets["dashboard_password"]
-    except (KeyError, FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
-        return  # local dev — no secrets file present
-
-    if not expected:
-        return
-
-    if st.session_state.get("authenticated"):
-        return
-
-    st.title("🏈 NFL News Agent")
-    st.markdown("Private dashboard — enter the access password to continue.")
-    with st.form("login_form", clear_on_submit=False):
-        pwd = st.text_input("Password", type="password")
-        if st.form_submit_button("Enter"):
-            if pwd == expected:
-                st.session_state.authenticated = True
-                st.rerun()
-            else:
-                st.error("Incorrect password.")
-    st.stop()
-
-
-_require_password()
+require_password()
 
 st.title("NFL News Agent")
 st.markdown("Daily NFL news, transactions, press conferences, and analysis.")

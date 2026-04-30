@@ -10,6 +10,9 @@ import streamlit as st
 
 st.set_page_config(page_title="Historical Trends", page_icon="🏈", layout="wide")
 
+from dashboard.auth import require_password
+require_password()
+
 from reports.report_builder import list_available_reports, load_report
 
 st.header("Historical Trends")
