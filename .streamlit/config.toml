@@ -8,7 +8,8 @@ headless = true
 gatherUsageStats = false
 
 [theme]
-# Only override the accent color; leave background/text unset so Streamlit
-# auto-detects the visitor's system theme (dark or light). Specifying any
-# of those forces light mode and ignores the browser preference.
-primaryColor = "#013369"  # NFL blue
+# Default to dark mode for all visitors. Each visitor can still flip to
+# light via the Streamlit Settings menu (hamburger icon → Settings →
+# Theme), which is stored in their browser's localStorage.
+base = "dark"
+primaryColor = "#1d6dff"  # NFL-ish blue, brighter for dark backgrounds
