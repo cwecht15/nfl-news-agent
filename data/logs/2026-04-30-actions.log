@@ -1,0 +1,350 @@
+2026-04-30 20:23:00,359 [INFO] orchestrator: ============================================================
+2026-04-30 20:23:00,359 [INFO] orchestrator: NFL News Agent - Daily Run: 2026-04-30
+2026-04-30 20:23:00,359 [INFO] orchestrator: ============================================================
+2026-04-30 20:23:00,364 [INFO] orchestrator: Step 1: Collecting from all sources (parallel)...
+2026-04-30 20:23:00,411 [INFO] collectors.rss_collector: Polling 5 RSS feeds (lookback=28h)...
+2026-04-30 20:23:00,412 [INFO] collectors.rss_collector: Collecting ESPN team-specific news for 32 teams...
+2026-04-30 20:23:00,428 [INFO] collectors.web_scraper: Scraping 3 web sources...
+2026-04-30 20:23:00,429 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/4
+2026-04-30 20:23:00,430 [INFO] collectors.beat_writer_collector: Collecting from 1 beat writers (lookback=28h)...
+2026-04-30 20:23:00,432 [INFO] collectors.youtube_collector: Scanning 32 team YouTube channels (workers=6)...
+2026-04-30 20:23:01,155 [INFO] collectors.reddit_collector: Fetched 25 posts from r/nfl/new.
+2026-04-30 20:23:01,161 [INFO] collectors.reddit_collector: Collected 19 news items from r/nfl (skipped 6 highlights/threads).
+2026-04-30 20:23:01,415 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/4
+2026-04-30 20:23:01,488 [INFO] collectors.beat_writer_collector: Nick Underhill custom(neworleans_football): 0 items
+2026-04-30 20:23:02,053 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/4
+2026-04-30 20:23:02,468 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/4
+2026-04-30 20:23:03,029 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/4
+2026-04-30 20:23:03,460 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/4
+2026-04-30 20:23:03,805 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/3
+2026-04-30 20:23:05,125 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/3
+ERROR: [youtube] BGbRqBcXZ4Q: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:07,010 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/3
+ERROR: [youtube] XQYM1fDvNYY: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:08,007 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/3
+ERROR: [youtube] Q7XEYN65aqA: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:09,014 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/3
+ERROR: [youtube] _EavzBqrb3I: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:10,296 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/3
+ERROR: [youtube] z8Zy5h3YX8c: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:10,979 [INFO] collectors.web_scraper: Found 3 transactions.
+ERROR: [youtube] QlzD4YLBNzY: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:13,037 [INFO] collectors.web_scraper: Scraping NFL.com injuries: https://www.nfl.com/injuries/
+2026-04-30 20:23:14,125 [INFO] collectors.web_scraper: Found injury reports for 0 teams.
+ERROR: [youtube] uMmLcX4rWkA: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:16,157 [INFO] collectors.web_scraper: Scraping The Athletic NFL: https://www.nytimes.com/athletic/nfl/
+ERROR: [youtube] 4usdvGIygDk: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 3uZFtk6QRMI: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:16,648 [INFO] collectors.rss_collector: Collected 119 items from RSS feeds.
+ERROR: [youtube] i5VP4j_WPsk: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] GY7tlo_ZNFQ: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] roTAdz92els: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] vfAOnJFE7Wk: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] L8igy98R4lA: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] pNefydzZAek: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] UYzyUjuhAGg: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] Ij0_J0e5caU: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] wK5k4TF-0HQ: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+ERROR: [youtube] Gtw8DD0NKbk: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:30,083 [INFO] collectors.youtube_collector: ARI: found 0 matching videos
+ERROR: [youtube] IVbC_ma30HU: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] gIlZMNx0GRE: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:31,687 [INFO] collectors.youtube_collector: CHI: found 0 matching videos
+ERROR: [youtube] I_-gDfXzbgg: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] ZADDaCBCrKQ: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] gf3WS-DP3AE: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:37,541 [INFO] collectors.youtube_collector: BUF: found 0 matching videos
+ERROR: [youtube] YbfEatLD7hQ: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] LhNdE-dnj4I: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] kOng1Elul1Y: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:40,917 [INFO] collectors.youtube_collector: BAL: found 0 matching videos
+ERROR: [youtube] K_kQKmOQCH0: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:42,513 [INFO] collectors.youtube_collector: CAR: found 0 matching videos
+2026-04-30 20:23:43,102 [INFO] collectors.youtube_collector: DAL: found 0 matching videos
+ERROR: [youtube] vhz6ivWSV1k: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:46,910 [INFO] collectors.rss_collector: Collected 36 unique articles from ESPN team feeds.
+ERROR: [youtube] igDq1_Y-cCA: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] F-gqOBK4Byg: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:47,894 [INFO] collectors.youtube_collector: ATL: found 0 matching videos
+ERROR: [youtube] UsbL_W67ZZU: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] tHwBC_X_u0U: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] xFqrNA4upRw: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 2M18UY9aLe4: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] Xg_3EE9Mu98: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:55,745 [INFO] collectors.youtube_collector: GB: found 0 matching videos
+ERROR: [youtube] _JPvXbxhtwM: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:23:58,068 [INFO] collectors.beat_writer_collector: Nick Underhill YouTube @NOF: 0 news, 0 transcripts
+ERROR: [youtube] N6_Rdp95SBw: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:24:00,200 [INFO] collectors.beat_writer_collector: Beat writers complete: 0 news items, 0 transcripts across 1 writers
+ERROR: [youtube] w-5PE7tK2xg: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] aS_bKuoUOvI: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] tcXar6-jSRE: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] qQ1CCqIbf7o: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:24:04,057 [INFO] collectors.youtube_collector: CLE: found 0 matching videos
+ERROR: [youtube] JN_F6T5gt_g: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] JCSSmkcsHgA: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 4wwI3Op85Hw: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] sgOqjnQGxcc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] D2fA4MOCZog: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 4NCf6kBE3Ks: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:24:13,471 [INFO] collectors.youtube_collector: DEN: found 0 matching videos
+ERROR: [youtube] MFjh0kXCIhQ: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] CaarBLK7aYQ: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+2026-04-30 20:24:14,514 [INFO] collectors.youtube_collector: IND: found 0 matching videos
+ERROR: [youtube] 2iVhXdG_JP0: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 4A45sz654do: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] xr9Cv2H5lwo: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] t4F7Od4aUyA: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] ThAbaRbevAo: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] DzH0LPCgj8k: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] N0O6pKQBelA: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:24:23,000 [INFO] collectors.youtube_collector: JAX: found 0 matching videos
+ERROR: [youtube] 6k-U8_o-Lzw: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] tF2xT5BmMSg: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] CP_NqdVBsG0: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] SIRiFYQY0mU: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] cfZqj8WrMNc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+2026-04-30 20:24:30,861 [INFO] collectors.youtube_collector: LAC: found 0 matching videos
+ERROR: [youtube] U8nMLsOSjt8: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] mkEJdez1r2c: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] LNpWt0_b8Dc: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] OB63HTQ9fi4: This live event will begin in 44 hours.
+ERROR: [youtube] 6EaGdFMdL1k: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] ujf6Sdw0CMM: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] oBo9pf3U-0E: This live event will begin in 20 hours.
+ERROR: [youtube] dIeLyeSsaE0: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] igLCM-dEVOQ: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] lKH5wc1oDgg: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:24:43,431 [INFO] collectors.youtube_collector: CIN: found 0 matching videos
+ERROR: [youtube] 14l6pAVspoI: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:24:46,070 [INFO] collectors.web_scraper: Found 17 recent Athletic NFL stories across 32 team pages.
+ERROR: [youtube] NATlPcSprTY: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+2026-04-30 20:24:46,288 [INFO] collectors.youtube_collector: LV: found 0 matching videos
+2026-04-30 20:24:46,341 [INFO] collectors.youtube_collector: KC: found 0 matching videos
+2026-04-30 20:24:48,099 [INFO] collectors.web_scraper: Collected 20 items from web scraping.
+ERROR: [youtube] Ds8kVBVOQdk: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] d0iM0oj3dPo: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:24:50,013 [INFO] collectors.youtube_collector: DET: found 0 matching videos
+ERROR: [youtube] dpWWPYLhNVo: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] wa1Xoo5CyMw: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] FengZMbaLO4: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] CA3y1Wb4P8Y: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] NSA1sb1r-Hk: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] uJasBXpxZ6g: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] vxWq2ADaF-M: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] k-C_baNL1Jg: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] -RhQNGk1T28: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 2EUw2XMdA3Q: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] w7tfkMXXujM: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:25:04,228 [INFO] collectors.youtube_collector: HOU: found 0 matching videos
+ERROR: [youtube] v6vrQGsFBGI: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] iN6sfwzIqxg: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:25:07,015 [INFO] collectors.youtube_collector: NYG: found 0 matching videos
+ERROR: [youtube] he8FWhtF5EU: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 3jA6YzcDf_I: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] WxW_bI_6ydE: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] td0QMeMuvYY: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] yoYJ8DUrP54: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 2XEk774NZ98: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] ij4jp_lcYCg: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 5NUOKCNd9eU: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:25:17,522 [INFO] collectors.youtube_collector: LAR: found 0 matching videos
+ERROR: [youtube] p0DKqHVDfnk: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] ohCwAWhMSjI: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 3Fh8dQcWbL4: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 3kvBLiWaxBI: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] mue-O7XSXKs: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] iWQRE2UjXog: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] ZYez-ha2TPQ: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] hJp9FXLKiyA: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] IxKNkJ-jFUE: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] Fyy5w_b6P-U: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] fhXpcdqObSY: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] BFHoxO4gNo4: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] mJqDlspS9tE: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+2026-04-30 20:25:26,194 [INFO] collectors.youtube_collector: MIN: found 0 matching videos
+ERROR: [youtube] vz-P_yNnTw0: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] SzYDkOtLBIo: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+2026-04-30 20:25:27,240 [INFO] collectors.youtube_collector: NO: found 0 matching videos
+ERROR: [youtube] bRMB3hMlGYw: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] yHMw38clyyg: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube:tab] UCCmDMJ4OF5Vvik1vLp2M9lA: This channel does not have a streams tab
+2026-04-30 20:25:29,275 [INFO] collectors.youtube_collector: NE: found 0 matching videos
+ERROR: [youtube] MlJYQZxPb3w: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] vc5jb-PN1bY: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] I0iwBRW0BAw: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 6upjfFXMQUI: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] QBP20cJnqLQ: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] V2zCgM3b0fo: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] iXr4OhsQHp8: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] OB6ApVoYi4w: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] cMrzTzPHxSo: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] izXRmd-TUZI: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] EZD_vDk2Tmk: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] UhM2Uc0N0UY: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] 4-zb1TbY6Cs: Requested format is not available. Use --list-formats for a list of available formats
+2026-04-30 20:25:35,582 [INFO] collectors.youtube_collector: NYJ: found 0 matching videos
+ERROR: [youtube] XoUmwH11XMg: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] nToJUHVQnhY: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] CBDdfS_-RPc: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+2026-04-30 20:25:36,909 [INFO] collectors.youtube_collector: MIA: found 0 matching videos
+ERROR: [youtube] M-5T5437VTY: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+2026-04-30 20:25:36,997 [INFO] collectors.youtube_collector: PHI: found 0 matching videos
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+ERROR: '/home/runner/work/nfl-news-agent/nfl-news-agent/secrets/youtube_cookies.txt' does not look like a Netscape format cookies file
+ERROR: [youtube] QLXRVeGaXtI: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+2026-04-30 20:25:37,388 [INFO] collectors.youtube_collector: SF: found 0 matching videos
+ERROR: [youtube:tab] UCysetst5Aek6_vK_89qGtVQ: This channel does not have a streams tab
+2026-04-30 20:25:37,681 [INFO] collectors.youtube_collector: TEN: found 0 matching videos
+ERROR: [youtube] Xmfn7z02CBw: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] OvsHwFHyTOs: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 7MMUtGKhmxA: Requested format is not available. Use --list-formats for a list of available formats
+ERROR: [youtube] wtxLIYHPDfs: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 5p8Ai5GeGQI: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 3BDFjNugG14: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] UXRNa86M29w: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] jEJ-WfyPtbM: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] T5-P2tr4oss: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] THJl3eu58eM: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] iqDTF1ZGFN4: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] yJzlpBYK3jY: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+2026-04-30 20:25:44,666 [INFO] collectors.youtube_collector: PIT: found 0 matching videos
+ERROR: [youtube] sZdkBUmQbgY: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] Yz7BkiRzU2Q: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 936ppa1x1EM: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] 4ZlWYd8uTAs: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] -shpkpZUQo0: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+2026-04-30 20:25:46,516 [INFO] collectors.youtube_collector: TB: found 0 matching videos
+ERROR: [youtube] 8P2ZGxEdta0: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] c6FtcrUHQ2k: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ERROR: [youtube] DWk9Y0yRZ2U: This live event will begin in 34 minutes.
+2026-04-30 20:25:48,166 [INFO] collectors.youtube_collector: SEA: found 1 matching videos
+ERROR: [youtube] 4LAtRGwOraE: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+2026-04-30 20:25:48,485 [INFO] collectors.youtube_collector: WAS: found 0 matching videos
+ERROR: [youtube] DWk9Y0yRZ2U: This live event will begin in 34 minutes.
+2026-04-30 20:25:49,113 [INFO] collectors.youtube_collector: No captions for 'Jadarian Price Introductory Press Conference - April 30, 2026', trying Whisper...
+ERROR: [youtube] DWk9Y0yRZ2U: This live event will begin in 34 minutes.
+2026-04-30 20:25:50,224 [ERROR] collectors.youtube_collector: Failed to download audio for DWk9Y0yRZ2U: ERROR: [youtube] DWk9Y0yRZ2U: This live event will begin in 34 minutes.
+2026-04-30 20:25:52,228 [INFO] collectors.youtube_collector: Collected 0 transcripts total (181 total seen).
+2026-04-30 20:25:52,233 [INFO] collectors.rss_collector: Saved 155 RSS items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-04-30/rss.json
+2026-04-30 20:25:52,234 [INFO] collectors.web_scraper: Saved 20 web items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-04-30/web.json
+2026-04-30 20:25:52,235 [INFO] collectors.reddit_collector: Saved 19 Reddit items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-04-30/reddit.json
+2026-04-30 20:25:52,235 [INFO] collectors.youtube_collector: Saved 0 transcript records to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-04-30/youtube.json
+2026-04-30 20:25:52,235 [INFO] collectors.beat_writer_collector: Saved 0 beat writer news items + 0 transcripts to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-04-30/beat_writers.json
+2026-04-30 20:25:52,241 [INFO] orchestrator: Collection complete: 194 news items, 0 transcripts
+2026-04-30 20:25:52,241 [INFO] orchestrator: Step 2: Deduplicating stories...
+2026-04-30 20:25:57,723 [INFO] processing.deduplicator: Loading embedding model 'all-MiniLM-L6-v2' for deduplication...
+2026-04-30 20:25:57,724 [INFO] sentence_transformers.base.model: No device provided, using cpu
+2026-04-30 20:25:57,872 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-30 20:25:57,873 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-30 20:25:57,886 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/modules.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:57,975 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:57,988 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:57,989 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+2026-04-30 20:25:58,076 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:58,089 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:58,181 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:58,194 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/README.md "HTTP/1.1 200 OK"
+2026-04-30 20:25:58,284 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:58,298 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/modules.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:58,386 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:58,399 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:58,487 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-04-30 20:25:58,575 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:58,588 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 4082.80it/s]
+2026-04-30 20:25:58,796 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-04-30 20:25:58,888 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-04-30 20:25:58,978 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-04-30 20:25:59,074 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-04-30 20:25:59,161 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:59,174 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:59,262 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:59,276 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:59,366 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:59,379 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:59,471 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:59,485 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:59,580 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-30 20:25:59,671 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-30 20:25:59,795 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-30 20:25:59,808 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-04-30 20:25:59,902 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
+Batches:   0%|          | 0/7 [00:00<?, ?it/s]Batches:  14%|█▍        | 1/7 [00:00<00:01,  3.85it/s]Batches:  29%|██▊       | 2/7 [00:00<00:00,  6.00it/s]Batches:  57%|█████▋    | 4/7 [00:00<00:00,  8.77it/s]Batches:  86%|████████▌ | 6/7 [00:00<00:00, 10.74it/s]Batches: 100%|██████████| 7/7 [00:00<00:00, 10.36it/s]
+2026-04-30 20:26:00,583 [INFO] processing.deduplicator: Using embedding-based deduplication (all-MiniLM-L6-v2).
+2026-04-30 20:26:00,630 [INFO] processing.deduplicator: Deduplicated 194 items into 132 story groups.
+2026-04-30 20:26:00,631 [INFO] orchestrator: Deduplicated: 194 items -> 132 unique stories
+2026-04-30 20:26:00,631 [INFO] orchestrator: Step 2b: Filtering cross-day duplicates...
+2026-04-30 20:26:00,632 [INFO] processing.cross_day_filter: Cross-day filter: no lookback data, skipping.
+2026-04-30 20:26:00,632 [INFO] orchestrator: Cross-day filter: 132 -> 132 unique stories (0 suppressed as repeats)
+2026-04-30 20:26:00,632 [INFO] orchestrator: Step 3: Summarizing with OpenAI API...
+2026-04-30 20:26:01,035 [INFO] processing.summarizer: Summarizing with openai/gpt-5.4-mini: 3 transactions, 0 injuries, 129 general news, 0 transcripts
+2026-04-30 20:26:01,035 [INFO] processing.summarizer: Generating transactions summary...
+2026-04-30 20:26:08,175 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:26:08,308 [INFO] processing.summarizer: Generating injury report...
+2026-04-30 20:26:08,309 [INFO] processing.summarizer: Generating press conference highlights...
+2026-04-30 20:26:08,309 [INFO] processing.summarizer: Generating analysis...
+2026-04-30 20:26:48,103 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:26:48,105 [INFO] processing.summarizer: Generating team highlights...
+2026-04-30 20:26:51,736 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:26:56,272 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:26:59,969 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:04,527 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:08,659 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:11,742 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:15,856 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:20,179 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:23,742 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:27,724 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:31,620 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:34,923 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:38,424 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:41,891 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:47,700 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:52,475 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:56,138 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:27:59,686 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:03,191 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:06,550 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:09,975 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:13,162 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:17,015 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:22,153 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:26,385 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:29,826 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:33,948 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:37,822 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:43,411 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:47,368 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:50,392 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:54,554 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-04-30 20:28:54,555 [INFO] processing.summarizer: LLM usage: 34 requests | input=28067 tokens (cached=0, uncached=28067) | output=11746 tokens (reasoning=4277) | estimated cost=$0.0739
+2026-04-30 20:28:54,555 [INFO] orchestrator: LLM summary: openai/gpt-5.4-mini | calls=34 | input=28067 | output=11746 | estimated cost=$0.0739
+2026-04-30 20:28:54,555 [INFO] orchestrator: LLM note: Exact token usage comes from OpenAI Responses API metadata.
+2026-04-30 20:28:54,555 [INFO] orchestrator: Step 4: Building daily report...
+2026-04-30 20:28:54,561 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-04-30.json
+2026-04-30 20:28:54,563 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-04-30.html
+2026-04-30 20:28:54,563 [INFO] orchestrator: Step 5: Snapshotting projections...
+2026-04-30 20:28:58,046 [INFO] scripts.snapshot_projections: Saved player snapshot: 584 players to /home/runner/work/nfl-news-agent/nfl-news-agent/data/projections/2026-04-30/players.json
+2026-04-30 20:29:00,546 [INFO] scripts.snapshot_projections: Saved fantasy snapshot: 583 players to /home/runner/work/nfl-news-agent/nfl-news-agent/data/projections/2026-04-30/fantasy.json
+2026-04-30 20:29:02,735 [INFO] scripts.snapshot_projections: Saved team snapshot: 32 teams to /home/runner/work/nfl-news-agent/nfl-news-agent/data/projections/2026-04-30/teams.json
+2026-04-30 20:29:02,735 [INFO] orchestrator: Projection snapshot: 584 players, 583 fantasy, 32 teams | 0 adj tweaks, 0 projection shifts, 0 rank changes, 0 team changes
+2026-04-30 20:29:02,735 [INFO] orchestrator: Step 6: Updating depth charts...
+2026-04-30 20:29:06,913 [INFO] collectors.depth_chart_collector: Saved 2873 depth chart entries to /home/runner/work/nfl-news-agent/nfl-news-agent/data/depth_charts/2026-04-30.json
+2026-04-30 20:29:06,914 [INFO] orchestrator: First depth chart snapshot — no changes to compare.
+2026-04-30 20:29:06,914 [INFO] orchestrator: Step 7: Cleaning up old data...
+2026-04-30 20:29:06,914 [INFO] orchestrator: ============================================================
+2026-04-30 20:29:06,915 [INFO] orchestrator: Daily run complete!
+2026-04-30 20:29:06,915 [INFO] orchestrator: JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-04-30.json
+2026-04-30 20:29:06,915 [INFO] orchestrator: HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-04-30.html
+2026-04-30 20:29:06,915 [INFO] orchestrator: Stats: 132 news items, 0 transcripts, 32 team highlights
+2026-04-30 20:29:06,915 [INFO] orchestrator: ============================================================
