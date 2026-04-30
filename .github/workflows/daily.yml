@@ -90,6 +90,32 @@ jobs:
             chmod 600 secrets/youtube_cookies.txt
           fi
 
+      - name: Verify secrets restored correctly
+        env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        run: |
+          echo "=== .env contents (keys only) ==="
+          if [ -f .env ]; then
+            cut -d= -f1 .env | sort
+          else
+            echo "(.env missing!)"
+          fi
+
+          echo ""
+          echo "=== secrets/ directory ==="
+          ls -la secrets/ 2>/dev/null || echo "(secrets/ directory missing!)"
+
+          echo ""
+          echo "=== YouTube cookies ==="
+          echo "YOUTUBE_COOKIES secret length in env: ${#YOUTUBE_COOKIES} chars"
+          if [ -f secrets/youtube_cookies.txt ]; then
+            echo "youtube_cookies.txt exists, size: $(wc -c < secrets/youtube_cookies.txt) bytes, lines: $(wc -l < secrets/youtube_cookies.txt)"
+            echo "First line: $(head -1 secrets/youtube_cookies.txt)"
+            echo "Has youtube.com entries: $(grep -c 'youtube.com' secrets/youtube_cookies.txt) lines"
+          else
+            echo "youtube_cookies.txt: MISSING (cookies will not be applied)"
+          fi
+
       - name: Run daily pipeline
         run: |
           mkdir -p data/logs
