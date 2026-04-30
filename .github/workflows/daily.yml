@@ -110,8 +110,28 @@ jobs:
           echo "YOUTUBE_COOKIES secret length in env: ${#YOUTUBE_COOKIES} chars"
           if [ -f secrets/youtube_cookies.txt ]; then
             echo "youtube_cookies.txt exists, size: $(wc -c < secrets/youtube_cookies.txt) bytes, lines: $(wc -l < secrets/youtube_cookies.txt)"
-            echo "First line: $(head -1 secrets/youtube_cookies.txt)"
             echo "Has youtube.com entries: $(grep -c 'youtube.com' secrets/youtube_cookies.txt) lines"
+            echo ""
+            echo "--- First 5 lines (cat -A: ^I=tab, ^M=CR, $=LF) ---"
+            head -5 secrets/youtube_cookies.txt | cat -A | sed 's/^/  /'
+            echo ""
+            echo "--- First 200 bytes (od -c) ---"
+            head -c 200 secrets/youtube_cookies.txt | od -c | head -10 | sed 's/^/  /'
+            echo ""
+            echo "--- Tab count in first 10 lines (should be ~6 per cookie row) ---"
+            head -10 secrets/youtube_cookies.txt | tr -d -c '\t' | wc -c | awk '{print "  Total tabs: " $1}'
+            echo ""
+            echo "--- Auto-fix: convert CRLF to LF and runs of 2+ spaces to tabs if needed ---"
+            if file secrets/youtube_cookies.txt 2>/dev/null | grep -q CRLF; then
+              echo "  CRLF detected — converting to LF"
+              tr -d '\r' < secrets/youtube_cookies.txt > secrets/youtube_cookies.fixed && mv secrets/youtube_cookies.fixed secrets/youtube_cookies.txt
+            fi
+            if [ "$(head -10 secrets/youtube_cookies.txt | tr -d -c '\t' | wc -c)" -lt 5 ]; then
+              echo "  No tabs detected — converting runs of 2+ spaces to tabs"
+              sed -i 's/  \+/\t/g' secrets/youtube_cookies.txt
+              echo "  After fix:"
+              head -2 secrets/youtube_cookies.txt | cat -A | sed 's/^/    /'
+            fi
           else
             echo "youtube_cookies.txt: MISSING (cookies will not be applied)"
           fi
