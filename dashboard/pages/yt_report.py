@@ -8,6 +8,7 @@ work happens here.
 """
 
 import json
+import os
 import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -21,12 +22,34 @@ st.set_page_config(page_title="YouTube Report", page_icon="🏈", layout="wide")
 from dashboard.auth import require_password
 require_password()
 
+from dashboard.helpers import bootstrap_secrets
+
+# Bridge st.secrets → os.environ before importing pipeline modules that
+# read OPENAI_API_KEY at call time. Locally this is a no-op (the .env
+# file already populated os.environ); on Streamlit Cloud it pulls keys
+# from the app's Secrets panel.
+bootstrap_secrets()
+
 from config_loader import get_data_dir, get_teams_by_abbr
 from models import Transcript
 from processing.yt_section import build_yt_section
 
 
 st.header("YouTube Report")
+
+if not os.environ.get("OPENAI_API_KEY"):
+    st.error(
+        "**OpenAI API key is not configured for this dashboard.** The "
+        "YouTube Report tab calls OpenAI on demand to summarize "
+        "transcripts, so a key has to be reachable to the Streamlit "
+        "process.\n\n"
+        "**To fix on Streamlit Cloud:** open *Manage app → Settings → "
+        "Secrets* and add a line:\n\n"
+        "```\nOPENAI_API_KEY = \"sk-...\"\n```\n\n"
+        "Save and let the app reboot. This page will work on the next "
+        "page load."
+    )
+    st.stop()
 st.caption(
     "Summarized press conferences and per-team notes drawn from YouTube "
     "transcripts. Pick a date range, click Generate. Each click runs an "

@@ -35,6 +35,47 @@ def stop_if_not_local(page_name: str = "This page") -> None:
     st.stop()
 
 
+# Names we may need to bridge from `st.secrets` into `os.environ` so the
+# pipeline-side modules (which read os.environ directly via dotenv) work
+# inside the Streamlit Cloud process. Locally, .env already populates
+# os.environ before this runs, so the bridge is a no-op.
+_SECRET_BRIDGE_KEYS: tuple[str, ...] = (
+    "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "HF_TOKEN",
+)
+
+
+def bootstrap_secrets() -> list[str]:
+    """Copy known secrets from `st.secrets` into `os.environ` if missing.
+
+    Streamlit Cloud doesn't write your `.env` file — visitors hit the
+    dashboard inside a clean container that only sees `st.secrets`. The
+    summarizer + collectors read `os.environ` via python-dotenv, so we
+    bridge any secret-dict keys we know about into the environment on
+    page load. Returns the list of keys that ended up populated, for
+    pages that want to surface a friendly error when nothing is set.
+    """
+    populated: list[str] = []
+    for key in _SECRET_BRIDGE_KEYS:
+        if os.environ.get(key):
+            populated.append(key)
+            continue
+        # st.secrets raises if the secrets backend isn't configured (no
+        # secrets.toml locally, for example). Treat any failure as
+        # "secret not present" rather than crashing the page.
+        try:
+            value = st.secrets.get(key)
+        except (FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
+            value = None
+        except Exception:
+            value = None
+        if value:
+            os.environ[key] = str(value)
+            populated.append(key)
+    return populated
+
+
 def highlight_summary(highlight) -> str:
     """Return highlight text for both old and new report formats."""
     if isinstance(highlight, dict):
