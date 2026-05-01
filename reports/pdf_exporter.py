@@ -65,40 +65,53 @@ RED = BRAND_RED
 
 
 # Brand fonts. Kanit Extrabold Italic for headlines/display (always
-# uppercase per the style guide); Mulish for all body, captions,
-# labels. Registered once at module import so ReportLab can resolve
-# them by name in every Paragraph style.
+# uppercase per the style guide); Mulish Regular + Bold for all body,
+# captions, labels.
+#
+# The variable Mulish ttf (Mulish-VariableFont_wght.ttf) has its
+# default master at wght=200 (ExtraLight), which ReportLab embeds as
+# the only instance — that produced very thin, italic-looking body
+# text in PDF viewers. Static Mulish-Regular.ttf + Mulish-Bold.ttf
+# (Google Fonts release) give us the right weight for body and a real
+# bold for `<b>` markup, instead of synthetic bold on top of an
+# already-too-light glyph.
 _BRAND_DIR = Path(__file__).parent.parent / "assets" / "brand"
 _FONT_KANIT_PATH = _BRAND_DIR / "Kanit-ExtraBoldItalic.ttf"
-_FONT_MULISH_PATH = _BRAND_DIR / "Mulish-VariableFont_wght.ttf"
+_FONT_MULISH_PATH = _BRAND_DIR / "Mulish-Regular.ttf"
+_FONT_MULISH_BOLD_PATH = _BRAND_DIR / "Mulish-Bold.ttf"
 
 KANIT = "Kanit-ExtraBoldItalic"
 MULISH = "Mulish"
+MULISH_BOLD = "Mulish-Bold"
 _BRAND_FONTS_READY = False
 
 
 def _ensure_brand_fonts() -> bool:
     """Register Kanit + Mulish on first call; cheap no-op afterwards.
 
-    Returns True when both fonts are available and Paragraph styles
-    can use them. Falls back to Helvetica on registration failure
-    (e.g. font file missing in a stripped deploy) so PDFs still
-    render — just without the brand typography.
+    Returns True when all three brand TTFs are available so Paragraph
+    styles can use them. Falls back to Helvetica on registration
+    failure (e.g. font file missing in a stripped deploy) so PDFs
+    still render — just without the brand typography.
     """
     global _BRAND_FONTS_READY
     if _BRAND_FONTS_READY:
         return True
     try:
-        if KANIT not in pdfmetrics.getRegisteredFontNames():
+        registered = pdfmetrics.getRegisteredFontNames()
+        if KANIT not in registered:
             pdfmetrics.registerFont(TTFont(KANIT, str(_FONT_KANIT_PATH)))
-        if MULISH not in pdfmetrics.getRegisteredFontNames():
+        if MULISH not in registered:
             pdfmetrics.registerFont(TTFont(MULISH, str(_FONT_MULISH_PATH)))
-        # Map <b>/<i> markup in Paragraphs onto the same TTF — Mulish
-        # is a variable font but ReportLab loads a single weight, so
-        # synthetic bold is the trade-off. Visual hierarchy comes
-        # from Kanit vs Mulish, not from bold body.
+        if MULISH_BOLD not in registered:
+            pdfmetrics.registerFont(TTFont(MULISH_BOLD, str(_FONT_MULISH_BOLD_PATH)))
+        # Map markup: <b> in a Mulish paragraph picks up Mulish-Bold;
+        # Kanit gets the same name in every slot since it has no
+        # separate weight files.
         pdfmetrics.registerFontFamily(
-            MULISH, normal=MULISH, bold=MULISH, italic=MULISH, boldItalic=MULISH,
+            MULISH,
+            normal=MULISH, bold=MULISH_BOLD,
+            italic=MULISH, boldItalic=MULISH_BOLD,
         )
         pdfmetrics.registerFontFamily(
             KANIT, normal=KANIT, bold=KANIT, italic=KANIT, boldItalic=KANIT,
