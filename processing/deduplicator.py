@@ -253,12 +253,45 @@ def deduplicate(items: list[NewsItem]) -> list[list[NewsItem]]:
     return groups
 
 
+# Source prefixes that are mostly aggregation / fan-blog coverage rather
+# than original reporting. When a story group contains both a primary
+# outlet (ESPN, Pro Football Talk, CBS, NFL.com, The Athletic, named
+# beat writers) and one of these, the primary outlet should be the
+# group's representative — even when the aggregator's body text is
+# longer. Order doesn't matter; we just check `startswith`.
+_NON_PRIMARY_SOURCE_PREFIXES: tuple[str, ...] = (
+    "SBN ",        # SBN team blogs — mostly commentary on insider scoops
+    "SI team ",    # SI per-team pages — mix, but mostly secondary
+    "r/nfl",       # Reddit user-submitted pointers, not original reporting
+)
+
+
+def _is_primary_source(source: str) -> bool:
+    if not source:
+        return False
+    return not any(source.startswith(p) for p in _NON_PRIMARY_SOURCE_PREFIXES)
+
+
 def pick_primary(group: list[NewsItem]) -> NewsItem:
     """Pick the best item from a group to use as the primary source.
 
-    Prefers: longest summary > earliest published > first in list.
+    Two-tier ranking:
+      1. Original-reporting outlets (ESPN, Pro Football Talk, CBS Sports,
+         NFL.com, The Athletic, beat writers — anything not on the
+         non-primary prefix list) outrank aggregator/blog coverage (SBN
+         team blogs, SI team pages, Reddit). When SBN is just commenting
+         on an ESPN scoop, we cite ESPN.
+      2. Within the same tier: longest summary (more body for the LLM),
+         then earliest published.
     """
-    return max(group, key=lambda x: (len(x.summary or ""), -x.published.timestamp()))
+    return max(
+        group,
+        key=lambda x: (
+            1 if _is_primary_source(x.source) else 0,
+            len(x.summary or ""),
+            -x.published.timestamp(),
+        ),
+    )
 
 
 def flatten_groups(groups: list[list[NewsItem]]) -> list[NewsItem]:
