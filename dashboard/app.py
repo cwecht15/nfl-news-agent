@@ -4,6 +4,7 @@ Run with: streamlit run dashboard/app.py
 """
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -14,6 +15,13 @@ from pathlib import Path
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+
+# Load local .env (no-op on cloud, where the file doesn't exist).
+try:
+    from dotenv import load_dotenv
+    load_dotenv(PROJECT_ROOT / ".env")
+except ImportError:
+    pass
 
 import streamlit as st
 
@@ -314,41 +322,72 @@ def _render_pdf_export():
 
 # --- Main page logic ---
 
+
+def _pipeline_runnable_here() -> bool:
+    """True only when this process has the secrets the pipeline needs.
+
+    The "Run Pipeline" button shells out to `scripts/run_daily.py`, which
+    needs OPENAI_API_KEY (and ideally the Google service-account JSON). On
+    Streamlit Cloud the container has neither — clicking the button there
+    just produces noisy auth errors. Hide the controls in that case and
+    point visitors at GitHub Actions, which is the supported way to
+    trigger a cloud run.
+    """
+    return bool(os.environ.get("OPENAI_API_KEY"))
+
+
 st.sidebar.divider()
 st.sidebar.subheader("Run Pipeline")
 
-# Check if pipeline is already running
-existing_status = _read_status()
-pipeline_running = existing_status is not None
+run_clicked = False
+catchup_clicked = False
+catchup_hours = 0
+pipeline_running = False
+existing_status = None
 
-run_clicked = st.sidebar.button(
-    "Collect & Generate Report",
-    type="primary",
-    use_container_width=True,
-    disabled=pipeline_running,
-)
+if _pipeline_runnable_here():
+    existing_status = _read_status()
+    pipeline_running = existing_status is not None
 
-with st.sidebar.expander("Catch-up mode", expanded=False):
-    st.caption(
-        "If the PC was off for a while, widen the collection window on "
-        "this run so more of the missed news (still in RSS) gets picked "
-        "up. Leave at 0 to use the default 28-hour lookback."
-    )
-    catchup_hours = st.number_input(
-        "Extra lookback (hours)",
-        min_value=0,
-        max_value=240,
-        value=0,
-        step=12,
-        help="24 = 1 day, 72 = 3 days. Max 240 = 10 days.",
-        key="catchup_hours",
+    run_clicked = st.sidebar.button(
+        "Collect & Generate Report",
+        type="primary",
+        use_container_width=True,
         disabled=pipeline_running,
     )
-    catchup_clicked = st.button(
-        "Run catch-up now",
-        use_container_width=True,
-        disabled=pipeline_running or catchup_hours == 0,
-        key="catchup_run",
+
+    with st.sidebar.expander("Catch-up mode", expanded=False):
+        st.caption(
+            "If the PC was off for a while, widen the collection window on "
+            "this run so more of the missed news (still in RSS) gets picked "
+            "up. Leave at 0 to use the default 28-hour lookback."
+        )
+        catchup_hours = st.number_input(
+            "Extra lookback (hours)",
+            min_value=0,
+            max_value=240,
+            value=0,
+            step=12,
+            help="24 = 1 day, 72 = 3 days. Max 240 = 10 days.",
+            key="catchup_hours",
+            disabled=pipeline_running,
+        )
+        catchup_clicked = st.button(
+            "Run catch-up now",
+            use_container_width=True,
+            disabled=pipeline_running or catchup_hours == 0,
+            key="catchup_run",
+        )
+else:
+    st.sidebar.info(
+        "Pipeline runs aren't available from this dashboard.\n\n"
+        "Daily updates land automatically at **10:00 UTC** via GitHub "
+        "Actions. To trigger an off-cycle run, open the repo's **Actions** "
+        "tab and use the *Daily NFL News pipeline* workflow's "
+        "`workflow_dispatch` button.\n\n"
+        "For YouTube transcripts, run `scripts/collect_youtube.py` "
+        "locally and push the results — the **YouTube Report** tab will "
+        "pick them up."
     )
 
 if pipeline_running and not (run_clicked or catchup_clicked):
