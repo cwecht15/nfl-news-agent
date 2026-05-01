@@ -545,6 +545,64 @@ def _git_run(args: list[str]) -> tuple[bool, str]:
     return r.returncode == 0, output.strip()
 
 
+def _summarize_pending_videos(
+    pending: list[tuple[str, str]],
+) -> tuple[list[dict], list[tuple[str, int]], list[str]]:
+    """Turn pending file paths into something user-meaningful.
+
+    Returns:
+        videos: list of {date, team, title, method, url} for every video in
+            a queued `data/raw/<date>/youtube.json`.
+        loose_dirs: list of (transcripts_dir_name, txt_count) for transcript
+            directories whose youtube.json isn't itself queued — usually
+            means the metadata file was already committed earlier.
+        other_paths: file paths that didn't match either bucket
+            (e.g. `data/youtube_seen.json` itself).
+    """
+    queued_youtube_jsons: list[Path] = []
+    queued_txt_dirs: dict[str, int] = {}
+    other: list[str] = []
+
+    for _code, path in pending:
+        if path.startswith("data/raw/") and path.endswith("/youtube.json"):
+            queued_youtube_jsons.append(PROJECT_ROOT / path)
+        elif path.startswith("data/transcripts/") and path.endswith(".txt"):
+            # group by parent dir name
+            dir_name = path.split("/")[2] if path.count("/") >= 2 else "?"
+            queued_txt_dirs[dir_name] = queued_txt_dirs.get(dir_name, 0) + 1
+        else:
+            other.append(path)
+
+    videos: list[dict] = []
+    yt_dirs_with_metadata: set[str] = set()
+    for json_path in queued_youtube_jsons:
+        date_label = json_path.parent.name
+        yt_dirs_with_metadata.add(date_label)
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                items = json.load(f)
+        except Exception:
+            continue
+        for item in items or []:
+            videos.append({
+                "date": date_label,
+                "team": item.get("team", "?"),
+                "title": item.get("title", "(untitled)"),
+                "method": item.get("method", ""),
+                "url": item.get("url", ""),
+            })
+
+    # Sort by (date, team, title) so the rendered list is stable + scannable.
+    videos.sort(key=lambda v: (v["date"], v["team"], v["title"]))
+
+    loose_dirs = [
+        (name, count)
+        for name, count in sorted(queued_txt_dirs.items())
+        if name not in yt_dirs_with_metadata
+    ]
+    return videos, loose_dirs, other
+
+
 def _publish_to_cloud(
     paths: list[str],
     commit_msg: str,
@@ -1023,8 +1081,70 @@ with tab_publish:
             "`scripts/collect_youtube.py` to gather fresh transcripts first."
         )
     else:
-        st.markdown(f"**{len(pending)} file(s) queued for the next push:**")
-        with st.expander("Show files", expanded=False):
+        videos, loose_dirs, other_paths = _summarize_pending_videos(pending)
+
+        # Per-video table — what the user really cares about.
+        if videos:
+            videos_by_date: dict[str, list[dict]] = {}
+            for v in videos:
+                videos_by_date.setdefault(v["date"], []).append(v)
+
+            st.markdown(
+                f"**{len(videos)} video(s) across "
+                f"{len(videos_by_date)} date(s) will be published:**"
+            )
+            for date_label in sorted(videos_by_date.keys()):
+                day_videos = videos_by_date[date_label]
+                with st.expander(
+                    f"📅 {date_label} — {len(day_videos)} video(s)",
+                    expanded=True,
+                ):
+                    rows = [
+                        {
+                            "Team": v["team"],
+                            "Title": v["title"],
+                            "Method": v["method"],
+                            "URL": v["url"],
+                        }
+                        for v in day_videos
+                    ]
+                    st.dataframe(
+                        rows,
+                        use_container_width=True,
+                        hide_index=True,
+                        column_config={
+                            "URL": st.column_config.LinkColumn(
+                                "URL", display_text="watch ↗"
+                            ),
+                        },
+                    )
+
+        # Loose transcript directories (their .txt files are queued but the
+        # parent youtube.json was already committed in a previous push).
+        if loose_dirs:
+            loose_total = sum(count for _, count in loose_dirs)
+            st.markdown(
+                f"**{loose_total} loose transcript file(s)** in "
+                f"{len(loose_dirs)} dir(s) — metadata already committed:"
+            )
+            for name, count in loose_dirs:
+                st.text(f"  data/transcripts/{name}/  ({count} .txt files)")
+
+        # Anything that wasn't a video or transcript file (typically just
+        # data/youtube_seen.json).
+        if other_paths:
+            with st.expander(
+                f"Other files ({len(other_paths)})",
+                expanded=False,
+            ):
+                for path in other_paths:
+                    st.text(path)
+
+        # Raw porcelain list for users who want it.
+        with st.expander(
+            f"Raw git status ({len(pending)} files)",
+            expanded=False,
+        ):
             for code, path in pending:
                 label = code.strip() or "??"
                 st.text(f"[{label}] {path}")
