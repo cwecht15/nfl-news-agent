@@ -102,7 +102,8 @@ jobs:
               data/logs \
               data/source_health.json \
               data/youtube_seen.json \
-              data/notebooklm_pushed.json; do
+              data/notebooklm_pushed.json \
+              data/flagged_findings.json; do
             if [ -e "$path" ]; then
               git add -f "$path"
               echo "Staged: $path"
