@@ -828,7 +828,12 @@ with tab_backfill:
             st.error("Start date must be before end date.")
         else:
             from collectors.youtube_collector import (
-                scan_channel, download_captions, _parse_subtitle_file,
+                _parse_subtitle_file,
+                _transcribe_with_whisper,
+                _whisper_lock,
+                download_audio,
+                download_captions,
+                scan_channel,
             )
             from config_loader import get_settings, get_youtube_keywords
             from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -877,6 +882,7 @@ with tab_backfill:
                 videos = scan_channel(team, keywords, bf_settings, date_str)
                 team_videos = []
                 team_transcripts = []
+                team_skipped: list[dict] = []
                 for v in videos:
                     upload = v.get("upload_date", "")
                     if upload:
@@ -891,12 +897,55 @@ with tab_backfill:
                         {**v, "team": abbr, "team_name": team["name"]}
                     )
 
+                    # 1) Try auto-generated captions first.
                     caption_path = download_captions(
                         v["video_id"], v["url"], bf_temp_dir, bf_settings,
                     )
                     transcript_text = None
+                    method = "captions"
                     if caption_path:
                         transcript_text = _parse_subtitle_file(caption_path)
+
+                    # 2) Whisper fallback when captions are missing/empty —
+                    #    matches the daily collector's behavior so backfill
+                    #    doesn't silently drop videos that lack
+                    #    auto-generated captions (live-stream archives,
+                    #    very recent uploads).
+                    if not (transcript_text and len(transcript_text.strip()) > 50):
+                        duration = int(v.get("duration") or 0)
+                        max_dur = int(
+                            bf_settings.get("transcription", {})
+                            .get("whisper_max_duration_seconds", 1800)
+                        )
+                        if max_dur > 0 and duration > max_dur:
+                            team_skipped.append({
+                                "title": v.get("title", ""),
+                                "url": v.get("url", ""),
+                                "reason": (
+                                    f"too long for Whisper ({duration//60}m"
+                                    f" > {max_dur//60}m cap)"
+                                ),
+                            })
+                        else:
+                            audio_path = download_audio(
+                                v["video_id"], v["url"], bf_temp_dir, bf_settings,
+                            )
+                            if audio_path:
+                                with _whisper_lock:
+                                    transcript_text = _transcribe_with_whisper(
+                                        audio_path, bf_settings,
+                                    )
+                                method = "whisper"
+                                if bf_settings.get("transcription", {}).get(
+                                    "delete_audio_after", True
+                                ):
+                                    audio_path.unlink(missing_ok=True)
+                            else:
+                                team_skipped.append({
+                                    "title": v.get("title", ""),
+                                    "url": v.get("url", ""),
+                                    "reason": "no captions and audio download failed",
+                                })
 
                     if transcript_text and len(transcript_text.strip()) > 50:
                         slug = re.sub(r"[^\w\s-]", "", v["title"])[:60].strip().replace(" ", "_")
@@ -910,13 +959,21 @@ with tab_backfill:
                             "team_name": team["name"],
                             "url": v["url"],
                             "upload_date": v.get("upload_date", ""),
-                            "method": "captions",
+                            "method": method,
+                        })
+                    elif not team_skipped or team_skipped[-1].get("title") != v.get("title", ""):
+                        # Whisper ran but produced empty/short text.
+                        team_skipped.append({
+                            "title": v.get("title", ""),
+                            "url": v.get("url", ""),
+                            "reason": "transcription returned empty/very short text",
                         })
                     time.sleep(delay)
-                return team_videos, team_transcripts
+                return team_videos, team_transcripts, team_skipped
 
             all_videos = []
             all_transcripts = []
+            all_skipped: list[dict] = []
             total = len(scan_teams)
             completed = 0
             progress = st.progress(
@@ -930,12 +987,13 @@ with tab_backfill:
                 for fut in as_completed(futures):
                     team = futures[fut]
                     try:
-                        team_videos, team_transcripts = fut.result()
+                        team_videos, team_transcripts, team_skipped = fut.result()
                     except Exception as e:
                         st.warning(f"{team['abbr']} failed: {e}")
-                        team_videos, team_transcripts = [], []
+                        team_videos, team_transcripts, team_skipped = [], [], []
                     all_videos.extend(team_videos)
                     all_transcripts.extend(team_transcripts)
+                    all_skipped.extend(team_skipped)
                     completed += 1
                     progress.progress(
                         completed / total,
@@ -956,6 +1014,7 @@ with tab_backfill:
                 "date_str": date_str,
                 "transcripts": all_transcripts,
                 "video_count": len(all_videos),
+                "skipped": all_skipped,
             }
 
     # Render results (from this run or previous run within the session)
@@ -966,6 +1025,26 @@ with tab_backfill:
             f"{bf_results['video_count']} videos found, "
             f"{len(bf_results['transcripts'])} transcripts saved."
         )
+
+        skipped = bf_results.get("skipped") or []
+        if skipped:
+            with st.expander(
+                f"⚠ {len(skipped)} found videos produced no transcript",
+                expanded=False,
+            ):
+                st.caption(
+                    "Captions weren't available and the Whisper fallback "
+                    "didn't produce usable text for these videos. They're "
+                    "still in `all_videos.json` if you want to inspect them."
+                )
+                for s in skipped:
+                    title = s.get("title", "(untitled)")
+                    url = s.get("url", "")
+                    reason = s.get("reason", "")
+                    if url:
+                        st.markdown(f"- [{title}]({url}) — *{reason}*")
+                    else:
+                        st.markdown(f"- {title} — *{reason}*")
 
         # Build candidate list in the shape _video_selector expects
         bf_items = []
