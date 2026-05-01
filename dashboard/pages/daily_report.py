@@ -190,6 +190,7 @@ def _flag_control(content: str, report_date: str, section_id: str,
             add_or_update_flag(
                 report_date, section_id, section_label, content, cat, note,
                 team=team, sources=attached_sources or [],
+                flagged_by=st.session_state.get("flagger_name", ""),
             )
             st.rerun()
         if existing and st.button("Unflag", key=f"{key_prefix}_unflag"):
@@ -243,7 +244,7 @@ except Exception as e:
     st.error(f"Failed to load report: {e}")
     st.stop()
 
-# Search box + flag-mode toggle
+# Search box + flag-mode toggle (+ name field, only when flagging)
 search_col, flag_col = st.columns([4, 1])
 with search_col:
     search_query = st.text_input(
@@ -252,6 +253,15 @@ with search_col:
 with flag_col:
     flag_mode = st.toggle("🚩 Flag mode", value=False, key="flag_mode",
                           help="Show flag controls beside each bullet/paragraph")
+
+if flag_mode:
+    st.text_input(
+        "Your name (saved with each flag for attribution)",
+        key="flagger_name",
+        placeholder="optional — leave blank to flag anonymously",
+        help="Other visitors will see this name next to flags you create. "
+             "Stored only with the flag entry, not used for auth.",
+    )
 
 if report.alerts:
     for alert in report.alerts:

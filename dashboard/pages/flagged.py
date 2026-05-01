@@ -187,12 +187,14 @@ for f in filtered:
     flagged_at = f.get("flagged_at", "")
 
     team_chunk = f" · **{team}**" if team else ""
+    flagger = (f.get("flagged_by") or "").strip()
+    flagger_chunk = f" · :grey[by **{flagger}**]" if flagger else ""
     with st.container():
         head_l, head_r = st.columns([6, 1])
         with head_l:
             st.markdown(
                 f"**[{category}]**{team_chunk} · {report_date} · *{section_label}*  \n"
-                f":grey[flagged {flagged_at}]"
+                f":grey[flagged {flagged_at}]{flagger_chunk}"
             )
         with head_r:
             with st.popover("Edit"):

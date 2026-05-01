@@ -75,12 +75,23 @@ def add_or_update_flag(
     note: str = "",
     team: str = "",
     sources: list[dict[str, Any]] | None = None,
+    flagged_by: str = "",
 ) -> dict[str, Any]:
-    """Insert or update a flag. Returns the stored entry."""
+    """Insert or update a flag. Returns the stored entry.
+
+    `flagged_by` is the visitor's display name for attribution. Last
+    writer wins: re-flagging the same item with a different name
+    overwrites the prior attribution. We deliberately don't keep a
+    history of every flagger because the flag ID is deterministic on
+    (date, section, content) — a true "everyone who's ever flagged this"
+    list would inflate JSON size and isn't useful for the small invited
+    group this is built for.
+    """
     fid = _flag_id(report_date, section, content)
     flags = load_flags()
     now = datetime.now().isoformat(timespec="seconds")
     sources = sources or []
+    flagged_by = (flagged_by or "").strip()
     for f in flags:
         if f.get("id") == fid:
             f["category"] = category
@@ -89,6 +100,8 @@ def add_or_update_flag(
             f["team"] = team
             if sources:
                 f["sources"] = sources
+            if flagged_by:
+                f["flagged_by"] = flagged_by
             f["updated_at"] = now
             _save(flags)
             return f
@@ -103,6 +116,7 @@ def add_or_update_flag(
         "note": note,
         "sources": sources,
         "flagged_at": now,
+        "flagged_by": flagged_by,
     }
     flags.append(entry)
     _save(flags)
