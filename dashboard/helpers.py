@@ -38,14 +38,27 @@ def to_et_display(iso_str: str | None) -> str:
 def running_locally() -> bool:
     """True only when the dashboard is running on the user's local machine.
 
-    Uses the presence of `OPENAI_API_KEY` in the environment as the signal:
-    locally it's loaded from .env at import time, on Streamlit Cloud it's
-    not present in the dashboard process. Pages that need to write files
-    or invoke the local pipeline should gate on this — visitors to the
-    public site can't do either, and clicking the controls would just
-    surface auth/credential errors.
+    Detection: the cloud deployment has `dashboard_password` configured in
+    Streamlit secrets (auth.py enforces it on every page). Local runs
+    don't bother setting up `.streamlit/secrets.toml`. So:
+      - st.secrets has dashboard_password → cloud → running_locally = False
+      - st.secrets is missing or has no password → local
+
+    The earlier signal (OPENAI_API_KEY in os.environ) became unreliable
+    once `bootstrap_secrets()` started bridging Streamlit secrets into
+    os.environ for the YT Report page — the env var ends up populated on
+    cloud too, which made every running_locally() check flip to True
+    after the user navigated through that page. The dashboard_password
+    signal is independent of any bridging and hews to the deployment
+    contract documented in dashboard/auth.py.
     """
-    return bool(os.environ.get("OPENAI_API_KEY"))
+    try:
+        password = st.secrets.get("dashboard_password")
+    except (FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
+        return True
+    except Exception:
+        return True
+    return not password
 
 
 def stop_if_not_local(page_name: str = "This page") -> None:
