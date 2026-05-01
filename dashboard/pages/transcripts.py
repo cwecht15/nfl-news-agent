@@ -1073,7 +1073,47 @@ with tab_publish:
         "Other modified files are left alone."
     )
 
-    pending = _git_pending_youtube_paths()
+    # The scan + per-video parse hits `git status` and reads every queued
+    # youtube.json from disk. Streamlit re-evaluates every tab body on
+    # every rerun, so during a long-running Backfill (which writes new
+    # files and reruns the page repeatedly to update progress) doing this
+    # work unconditionally would slow each rerun. Gate it behind a
+    # button and cache the result in session_state.
+    scan_btn_label = (
+        "🔄 Re-scan working tree"
+        if "publish_scan" in st.session_state
+        else "🔍 Scan for pending YouTube files"
+    )
+    if st.button(scan_btn_label, key="publish_scan_btn"):
+        with st.spinner("Scanning git working tree..."):
+            scan_pending = _git_pending_youtube_paths()
+            scan_videos, scan_loose, scan_other = _summarize_pending_videos(
+                scan_pending
+            )
+            st.session_state["publish_scan"] = {
+                "pending": scan_pending,
+                "videos": scan_videos,
+                "loose_dirs": scan_loose,
+                "other_paths": scan_other,
+                "ts": datetime.now(),
+            }
+
+    scan = st.session_state.get("publish_scan")
+    if scan is None:
+        st.info(
+            "Click the button above to inspect the working tree. The scan "
+            "is gated behind this button so it doesn't slow down a "
+            "long-running Backfill on the previous tab."
+        )
+        st.stop()
+
+    st.caption(
+        f"Scan from {scan['ts'].strftime('%I:%M:%S %p')}. "
+        "Press the button again after a backfill or a fresh "
+        "`collect_youtube.py` run."
+    )
+
+    pending = scan["pending"]
 
     if not pending:
         st.success(
@@ -1081,7 +1121,10 @@ with tab_publish:
             "`scripts/collect_youtube.py` to gather fresh transcripts first."
         )
     else:
-        videos, loose_dirs, other_paths = _summarize_pending_videos(pending)
+        # Reuse the parse from the button-triggered scan above.
+        videos = scan["videos"]
+        loose_dirs = scan["loose_dirs"]
+        other_paths = scan["other_paths"]
 
         # Per-video table — what the user really cares about.
         if videos:
@@ -1176,6 +1219,11 @@ with tab_publish:
                 ok, log = _publish_to_cloud(paths_only, commit_msg.strip())
 
             if ok:
+                # Stale scan after a successful push — the staged paths
+                # now live on origin/master and won't show up in the next
+                # `git status`. Drop the cached scan so the next render
+                # nudges the user to rescan.
+                st.session_state.pop("publish_scan", None)
                 st.success(
                     "✓ Pushed to origin/master. The live site will "
                     "redeploy in roughly a minute. Open the **YouTube "
