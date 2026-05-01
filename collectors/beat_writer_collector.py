@@ -54,8 +54,19 @@ def collect_beat_writers(
     date_str: str,
     lookback_hours: Optional[int] = None,
     teams_by_abbr: Optional[dict] = None,
+    skip_youtube: bool = False,
 ) -> tuple[list[NewsItem], list[Transcript]]:
-    """Collect from all configured beat writers. Returns (news_items, transcripts)."""
+    """Collect from all configured beat writers. Returns (news_items, transcripts).
+
+    skip_youtube: When True, skip the per-writer YouTube channel scrape
+    entirely. yt-dlp can't authenticate against YouTube on GitHub Actions
+    CI (cookie file rejected) and prints raw "Sign in to confirm you're
+    not a bot" errors to stderr regardless of how the wrapping code
+    handles failures. The cloud daily run sets this to True so those
+    error blocks never enter the log; local runs with
+    `run_daily.py --include-yt-section` set False to keep beat-writer
+    transcripts flowing into the YouTube section.
+    """
     settings = get_settings()
     if lookback_hours is None:
         lookback_hours = settings["collection"].get("lookback_hours", 28)
@@ -119,22 +130,28 @@ def collect_beat_writers(
                 )
             time.sleep(delay)
 
-        for channel in writer.get("youtube_channels") or []:
-            try:
-                yt_items, yt_tx = _collect_writer_youtube(
-                    channel, writer, cutoff, settings, date_str,
-                    default_teams, seen_video_ids, teams_by_abbr,
-                )
-                news_items.extend(yt_items)
-                transcripts.extend(yt_tx)
-                logger.info(
-                    "%s YouTube %s: %d news, %d transcripts",
-                    name, channel.get("handle") or channel.get("id"),
-                    len(yt_items), len(yt_tx),
-                )
-            except Exception as e:
-                logger.error("Beat writer YouTube failed (%s): %s", name, e)
-            time.sleep(delay)
+        if not skip_youtube:
+            for channel in writer.get("youtube_channels") or []:
+                try:
+                    yt_items, yt_tx = _collect_writer_youtube(
+                        channel, writer, cutoff, settings, date_str,
+                        default_teams, seen_video_ids, teams_by_abbr,
+                    )
+                    news_items.extend(yt_items)
+                    transcripts.extend(yt_tx)
+                    logger.info(
+                        "%s YouTube %s: %d news, %d transcripts",
+                        name, channel.get("handle") or channel.get("id"),
+                        len(yt_items), len(yt_tx),
+                    )
+                except Exception as e:
+                    logger.error("Beat writer YouTube failed (%s): %s", name, e)
+                time.sleep(delay)
+        elif writer.get("youtube_channels"):
+            logger.debug(
+                "%s: skipping %d YouTube channel(s) (skip_youtube=True)",
+                name, len(writer.get("youtube_channels") or []),
+            )
 
         for podcast_cfg in writer.get("podcast_feeds") or []:
             try:

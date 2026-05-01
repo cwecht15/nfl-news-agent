@@ -240,7 +240,10 @@ def run(
             collect_reddit, lookback_hours=lookback_hours
         )
         future_bw = executor.submit(
-            collect_beat_writers, date_str, lookback_hours=lookback_hours
+            collect_beat_writers,
+            date_str,
+            lookback_hours=lookback_hours,
+            skip_youtube=not include_yt_section,
         )
 
     rss_items = _safe_result(future_rss, "RSS")
