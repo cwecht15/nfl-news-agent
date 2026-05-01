@@ -406,28 +406,48 @@ def fetch_article_body(
     Tries domain-specific CSS selectors first, then falls back to <article>
     or the whole document. Returns "" on any error.
     """
+    # TEMP DIAGNOSTIC: ESPN body-fetch has been silently returning "" on
+    # the cloud cron (median ESPN body=109 chars, vs SBN=3.2k). Promote
+    # logging for espn.com URLs so the next workflow_dispatch run shows
+    # whether it's HTTP errors, missing selectors, or empty <p> sets.
+    # Revert once root cause is known.
+    is_espn = "espn.com" in url
     selectors = _matches_generic_domain(url) or ["article"]
     try:
         resp = session.get(url, timeout=timeout)
         resp.raise_for_status()
     except Exception as e:
-        logger.debug("Article body fetch failed for %s: %s", url, e)
+        if is_espn:
+            logger.info("ESPN body fetch HTTP failed for %s: %s", url, e)
+        else:
+            logger.debug("Article body fetch failed for %s: %s", url, e)
         return ""
 
     soup = BeautifulSoup(resp.text, "html.parser")
     container = None
+    used_selector = None
     for sel in selectors:
         found = soup.select_one(sel)
         if found and found.find_all("p"):
             container = found
+            used_selector = sel
             break
     if container is None:
         container = soup
+        used_selector = "<root-fallback>"
 
-    paragraphs = [p.get_text(" ", strip=True) for p in container.find_all("p")]
+    all_p = container.find_all("p")
+    paragraphs = [p.get_text(" ", strip=True) for p in all_p]
     body = "\n".join(p for p in paragraphs if p and len(p) > 25)
     if len(body) > max_chars:
         body = body[:max_chars].rsplit(" ", 1)[0] + "…"
+
+    if is_espn:
+        logger.info(
+            "ESPN body fetch %s: HTTP %s, html=%d bytes, selector=%s, %d <p> tags, body=%d chars",
+            url[:90], resp.status_code, len(resp.text),
+            used_selector, len(all_p), len(body),
+        )
     return body
 
 
