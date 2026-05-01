@@ -323,18 +323,7 @@ def _render_pdf_export():
 # --- Main page logic ---
 
 
-def _pipeline_runnable_here() -> bool:
-    """True only when this process has the secrets the pipeline needs.
-
-    The "Run Pipeline" button shells out to `scripts/run_daily.py`, which
-    needs OPENAI_API_KEY (and ideally the Google service-account JSON). On
-    Streamlit Cloud the container has neither — clicking the button there
-    just produces noisy auth errors. Hide the controls in that case and
-    point visitors at GitHub Actions, which is the supported way to
-    trigger a cloud run.
-    """
-    return bool(os.environ.get("OPENAI_API_KEY"))
-
+from dashboard.helpers import running_locally as _pipeline_runnable_here
 
 st.sidebar.divider()
 st.sidebar.subheader("Run Pipeline")

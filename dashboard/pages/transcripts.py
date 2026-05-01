@@ -1,6 +1,8 @@
-"""Transcripts & YouTube Links — Browse videos, push to NotebookLM, backfill."""
+"""Transcripts & YouTube Links — Browse videos, push to NotebookLM, backfill,
+and publish locally-collected transcripts to the live site."""
 
 import json
+import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -14,7 +16,12 @@ st.set_page_config(page_title="Transcripts", page_icon="🏈", layout="wide")
 from dashboard.auth import require_password
 require_password()
 
+from dashboard.helpers import stop_if_not_local
+stop_if_not_local("Transcripts")
+
 from config_loader import get_data_dir, get_teams
+
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 st.header("YouTube Videos & Transcripts")
 
@@ -461,11 +468,128 @@ def _execute_push(selected: list[dict], nb_url: str):
 
 
 # ──────────────────────────────────────────────────────────
+# Publish to live site — git stage/commit/push helpers
+# ──────────────────────────────────────────────────────────
+
+YOUTUBE_PATH_PREFIXES = (
+    "data/transcripts/",
+)
+YOUTUBE_LITERAL_PATHS = {
+    "data/youtube_seen.json",
+}
+
+
+def _is_youtube_path(path: str) -> bool:
+    if path in YOUTUBE_LITERAL_PATHS:
+        return True
+    if path.startswith("data/raw/") and path.endswith("/youtube.json"):
+        return True
+    if any(path.startswith(p) for p in YOUTUBE_PATH_PREFIXES):
+        return True
+    return False
+
+
+def _git_pending_youtube_paths() -> list[tuple[str, str]]:
+    """Return [(status_code, path), ...] for unpushed YouTube files.
+
+    Status code is the porcelain XY (e.g. " M", "??", "M ", "A ").
+    """
+    try:
+        result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+    except FileNotFoundError:
+        return []
+    except Exception:
+        return []
+
+    if result.returncode != 0:
+        return []
+
+    out: list[tuple[str, str]] = []
+    for line in result.stdout.splitlines():
+        if len(line) < 4:
+            continue
+        code = line[:2]
+        path = line[3:].strip()
+        # Strip surrounding double quotes that git uses for paths with spaces.
+        if path.startswith('"') and path.endswith('"'):
+            path = path[1:-1]
+        if _is_youtube_path(path):
+            out.append((code, path))
+    return out
+
+
+def _git_run(args: list[str]) -> tuple[bool, str]:
+    """Run a git subcommand; return (ok, combined_stdout_stderr)."""
+    try:
+        r = subprocess.run(
+            ["git"] + args,
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+    except FileNotFoundError:
+        return False, "git executable not found on PATH"
+    except subprocess.TimeoutExpired:
+        return False, "git command timed out"
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}"
+
+    output = (r.stdout or "") + (r.stderr or "")
+    return r.returncode == 0, output.strip()
+
+
+def _publish_to_cloud(
+    paths: list[str],
+    commit_msg: str,
+) -> tuple[bool, list[str]]:
+    """Stage, commit, and push the listed paths. Returns (success, log_lines)."""
+    log: list[str] = []
+
+    # data/ is gitignored; force-add each path so the commit picks them up.
+    add_cmd = ["add", "-f"] + paths
+    log.append(f"$ git {' '.join(add_cmd)}")
+    ok, out = _git_run(add_cmd)
+    if out:
+        log.append(out)
+    if not ok:
+        return False, log
+
+    log.append("$ git commit -m <msg>")
+    ok, out = _git_run(["commit", "-m", commit_msg])
+    if out:
+        log.append(out)
+    if not ok:
+        # Most likely "nothing to commit" — surface but don't fail the push.
+        if "nothing to commit" in out.lower():
+            log.append("(no staged YouTube changes; skipping commit + push)")
+            return True, log
+        return False, log
+
+    log.append("$ git push origin master")
+    ok, out = _git_run(["push", "origin", "master"])
+    if out:
+        log.append(out)
+    return ok, log
+
+
+# ──────────────────────────────────────────────────────────
 # Tabs
 # ──────────────────────────────────────────────────────────
 
-tab_browse, tab_backfill, tab_export = st.tabs(
-    ["📺 Browse by date", "🔍 Backfill", "📋 Multi-day export"]
+tab_browse, tab_backfill, tab_export, tab_publish = st.tabs(
+    [
+        "📺 Browse by date",
+        "🔍 Backfill",
+        "📋 Multi-day export",
+        "🚀 Publish to cloud",
+    ]
 )
 
 
@@ -878,6 +1002,76 @@ with tab_export:
 
     sel = _video_selector(export_items, key_prefix="export")
     _push_footer(sel, "export", chosen_nb_url, chosen_nb_name)
+
+
+# ─── Tab 4: Publish to cloud ─────────────────────────────
+with tab_publish:
+    st.markdown(
+        "Stage, commit, and push the YouTube transcripts you've collected "
+        "locally so they're visible to the **YouTube Report** tab on "
+        "[the live site](https://nfl-news-agent.streamlit.app/).\n\n"
+        "Paths included: `data/raw/<date>/youtube.json`, "
+        "`data/transcripts/<date>/`, and `data/youtube_seen.json`. "
+        "Other modified files are left alone."
+    )
+
+    pending = _git_pending_youtube_paths()
+
+    if not pending:
+        st.success(
+            "✓ Up to date — no untracked or modified YouTube files. Run "
+            "`scripts/collect_youtube.py` to gather fresh transcripts first."
+        )
+    else:
+        st.markdown(f"**{len(pending)} file(s) queued for the next push:**")
+        with st.expander("Show files", expanded=False):
+            for code, path in pending:
+                label = code.strip() or "??"
+                st.text(f"[{label}] {path}")
+
+        default_msg = (
+            f"YouTube transcripts {datetime.now().strftime('%Y-%m-%d')}"
+        )
+        commit_msg = st.text_input(
+            "Commit message",
+            value=default_msg,
+            key="publish_commit_msg",
+            help="One-line message used for the git commit.",
+        )
+
+        push_clicked = st.button(
+            "🚀 Push to live site",
+            type="primary",
+            disabled=not commit_msg.strip(),
+            help=(
+                "Stages only the YouTube paths above, commits with the "
+                "message, and pushes to origin/master. Streamlit Cloud "
+                "auto-redeploys ~1 minute later."
+            ),
+        )
+
+        if push_clicked:
+            paths_only = [p for _, p in pending]
+            with st.spinner("Staging, committing, pushing..."):
+                ok, log = _publish_to_cloud(paths_only, commit_msg.strip())
+
+            if ok:
+                st.success(
+                    "✓ Pushed to origin/master. The live site will "
+                    "redeploy in roughly a minute. Open the **YouTube "
+                    "Report** tab there to confirm the new transcripts "
+                    "are visible."
+                )
+            else:
+                st.error(
+                    "Push failed. See the git output below — most likely "
+                    "either no upstream credentials, or master moved while "
+                    "the commit was being prepared. You can retry from a "
+                    "terminal: `git push origin master`."
+                )
+
+            with st.expander("Git output", expanded=not ok):
+                st.code("\n".join(log), language="text")
 
 
 # ──────────────────────────────────────────────────────────
