@@ -1,0 +1,246 @@
+"""YouTube Report — on-demand summary of transcripts in a date range.
+
+Pairs with `scripts/collect_youtube.py`: that tool produces transcripts
+locally and the user pushes them; this page summarizes whatever is in
+`data/raw/<date>/youtube.json` for the selected range, on demand. The
+public daily report deliberately does NOT include YouTube content — that
+work happens here.
+"""
+
+import json
+import sys
+from datetime import date, datetime, timedelta
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+import streamlit as st
+
+st.set_page_config(page_title="YouTube Report", page_icon="🏈", layout="wide")
+
+from dashboard.auth import require_password
+require_password()
+
+from config_loader import get_data_dir, get_teams_by_abbr
+from models import Transcript
+from processing.yt_section import build_yt_section
+
+
+st.header("YouTube Report")
+st.caption(
+    "Summarized press conferences and per-team notes drawn from YouTube "
+    "transcripts. Pick a date range, click Generate. Each click runs an "
+    "LLM call — results are cached for the session."
+)
+
+raw_base = get_data_dir("raw")
+
+
+# ──────────────────────────────────────────────────────────
+# Helpers
+# ──────────────────────────────────────────────────────────
+
+def _list_dated_dirs() -> list[str]:
+    """Return YYYY-MM-DD folders under data/raw/ that contain youtube.json."""
+    dirs: list[str] = []
+    if not raw_base.exists():
+        return dirs
+    for d in raw_base.iterdir():
+        if not d.is_dir():
+            continue
+        if len(d.name) != 10 or d.name[4] != "-":
+            continue
+        if (d / "youtube.json").exists():
+            dirs.append(d.name)
+    return sorted(dirs)
+
+
+def _parse_date(s: str) -> date | None:
+    try:
+        return datetime.strptime(s, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _load_transcripts_in_range(start: date, end: date) -> list[Transcript]:
+    """Load every transcript whose folder date falls in [start, end]."""
+    out: list[Transcript] = []
+    for dir_name in _list_dated_dirs():
+        dir_date = _parse_date(dir_name)
+        if dir_date is None or dir_date < start or dir_date > end:
+            continue
+        path = raw_base / dir_name / "youtube.json"
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+        except Exception:
+            continue
+        for record in raw:
+            try:
+                out.append(Transcript.from_dict(record))
+            except Exception:
+                continue
+    return out
+
+
+def _summary_payload(start_iso: str, end_iso: str, team_filter: tuple) -> dict:
+    """Pure cache key surface for `@st.cache_data` — small, hashable inputs.
+
+    Lives outside the cached function so the cache key is identical
+    across reruns of this page even though Transcript objects aren't
+    hashable.
+    """
+    start = _parse_date(start_iso)
+    end = _parse_date(end_iso)
+    if start is None or end is None or end < start:
+        return {}
+
+    transcripts = _load_transcripts_in_range(start, end)
+    if team_filter:
+        wanted = set(team_filter)
+        transcripts = [t for t in transcripts if t.team in wanted]
+
+    if not transcripts:
+        return {"empty": True, "reason": "no_transcripts"}
+
+    label = start_iso if start_iso == end_iso else f"{start_iso} → {end_iso}"
+    section = build_yt_section(transcripts, date_label=label)
+    return section
+
+
+# `build_yt_section` calls OpenAI; cache so a reload doesn't re-spend tokens.
+# 24h is generous given the user controls the inputs by pushing files.
+@st.cache_data(ttl=86400, show_spinner=False)
+def _generate_cached(start_iso: str, end_iso: str, team_filter: tuple) -> dict:
+    return _summary_payload(start_iso, end_iso, team_filter)
+
+
+# ──────────────────────────────────────────────────────────
+# UI
+# ──────────────────────────────────────────────────────────
+
+available_dirs = _list_dated_dirs()
+if not available_dirs:
+    st.warning(
+        "No transcripts available yet. Run `python scripts/collect_youtube.py` "
+        "locally and push the resulting `data/raw/<date>/youtube.json` files."
+    )
+    st.stop()
+
+earliest = _parse_date(available_dirs[0]) or date.today() - timedelta(days=30)
+latest = _parse_date(available_dirs[-1]) or date.today()
+
+today = date.today()
+default_end = min(latest, today)
+default_start = max(earliest, default_end - timedelta(days=6))
+
+col_l, col_r = st.columns(2)
+with col_l:
+    start_d = st.date_input(
+        "Start date", value=default_start,
+        min_value=earliest, max_value=latest,
+    )
+with col_r:
+    end_d = st.date_input(
+        "End date", value=default_end,
+        min_value=earliest, max_value=latest,
+    )
+
+teams_by_abbr = get_teams_by_abbr()
+all_team_abbrs = sorted(teams_by_abbr.keys())
+team_filter_list = st.multiselect(
+    "Filter teams (leave empty for all)",
+    all_team_abbrs,
+    help="Restricts both press-conf summary scope and per-team output.",
+)
+
+st.caption(
+    f"Transcripts available: {available_dirs[0]} → {available_dirs[-1]} "
+    f"({len(available_dirs)} days)"
+)
+
+if start_d > end_d:
+    st.error("Start date must be on or before end date.")
+    st.stop()
+
+generate = st.button("Generate Report", type="primary")
+
+if not generate:
+    st.info(
+        "Pick a range and click **Generate Report**. Each generation runs "
+        "an LLM call across the transcripts in the selected window."
+    )
+    st.stop()
+
+with st.spinner("Summarizing transcripts..."):
+    section = _generate_cached(
+        start_d.isoformat(),
+        end_d.isoformat(),
+        tuple(team_filter_list),
+    )
+
+if not section:
+    st.error("Could not load transcripts for that range.")
+    st.stop()
+
+if section.get("empty"):
+    st.info("No transcripts in that range. Push more before regenerating.")
+    st.stop()
+
+
+# ──────────────────────────────────────────────────────────
+# Render
+# ──────────────────────────────────────────────────────────
+
+count = section.get("transcript_count", 0)
+label = section.get("date_label", "")
+st.success(f"Summarized {count} transcripts ({label}).")
+
+pc = section.get("press_conferences", {}) or {}
+pc_summary = (pc.get("summary") or "").strip()
+if pc_summary:
+    st.subheader(f"Press Conference Highlights ({pc.get('count', 0)} transcripts)")
+    st.markdown(pc_summary)
+
+team_notes = section.get("team_notes", {}) or {}
+if team_notes:
+    st.subheader("Per-Team Notes")
+    for team in sorted(team_notes.keys()):
+        note = team_notes[team]
+        note_summary = (note.get("summary") or "").strip()
+        if not note_summary:
+            continue
+
+        st.markdown(f"**{team}**")
+        st.markdown(note_summary)
+
+        numbered = note.get("numbered_sources", []) or []
+        if numbered:
+            lines = []
+            for src in numbered:
+                num = src.get("num", "")
+                title_text = src.get("title", "Source")
+                source_name = src.get("source", "")
+                url = src.get("url", "")
+                suffix = f" ({source_name})" if source_name else ""
+                if url:
+                    lines.append(f"**[{num}]** [{title_text}]({url}){suffix}")
+                else:
+                    lines.append(f"**[{num}]** {title_text}{suffix}")
+            st.caption("Sources")
+            st.markdown("\n\n".join(lines))
+        st.divider()
+
+
+usage = section.get("llm_usage", {})
+if usage:
+    st.subheader("LLM Usage")
+    cols = st.columns(5)
+    cols[0].metric("Calls", usage.get("request_count", 0))
+    cols[1].metric("Input", usage.get("input_tokens", 0))
+    cols[2].metric("Output", usage.get("output_tokens", 0))
+    cols[3].metric("Reasoning", usage.get("reasoning_tokens", 0))
+    cols[4].metric(
+        "Est. Cost",
+        f"${float(usage.get('estimated_cost_usd', 0.0)):.4f}",
+    )

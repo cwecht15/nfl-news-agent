@@ -33,13 +33,25 @@ def _save_health(data: dict):
         json.dump(data, f, indent=2)
 
 
-def record_source_result(source_name: str, item_count: int, error: str = ""):
+def record_source_result(
+    source_name: str,
+    item_count: int,
+    error: str = "",
+    low_volume: bool = False,
+):
     """Record a collection result for a source.
 
     Args:
         source_name: The source identifier (e.g., "ESPN NFL", "NFL.com Transactions").
         item_count: Number of items collected (0 if failed).
         error: Error message if the source failed.
+        low_volume: When True, a 0-item run with no error is treated as a
+            quiet-day success rather than a failure. Use for sources that
+            legitimately produce nothing on some days (beat writers,
+            YouTube press conferences) so the alert system doesn't fire on
+            normal lulls. Default False keeps the strict behavior for RSS,
+            Web, Reddit, ESPN — where 0 items really does mean something
+            broke.
     """
     data = _load_health()
     sources = data.setdefault("sources", {})
@@ -56,7 +68,9 @@ def record_source_result(source_name: str, item_count: int, error: str = ""):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     entry["total_runs"] += 1
 
-    if error or item_count == 0:
+    is_failure = bool(error) or (not low_volume and item_count == 0)
+
+    if is_failure:
         entry["total_failures"] += 1
         entry["consecutive_failures"] += 1
         entry["last_failure"] = now

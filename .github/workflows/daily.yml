@@ -27,9 +27,6 @@ jobs:
           # GITHUB_TOKEN with contents:write is enough to push back to the repo.
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install ffmpeg (needed for Whisper transcription)
-        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
-
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -42,11 +39,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Cache Whisper + sentence-transformers models
+      - name: Cache sentence-transformers models
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cache/whisper
             ~/.cache/huggingface
             ~/.cache/torch
           key: ml-models-${{ hashFiles('config/settings.yaml', 'requirements.txt') }}
@@ -59,7 +55,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           ATHLETIC_COOKIES: ${{ secrets.ATHLETIC_COOKIES }}
-          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
         run: |
           mkdir -p secrets
           # .env for the pipeline to load via python-dotenv
@@ -68,7 +63,6 @@ jobs:
             if [ -n "${ANTHROPIC_API_KEY}" ]; then echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}"; fi
             echo "GOOGLE_SERVICE_ACCOUNT_KEY=${GITHUB_WORKSPACE}/secrets/service_account.json"
             if [ -n "${ATHLETIC_COOKIES}" ]; then echo "ATHLETIC_COOKIES_PATH=${GITHUB_WORKSPACE}/secrets/athletic_cookies.txt"; fi
-            if [ -n "${YOUTUBE_COOKIES}" ]; then echo "YOUTUBE_COOKIES_PATH=${GITHUB_WORKSPACE}/secrets/youtube_cookies.txt"; fi
           } > .env
 
           # Google service-account JSON (required for projection snapshots)
@@ -81,90 +75,6 @@ jobs:
           if [ -n "${ATHLETIC_COOKIES}" ]; then
             printf '%s' "${ATHLETIC_COOKIES}" > secrets/athletic_cookies.txt
             chmod 600 secrets/athletic_cookies.txt
-          fi
-
-          # YouTube cookies (optional but required for transcripts on CI —
-          # YouTube blocks unauthenticated datacenter IPs).
-          # We always prepend a known-good Netscape magic header line, then
-          # the user's content. yt-dlp's MozillaCookieJar checks magic on the
-          # very first line; user-provided headers (also starting with #) are
-          # treated as comments and ignored. This sidesteps any subtle byte
-          # mismatch in the user's exported header (BOM, alternate Unicode,
-          # etc.) without losing any actual cookie data.
-          if [ -n "${YOUTUBE_COOKIES}" ]; then
-            {
-              printf '# Netscape HTTP Cookie File\n'
-              printf '%s' "${YOUTUBE_COOKIES}"
-              # Ensure trailing newline so the last cookie line is parsed.
-              printf '\n'
-            } > secrets/youtube_cookies.txt
-            chmod 600 secrets/youtube_cookies.txt
-          fi
-
-      - name: Verify secrets restored correctly
-        env:
-          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
-        run: |
-          echo "=== .env contents (keys only) ==="
-          if [ -f .env ]; then
-            cut -d= -f1 .env | sort
-          else
-            echo "(.env missing!)"
-          fi
-
-          echo ""
-          echo "=== secrets/ directory ==="
-          ls -la secrets/ 2>/dev/null || echo "(secrets/ directory missing!)"
-
-          echo ""
-          echo "=== YouTube cookies ==="
-          echo "YOUTUBE_COOKIES secret length in env: ${#YOUTUBE_COOKIES} chars"
-          if [ -f secrets/youtube_cookies.txt ]; then
-            echo "youtube_cookies.txt exists, size: $(wc -c < secrets/youtube_cookies.txt) bytes, lines: $(wc -l < secrets/youtube_cookies.txt)"
-            echo "Has youtube.com entries: $(grep -c 'youtube.com' secrets/youtube_cookies.txt) lines"
-            echo ""
-            echo "--- First 5 lines (cat -A: ^I=tab, ^M=CR, $=LF) ---"
-            head -5 secrets/youtube_cookies.txt | cat -A | sed 's/^/  /'
-            echo ""
-            echo "--- First 200 bytes (od -c) ---"
-            head -c 200 secrets/youtube_cookies.txt | od -c | head -10 | sed 's/^/  /'
-            echo ""
-            echo "--- Tab count in first 10 lines (should be ~6 per cookie row) ---"
-            head -10 secrets/youtube_cookies.txt | tr -d -c '\t' | wc -c | awk '{print "  Total tabs: " $1}'
-            echo ""
-            echo "--- Auto-fix: convert CRLF to LF and runs of 2+ spaces to tabs if needed ---"
-            if file secrets/youtube_cookies.txt 2>/dev/null | grep -q CRLF; then
-              echo "  CRLF detected — converting to LF"
-              tr -d '\r' < secrets/youtube_cookies.txt > secrets/youtube_cookies.fixed && mv secrets/youtube_cookies.fixed secrets/youtube_cookies.txt
-            fi
-            if [ "$(head -10 secrets/youtube_cookies.txt | tr -d -c '\t' | wc -c)" -lt 5 ]; then
-              echo "  No tabs detected — converting runs of 2+ spaces to tabs"
-              sed -i 's/  \+/\t/g' secrets/youtube_cookies.txt
-              echo "  After fix:"
-              head -2 secrets/youtube_cookies.txt | cat -A | sed 's/^/    /'
-            fi
-            echo ""
-            echo "--- Python MozillaCookieJar load test (the actual yt-dlp parser) ---"
-            python3 - <<'PYEOF' || echo "  Python validation crashed (continuing)"
-          import http.cookiejar as cj
-          import re
-          path = 'secrets/youtube_cookies.txt'
-          with open(path, 'rb') as f:
-              first = f.readline()
-          print(f'  First line bytes (repr): {first!r}')
-          magic_re = re.compile('#( Netscape)? HTTP Cookie File')
-          first_str = first.decode('utf-8', errors='replace')
-          m = magic_re.search(first_str)
-          print(f'  Magic regex match: {m is not None} (match obj: {m!r})')
-          try:
-              j = cj.MozillaCookieJar(path)
-              j.load(ignore_discard=True, ignore_expires=True)
-              print(f'  SUCCESS: loaded {len(j)} cookies')
-          except Exception as e:
-              print(f'  FAIL: {type(e).__name__}: {e}')
-          PYEOF
-          else
-            echo "youtube_cookies.txt: MISSING (cookies will not be applied)"
           fi
 
       - name: Run daily pipeline

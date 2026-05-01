@@ -275,15 +275,19 @@ TITLES = {
     "injuries": "Injury Reports",
     "depth_chart_movement": "Depth Chart Movement",
     "projection_movers": "Today's Projection Movers",
-    "press_conferences": "Press Conference Highlights",
     "league_wide": "League-Wide Notes",
     # Legacy key kept so older reports on disk still render with the
     # right title rather than as "Analysis".
     "analysis": "Analysis & What to Watch",
 }
 
+# Legacy keys whose content has moved elsewhere — skip in render.
+SKIP_SECTIONS = {"press_conferences"}
+
 # Render sections
 for key, section_data in report.sections.items():
+    if key in SKIP_SECTIONS:
+        continue
     title = TITLES.get(key, key.replace("_", " ").title())
     summary = section_data.get("summary", "No data.")
     sources = section_data.get("sources", [])
@@ -398,6 +402,67 @@ if report.team_highlights:
 
     if search_query and matched == 0:
         st.info(f"No team highlights match '{search_query}'.")
+
+# YouTube Highlights — only present when the report was generated locally
+# with --include-yt-section. Cloud-generated reports won't have this block.
+yt_section = getattr(report, "yt_section", None) or {}
+if yt_section.get("transcript_count"):
+    st.subheader(
+        f"YouTube Highlights ({yt_section.get('transcript_count', 0)} transcripts)"
+    )
+    if yt_section.get("date_label"):
+        st.caption(f"Range: {yt_section['date_label']}")
+
+    pc = yt_section.get("press_conferences", {}) or {}
+    pc_summary = pc.get("summary", "")
+    if pc_summary and pc_summary.strip():
+        with st.expander(
+            f"Press Conference Highlights ({pc.get('count', 0)} transcripts)",
+            expanded=True,
+        ):
+            st.markdown(pc_summary)
+
+    yt_team_notes = yt_section.get("team_notes", {}) or {}
+    if yt_team_notes:
+        st.markdown("**Per-Team Notes**")
+        yt_teams = sorted(yt_team_notes.keys())
+        yt_selected = st.multiselect(
+            "Filter teams (leave empty for all)", yt_teams,
+            key="yt_team_filter",
+        )
+        yt_show = yt_selected if yt_selected else yt_teams
+
+        for team in yt_show:
+            note = yt_team_notes[team]
+            note_summary = note.get("summary", "")
+            if not note_summary.strip():
+                continue
+
+            # YT bullet citations link to YouTube URLs via numbered_sources
+            note_numbered = note.get("numbered_sources", [])
+            yt_linkify = _build_citation_linker(note_numbered)
+
+            st.markdown(f"**{team}**")
+            if yt_linkify:
+                st.markdown(yt_linkify(note_summary), unsafe_allow_html=True)
+            else:
+                st.markdown(note_summary)
+
+            if note_numbered:
+                st.caption("Sources")
+                lines = []
+                for src in note_numbered:
+                    num = src.get("num", "")
+                    title_text = src.get("title", "Source")
+                    source_name = src.get("source", "")
+                    url = src.get("url", "")
+                    suffix = f" ({source_name})" if source_name else ""
+                    if url:
+                        lines.append(f"**[{num}]** [{title_text}]({url}){suffix}")
+                    else:
+                        lines.append(f"**[{num}]** {title_text}{suffix}")
+                st.markdown("\n\n".join(lines))
+            st.divider()
 
 # Collection stats
 if report.collection_stats:

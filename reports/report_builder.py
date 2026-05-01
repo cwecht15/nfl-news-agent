@@ -16,13 +16,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from jinja2 import Template
 
 from config_loader import get_data_dir
-from models import DailyReport, NewsItem, Transcript
-from processing.summarizer import _select_press_transcripts
+from models import DailyReport, NewsItem
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_SECTION_SOURCE_LIMIT = 8
-PRESS_SECTION_SOURCE_LIMIT = 12
 TEAM_SOURCE_LIMIT = 6
 LEAGUE_WIDE_SOURCE_LIMIT = 8
 PROJECTION_MOVER_LIMIT = 15
@@ -153,6 +151,42 @@ HTML_TEMPLATE = Template(
     </div>
     {% endif %}
 
+    {% if yt_section and yt_section.get('transcript_count') %}
+    <div class="section">
+        <div class="section-header">
+            <h2>YouTube Highlights</h2>
+            <span class="badge">{{ yt_section.transcript_count }} transcripts</span>
+        </div>
+        {% if yt_section.get('press_conferences', {}).get('summary') %}
+        <h3>Press Conference Highlights</h3>
+        <div>{{ yt_section.press_conferences.summary | replace('\\n', '<br>') }}</div>
+        {% endif %}
+        {% if yt_section.get('team_notes') %}
+        <h3>Per-Team Notes</h3>
+        {% for team, note in yt_section.team_notes.items() %}
+        <h3><span class="team-tag">{{ team }}</span></h3>
+        <div>{{ note.summary | replace('\\n', '<br>') }}</div>
+        {% if note.get('numbered_sources') %}
+        <div class="sources">
+            <strong>Sources</strong>
+            <ul>
+                {% for source in note.numbered_sources %}
+                <li>
+                    <strong>[{{ source.num }}]</strong>
+                    <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.title }}</a>
+                    {% if source.get('source') %}
+                    <span class="source-meta">({{ source.source }})</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </div>
+    {% endif %}
+
     <div class="stats">
         <strong>Collection Stats:</strong>
         {% for source, count in collection_stats.items() %}
@@ -200,19 +234,18 @@ SECTION_TITLES = {
     "injuries": "Injury Reports",
     "depth_chart_movement": "Depth Chart Movement",
     "projection_movers": "Today's Projection Movers",
-    "press_conferences": "Press Conference Highlights",
     "league_wide": "League-Wide Notes",
 }
 
 # Order in which sections render in the report. Keys not listed here
 # fall back to dict-insertion order at the tail (covers old reports
-# loaded from disk that still have an "analysis" key).
+# loaded from disk that still have legacy "press_conferences" / "analysis"
+# keys — they render at the tail rather than disappearing).
 SECTION_ORDER = [
     "transactions",
     "injuries",
     "depth_chart_movement",
     "projection_movers",
-    "press_conferences",
     "league_wide",
 ]
 
@@ -240,19 +273,6 @@ def _build_news_source(item: NewsItem) -> dict[str, Any]:
         "source_type": item.source_type,
         "published": item.published.isoformat(),
         "teams": item.teams,
-    }
-
-
-def _build_transcript_source(transcript: Transcript) -> dict[str, Any]:
-    """Build a source payload for a transcript."""
-    return {
-        "title": transcript.title,
-        "url": transcript.url,
-        "source": transcript.channel_name,
-        "source_type": "youtube",
-        "published": transcript.published.isoformat(),
-        "team": transcript.team,
-        "teams": [transcript.team],
     }
 
 
@@ -310,7 +330,6 @@ def _normalize_team_highlight(highlight: Any) -> dict[str, Any]:
 
 def _build_section_sources(
     news_items: list[NewsItem],
-    transcripts: list[Transcript],
 ) -> dict[str, list[dict[str, Any]]]:
     """Attach concrete sources for each top-level report section."""
     transactions = _sort_by_published(
@@ -319,7 +338,6 @@ def _build_section_sources(
     injuries = _sort_by_published(
         [item for item in news_items if item.category == "injury"]
     )
-    press_transcripts = _select_press_transcripts(transcripts)
     league_wide_items = _sort_by_published(
         [
             item for item in news_items
@@ -337,10 +355,6 @@ def _build_section_sources(
             [_build_news_source(item) for item in injuries],
             limit=DEFAULT_SECTION_SOURCE_LIMIT,
         ),
-        "press_conferences": _dedupe_sources(
-            [_build_transcript_source(transcript) for transcript in press_transcripts],
-            limit=PRESS_SECTION_SOURCE_LIMIT,
-        ),
         "league_wide": _dedupe_sources(
             [_build_news_source(item) for item in league_wide_items],
             limit=LEAGUE_WIDE_SOURCE_LIMIT,
@@ -350,10 +364,9 @@ def _build_section_sources(
 
 def _build_team_sources(
     news_items: list[NewsItem],
-    transcripts: list[Transcript],
 ) -> dict[str, list[dict[str, Any]]]:
-    """Build per-team source lists for team highlights."""
-    team_items: dict[str, list[Any]] = {}
+    """Build per-team source lists for the news-only Team Notes section."""
+    team_items: dict[str, list[NewsItem]] = {}
 
     for item in news_items:
         if item.category in ("transaction", "injury"):
@@ -361,27 +374,19 @@ def _build_team_sources(
         for team in item.teams:
             team_items.setdefault(team, []).append(item)
 
-    for transcript in _select_press_transcripts(transcripts):
-        team_items.setdefault(transcript.team, []).append(transcript)
-
     team_sources: dict[str, list[dict[str, Any]]] = {}
     for team, items in team_items.items():
         # Round-robin across distinct source labels first so a single
         # high-volume source (e.g. SI team pages, all stamped at scrape
         # time) doesn't crowd out other sources with real published
         # timestamps. Then fill remaining slots by recency.
-        def _source_label(it: Any) -> str:
-            if isinstance(it, NewsItem):
-                return it.source or "?"
-            return getattr(it, "channel_name", "?") or "?"
-
-        by_source: dict[str, list[Any]] = {}
+        by_source: dict[str, list[NewsItem]] = {}
         for it in items:
-            by_source.setdefault(_source_label(it), []).append(it)
+            by_source.setdefault(it.source or "?", []).append(it)
         for src in by_source:
             by_source[src].sort(key=lambda x: x.published, reverse=True)
 
-        picked: list[Any] = []
+        picked: list[NewsItem] = []
         max_per_source = 2
         for r in range(max_per_source):
             for src in list(by_source.keys()):
@@ -392,13 +397,7 @@ def _build_team_sources(
             remaining = [it for it in _sort_by_published(items) if it not in picked]
             picked.extend(remaining[: TEAM_SOURCE_LIMIT - len(picked)])
 
-        sources: list[dict[str, Any]] = []
-        for item in picked:
-            if isinstance(item, NewsItem):
-                sources.append(_build_news_source(item))
-            else:
-                sources.append(_build_transcript_source(item))
-
+        sources = [_build_news_source(item) for item in picked]
         team_sources[team] = _dedupe_sources(sources, limit=TEAM_SOURCE_LIMIT)
 
     return team_sources
@@ -508,17 +507,22 @@ def build_report(
     sections: dict,
     team_highlights: dict,
     news_items: list[NewsItem],
-    transcripts: list[Transcript],
     llm_usage: Optional[dict[str, Any]] = None,
     alerts: Optional[list[dict[str, Any]]] = None,
     depth_chart_changes: Optional[list[dict]] = None,
     projection_movers: Optional[list[dict]] = None,
+    yt_section: Optional[dict[str, Any]] = None,
 ) -> DailyReport:
-    """Build a DailyReport from summarized data."""
+    """Build a DailyReport from summarized data.
+
+    yt_section is the optional output of `processing.yt_section.build_yt_section`,
+    attached only on local runs invoked with `--include-yt-section`.
+    """
     source_counts: dict[str, int] = {}
     for item in news_items:
         source_counts[item.source_type] = source_counts.get(item.source_type, 0) + 1
-    source_counts["youtube"] = len(transcripts)
+    if yt_section:
+        source_counts["youtube"] = yt_section.get("transcript_count", 0)
 
     sections = dict(sections)  # don't mutate caller's dict
     if depth_chart_changes is not None:
@@ -526,7 +530,7 @@ def build_report(
     if projection_movers is not None:
         sections["projection_movers"] = _build_projection_movers_section(projection_movers)
 
-    section_sources = _build_section_sources(news_items, transcripts)
+    section_sources = _build_section_sources(news_items)
     normalized_sections: dict[str, dict[str, Any]] = {}
     for section_key, section_data in sections.items():
         normalized = _normalize_section(section_data)
@@ -536,7 +540,7 @@ def build_report(
 
     normalized_sections = _ordered_sections(normalized_sections)
 
-    team_sources = _build_team_sources(news_items, transcripts)
+    team_sources = _build_team_sources(news_items)
     normalized_team_highlights: dict[str, dict[str, Any]] = {}
     for team, highlight in team_highlights.items():
         normalized = _normalize_team_highlight(highlight)
@@ -554,6 +558,7 @@ def build_report(
         alerts=alerts or [],
         depth_chart_changes=depth_chart_changes or [],
         projection_movers=projection_movers or [],
+        yt_section=yt_section or {},
     )
 
     return report
@@ -577,6 +582,7 @@ def save_report(report: DailyReport):
         team_highlights=report.team_highlights,
         collection_stats=report.collection_stats,
         llm_usage=report.llm_usage,
+        yt_section=report.yt_section,
     )
     html_path.write_text(html, encoding="utf-8")
     logger.info("Saved HTML report: %s", html_path)

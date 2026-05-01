@@ -1,13 +1,18 @@
 """Daily orchestrator.
 
-Main entry point that runs the full pipeline:
-1. Collect from all sources (RSS, web, YouTube)
+Main entry point that runs the full news pipeline:
+1. Collect from all sources (RSS, web, Reddit, beat writers — no YouTube)
 2. Deduplicate news items
 3. Summarize with the configured LLM provider
 4. Build and save the daily report
 
-Run manually: python scripts/run_daily.py
-Or via Task Scheduler using run_daily.bat
+YouTube transcripts live in their own tool now. To collect transcripts and
+get a YouTube section appended to today's local report:
+    python scripts/collect_youtube.py
+    python scripts/run_daily.py --include-yt-section
+
+The cloud GitHub Actions cron never passes --include-yt-section, so the
+public daily report stays YouTube-free.
 
 Catch-up mode: when the PC has been off for multiple days, widen the
 collection window on a single run so more of the missed news still in
@@ -16,6 +21,7 @@ feeds is captured:
 """
 
 import argparse
+import json
 import logging
 import os
 import shutil
@@ -36,16 +42,17 @@ from collectors.web_scraper import (
     save_web_results,
 )
 from collectors.reddit_collector import collect_reddit, save_reddit_results
-from collectors.youtube_collector import collect_youtube, save_youtube_results
 from collectors.beat_writer_collector import (
     collect_beat_writers,
     save_beat_writer_results,
 )
+from models import Transcript
 from processing.cross_day_filter import filter_recent_duplicates
 from processing.deduplicator import deduplicate, flatten_groups
 from processing.quality_filter import filter_news_items
 from processing.source_health import get_health_alerts, record_source_result
 from processing.summarizer import run_summarization
+from processing.yt_section import build_yt_section
 from reports.report_builder import build_report, save_report
 
 
@@ -154,9 +161,27 @@ def clear_status():
     _status_file().unlink(missing_ok=True)
 
 
+def _load_existing_transcripts(date_str: str, logger: logging.Logger) -> list[Transcript]:
+    """Hydrate transcripts from the file `scripts/collect_youtube.py` writes.
+
+    Returns [] when the file is missing or malformed. The cloud pipeline
+    never calls this (only --include-yt-section runs do).
+    """
+    path = get_data_dir("raw", date_str) / "youtube.json"
+    if not path.exists():
+        return []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except Exception as e:
+        logger.warning("Could not load %s: %s", path, e)
+        return []
+    return [Transcript.from_dict(d) for d in raw]
+
+
 def run(
     lookback_hours: int | None = None,
-    skip_youtube: bool = False,
+    include_yt_section: bool = False,
     date_override: str | None = None,
 ):
     """Execute the full daily pipeline.
@@ -166,9 +191,10 @@ def run(
             should look. Use for catch-up runs after missed days. When
             None, collectors fall back to `collection.lookback_hours` in
             settings.yaml (default 28).
-        skip_youtube: When True, skip the YouTube transcript collector.
-            Useful for fast manual runs when you don't need fresh press
-            conference content.
+        include_yt_section: When True, attach a YouTube section to the
+            report by loading transcripts that `scripts/collect_youtube.py`
+            wrote earlier. Off by default — the cloud cron never sets it,
+            so the public daily report stays YouTube-free.
         date_override: When set (YYYY-MM-DD), stamp the run with this
             date instead of "today". Useful for re-generating yesterday's
             report after a logic change.
@@ -190,10 +216,6 @@ def run(
     write_status("Step 1", "running", "Collecting from all sources")
     logger.info("Step 1: Collecting from all sources (parallel)...")
 
-    rss_items = []
-    web_items = []
-    reddit_items = []
-    transcripts = []
     collector_alerts: list[dict] = []
 
     def _safe_result(future, label):
@@ -208,7 +230,7 @@ def run(
             })
             return []
 
-    with ThreadPoolExecutor(max_workers=6) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
         future_rss = executor.submit(collect_rss, lookback_hours=lookback_hours)
         future_espn = executor.submit(
             collect_espn_team_news, lookback_hours=lookback_hours
@@ -217,13 +239,6 @@ def run(
         future_reddit = executor.submit(
             collect_reddit, lookback_hours=lookback_hours
         )
-        if skip_youtube:
-            logger.info("Skipping YouTube collector (--skip-youtube)")
-            future_yt = None
-        else:
-            future_yt = executor.submit(
-                collect_youtube, date_str, lookback_hours=lookback_hours
-            )
         future_bw = executor.submit(
             collect_beat_writers, date_str, lookback_hours=lookback_hours
         )
@@ -232,7 +247,6 @@ def run(
     espn_items = _safe_result(future_espn, "ESPN Teams")
     web_items = _safe_result(future_web, "Web")
     reddit_items = _safe_result(future_reddit, "Reddit")
-    transcripts = _safe_result(future_yt, "YouTube") if future_yt is not None else []
     bw_result = _safe_result(future_bw, "Beat Writers")
     if isinstance(bw_result, tuple) and len(bw_result) == 2:
         bw_items, bw_transcripts = bw_result
@@ -242,7 +256,6 @@ def run(
     save_rss_results(rss_items + espn_items, date_str)
     save_web_results(web_items, date_str)
     save_reddit_results(reddit_items, date_str)
-    save_youtube_results(transcripts, date_str)
     save_beat_writer_results(bw_items, bw_transcripts, date_str)
 
     # Record source health
@@ -254,11 +267,12 @@ def run(
                          error=next((a["message"] for a in collector_alerts if "Web" in a.get("source", "")), ""))
     record_source_result("Reddit", len(reddit_items),
                          error=next((a["message"] for a in collector_alerts if "Reddit" in a.get("source", "")), ""))
-    if not skip_youtube:
-        record_source_result("YouTube", len(transcripts),
-                             error=next((a["message"] for a in collector_alerts if "YouTube" in a.get("source", "")), ""))
-    record_source_result("Beat Writers", len(bw_items) + len(bw_transcripts),
-                         error=next((a["message"] for a in collector_alerts if "Beat Writers" in a.get("source", "")), ""))
+    record_source_result(
+        "Beat Writers",
+        len(bw_items) + len(bw_transcripts),
+        error=next((a["message"] for a in collector_alerts if "Beat Writers" in a.get("source", "")), ""),
+        low_volume=True,
+    )
 
     web_source_status = get_last_web_source_status()
     health_alerts = get_health_alerts()
@@ -266,11 +280,29 @@ def run(
     _log_source_alerts(logger, source_alerts)
 
     all_news = rss_items + espn_items + web_items + reddit_items + bw_items
-    transcripts = transcripts + bw_transcripts
+
+    # Optional: hydrate transcripts for the YT section. The news pipeline
+    # itself never collects YouTube — that's `scripts/collect_youtube.py`.
+    yt_transcripts: list[Transcript] = []
+    if include_yt_section:
+        yt_transcripts = _load_existing_transcripts(date_str, logger) + bw_transcripts
+        if yt_transcripts:
+            logger.info(
+                "Hydrated %d transcripts for the YouTube section.",
+                len(yt_transcripts),
+            )
+        else:
+            logger.warning(
+                "--include-yt-section set but no transcripts found at "
+                "data/raw/%s/youtube.json. Run scripts/collect_youtube.py "
+                "first to populate them.",
+                date_str,
+            )
+
     logger.info(
-        "Collection complete: %d news items, %d transcripts",
+        "Collection complete: %d news items%s",
         len(all_news),
-        len(transcripts),
+        f", {len(yt_transcripts)} transcripts (YT section)" if yt_transcripts else "",
     )
 
     all_news, dropped_fluff = filter_news_items(all_news)
@@ -316,7 +348,7 @@ def run(
         _summary_provider_label(summary_provider),
     )
     try:
-        summary_result = run_summarization(deduped_news, transcripts)
+        summary_result = run_summarization(deduped_news)
     except ValueError as e:
         logger.error("Summarization failed: %s", e)
         if summary_provider == "openai":
@@ -341,10 +373,6 @@ def run(
                     "count": len(
                         [i for i in deduped_news if i.category == "injury"]
                     ),
-                },
-                "press_conferences": {
-                    "summary": "Summarization unavailable.",
-                    "count": len(transcripts),
                 },
                 "league_wide": {
                     "summary": "Summarization unavailable.",
@@ -447,6 +475,19 @@ def run(
     except Exception as e:
         logger.warning("Depth chart update failed (non-fatal): %s", e)
 
+    yt_section: dict = {}
+    if include_yt_section and yt_transcripts:
+        write_status("Step 6a", "running", "Building YouTube section")
+        logger.info("Step 6a: Building YouTube section from %d transcripts...",
+                    len(yt_transcripts))
+        try:
+            yt_section = build_yt_section(
+                yt_transcripts,
+                date_label=date_str,
+            )
+        except Exception as e:
+            logger.error("YouTube section build failed (non-fatal): %s", e)
+
     write_status("Step 6", "running", "Building daily report")
     logger.info("Step 6: Building daily report...")
     report = build_report(
@@ -454,11 +495,11 @@ def run(
         sections=summary_result["sections"],
         team_highlights=summary_result["team_highlights"],
         news_items=deduped_news,
-        transcripts=transcripts,
         llm_usage=summary_result.get("llm_usage"),
         alerts=source_alerts,
         depth_chart_changes=dc_changes,
         projection_movers=rank_movers,
+        yt_section=yt_section,
     )
     json_path, html_path = save_report(report)
 
@@ -471,10 +512,10 @@ def run(
     logger.info("JSON report: %s", json_path)
     logger.info("HTML report: %s", html_path)
     logger.info(
-        "Stats: %d news items, %d transcripts, %d team highlights",
+        "Stats: %d news items, %d team highlights%s",
         len(deduped_news),
-        len(transcripts),
         len(report.team_highlights),
+        f", YT section: {len(yt_transcripts)} transcripts" if yt_transcripts else "",
     )
     logger.info("=" * 60)
 
@@ -567,9 +608,14 @@ if __name__ == "__main__":
         ),
     )
     parser.add_argument(
-        "--skip-youtube",
+        "--include-yt-section",
         action="store_true",
-        help="Skip the YouTube transcript collector for this run.",
+        help=(
+            "Attach a YouTube section to the daily report by loading "
+            "transcripts that scripts/collect_youtube.py wrote earlier. "
+            "Off by default — the cloud cron never sets it, so the public "
+            "daily report stays YouTube-free."
+        ),
     )
     parser.add_argument(
         "--date",
@@ -582,7 +628,7 @@ if __name__ == "__main__":
     try:
         run(
             lookback_hours=args.lookback_hours,
-            skip_youtube=args.skip_youtube,
+            include_yt_section=args.include_yt_section,
             date_override=args.date,
         )
     except Exception:

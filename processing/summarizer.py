@@ -1257,30 +1257,19 @@ def _build_team_item_lines(items: list) -> tuple[list[str], list[dict]]:
     return lines, candidates
 
 
-def generate_team_highlights(
-    news_items: list[NewsItem],
-    transcripts: list[Transcript],
-    client: Optional[Any] = None,
+def _build_team_highlights_for_pool(
+    team_items: dict[str, list],
+    client: Any,
+    runtime: dict[str, Any],
     usage_tracker: Optional[dict[str, Any]] = None,
 ) -> dict[str, dict]:
-    """Generate per-team highlight blurbs with inline [N] citations.
+    """Shared per-team highlight builder.
 
-    Returns a dict of team -> {summary, numbered_sources} where each
-    bullet in the summary is expected to end with one or more [N] markers
-    that map to numbered_sources.
+    Used by both the news-only path (`generate_team_highlights`) and the
+    transcripts-only path (`summarize_team_highlights_from_transcripts`)
+    that drives the YouTube section. The pool can mix NewsItem and
+    Transcript objects — `_build_team_item_lines` handles both shapes.
     """
-    client, runtime = _resolve_client_and_runtime(client)
-    selected_transcripts = _select_press_transcripts(transcripts)
-
-    team_items: dict[str, list] = {}
-    for item in news_items:
-        if item.category in ("transaction", "injury"):
-            continue
-        for team in item.teams:
-            team_items.setdefault(team, []).append(item)
-    for t in selected_transcripts:
-        team_items.setdefault(t.team, []).append(t)
-
     highlights: dict[str, dict] = {}
     for team, items in team_items.items():
         items = sorted(items, key=lambda item: item.published, reverse=True)
@@ -1363,9 +1352,56 @@ Today's items:
     return highlights
 
 
+def generate_team_highlights(
+    news_items: list[NewsItem],
+    client: Optional[Any] = None,
+    usage_tracker: Optional[dict[str, Any]] = None,
+) -> dict[str, dict]:
+    """Generate per-team highlight blurbs from news items only.
+
+    Transcripts are summarized separately by the YouTube section
+    (`processing.yt_section.build_yt_section`) so the daily report stays
+    independent of YouTube data availability.
+    """
+    client, runtime = _resolve_client_and_runtime(client)
+
+    team_items: dict[str, list] = {}
+    for item in news_items:
+        if item.category in ("transaction", "injury"):
+            continue
+        for team in item.teams:
+            team_items.setdefault(team, []).append(item)
+
+    return _build_team_highlights_for_pool(
+        team_items, client, runtime, usage_tracker,
+    )
+
+
+def summarize_team_highlights_from_transcripts(
+    transcripts: list[Transcript],
+    client: Optional[Any] = None,
+    usage_tracker: Optional[dict[str, Any]] = None,
+) -> dict[str, dict]:
+    """Per-team highlights drawn solely from press-conference transcripts.
+
+    Powers the per-team subsection of the YouTube report. Same prompt
+    rules as `generate_team_highlights` — the pool just contains
+    Transcript objects instead of NewsItem.
+    """
+    client, runtime = _resolve_client_and_runtime(client)
+    selected_transcripts = _select_press_transcripts(transcripts)
+
+    team_items: dict[str, list] = {}
+    for t in selected_transcripts:
+        team_items.setdefault(t.team, []).append(t)
+
+    return _build_team_highlights_for_pool(
+        team_items, client, runtime, usage_tracker,
+    )
+
+
 def run_summarization(
     news_items: list[NewsItem],
-    transcripts: list[Transcript],
 ) -> dict:
     """Run the full summarization pipeline."""
     runtime = _get_runtime_config()
@@ -1380,13 +1416,12 @@ def run_summarization(
     ]
 
     logger.info(
-        "Summarizing with %s/%s: %d transactions, %d injuries, %d general news, %d transcripts",
+        "Summarizing with %s/%s: %d transactions, %d injuries, %d general news",
         runtime["provider"],
         runtime["model"],
         len(transactions),
         len(injuries),
         len(general_news),
-        len(transcripts),
     )
 
     sections = {}
@@ -1416,17 +1451,6 @@ def run_summarization(
         "count": len(injuries),
     }
 
-    logger.info("Generating press conference highlights...")
-    press_summary, press_count = summarize_press_conferences(
-        transcripts,
-        client,
-        usage_tracker=usage_tracker,
-    )
-    sections["press_conferences"] = {
-        "summary": press_summary,
-        "count": press_count,
-    }
-
     logger.info("Generating league-wide notes...")
     league_wide_news = [i for i in general_news if not i.teams]
     league_wide_text, league_wide_sources = summarize_league_wide(
@@ -1443,7 +1467,6 @@ def run_summarization(
     logger.info("Generating team notes...")
     team_highlights = generate_team_highlights(
         general_news,
-        transcripts,
         client,
         usage_tracker=usage_tracker,
     )

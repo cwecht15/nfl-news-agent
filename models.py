@@ -71,6 +71,7 @@ class DailyReport:
     alerts: list[dict] = field(default_factory=list)
     depth_chart_changes: list[dict] = field(default_factory=list)
     projection_movers: list[dict] = field(default_factory=list)
+    yt_section: dict = field(default_factory=dict)
 
     def to_json(self, path: str):
         with open(path, "w", encoding="utf-8") as f:

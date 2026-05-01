@@ -3,11 +3,14 @@
 ## Quick Start
 
 ```bash
-# Run pipeline manually
+# Run news pipeline manually (no YouTube — that's a separate tool now)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py
 
-# Faster manual runs (skip YouTube transcripts)
-C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py --skip-youtube
+# Collect YouTube transcripts (local-only — yt-dlp doesn't work on CI)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\collect_youtube.py
+
+# Local report with the YouTube section attached (run collect_youtube first)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py --include-yt-section
 
 # Re-stamp a prior day's report after a logic change
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py --date 2026-04-30
@@ -35,13 +38,22 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\transaction_reconcile
 ## Architecture
 
 7-step daily pipeline (build-report runs late so depth-chart and projection diffs flow into the report):
-1. **Collect** — RSS (ESPN, PFT, CBS, Athletic, plus 32 SB Nation team blogs), web (NFL.com transactions/injuries, Athletic team pages, 32 SI.com team pages), Reddit (r/nfl), YouTube (32 team channels), beat writers — all parallel. Then `processing.quality_filter` strips obvious fluff (voting articles, off-cycle mock drafts, jersey reveals, trivia) before dedup.
+1. **Collect** — RSS (ESPN, PFT, CBS, Athletic, plus 32 SB Nation team blogs), web (NFL.com transactions/injuries, Athletic team pages, 32 SI.com team pages), Reddit (r/nfl), beat writers — all parallel. **No YouTube** — transcripts are produced by `scripts/collect_youtube.py` running locally and consumed only by the YouTube Report dashboard tab and (optionally) the local daily report's YT section. Then `processing.quality_filter` strips obvious fluff (voting articles, off-cycle mock drafts, jersey reveals, trivia) before dedup.
 2. **Deduplicate** — Embedding-based (sentence-transformers) with transaction-aware name matching. Cross-day filter (2-day lookback, 0.82 cosine) suppresses repeats from previous days.
 3. **Summarize** — OpenAI gpt-5.4-mini, single call per section. Article bodies (3.5k–8k chars each) flow into the team-notes prompt so depth-chart and post-draft pieces yield real player-level bullets, not just title-level paraphrase.
 4. **Snapshot projections** — Google Sheets: player metrics (80 cols), fantasy points (PPR/rank), team metrics (66 cols). Compares against most-recent snapshot strictly *before today's date* (otherwise same-day re-runs would diff today against itself).
 5. **Scrape depth charts** — OurLads, all 32 teams, all positions; tracks promotions / demotions / adds / removes / team changes / position changes. Same prior-day comparison logic as projections.
-6. **Build report** — JSON + HTML with: Transactions (position-tagged), Injuries, Depth Chart Movement, Today's Projection Movers, Press Conferences, Team Notes (per-team bulleted with `[N]` citations), League-Wide Notes (cross-team items only).
+6. **Build report** — JSON + HTML with: Transactions (position-tagged), Injuries, Depth Chart Movement, Today's Projection Movers, Team Notes (per-team bulleted with `[N]` citations), League-Wide Notes (cross-team items only). When invoked with `--include-yt-section` (local only), `processing.yt_section.build_yt_section` reads `data/raw/<date>/youtube.json` and appends a YouTube subsection (press-conf summary + per-team transcript bullets).
 7. **Cleanup** — Old data pruning per `storage.{reports_to_keep, raw_data_to_keep}` in settings.yaml.
+
+## YouTube — separate tool
+
+YouTube collection is decoupled from the news pipeline because yt-dlp doesn't work on GitHub Actions CI. The split:
+
+- **`scripts/collect_youtube.py`** runs locally; calls `collect_youtube` for the chosen date, writes `data/raw/<date>/youtube.json`, `data/transcripts/<date>/*.txt`, and updates `data/youtube_seen.json`.
+- **Local daily report** (`run_daily.py --include-yt-section`) reuses the saved file via `_load_existing_transcripts` and calls `processing.yt_section.build_yt_section` to attach press-conf + per-team subsections to that day's report.
+- **Cloud daily report** (GHA cron, no flag) ignores transcripts entirely. Transactions / Injuries / Depth Chart / Projections / Team Notes / League-Wide only.
+- **Cloud `YouTube Report` dashboard tab** (`dashboard/pages/yt_report.py`) takes a date range, reads matching `youtube.json` files in repo, and calls the same `build_yt_section` on demand. Cached per-session via `@st.cache_data`. The user pushes transcripts; visitors trigger summarization with one click each.
 
 ## Google Sheets
 
@@ -71,11 +83,12 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\transaction_reconcile
 
 | Page | Purpose |
 |------|---------|
-| Daily Report | Six sections + Team Notes with clickable `[N]` citations; search, transaction alerts |
+| Daily Report | Six sections + Team Notes with clickable `[N]` citations; search, transaction alerts. YouTube subsection appears only on locally-generated reports (`run_daily.py --include-yt-section`). |
+| YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
 | Team View | Per-team historical drilldown |
 | Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections |
 | Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser |
-| Transcripts | Press conference transcripts with bulk download |
+| Transcripts | Raw press-conference transcripts with bulk-ZIP download, NotebookLM push, backfill |
 | Trends | Historical patterns & cost tracking |
 | Digest | Weekly rollup reports |
 | Flagged | Items you've flagged across reports |
