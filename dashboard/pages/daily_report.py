@@ -186,11 +186,27 @@ def _flag_control(content: str, report_date: str, section_id: str,
         note = st.text_area(
             "Note (optional)", value=cur_note, height=80, key=f"{key_prefix}_note",
         )
+        # Per-popover name input. Defaults to whatever the visitor set
+        # earlier this session (via this popover or the page-level field
+        # at the top of the report). Editing here also updates the
+        # session-wide value so subsequent popovers pre-fill the new
+        # name. Leave blank to flag anonymously.
+        default_name = st.session_state.get("flagger_name", "")
+        flagger_input = st.text_input(
+            "Your name (saved with this flag)",
+            value=default_name,
+            key=f"{key_prefix}_flagger",
+            placeholder="optional",
+        )
         if st.button("Save flag", key=f"{key_prefix}_save", type="primary"):
+            flagger = (flagger_input or "").strip()
+            # Persist for future popovers in this session.
+            if flagger:
+                st.session_state["flagger_name"] = flagger
             add_or_update_flag(
                 report_date, section_id, section_label, content, cat, note,
                 team=team, sources=attached_sources or [],
-                flagged_by=st.session_state.get("flagger_name", ""),
+                flagged_by=flagger,
             )
             st.rerun()
         if existing and st.button("Unflag", key=f"{key_prefix}_unflag"):
