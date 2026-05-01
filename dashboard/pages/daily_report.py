@@ -19,6 +19,7 @@ from dashboard.helpers import (
     highlight_sources,
     highlight_numbered_sources,
     render_sources,
+    to_et_display,
 )
 from reports.flagged_findings import (
     CATEGORIES,
@@ -590,4 +591,4 @@ try:
 except Exception:
     pass  # Non-fatal — don't break the report page
 
-st.caption(f"Generated: {report.generated_at}")
+st.caption(f"Generated: {to_et_display(report.generated_at)}")

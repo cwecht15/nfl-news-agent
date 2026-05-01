@@ -14,6 +14,8 @@ from dashboard.auth import require_password
 require_password()
 
 from config_loader import get_teams_by_abbr
+from dashboard._repo_sync import has_pat_configured, push_flag_store_to_repo
+from dashboard.helpers import running_locally, to_et_display
 from reports.flagged_findings import (
     CATEGORIES,
     MODE_DAILY,
@@ -91,6 +93,53 @@ def _linkify_citations(content: str, sources: list[dict]) -> str:
     return _CITE_RE.sub(_sub, content)
 
 st.header("Flagged Findings")
+
+# On Streamlit Cloud the container's filesystem is ephemeral, so
+# in-flight flag changes between the daily 10:00 UTC cron and the
+# next push live only inside the running container. A code push to
+# master spawns a fresh container and discards them. The Save-to-repo
+# button below uses the GitHub Contents API (PAT in `GITHUB_PAT`
+# secret) to commit the current store immediately, which makes the
+# changes durable across redeploys at the cost of one extra master
+# commit + redeploy per save.
+if not running_locally():
+    pat_ok = has_pat_configured()
+    banner_left, banner_right = st.columns([4, 1])
+    with banner_left:
+        if pat_ok:
+            st.info(
+                "Cloud flag changes survive across the daily 10:00 UTC cron "
+                "automatically. Between cron runs, click **💾 Save flags "
+                "to repo** to commit any in-flight changes immediately so "
+                "they survive a Streamlit Cloud redeploy."
+            )
+        else:
+            st.warning(
+                "Cloud flag changes persist only after the daily 10:00 UTC "
+                "cron commits them. Code pushes between cron runs may "
+                "discard recent flags. To enable manual saves, add a "
+                "fine-grained PAT with Contents:write on this repo to "
+                "Streamlit secrets as `GITHUB_PAT`."
+            )
+    with banner_right:
+        st.write("")  # vertical alignment
+        if st.button(
+            "💾 Save flags to repo",
+            use_container_width=True,
+            disabled=not pat_ok,
+            help=("Commits data/flagged_findings.json to origin/master "
+                  "via the GitHub API. Triggers a Streamlit Cloud "
+                  "redeploy ~1 minute later."),
+            key="save_flags_to_repo_btn",
+        ):
+            with st.spinner("Pushing flag store to origin/master..."):
+                ok, message = push_flag_store_to_repo(
+                    flagger_name=st.session_state.get("flagger_name", ""),
+                )
+            if ok:
+                st.success(message)
+            else:
+                st.error(message)
 
 # Two modes share the same store: long-running Internal FP Handbook
 # flags vs per-day Daily Site Report flags. Tabs let visitors switch
@@ -304,16 +353,17 @@ for f in filtered:
     entry_mode_for_header = _flag_mode(f)
     team_chunk = f" · **{team}**" if team else ""
     flagger = (f.get("flagged_by") or "").strip()
+    flagged_at_display = to_et_display(flagged_at)
     if entry_mode_for_header == MODE_HANDBOOK:
         flagger_chunk = f" · :grey[by **{flagger}**]" if flagger else ""
         head_left = (
             f"**[{category}]**{team_chunk} · {report_date} · *{section_label}*  \n"
-            f":grey[flagged {flagged_at}]{flagger_chunk}"
+            f":grey[flagged {flagged_at_display}]{flagger_chunk}"
         )
     else:
         head_left = (
             f"**📋 Daily Site**{team_chunk} · {report_date} · *{section_label}*  \n"
-            f":grey[flagged {flagged_at}]"
+            f":grey[flagged {flagged_at_display}]"
         )
 
     with st.container():

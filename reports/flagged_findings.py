@@ -22,7 +22,7 @@ collision.
 import hashlib
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -146,7 +146,7 @@ def add_or_update_flag(
     mode = _normalize_mode(mode)
     fid = _flag_id(report_date, section, content, mode=mode)
     flags = load_flags()
-    now = datetime.now().isoformat(timespec="seconds")
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     sources = sources or []
     flagged_by = (flagged_by or "").strip()
     for f in flags:
@@ -189,7 +189,7 @@ def update_flag_fields(flag_id: str, **fields: Any) -> bool:
     for f in flags:
         if f.get("id") == flag_id:
             f.update(fields)
-            f["updated_at"] = datetime.now().isoformat(timespec="seconds")
+            f["updated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
             _save(flags)
             return True
     return False

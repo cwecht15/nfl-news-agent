@@ -1,8 +1,38 @@
 """Shared helpers for dashboard pages."""
 
 import os
+from datetime import datetime, timezone
 
 import streamlit as st
+
+try:
+    from zoneinfo import ZoneInfo
+    _ET_ZONE = ZoneInfo("America/New_York")
+except Exception:  # pragma: no cover — fallback for stripped envs
+    from datetime import timedelta as _td
+    _ET_ZONE = timezone(_td(hours=-5), name="ET")
+
+
+def to_et_display(iso_str: str | None) -> str:
+    """Render an ISO timestamp string as Eastern time with an "ET" suffix.
+
+    Naive timestamps are treated as UTC because the cloud cron writes
+    `datetime.now()` on a UTC Linux runner. Already-aware timestamps
+    are converted to America/New_York (which handles DST automatically
+    — i.e., displays as EST in winter, EDT in summer; the suffix stays
+    "ET" so callers don't have to reason about the season).
+    Empty / unparseable input passes through unchanged.
+    """
+    if not iso_str:
+        return ""
+    try:
+        dt = datetime.fromisoformat(iso_str)
+    except (ValueError, TypeError):
+        return iso_str
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    et = dt.astimezone(_ET_ZONE)
+    return et.strftime("%Y-%m-%d %I:%M %p ET")
 
 
 def running_locally() -> bool:
