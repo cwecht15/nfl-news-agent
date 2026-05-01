@@ -6,6 +6,12 @@
 # Run pipeline manually
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py
 
+# Faster manual runs (skip YouTube transcripts)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py --skip-youtube
+
+# Re-stamp a prior day's report after a logic change
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py --date 2026-04-30
+
 # Launch dashboard
 Launch_Dashboard.bat
 
@@ -28,14 +34,14 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\transaction_reconcile
 
 ## Architecture
 
-7-step daily pipeline:
-1. **Collect** — RSS (ESPN, PFT, CBS, Yahoo, Athletic), web (NFL.com), Reddit (r/nfl), YouTube (32 team channels) — all parallel
-2. **Deduplicate** — Embedding-based (sentence-transformers) with transaction-aware name matching
-3. **Summarize** — OpenAI gpt-5.4-mini with inline source citations [1], [2], etc.
-4. **Build report** — JSON + HTML with sections, team highlights (quality-filtered), press conferences
-5. **Snapshot projections** — Google Sheets: player metrics (80 cols), fantasy points (PPR/rank), team metrics (66 cols)
-6. **Scrape depth charts** — OurLads, all 32 teams, all positions, with change tracking
-7. **Cleanup** — Old data pruning
+7-step daily pipeline (build-report runs late so depth-chart and projection diffs flow into the report):
+1. **Collect** — RSS (ESPN, PFT, CBS, Athletic, plus 32 SB Nation team blogs), web (NFL.com transactions/injuries, Athletic team pages, 32 SI.com team pages), Reddit (r/nfl), YouTube (32 team channels), beat writers — all parallel. Then `processing.quality_filter` strips obvious fluff (voting articles, off-cycle mock drafts, jersey reveals, trivia) before dedup.
+2. **Deduplicate** — Embedding-based (sentence-transformers) with transaction-aware name matching. Cross-day filter (2-day lookback, 0.82 cosine) suppresses repeats from previous days.
+3. **Summarize** — OpenAI gpt-5.4-mini, single call per section. Article bodies (3.5k–8k chars each) flow into the team-notes prompt so depth-chart and post-draft pieces yield real player-level bullets, not just title-level paraphrase.
+4. **Snapshot projections** — Google Sheets: player metrics (80 cols), fantasy points (PPR/rank), team metrics (66 cols). Compares against most-recent snapshot strictly *before today's date* (otherwise same-day re-runs would diff today against itself).
+5. **Scrape depth charts** — OurLads, all 32 teams, all positions; tracks promotions / demotions / adds / removes / team changes / position changes. Same prior-day comparison logic as projections.
+6. **Build report** — JSON + HTML with: Transactions (position-tagged), Injuries, Depth Chart Movement, Today's Projection Movers, Press Conferences, Team Notes (per-team bulleted with `[N]` citations), League-Wide Notes (cross-team items only).
+7. **Cleanup** — Old data pruning per `storage.{reports_to_keep, raw_data_to_keep}` in settings.yaml.
 
 ## Google Sheets
 
@@ -48,24 +54,32 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\transaction_reconcile
 
 ## Key Design Decisions
 
+- **Quality pre-filter:** `processing/quality_filter.py` drops items whose titles match configurable regexes (voting/trivia/uniform-reveal/off-cycle-mock-draft) before dedup. Tuning lives in `config/settings.yaml` under `content_filter:`. Keeps fluff out of every downstream stage including LLM cost.
 - **Transaction dedup:** Requires first+last name match. Team names + transaction verbs stripped to prevent false merges of structurally similar titles.
+- **Transaction position tagging:** `summarize_transactions` builds a name→position map from the latest depth chart and pre-tags lines as `[TEAM / POS]` so the LLM produces bullets like "Lions signed LB Joe Bachie". Side-tagged positions (LDT, MLB, etc.) are normalized to generic ones (DT, LB).
 - **Press conference count:** Reports count of summarized (not collected) transcripts. Low-signal content filtered by keyword scoring.
-- **Team highlights:** Single-source teams pass through LLM quality gate — filler (trivia, uniforms, mock draft lists) returns "SKIP" and is omitted.
-- **Projection rank changes:** Only shown for players whose Adj columns actually changed — prevents noise from cascading rank shifts.
+- **Team Notes (renamed from Team Highlights):** One bullet per development, bold named subject, ends with `[N]` citation. Single-source teams still pass through an LLM "SKIP" quality gate. Multi-source teams get bulleted output, not a paragraph synthesis. Transactions and injuries are filtered out of per-team pools (covered by their own sections).
+- **Article body fetching:** Athletic, SI, ESPN (national + team API), CBS Sports articles get their `<p>` body extracted at scrape time and stored in `NewsItem.full_text`. SBN feeds expose `content:encoded`, parsed in the RSS collector. Team-notes prompt uses a 5000-char window for "deep" articles (depth charts, post-draft recaps, every-pick breakdowns) and 1200 for ordinary news, so the LLM can reach beyond QB notes into RB/WR/TE/OL coverage.
+- **Source diversity in team pools:** Per-team selection runs a relevance score (deep article > ordinary, then body length, then recency) with a soft cap of `limit // 2` items per source. SI items pseudo-stamped at scrape time can't crowd out SBN/Athletic items with real timestamps, but a single source can still take up to half the pool when warranted.
+- **Team-notes prompt rules:** Surface non-obvious takeaways (skip "the franchise QB is still the starter"); prioritize offensive skill players (QB/RB/FB/WR/TE) over OL over defense / special teams; never invent a player's first name — if the source only gives a last name, the bullet uses only the last name.
+- **League-Wide Notes:** Items with empty `teams` list and `category not in {transaction, injury}`. Capped at 8 bullets, inline `[N]` citations, sources never cited inline are trimmed from the rendered list.
+- **Projection rank changes:** Only shown for players whose Adj columns actually changed — prevents noise from cascading rank shifts. Records use `rank_old`/`rank_new` (strings like `"RB12"`); the section renderer parses the numeric tail for sorting and arrow direction.
 - **Transaction reconciliation:** OurLads depth charts provide position. Only alerts on QB/RB/WR/TE/K. Dismissals are per-transaction, not per-player.
-- **Depth chart diffs:** Track ALL positions for promotions/demotions/adds/removes.
+- **Depth chart diffs:** Track ALL positions for promotions/demotions/adds/removes/team changes/position changes. The daily report uses `before_date=today` when looking up the prior snapshot so multiple same-day runs don't compare today against itself (zero diff).
 
 ## Dashboard Pages
 
 | Page | Purpose |
 |------|---------|
-| Daily Report | News sections with search, team highlights, transaction alerts |
+| Daily Report | Six sections + Team Notes with clickable `[N]` citations; search, transaction alerts |
 | Team View | Per-team historical drilldown |
 | Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections |
-| Depth Charts | Changes (promotions/demotions/etc.) and team browser |
+| Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser |
 | Transcripts | Press conference transcripts with bulk download |
 | Trends | Historical patterns & cost tracking |
 | Digest | Weekly rollup reports |
+| Flagged | Items you've flagged across reports |
+| Config | Edit sources.yaml, settings.yaml |
 
 ## Scheduling
 
