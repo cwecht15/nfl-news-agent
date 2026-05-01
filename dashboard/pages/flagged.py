@@ -26,6 +26,7 @@ from reports.report_builder import load_report
 
 ALL_TEAMS = sorted(get_teams_by_abbr().keys())
 NONE_TEAM = "(none)"
+AUTHOR_UNKNOWN = "(unknown)"
 
 _CITE_RE = re.compile(r"\[(\d+(?:[,\s]+\d+)*)\]")
 
@@ -146,7 +147,16 @@ st.caption("Filters — leave empty to include all.")
 if selected_mode == MODE_HANDBOOK:
     all_categories = sorted({f.get("category", "") for f in flags if f.get("category")})
     known_categories = list(dict.fromkeys(CATEGORIES + all_categories))
-    filter_cols = st.columns([2, 2, 2, 2, 2])
+
+    # Build the Flagged-by options: unique non-empty names + the
+    # "(unknown)" sentinel for legacy/anonymous entries.
+    authors_seen = sorted(
+        {(f.get("flagged_by") or "").strip() for f in flags
+         if (f.get("flagged_by") or "").strip()}
+    )
+    author_options = authors_seen + [AUTHOR_UNKNOWN]
+
+    filter_cols = st.columns([2, 2, 2, 2, 2, 2])
     with filter_cols[0]:
         cat_filter = st.multiselect(
             "Categories", known_categories, default=[], key="hb_cat_filter",
@@ -160,11 +170,17 @@ if selected_mode == MODE_HANDBOOK:
             "Teams", team_options, default=[], key="hb_team_filter",
         )
     with filter_cols[3]:
+        author_filter = st.multiselect(
+            "Flagged by", author_options, default=[], key="hb_author_filter",
+            help="Pick one or more authors. (unknown) covers anonymous "
+                 "entries and legacy flags from before attribution was added.",
+        )
+    with filter_cols[4]:
         search_q = st.text_input(
             "Search", placeholder="content, note, or section...",
             key="hb_search",
         )
-    with filter_cols[4]:
+    with filter_cols[5]:
         sort_order = st.selectbox(
             "Sort",
             ["Newest first", "Oldest first", "Date (newest)", "Date (oldest)"],
@@ -175,6 +191,7 @@ else:
     # (most recent). The user can broaden via the multiselect.
     cat_filter = []
     known_categories = []
+    author_filter = []
     filter_cols = st.columns([3, 2, 3, 2])
     default_date = [dates_seen[0]] if dates_seen else []
     with filter_cols[0]:
@@ -210,6 +227,10 @@ for f in flags:
     flag_team = f.get("team") or NONE_TEAM
     if team_filter and flag_team not in team_filter:
         continue
+    if author_filter:
+        flag_author = (f.get("flagged_by") or "").strip() or AUTHOR_UNKNOWN
+        if flag_author not in author_filter:
+            continue
     if q_lower:
         haystack = " ".join([
             f.get("content", ""), f.get("note", ""),

@@ -18,10 +18,12 @@ from typing import Any, Optional
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     HRFlowable,
     PageBreak,
@@ -44,68 +46,233 @@ SECTION_TITLES = {
     "analysis": "Analysis & What to Watch",
 }
 
-NAVY = colors.HexColor("#013369")
-RED = colors.HexColor("#d50a0a")
-LIGHT_GREY = colors.HexColor("#f0f2f5")
-MID_GREY = colors.HexColor("#cccccc")
+# FantasyPoints brand palette per BrandStyleGuide_v6. PDFs are
+# light-layout documents → secondary logo variant rules: white #F0F0F0
+# dominant background, black #111111 text/structure, red #CC3333 used
+# only as 10% accent (section-header chip, footer ticker, dividers).
+BRAND_RED = colors.HexColor("#CC3333")
+BRAND_BLACK = colors.HexColor("#111111")
+BRAND_WHITE = colors.HexColor("#F0F0F0")
+GREY = colors.HexColor("#666666")
+LIGHT_GREY = colors.HexColor("#F0F0F0")
+MID_GREY = colors.HexColor("#CCCCCC")
+
+# Legacy aliases — old code paths still reference these. Map them onto
+# the brand palette so existing call sites keep rendering, just with
+# the new colors.
+NAVY = BRAND_BLACK
+RED = BRAND_RED
+
+
+# Brand fonts. Kanit Extrabold Italic for headlines/display (always
+# uppercase per the style guide); Mulish for all body, captions,
+# labels. Registered once at module import so ReportLab can resolve
+# them by name in every Paragraph style.
+_BRAND_DIR = Path(__file__).parent.parent / "assets" / "brand"
+_FONT_KANIT_PATH = _BRAND_DIR / "Kanit-ExtraBoldItalic.ttf"
+_FONT_MULISH_PATH = _BRAND_DIR / "Mulish-VariableFont_wght.ttf"
+
+KANIT = "Kanit-ExtraBoldItalic"
+MULISH = "Mulish"
+_BRAND_FONTS_READY = False
+
+
+def _ensure_brand_fonts() -> bool:
+    """Register Kanit + Mulish on first call; cheap no-op afterwards.
+
+    Returns True when both fonts are available and Paragraph styles
+    can use them. Falls back to Helvetica on registration failure
+    (e.g. font file missing in a stripped deploy) so PDFs still
+    render — just without the brand typography.
+    """
+    global _BRAND_FONTS_READY
+    if _BRAND_FONTS_READY:
+        return True
+    try:
+        if KANIT not in pdfmetrics.getRegisteredFontNames():
+            pdfmetrics.registerFont(TTFont(KANIT, str(_FONT_KANIT_PATH)))
+        if MULISH not in pdfmetrics.getRegisteredFontNames():
+            pdfmetrics.registerFont(TTFont(MULISH, str(_FONT_MULISH_PATH)))
+        # Map <b>/<i> markup in Paragraphs onto the same TTF — Mulish
+        # is a variable font but ReportLab loads a single weight, so
+        # synthetic bold is the trade-off. Visual hierarchy comes
+        # from Kanit vs Mulish, not from bold body.
+        pdfmetrics.registerFontFamily(
+            MULISH, normal=MULISH, bold=MULISH, italic=MULISH, boldItalic=MULISH,
+        )
+        pdfmetrics.registerFontFamily(
+            KANIT, normal=KANIT, bold=KANIT, italic=KANIT, boldItalic=KANIT,
+        )
+        _BRAND_FONTS_READY = True
+    except Exception as e:
+        logger.warning(
+            "Brand font registration failed (%s); falling back to Helvetica.",
+            e,
+        )
+        _BRAND_FONTS_READY = False
+    return _BRAND_FONTS_READY
+
+
+def _font(name: str) -> str:
+    """Return the brand font when registered, else a safe Helvetica
+    fallback. Lets every style declaration stay uniform."""
+    if _ensure_brand_fonts():
+        return name
+    return "Helvetica" if name != KANIT else "Helvetica-BoldOblique"
 
 
 def _styles() -> dict[str, ParagraphStyle]:
-    """Build the set of paragraph styles used across the PDF."""
-    base = getSampleStyleSheet()
-    normal = base["BodyText"]
-    normal.fontSize = 10
-    normal.leading = 13
-    normal.alignment = TA_LEFT
+    """Build the set of paragraph styles used across the PDF.
 
-    styles = {
+    Per the FantasyPoints brand: Kanit Extrabold Italic for headlines
+    (uppercase, never used for body); Mulish for all body, captions,
+    labels. Brand black for primary text, brand red exclusively as
+    accent (section-bar chips, dividers, footer ticker).
+    """
+    _ensure_brand_fonts()
+
+    return {
         "title": ParagraphStyle(
             "Title",
-            parent=base["Heading1"],
-            fontSize=20,
-            textColor=NAVY,
+            fontName=_font(KANIT),
+            fontSize=26, leading=30,
+            textColor=BRAND_BLACK,
             spaceAfter=6,
         ),
         "subtitle": ParagraphStyle(
             "Subtitle",
-            parent=base["Normal"],
-            fontSize=10,
-            textColor=colors.grey,
+            fontName=_font(MULISH),
+            fontSize=10, leading=14,
+            textColor=GREY,
             spaceAfter=12,
         ),
         "section": ParagraphStyle(
-            "SectionHeading",
-            parent=base["Heading2"],
-            fontSize=14,
-            textColor=NAVY,
-            spaceBefore=14,
-            spaceAfter=6,
+            "Section",
+            fontName=_font(KANIT),
+            fontSize=14, leading=18,
+            textColor=BRAND_WHITE,  # used inside the black section bar
+            spaceBefore=14, spaceAfter=6,
+            alignment=TA_LEFT,
+        ),
+        "section_inline": ParagraphStyle(
+            "SectionInline",
+            fontName=_font(KANIT),
+            fontSize=14, leading=18,
+            textColor=BRAND_BLACK,
+            spaceBefore=10, spaceAfter=4,
         ),
         "subsection": ParagraphStyle(
-            "SubHeading",
-            parent=base["Heading3"],
-            fontSize=11,
-            textColor=NAVY,
-            spaceBefore=10,
-            spaceAfter=4,
+            "Subsection",
+            fontName=_font(KANIT),
+            fontSize=12, leading=16,
+            textColor=BRAND_BLACK,
+            spaceBefore=10, spaceAfter=4,
         ),
-        "body": normal,
+        "body": ParagraphStyle(
+            "Body",
+            fontName=_font(MULISH),
+            fontSize=10, leading=14,
+            textColor=BRAND_BLACK,
+            alignment=TA_LEFT,
+        ),
         "source": ParagraphStyle(
             "Source",
-            parent=base["Normal"],
-            fontSize=8.5,
-            leading=11,
-            textColor=colors.HexColor("#555555"),
+            fontName=_font(MULISH),
+            fontSize=8.5, leading=11,
+            textColor=GREY,
             leftIndent=10,
         ),
         "caption": ParagraphStyle(
             "Caption",
-            parent=base["Normal"],
-            fontSize=8,
-            textColor=colors.grey,
+            fontName=_font(MULISH),
+            fontSize=8, leading=11,
+            textColor=GREY,
         ),
     }
-    return styles
+
+
+def _brand_section_bar(title: str, number: str = "") -> Table:
+    """Render a section header in the brand's '01 / TITLE' style:
+    a small red chip (with an optional number) followed by a black
+    bar holding the white-on-black uppercase title. Honors the brand's
+    60/30/10 rule — red is the chip accent, black dominates the bar."""
+    _ensure_brand_fonts()
+    chip_w = 0.55 * inch if number else 0.18 * inch
+    bar_w = 7.0 * inch - chip_w
+    cells = [[number or "", title.upper()]]
+    table = Table(cells, colWidths=[chip_w, bar_w], rowHeights=[0.36 * inch])
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (0, 0), BRAND_RED),
+        ("BACKGROUND", (1, 0), (1, 0), BRAND_BLACK),
+        ("TEXTCOLOR", (0, 0), (-1, 0), BRAND_WHITE),
+        ("FONTNAME", (0, 0), (-1, 0), _font(KANIT)),
+        ("FONTSIZE", (0, 0), (-1, 0), 13),
+        ("VALIGN", (0, 0), (-1, 0), "MIDDLE"),
+        ("ALIGN", (0, 0), (0, 0), "CENTER"),
+        ("ALIGN", (1, 0), (1, 0), "LEFT"),
+        ("LEFTPADDING", (1, 0), (1, 0), 12),
+        ("RIGHTPADDING", (-1, 0), (-1, 0), 8),
+    ]))
+    return table
+
+
+def _draw_brand_footer(canvas, doc):
+    """Red ticker bar at the bottom of every page reading
+    "FANTASYPOINTS.COM · FANTASYPOINTS.COM · FANTASYPOINTS.COM" plus
+    a page number on the right. Drawn via canvas.drawString rather
+    than as a flowable so it never disrupts the story layout."""
+    _ensure_brand_fonts()
+    page_w, _ = LETTER
+    bar_h = 0.22 * inch
+    canvas.saveState()
+    canvas.setFillColor(BRAND_RED)
+    canvas.rect(0, 0, page_w, bar_h, stroke=0, fill=1)
+    canvas.setFillColor(BRAND_WHITE)
+    canvas.setFont(_font(KANIT), 8)
+    ticker = "FANTASYPOINTS.COM  ·  FANTASYPOINTS.COM  ·  FANTASYPOINTS.COM"
+    canvas.drawString(0.6 * inch, bar_h / 2 - 3, ticker)
+    page_no = f"PAGE {canvas.getPageNumber()}"
+    canvas.drawRightString(page_w - 0.6 * inch, bar_h / 2 - 3, page_no)
+    canvas.restoreState()
+
+
+def _doc_template(buf: BytesIO, title: str) -> SimpleDocTemplate:
+    """Brand-styled document template: 0.6in margins on three sides
+    plus extra bottom margin to clear the red footer ticker."""
+    return SimpleDocTemplate(
+        buf,
+        pagesize=LETTER,
+        leftMargin=0.6 * inch,
+        rightMargin=0.6 * inch,
+        topMargin=0.6 * inch,
+        bottomMargin=0.55 * inch,
+        title=title,
+    )
+
+
+def _brand_title_block(title: str, subtitle: str = "") -> list[Any]:
+    """Top-of-document title block in the brand style: small red
+    'FANTASY POINTS' wordmark line, then the document title in big
+    Kanit caps, then an optional Mulish subtitle (date, item count,
+    etc). Replaces the old plain-text Heading1 + subtitle pair."""
+    styles = _styles()
+    out: list[Any] = []
+    out.append(Paragraph(
+        '<font color="#CC3333">FANTASY</font>'
+        '<font color="#111111">  POINTS</font>',
+        ParagraphStyle(
+            "Wordmark", fontName=_font(KANIT),
+            fontSize=11, leading=14, textColor=BRAND_BLACK,
+        ),
+    ))
+    out.append(Spacer(1, 4))
+    out.append(Paragraph(title.upper(), styles["title"]))
+    out.append(HRFlowable(
+        width="100%", thickness=2, color=BRAND_RED, spaceAfter=8,
+    ))
+    if subtitle:
+        out.append(Paragraph(subtitle, styles["subtitle"]))
+    return out
 
 
 _SAFE_RE = re.compile(r"[&<>]")
@@ -706,24 +873,13 @@ def build_daily_pdf(date_str: str) -> bytes:
     styles = _styles()
 
     buf = BytesIO()
-    doc = SimpleDocTemplate(
-        buf,
-        pagesize=LETTER,
-        leftMargin=0.6 * inch,
-        rightMargin=0.6 * inch,
-        topMargin=0.6 * inch,
-        bottomMargin=0.6 * inch,
-        title=f"NFL Daily Report — {date_str}",
-    )
+    doc = _doc_template(buf, f"NFL Daily Report — {date_str}")
 
-    story: list[Any] = [
-        Paragraph(f"NFL Daily Report — {date_str}", styles["title"]),
-        HRFlowable(width="100%", thickness=1.5, color=RED, spaceAfter=8),
-        Paragraph(
-            f"Generated {report.generated_at}",
-            styles["subtitle"],
-        ),
-    ]
+    story: list[Any] = []
+    story.extend(_brand_title_block(
+        f"Daily Report  ·  {date_str}",
+        f"Generated {report.generated_at}",
+    ))
 
     story.extend(_render_report_sections(report, styles))
     story.extend(_render_team_highlights(report, styles))
@@ -734,7 +890,7 @@ def build_daily_pdf(date_str: str) -> bytes:
     story.append(Spacer(1, 10))
     story.extend(_render_stats(report, styles))
 
-    doc.build(story)
+    doc.build(story, onFirstPage=_draw_brand_footer, onLaterPages=_draw_brand_footer)
     return buf.getvalue()
 
 
@@ -784,38 +940,28 @@ def build_flagged_pdf(flags: list[dict[str, Any]] | None = None) -> bytes:
 
     styles = _styles()
     buf = BytesIO()
-    doc = SimpleDocTemplate(
-        buf,
-        pagesize=LETTER,
-        leftMargin=0.6 * inch,
-        rightMargin=0.6 * inch,
-        topMargin=0.6 * inch,
-        bottomMargin=0.6 * inch,
-        title="NFL Flagged Findings",
-    )
+    doc = _doc_template(buf, "NFL Flagged Findings — Internal FP Handbook")
 
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
-    story: list[Any] = [
-        Paragraph("NFL Flagged Findings", styles["title"]),
-        HRFlowable(width="100%", thickness=1.5, color=RED, spaceAfter=8),
-        Paragraph(
-            f"Generated {generated_at} &nbsp;·&nbsp; {len(flags)} item(s)",
-            styles["subtitle"],
-        ),
-    ]
+    story: list[Any] = []
+    story.extend(_brand_title_block(
+        "Internal FP Handbook",
+        f"Generated {generated_at}  ·  {len(flags)} item(s)",
+    ))
 
     if not flags:
         story.append(Paragraph("No flagged items.", styles["body"]))
-        doc.build(story)
+        doc.build(story, onFirstPage=_draw_brand_footer, onLaterPages=_draw_brand_footer)
         return buf.getvalue()
 
     grouped: dict[str, list[dict[str, Any]]] = {}
     for f in flags:
         grouped.setdefault(f.get("category", "Uncategorized"), []).append(f)
 
-    for category in sorted(grouped):
-        story.append(Paragraph(_escape(category), styles["section"]))
-        story.append(HRFlowable(width="100%", thickness=0.5, color=MID_GREY, spaceAfter=4))
+    for idx, category in enumerate(sorted(grouped), start=1):
+        story.append(Spacer(1, 6))
+        story.append(_brand_section_bar(category, f"{idx:02d}"))
+        story.append(Spacer(1, 6))
 
         items = sorted(grouped[category], key=lambda x: x.get("report_date", ""), reverse=True)
         for f in items:
@@ -862,7 +1008,7 @@ def build_flagged_pdf(flags: list[dict[str, Any]] | None = None) -> bytes:
                 ))
             story.append(Spacer(1, 6))
 
-    doc.build(story)
+    doc.build(story, onFirstPage=_draw_brand_footer, onLaterPages=_draw_brand_footer)
     return buf.getvalue()
 
 
@@ -917,15 +1063,7 @@ def build_daily_site_pdf(flags: list[dict[str, Any]] | None = None) -> bytes:
 
     styles = _styles()
     buf = BytesIO()
-    doc = SimpleDocTemplate(
-        buf,
-        pagesize=LETTER,
-        leftMargin=0.6 * inch,
-        rightMargin=0.6 * inch,
-        topMargin=0.6 * inch,
-        bottomMargin=0.6 * inch,
-        title="NFL Daily Site Report",
-    )
+    doc = _doc_template(buf, "NFL Daily Site Report")
 
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
     dates = sorted({f.get("report_date", "") for f in flags if f.get("report_date")})
@@ -936,19 +1074,15 @@ def build_daily_site_pdf(flags: list[dict[str, Any]] | None = None) -> bytes:
     else:
         coverage = "—"
 
-    story: list[Any] = [
-        Paragraph("NFL Daily Site Report", styles["title"]),
-        HRFlowable(width="100%", thickness=1.5, color=RED, spaceAfter=8),
-        Paragraph(
-            f"Generated {generated_at} &nbsp;·&nbsp; {len(flags)} item(s) "
-            f"&nbsp;·&nbsp; coverage: {_escape(coverage)}",
-            styles["subtitle"],
-        ),
-    ]
+    story: list[Any] = []
+    story.extend(_brand_title_block(
+        f"Daily Site Report  ·  {coverage}",
+        f"Generated {generated_at}  ·  {len(flags)} item(s)",
+    ))
 
     if not flags:
         story.append(Paragraph("No Daily Site Report items.", styles["body"]))
-        doc.build(story)
+        doc.build(story, onFirstPage=_draw_brand_footer, onLaterPages=_draw_brand_footer)
         return buf.getvalue()
 
     grouped: dict[str, list[dict[str, Any]]] = {}
@@ -956,9 +1090,10 @@ def build_daily_site_pdf(flags: list[dict[str, Any]] | None = None) -> bytes:
         team_key = f.get("team") or "(no team)"
         grouped.setdefault(team_key, []).append(f)
 
-    for team_key in sorted(grouped):
-        story.append(Paragraph(_escape(team_key), styles["section"]))
-        story.append(HRFlowable(width="100%", thickness=0.5, color=MID_GREY, spaceAfter=4))
+    for idx, team_key in enumerate(sorted(grouped), start=1):
+        story.append(Spacer(1, 6))
+        story.append(_brand_section_bar(team_key, f"{idx:02d}"))
+        story.append(Spacer(1, 6))
 
         items = sorted(
             grouped[team_key],
@@ -1010,7 +1145,7 @@ def build_daily_site_pdf(flags: list[dict[str, Any]] | None = None) -> bytes:
                 ))
             story.append(Spacer(1, 6))
 
-    doc.build(story)
+    doc.build(story, onFirstPage=_draw_brand_footer, onLaterPages=_draw_brand_footer)
     return buf.getvalue()
 
 
