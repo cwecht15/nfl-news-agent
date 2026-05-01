@@ -16,6 +16,8 @@ require_password()
 from config_loader import get_teams_by_abbr
 from reports.flagged_findings import (
     CATEGORIES,
+    MODE_DAILY,
+    MODE_HANDBOOK,
     load_flags,
     remove_flag,
     update_flag_fields,
@@ -89,41 +91,119 @@ def _linkify_citations(content: str, sources: list[dict]) -> str:
 
 st.header("Flagged Findings")
 
-flags = load_flags()
+# Two modes share the same store: long-running Internal FP Handbook
+# flags vs per-day Daily Site Report flags. Tabs let visitors switch
+# without losing filter state cross-mode (each mode's filter widgets
+# carry their own keys).
+all_flags = load_flags()
+
+
+def _flag_mode(f: dict) -> str:
+    return f.get("mode") or MODE_HANDBOOK
+
+
+handbook_flags = [f for f in all_flags if _flag_mode(f) == MODE_HANDBOOK]
+daily_flags = [f for f in all_flags if _flag_mode(f) == MODE_DAILY]
+
+mode_label = st.radio(
+    "Flag set",
+    options=[
+        f"🚩 Internal FP Handbook ({len(handbook_flags)})",
+        f"📋 Daily Site Report ({len(daily_flags)})",
+    ],
+    horizontal=True,
+    label_visibility="collapsed",
+)
+selected_mode = MODE_HANDBOOK if mode_label.startswith("🚩") else MODE_DAILY
+flags = handbook_flags if selected_mode == MODE_HANDBOOK else daily_flags
 
 if not flags:
-    st.info(
-        "No findings flagged yet. Open a Daily Report, toggle 'Flag mode', "
-        "and click the flag icon next to any bullet or paragraph you want to save."
-    )
+    if selected_mode == MODE_HANDBOOK:
+        st.info(
+            "No Internal FP Handbook flags yet. Open a Daily Report, "
+            "set Flag mode to **🚩 Internal FP Handbook**, and click the "
+            "flag icon next to any bullet to start collecting persistent, "
+            "categorized findings across all reports."
+        )
+    else:
+        st.info(
+            "No Daily Site Report flags yet. Open today's Daily Report, "
+            "set Flag mode to **📋 Daily Site Report**, and flag items "
+            "you want to bundle into a one-day PDF export."
+        )
     st.stop()
 
-# Filters
-all_categories = sorted({f.get("category", "") for f in flags if f.get("category")})
-known_categories = list(dict.fromkeys(CATEGORIES + all_categories))
-
-dates_seen = sorted({f.get("report_date", "") for f in flags if f.get("report_date")}, reverse=True)
-
+# Filters — same widgets for both modes, but Categories only renders
+# for handbook (DSR flags don't carry a category).
+dates_seen = sorted(
+    {f.get("report_date", "") for f in flags if f.get("report_date")},
+    reverse=True,
+)
 teams_seen_in_flags = sorted({f.get("team", "") for f in flags if f.get("team")})
 team_options = [NONE_TEAM] + sorted(set(ALL_TEAMS) | set(teams_seen_in_flags))
 
 st.caption("Filters — leave empty to include all.")
-filter_cols = st.columns([2, 2, 2, 2, 2])
-with filter_cols[0]:
-    cat_filter = st.multiselect("Categories", known_categories, default=[])
-with filter_cols[1]:
-    date_filter = st.multiselect("Report dates", dates_seen, default=[])
-with filter_cols[2]:
-    team_filter = st.multiselect("Teams", team_options, default=[])
-with filter_cols[3]:
-    search_q = st.text_input("Search", placeholder="content, note, or section...")
-with filter_cols[4]:
-    sort_order = st.selectbox("Sort", ["Newest first", "Oldest first", "Date (newest)", "Date (oldest)"], index=0)
+if selected_mode == MODE_HANDBOOK:
+    all_categories = sorted({f.get("category", "") for f in flags if f.get("category")})
+    known_categories = list(dict.fromkeys(CATEGORIES + all_categories))
+    filter_cols = st.columns([2, 2, 2, 2, 2])
+    with filter_cols[0]:
+        cat_filter = st.multiselect(
+            "Categories", known_categories, default=[], key="hb_cat_filter",
+        )
+    with filter_cols[1]:
+        date_filter = st.multiselect(
+            "Report dates", dates_seen, default=[], key="hb_date_filter",
+        )
+    with filter_cols[2]:
+        team_filter = st.multiselect(
+            "Teams", team_options, default=[], key="hb_team_filter",
+        )
+    with filter_cols[3]:
+        search_q = st.text_input(
+            "Search", placeholder="content, note, or section...",
+            key="hb_search",
+        )
+    with filter_cols[4]:
+        sort_order = st.selectbox(
+            "Sort",
+            ["Newest first", "Oldest first", "Date (newest)", "Date (oldest)"],
+            index=0, key="hb_sort",
+        )
+else:
+    # Daily Site Report scope: pick a single report date by default
+    # (most recent). The user can broaden via the multiselect.
+    cat_filter = []
+    known_categories = []
+    filter_cols = st.columns([3, 2, 3, 2])
+    default_date = [dates_seen[0]] if dates_seen else []
+    with filter_cols[0]:
+        date_filter = st.multiselect(
+            "Report date(s)", dates_seen, default=default_date,
+            help="Daily Site Report flags are per-day. Defaults to the "
+                 "most recent date with flags. Pick more than one if you "
+                 "want a multi-day export.",
+            key="dsr_date_filter",
+        )
+    with filter_cols[1]:
+        team_filter = st.multiselect(
+            "Teams", team_options, default=[], key="dsr_team_filter",
+        )
+    with filter_cols[2]:
+        search_q = st.text_input(
+            "Search", placeholder="content, note...", key="dsr_search",
+        )
+    with filter_cols[3]:
+        sort_order = st.selectbox(
+            "Sort",
+            ["Newest first", "Oldest first", "Date (newest)", "Date (oldest)"],
+            index=0, key="dsr_sort",
+        )
 
 filtered = []
 q_lower = search_q.lower()
 for f in flags:
-    if cat_filter and f.get("category") not in cat_filter:
+    if selected_mode == MODE_HANDBOOK and cat_filter and f.get("category") not in cat_filter:
         continue
     if date_filter and f.get("report_date") not in date_filter:
         continue
@@ -149,22 +229,36 @@ elif sort_order == "Date (newest)":
 else:
     filtered.sort(key=lambda x: x.get("report_date", ""))
 
-st.caption(f"{len(filtered)} of {len(flags)} flagged items")
+st.caption(f"{len(filtered)} of {len(flags)} flagged items in this mode")
 
-# PDF export button
+# PDF export — different builder + filename per mode.
 export_col, _ = st.columns([1, 5])
 with export_col:
     if st.button("Build PDF", type="primary"):
         try:
-            from reports.pdf_exporter import build_flagged_pdf
-            pdf_bytes = build_flagged_pdf(filtered)
+            if selected_mode == MODE_HANDBOOK:
+                from reports.pdf_exporter import build_flagged_pdf
+                pdf_bytes = build_flagged_pdf(filtered)
+            else:
+                from reports.pdf_exporter import build_daily_site_pdf
+                pdf_bytes = build_daily_site_pdf(filtered)
             st.session_state["_flagged_pdf_bytes"] = pdf_bytes
+            st.session_state["_flagged_pdf_mode"] = selected_mode
         except Exception as e:
             st.error(f"PDF build failed: {e}")
 
 if "_flagged_pdf_bytes" in st.session_state:
     from datetime import datetime as _dt
-    fname = f"flagged_findings_{_dt.now().strftime('%Y%m%d')}.pdf"
+    pdf_mode = st.session_state.get("_flagged_pdf_mode", MODE_HANDBOOK)
+    if pdf_mode == MODE_DAILY:
+        # Stamp the file with the date(s) it covers when possible.
+        if date_filter:
+            stamp = "_".join(sorted(date_filter))
+        else:
+            stamp = _dt.now().strftime("%Y%m%d")
+        fname = f"daily_site_report_{stamp}.pdf"
+    else:
+        fname = f"flagged_findings_{_dt.now().strftime('%Y%m%d')}.pdf"
     st.download_button(
         "Download PDF",
         data=st.session_state["_flagged_pdf_bytes"],
@@ -186,22 +280,41 @@ for f in filtered:
     sources = _resolve_sources(f)
     flagged_at = f.get("flagged_at", "")
 
+    entry_mode_for_header = _flag_mode(f)
     team_chunk = f" · **{team}**" if team else ""
     flagger = (f.get("flagged_by") or "").strip()
-    flagger_chunk = f" · :grey[by **{flagger}**]" if flagger else ""
+    if entry_mode_for_header == MODE_HANDBOOK:
+        flagger_chunk = f" · :grey[by **{flagger}**]" if flagger else ""
+        head_left = (
+            f"**[{category}]**{team_chunk} · {report_date} · *{section_label}*  \n"
+            f":grey[flagged {flagged_at}]{flagger_chunk}"
+        )
+    else:
+        head_left = (
+            f"**📋 Daily Site**{team_chunk} · {report_date} · *{section_label}*  \n"
+            f":grey[flagged {flagged_at}]"
+        )
+
     with st.container():
         head_l, head_r = st.columns([6, 1])
         with head_l:
-            st.markdown(
-                f"**[{category}]**{team_chunk} · {report_date} · *{section_label}*  \n"
-                f":grey[flagged {flagged_at}]{flagger_chunk}"
-            )
+            st.markdown(head_left)
         with head_r:
             with st.popover("Edit"):
-                cat_idx = known_categories.index(category) if category in known_categories else 0
-                new_cat = st.selectbox(
-                    "Category", known_categories, index=cat_idx, key=f"edit_cat_{fid}",
-                )
+                entry_mode = _flag_mode(f)
+                if entry_mode == MODE_HANDBOOK:
+                    cat_idx = (
+                        known_categories.index(category)
+                        if category in known_categories else 0
+                    )
+                    new_cat = st.selectbox(
+                        "Category", known_categories, index=cat_idx,
+                        key=f"edit_cat_{fid}",
+                    )
+                else:
+                    st.caption("📋 Daily Site Report")
+                    new_cat = ""
+
                 team_choice_options = [NONE_TEAM] + ALL_TEAMS
                 cur_team_label = team if team else NONE_TEAM
                 team_idx = (
@@ -215,23 +328,26 @@ for f in filtered:
                 new_note = st.text_area(
                     "Note", value=note, height=100, key=f"edit_note_{fid}",
                 )
-                # Allow editing the attribution — useful if someone
-                # flagged anonymously and now wants to claim it, or to
-                # fix a typo. Empty string clears attribution.
-                new_flagger = st.text_input(
-                    "Flagged by",
-                    value=flagger,
-                    key=f"edit_flagger_{fid}",
-                    placeholder="leave blank to clear attribution",
-                )
-                if st.button("Save", key=f"edit_save_{fid}", type="primary"):
-                    update_flag_fields(
-                        fid,
-                        category=new_cat,
-                        team=new_team,
-                        note=new_note,
-                        flagged_by=(new_flagger or "").strip(),
+
+                update_kwargs: dict = {
+                    "team": new_team,
+                    "note": new_note,
+                }
+                if entry_mode == MODE_HANDBOOK:
+                    update_kwargs["category"] = new_cat
+                    # Allow editing the attribution — useful if someone
+                    # flagged anonymously and now wants to claim it, or
+                    # to fix a typo. Empty string clears attribution.
+                    new_flagger = st.text_input(
+                        "Flagged by",
+                        value=flagger,
+                        key=f"edit_flagger_{fid}",
+                        placeholder="leave blank to clear attribution",
                     )
+                    update_kwargs["flagged_by"] = (new_flagger or "").strip()
+
+                if st.button("Save", key=f"edit_save_{fid}", type="primary"):
+                    update_flag_fields(fid, **update_kwargs)
                     st.rerun()
                 if st.button("Delete", key=f"edit_del_{fid}"):
                     remove_flag(fid)

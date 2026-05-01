@@ -22,11 +22,22 @@ from dashboard.helpers import (
 )
 from reports.flagged_findings import (
     CATEGORIES,
+    MODE_DAILY,
+    MODE_HANDBOOK,
     add_or_update_flag,
     get_flag,
     get_flag_id,
     remove_flag,
 )
+
+# Selectbox label → internal mode value. Empty string is "off" (no flag
+# UI rendered alongside report content).
+_FLAG_MODE_LABELS: dict[str, str] = {
+    "": "Off",
+    MODE_HANDBOOK: "🚩 Internal FP Handbook",
+    MODE_DAILY: "📋 Daily Site Report",
+}
+_FLAG_MODE_VALUES: list[str] = list(_FLAG_MODE_LABELS.keys())
 from reports.report_builder import list_available_reports, load_report
 
 ALL_TEAMS = sorted(get_teams_by_abbr().keys())
@@ -162,19 +173,33 @@ def _citations_for(content: str, numbered_sources) -> list[dict]:
 
 def _flag_control(content: str, report_date: str, section_id: str,
                    section_label: str, key_prefix: str,
-                   default_team: str = "", attached_sources=None) -> None:
-    """Render a popover flag control for a single content item."""
-    fid = get_flag_id(report_date, section_id, content)
+                   default_team: str = "", attached_sources=None,
+                   mode: str = MODE_HANDBOOK) -> None:
+    """Render a popover flag control for a single content item.
+
+    `mode` selects the flag schema:
+      - MODE_HANDBOOK: Category + Team + Note + flagger name
+      - MODE_DAILY: Team + Note (no category, no attribution)
+    Each mode keys a distinct flag ID for the same content, so an item
+    can carry one flag in each mode without collision.
+    """
+    fid = get_flag_id(report_date, section_id, content, mode=mode)
     existing = get_flag(fid)
     icon = "🚩" if existing else "⚐"
     with st.popover(icon, use_container_width=False):
-        cur_cat = existing.get("category") if existing else CATEGORIES[0]
         cur_note = existing.get("note", "") if existing else ""
         cur_team = existing.get("team") if existing else default_team
-        cat_idx = CATEGORIES.index(cur_cat) if cur_cat in CATEGORIES else 0
-        cat = st.selectbox(
-            "Category", CATEGORIES, index=cat_idx, key=f"{key_prefix}_cat",
-        )
+
+        if mode == MODE_HANDBOOK:
+            cur_cat = existing.get("category") if existing else CATEGORIES[0]
+            cat_idx = CATEGORIES.index(cur_cat) if cur_cat in CATEGORIES else 0
+            cat = st.selectbox(
+                "Category", CATEGORIES, index=cat_idx,
+                key=f"{key_prefix}_cat",
+            )
+        else:
+            st.caption("📋 Daily Site Report")
+            cat = ""
 
         team_options = [NONE_TEAM] + ALL_TEAMS
         team_idx = team_options.index(cur_team) if cur_team in team_options else 0
@@ -184,29 +209,34 @@ def _flag_control(content: str, report_date: str, section_id: str,
         team = "" if team_choice == NONE_TEAM else team_choice
 
         note = st.text_area(
-            "Note (optional)", value=cur_note, height=80, key=f"{key_prefix}_note",
+            "Note (optional)" if mode == MODE_HANDBOOK else "Note",
+            value=cur_note, height=80, key=f"{key_prefix}_note",
         )
-        # Per-popover name input. Defaults to whatever the visitor set
-        # earlier this session (via this popover or the page-level field
-        # at the top of the report). Editing here also updates the
-        # session-wide value so subsequent popovers pre-fill the new
-        # name. Leave blank to flag anonymously.
-        default_name = st.session_state.get("flagger_name", "")
-        flagger_input = st.text_input(
-            "Your name (saved with this flag)",
-            value=default_name,
-            key=f"{key_prefix}_flagger",
-            placeholder="optional",
-        )
-        if st.button("Save flag", key=f"{key_prefix}_save", type="primary"):
+
+        flagger = ""
+        if mode == MODE_HANDBOOK:
+            # Per-popover name input. Defaults to whatever the visitor
+            # set earlier this session (via this popover or the
+            # page-level field at the top of the report). Editing here
+            # also updates the session-wide value so subsequent
+            # popovers pre-fill the new name.
+            default_name = st.session_state.get("flagger_name", "")
+            flagger_input = st.text_input(
+                "Your name (saved with this flag)",
+                value=default_name,
+                key=f"{key_prefix}_flagger",
+                placeholder="optional",
+            )
             flagger = (flagger_input or "").strip()
-            # Persist for future popovers in this session.
-            if flagger:
+
+        if st.button("Save flag", key=f"{key_prefix}_save", type="primary"):
+            if mode == MODE_HANDBOOK and flagger:
                 st.session_state["flagger_name"] = flagger
             add_or_update_flag(
-                report_date, section_id, section_label, content, cat, note,
+                report_date, section_id, section_label, content,
+                category=cat, note=note,
                 team=team, sources=attached_sources or [],
-                flagged_by=flagger,
+                flagged_by=flagger, mode=mode,
             )
             st.rerun()
         if existing and st.button("Unflag", key=f"{key_prefix}_unflag"):
@@ -217,7 +247,8 @@ def _flag_control(content: str, report_date: str, section_id: str,
 def _render_flaggable(summary: str, report_date: str, section_id: str,
                       section_label: str, key_prefix: str,
                       linkify=None, default_team: str = "",
-                      section_sources=None, numbered_sources=None) -> None:
+                      section_sources=None, numbered_sources=None,
+                      mode: str = MODE_HANDBOOK) -> None:
     """Render a markdown summary as item-by-item flaggable units."""
     items = _parse_flaggable_items(summary)
     for idx, (kind, content) in enumerate(items):
@@ -240,6 +271,7 @@ def _render_flaggable(summary: str, report_date: str, section_id: str,
                 content, report_date, section_id, section_label,
                 key_prefix=f"{key_prefix}_{idx}",
                 default_team=default_team, attached_sources=attached,
+                mode=mode,
             )
 
 
@@ -260,17 +292,28 @@ except Exception as e:
     st.error(f"Failed to load report: {e}")
     st.stop()
 
-# Search box + flag-mode toggle (+ name field, only when flagging)
-search_col, flag_col = st.columns([4, 1])
+# Search box + flag-mode selector (+ name field, only when handbook mode)
+search_col, flag_col = st.columns([3, 2])
 with search_col:
     search_query = st.text_input(
         "Search report", placeholder="Player, team, or keyword...",
     )
 with flag_col:
-    flag_mode = st.toggle("🚩 Flag mode", value=False, key="flag_mode",
-                          help="Show flag controls beside each bullet/paragraph")
+    flag_mode = st.selectbox(
+        "Flag mode",
+        options=_FLAG_MODE_VALUES,
+        format_func=lambda v: _FLAG_MODE_LABELS[v],
+        key="flag_mode",
+        help=(
+            "Off: just read the report. "
+            "Internal FP Handbook: long-running, persistent flags with "
+            "category + author. "
+            "Daily Site Report: one-day-scoped flags (team + note only) "
+            "that you'll export to PDF."
+        ),
+    )
 
-if flag_mode:
+if flag_mode == MODE_HANDBOOK:
     st.text_input(
         "Your name (saved with each flag for attribution)",
         key="flagger_name",
@@ -341,6 +384,7 @@ for key, section_data in report.sections.items():
                 display_summary, selected_date, key, title,
                 key_prefix=f"sec_{key}", linkify=linkify,
                 section_sources=sources, numbered_sources=numbered_sources,
+                mode=flag_mode,
             )
         elif linkify:
             st.markdown(linkify(display_summary), unsafe_allow_html=True)
@@ -402,6 +446,7 @@ if report.team_highlights:
                 key_prefix=f"team_{team}",
                 default_team=team, section_sources=team_srcs,
                 linkify=team_linkify, numbered_sources=team_numbered,
+                mode=flag_mode,
             )
         elif team_linkify:
             st.markdown(team_linkify(summary_text), unsafe_allow_html=True)

@@ -866,6 +866,154 @@ def build_flagged_pdf(flags: list[dict[str, Any]] | None = None) -> bytes:
     return buf.getvalue()
 
 
+def build_daily_site_pdf(flags: list[dict[str, Any]] | None = None) -> bytes:
+    """Build a Daily Site Report PDF from per-day flagged items.
+
+    DSR flags carry only team + note (no category, no attribution).
+    Output groups by team and orders by report_date within each team
+    so a reader can scan one team's daily-site notes top to bottom.
+    Pass `flags` to render a pre-filtered subset; pass None to load
+    the full store and filter to MODE_DAILY entries.
+    """
+    from reports.flagged_findings import MODE_DAILY, MODE_HANDBOOK, load_flags
+
+    if flags is None:
+        all_flags = load_flags()
+        flags = [
+            f for f in all_flags
+            if (f.get("mode") or MODE_HANDBOOK) == MODE_DAILY
+        ]
+
+    _section_src_cache: dict[tuple[str, str], list[dict]] = {}
+
+    def _resolve_sources(flag: dict) -> list[dict]:
+        stored = flag.get("sources") or []
+        if stored:
+            return stored
+        section = flag.get("section", "")
+        date = flag.get("report_date", "")
+        if not section or section.startswith("team:") or not date:
+            return []
+        cache_key = (date, section)
+        if cache_key not in _section_src_cache:
+            try:
+                rep = load_report(date)
+                sd = (rep.sections or {}).get(section, {}) or {}
+                _section_src_cache[cache_key] = sd.get("numbered_sources") or []
+            except Exception:
+                _section_src_cache[cache_key] = []
+        full = _section_src_cache[cache_key]
+        if not full:
+            return []
+        nums = set()
+        for m in _CITE_RE.finditer(flag.get("content", "")):
+            for n in re.split(r"[,\s]+", m.group(1)):
+                n = n.strip()
+                if n:
+                    nums.add(n)
+        if not nums:
+            return []
+        return [s for s in full if str(s.get("num", "")) in nums]
+
+    styles = _styles()
+    buf = BytesIO()
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=LETTER,
+        leftMargin=0.6 * inch,
+        rightMargin=0.6 * inch,
+        topMargin=0.6 * inch,
+        bottomMargin=0.6 * inch,
+        title="NFL Daily Site Report",
+    )
+
+    generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+    dates = sorted({f.get("report_date", "") for f in flags if f.get("report_date")})
+    if len(dates) == 1:
+        coverage = dates[0]
+    elif dates:
+        coverage = f"{dates[0]} → {dates[-1]} ({len(dates)} days)"
+    else:
+        coverage = "—"
+
+    story: list[Any] = [
+        Paragraph("NFL Daily Site Report", styles["title"]),
+        HRFlowable(width="100%", thickness=1.5, color=RED, spaceAfter=8),
+        Paragraph(
+            f"Generated {generated_at} &nbsp;·&nbsp; {len(flags)} item(s) "
+            f"&nbsp;·&nbsp; coverage: {_escape(coverage)}",
+            styles["subtitle"],
+        ),
+    ]
+
+    if not flags:
+        story.append(Paragraph("No Daily Site Report items.", styles["body"]))
+        doc.build(story)
+        return buf.getvalue()
+
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for f in flags:
+        team_key = f.get("team") or "(no team)"
+        grouped.setdefault(team_key, []).append(f)
+
+    for team_key in sorted(grouped):
+        story.append(Paragraph(_escape(team_key), styles["section"]))
+        story.append(HRFlowable(width="100%", thickness=0.5, color=MID_GREY, spaceAfter=4))
+
+        items = sorted(
+            grouped[team_key],
+            key=lambda x: (x.get("report_date", ""), x.get("flagged_at", "")),
+            reverse=True,
+        )
+        for f in items:
+            report_date = f.get("report_date", "")
+            section_label = f.get("section_label", f.get("section", ""))
+            content = f.get("content", "")
+            note = f.get("note", "")
+            sources = _resolve_sources(f)
+
+            header = (
+                f"<b>{_escape(report_date)}</b> &nbsp;·&nbsp; "
+                f"<i>{_escape(section_label)}</i>"
+            )
+            story.append(Paragraph(header, styles["body"]))
+
+            url_map = {
+                str(s.get("num", "")): s.get("url", "")
+                for s in sources if s.get("num") and s.get("url")
+            }
+            story.extend(_render_markdown(content, styles, url_map or None))
+
+            if note:
+                story.append(Paragraph(
+                    f"<b>Note:</b> {_inline_markdown(note)}",
+                    styles["source"],
+                ))
+            if sources:
+                src_lines = []
+                for s in sources:
+                    title_text = s.get("title", "Source") or "Source"
+                    source_name = s.get("source", "") or ""
+                    url = s.get("url", "") or ""
+                    num = s.get("num", "")
+                    prefix = f"<b>[{num}]</b> " if num else "• "
+                    suffix = f" ({_escape(source_name)})" if source_name else ""
+                    if url:
+                        src_lines.append(
+                            f'{prefix}<link href="{_escape(url)}" color="blue">{_escape(title_text)}</link>{suffix}'
+                        )
+                    else:
+                        src_lines.append(f"{prefix}{_escape(title_text)}{suffix}")
+                story.append(Paragraph(
+                    "Sources: " + " &nbsp; ".join(src_lines),
+                    styles["source"],
+                ))
+            story.append(Spacer(1, 6))
+
+    doc.build(story)
+    return buf.getvalue()
+
+
 if __name__ == "__main__":
     # Quick smoke test from CLI
     import argparse
