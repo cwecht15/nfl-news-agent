@@ -215,8 +215,23 @@ for f in filtered:
                 new_note = st.text_area(
                     "Note", value=note, height=100, key=f"edit_note_{fid}",
                 )
+                # Allow editing the attribution — useful if someone
+                # flagged anonymously and now wants to claim it, or to
+                # fix a typo. Empty string clears attribution.
+                new_flagger = st.text_input(
+                    "Flagged by",
+                    value=flagger,
+                    key=f"edit_flagger_{fid}",
+                    placeholder="leave blank to clear attribution",
+                )
                 if st.button("Save", key=f"edit_save_{fid}", type="primary"):
-                    update_flag_fields(fid, category=new_cat, team=new_team, note=new_note)
+                    update_flag_fields(
+                        fid,
+                        category=new_cat,
+                        team=new_team,
+                        note=new_note,
+                        flagged_by=(new_flagger or "").strip(),
+                    )
                     st.rerun()
                 if st.button("Delete", key=f"edit_del_{fid}"):
                     remove_flag(fid)
