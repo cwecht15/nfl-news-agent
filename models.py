@@ -69,6 +69,8 @@ class DailyReport:
     collection_stats: dict = field(default_factory=dict)
     llm_usage: dict = field(default_factory=dict)
     alerts: list[dict] = field(default_factory=list)
+    depth_chart_changes: list[dict] = field(default_factory=list)
+    projection_movers: list[dict] = field(default_factory=list)
 
     def to_json(self, path: str):
         with open(path, "w", encoding="utf-8") as f:

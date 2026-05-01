@@ -188,14 +188,22 @@ def _changelog_path() -> Path:
     return SNAPSHOT_DIR / "changelog.csv"
 
 
-def _latest_snapshot(kind: str) -> dict | None:
-    """Load the most recent snapshot of the given kind."""
+def _latest_snapshot(kind: str, before_date: str | None = None) -> dict | None:
+    """Load the most recent snapshot of the given kind.
+
+    When `before_date` is provided (YYYY-MM-DD), the most recent snapshot
+    strictly *older* than that date is returned. The daily pipeline uses
+    this so that diffing the fresh sheet pull against an earlier same-day
+    snapshot doesn't produce a false zero.
+    """
     if not SNAPSHOT_DIR.exists():
         return None
     dates = sorted(
         [d.name for d in SNAPSHOT_DIR.iterdir() if d.is_dir()],
         reverse=True,
     )
+    if before_date:
+        dates = [d for d in dates if d < before_date]
     for date in dates:
         path = SNAPSHOT_DIR / date / f"{kind}.json"
         if path.exists():

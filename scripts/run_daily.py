@@ -43,6 +43,7 @@ from collectors.beat_writer_collector import (
 )
 from processing.cross_day_filter import filter_recent_duplicates
 from processing.deduplicator import deduplicate, flatten_groups
+from processing.quality_filter import filter_news_items
 from processing.source_health import get_health_alerts, record_source_result
 from processing.summarizer import run_summarization
 from reports.report_builder import build_report, save_report
@@ -153,7 +154,11 @@ def clear_status():
     _status_file().unlink(missing_ok=True)
 
 
-def run(lookback_hours: int | None = None):
+def run(
+    lookback_hours: int | None = None,
+    skip_youtube: bool = False,
+    date_override: str | None = None,
+):
     """Execute the full daily pipeline.
 
     Args:
@@ -161,8 +166,14 @@ def run(lookback_hours: int | None = None):
             should look. Use for catch-up runs after missed days. When
             None, collectors fall back to `collection.lookback_hours` in
             settings.yaml (default 28).
+        skip_youtube: When True, skip the YouTube transcript collector.
+            Useful for fast manual runs when you don't need fresh press
+            conference content.
+        date_override: When set (YYYY-MM-DD), stamp the run with this
+            date instead of "today". Useful for re-generating yesterday's
+            report after a logic change.
     """
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    date_str = date_override or datetime.now().strftime("%Y-%m-%d")
     setup_logging(date_str)
     logger = logging.getLogger("orchestrator")
 
@@ -206,9 +217,13 @@ def run(lookback_hours: int | None = None):
         future_reddit = executor.submit(
             collect_reddit, lookback_hours=lookback_hours
         )
-        future_yt = executor.submit(
-            collect_youtube, date_str, lookback_hours=lookback_hours
-        )
+        if skip_youtube:
+            logger.info("Skipping YouTube collector (--skip-youtube)")
+            future_yt = None
+        else:
+            future_yt = executor.submit(
+                collect_youtube, date_str, lookback_hours=lookback_hours
+            )
         future_bw = executor.submit(
             collect_beat_writers, date_str, lookback_hours=lookback_hours
         )
@@ -217,7 +232,7 @@ def run(lookback_hours: int | None = None):
     espn_items = _safe_result(future_espn, "ESPN Teams")
     web_items = _safe_result(future_web, "Web")
     reddit_items = _safe_result(future_reddit, "Reddit")
-    transcripts = _safe_result(future_yt, "YouTube")
+    transcripts = _safe_result(future_yt, "YouTube") if future_yt is not None else []
     bw_result = _safe_result(future_bw, "Beat Writers")
     if isinstance(bw_result, tuple) and len(bw_result) == 2:
         bw_items, bw_transcripts = bw_result
@@ -239,8 +254,9 @@ def run(lookback_hours: int | None = None):
                          error=next((a["message"] for a in collector_alerts if "Web" in a.get("source", "")), ""))
     record_source_result("Reddit", len(reddit_items),
                          error=next((a["message"] for a in collector_alerts if "Reddit" in a.get("source", "")), ""))
-    record_source_result("YouTube", len(transcripts),
-                         error=next((a["message"] for a in collector_alerts if "YouTube" in a.get("source", "")), ""))
+    if not skip_youtube:
+        record_source_result("YouTube", len(transcripts),
+                             error=next((a["message"] for a in collector_alerts if "YouTube" in a.get("source", "")), ""))
     record_source_result("Beat Writers", len(bw_items) + len(bw_transcripts),
                          error=next((a["message"] for a in collector_alerts if "Beat Writers" in a.get("source", "")), ""))
 
@@ -256,6 +272,14 @@ def run(lookback_hours: int | None = None):
         len(all_news),
         len(transcripts),
     )
+
+    all_news, dropped_fluff = filter_news_items(all_news)
+    if dropped_fluff:
+        logger.info(
+            "Quality filter: dropped %d items (e.g. %s)",
+            len(dropped_fluff),
+            (dropped_fluff[0].title if dropped_fluff else "")[:80],
+        )
 
     write_status("Step 2", "running", "Deduplicating stories")
     logger.info("Step 2: Deduplicating stories...")
@@ -322,8 +346,9 @@ def run(lookback_hours: int | None = None):
                     "summary": "Summarization unavailable.",
                     "count": len(transcripts),
                 },
-                "analysis": {
+                "league_wide": {
                     "summary": "Summarization unavailable.",
+                    "numbered_sources": [],
                 },
             },
             "team_highlights": {},
@@ -346,21 +371,9 @@ def run(lookback_hours: int | None = None):
 
     _log_llm_usage(logger, summary_result.get("llm_usage", {}))
 
-    write_status("Step 4", "running", "Building daily report")
-    logger.info("Step 4: Building daily report...")
-    report = build_report(
-        date_str=date_str,
-        sections=summary_result["sections"],
-        team_highlights=summary_result["team_highlights"],
-        news_items=deduped_news,
-        transcripts=transcripts,
-        llm_usage=summary_result.get("llm_usage"),
-        alerts=source_alerts,
-    )
-    json_path, html_path = save_report(report)
-
-    write_status("Step 5", "running", "Snapshotting projections")
-    logger.info("Step 5: Snapshotting projections...")
+    write_status("Step 4", "running", "Snapshotting projections")
+    logger.info("Step 4: Snapshotting projections...")
+    rank_movers: list[dict] = []
     try:
         from scripts.snapshot_projections import (
             _get_client as _get_sheets_client,
@@ -373,13 +386,13 @@ def run(lookback_hours: int | None = None):
             _latest_snapshot,
         )
         gc = _get_sheets_client()
-        prev_players = _latest_snapshot("players")
+        prev_players = _latest_snapshot("players", before_date=date_str)
         cur_players = snapshot_players(gc, date_str)
 
-        prev_fantasy = _latest_snapshot("fantasy")
+        prev_fantasy = _latest_snapshot("fantasy", before_date=date_str)
         cur_fantasy = snapshot_fantasy(gc, date_str)
 
-        prev_teams = _latest_snapshot("teams")
+        prev_teams = _latest_snapshot("teams", before_date=date_str)
         cur_teams = snapshot_teams(gc, date_str)
 
         player_changes = diff_snapshots(cur_players, prev_players, "player") if prev_players else []
@@ -392,26 +405,29 @@ def run(lookback_hours: int | None = None):
         if team_changes:
             write_changelog(team_changes, date_str, "team")
 
+        rank_movers = [c for c in fantasy_changes if c.get("adjusted")]
+
         adj_count = len([c for c in player_changes if "Adj" in c.get("metric", "")])
         proj_count = len([c for c in player_changes if c.get("type") == "metric_change" and "Adj" not in c.get("metric", "")])
-        rank_changes = len([c for c in fantasy_changes if c.get("adjusted")])
         logger.info(
             "Projection snapshot: %d players, %d fantasy, %d teams | %d adj tweaks, %d projection shifts, %d rank changes, %d team changes",
             len(cur_players), len(cur_fantasy), len(cur_teams),
-            adj_count, proj_count, rank_changes, len(team_changes),
+            adj_count, proj_count, len(rank_movers), len(team_changes),
         )
     except Exception as e:
         logger.warning("Projection snapshot failed (non-fatal): %s", e)
 
-    write_status("Step 6", "running", "Updating depth charts")
-    logger.info("Step 6: Updating depth charts...")
+    write_status("Step 5", "running", "Updating depth charts")
+    logger.info("Step 5: Updating depth charts...")
+    dc_changes: list[dict] = []
     try:
         from collectors.depth_chart_collector import (
             scrape_all_teams, save_depth_charts, load_latest_depth_charts,
             diff_depth_charts, get_depth_chart_dates,
         )
-        # Load previous before scraping new
-        prev_dc = load_latest_depth_charts()
+        # Load previous before scraping new — strictly before today so
+        # multiple same-day runs don't compare today against itself.
+        prev_dc = load_latest_depth_charts(before_date=date_str)
         cur_dc = scrape_all_teams(delay=1.5)
         save_depth_charts(cur_dc, date_str)
 
@@ -430,6 +446,21 @@ def run(lookback_hours: int | None = None):
             logger.info("First depth chart snapshot — no changes to compare.")
     except Exception as e:
         logger.warning("Depth chart update failed (non-fatal): %s", e)
+
+    write_status("Step 6", "running", "Building daily report")
+    logger.info("Step 6: Building daily report...")
+    report = build_report(
+        date_str=date_str,
+        sections=summary_result["sections"],
+        team_highlights=summary_result["team_highlights"],
+        news_items=deduped_news,
+        transcripts=transcripts,
+        llm_usage=summary_result.get("llm_usage"),
+        alerts=source_alerts,
+        depth_chart_changes=dc_changes,
+        projection_movers=rank_movers,
+    )
+    json_path, html_path = save_report(report)
 
     write_status("Step 7", "running", "Cleaning up old data")
     logger.info("Step 7: Cleaning up old data...")
@@ -535,10 +566,25 @@ if __name__ == "__main__":
             "(default 28) when omitted."
         ),
     )
+    parser.add_argument(
+        "--skip-youtube",
+        action="store_true",
+        help="Skip the YouTube transcript collector for this run.",
+    )
+    parser.add_argument(
+        "--date",
+        default=None,
+        help="Override the run date (YYYY-MM-DD). Useful for re-generating "
+             "a prior day's report after a logic change.",
+    )
     args = parser.parse_args()
 
     try:
-        run(lookback_hours=args.lookback_hours)
+        run(
+            lookback_hours=args.lookback_hours,
+            skip_youtube=args.skip_youtube,
+            date_override=args.date,
+        )
     except Exception:
         clear_status()
         raise

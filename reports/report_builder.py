@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 DEFAULT_SECTION_SOURCE_LIMIT = 8
 PRESS_SECTION_SOURCE_LIMIT = 12
 TEAM_SOURCE_LIMIT = 6
-ANALYSIS_NEWS_SOURCE_LIMIT = 6
-ANALYSIS_PRESS_SOURCE_LIMIT = 4
+LEAGUE_WIDE_SOURCE_LIMIT = 8
+PROJECTION_MOVER_LIMIT = 15
 
 HTML_TEMPLATE = Template(
     """<!DOCTYPE html>
@@ -130,10 +130,10 @@ HTML_TEMPLATE = Template(
 
     {% if team_highlights %}
     <div class="section">
-        <h2>Team Highlights</h2>
+        <h2>Team Notes</h2>
         {% for team, highlight in team_highlights.items() %}
         <h3><span class="team-tag">{{ team }}</span></h3>
-        <p>{{ highlight.summary }}</p>
+        <div>{{ highlight.summary | replace('\\n', '<br>') }}</div>
         {% if highlight.get('sources') %}
         <div class="sources">
             <strong>Sources</strong>
@@ -198,8 +198,31 @@ HTML_TEMPLATE = Template(
 SECTION_TITLES = {
     "transactions": "Transactions & Signings",
     "injuries": "Injury Reports",
+    "depth_chart_movement": "Depth Chart Movement",
+    "projection_movers": "Today's Projection Movers",
     "press_conferences": "Press Conference Highlights",
-    "analysis": "Analysis & What to Watch",
+    "league_wide": "League-Wide Notes",
+}
+
+# Order in which sections render in the report. Keys not listed here
+# fall back to dict-insertion order at the tail (covers old reports
+# loaded from disk that still have an "analysis" key).
+SECTION_ORDER = [
+    "transactions",
+    "injuries",
+    "depth_chart_movement",
+    "projection_movers",
+    "press_conferences",
+    "league_wide",
+]
+
+DEPTH_CHART_TYPE_LABELS = {
+    "promoted": "Promotions",
+    "demoted": "Demotions",
+    "added": "Added",
+    "removed": "Removed",
+    "team_change": "Team changes",
+    "position_change": "Position changes",
 }
 
 
@@ -297,8 +320,13 @@ def _build_section_sources(
         [item for item in news_items if item.category == "injury"]
     )
     press_transcripts = _select_press_transcripts(transcripts)
-    analysis_news = _sort_by_published(news_items)[:ANALYSIS_NEWS_SOURCE_LIMIT]
-    analysis_press = press_transcripts[:ANALYSIS_PRESS_SOURCE_LIMIT]
+    league_wide_items = _sort_by_published(
+        [
+            item for item in news_items
+            if not item.teams
+            and item.category not in ("transaction", "injury")
+        ]
+    )
 
     return {
         "transactions": _dedupe_sources(
@@ -313,13 +341,9 @@ def _build_section_sources(
             [_build_transcript_source(transcript) for transcript in press_transcripts],
             limit=PRESS_SECTION_SOURCE_LIMIT,
         ),
-        "analysis": _dedupe_sources(
-            [_build_news_source(item) for item in analysis_news]
-            + [
-                _build_transcript_source(transcript)
-                for transcript in analysis_press
-            ],
-            limit=DEFAULT_SECTION_SOURCE_LIMIT,
+        "league_wide": _dedupe_sources(
+            [_build_news_source(item) for item in league_wide_items],
+            limit=LEAGUE_WIDE_SOURCE_LIMIT,
         ),
     }
 
@@ -332,6 +356,8 @@ def _build_team_sources(
     team_items: dict[str, list[Any]] = {}
 
     for item in news_items:
+        if item.category in ("transaction", "injury"):
+            continue
         for team in item.teams:
             team_items.setdefault(team, []).append(item)
 
@@ -340,10 +366,34 @@ def _build_team_sources(
 
     team_sources: dict[str, list[dict[str, Any]]] = {}
     for team, items in team_items.items():
-        ordered_items = _sort_by_published(items)
-        sources: list[dict[str, Any]] = []
+        # Round-robin across distinct source labels first so a single
+        # high-volume source (e.g. SI team pages, all stamped at scrape
+        # time) doesn't crowd out other sources with real published
+        # timestamps. Then fill remaining slots by recency.
+        def _source_label(it: Any) -> str:
+            if isinstance(it, NewsItem):
+                return it.source or "?"
+            return getattr(it, "channel_name", "?") or "?"
 
-        for item in ordered_items:
+        by_source: dict[str, list[Any]] = {}
+        for it in items:
+            by_source.setdefault(_source_label(it), []).append(it)
+        for src in by_source:
+            by_source[src].sort(key=lambda x: x.published, reverse=True)
+
+        picked: list[Any] = []
+        max_per_source = 2
+        for r in range(max_per_source):
+            for src in list(by_source.keys()):
+                bucket = by_source[src]
+                if r < len(bucket) and len(picked) < TEAM_SOURCE_LIMIT:
+                    picked.append(bucket[r])
+        if len(picked) < TEAM_SOURCE_LIMIT:
+            remaining = [it for it in _sort_by_published(items) if it not in picked]
+            picked.extend(remaining[: TEAM_SOURCE_LIMIT - len(picked)])
+
+        sources: list[dict[str, Any]] = []
+        for item in picked:
             if isinstance(item, NewsItem):
                 sources.append(_build_news_source(item))
             else:
@@ -354,6 +404,105 @@ def _build_team_sources(
     return team_sources
 
 
+def _build_depth_chart_section(changes: list[dict]) -> dict[str, Any]:
+    """Render depth-chart change list as a per-team grouped bullet summary."""
+    if not changes:
+        return {"summary": "No depth chart changes today.", "count": 0}
+
+    by_team: dict[str, dict[str, list[str]]] = {}
+    for change in changes:
+        team = change.get("team") or change.get("new_team") or change.get("old_team") or "?"
+        ctype = str(change.get("type") or "")
+        label = DEPTH_CHART_TYPE_LABELS.get(ctype, ctype.replace("_", " ").title() or "Other")
+        message = str(change.get("message") or "").strip()
+        if not message:
+            continue
+        by_team.setdefault(team, {}).setdefault(label, []).append(message)
+
+    parts: list[str] = []
+    for team in sorted(by_team.keys()):
+        parts.append(f"### {team}")
+        seen_labels: set[str] = set()
+        # Render in the canonical order first, then any extras the
+        # collector produced that aren't in the predefined dict.
+        ordered_labels = list(DEPTH_CHART_TYPE_LABELS.values()) + [
+            l for l in by_team[team].keys()
+            if l not in DEPTH_CHART_TYPE_LABELS.values()
+        ]
+        for label in ordered_labels:
+            if label in seen_labels:
+                continue
+            seen_labels.add(label)
+            bullets = by_team[team].get(label)
+            if not bullets:
+                continue
+            parts.append(f"**{label}**")
+            for b in bullets:
+                parts.append(f"- {b}")
+        parts.append("")
+
+    summary = "\n".join(parts).strip()
+    return {"summary": summary, "count": len(changes)}
+
+
+def _parse_rank_int(rank_str: Any) -> Optional[int]:
+    """Parse the numeric tail of a position-rank string (e.g. 'RB12' -> 12)."""
+    if rank_str is None:
+        return None
+    s = str(rank_str)
+    digits = "".join(ch for ch in s if ch.isdigit())
+    return int(digits) if digits else None
+
+
+def _build_projection_movers_section(movers: list[dict]) -> dict[str, Any]:
+    """Render fantasy-rank movers as a sorted bullet list."""
+    if not movers:
+        return {"summary": "No projection rank changes today.", "count": 0}
+
+    def _delta(rec: dict) -> int:
+        old_n = _parse_rank_int(rec.get("rank_old"))
+        new_n = _parse_rank_int(rec.get("rank_new"))
+        if old_n is None or new_n is None:
+            return 0
+        return abs(old_n - new_n)
+
+    sortable = [
+        m for m in movers
+        if m.get("rank_old") is not None and m.get("rank_new") is not None
+    ]
+    sortable.sort(key=_delta, reverse=True)
+    selected = sortable[:PROJECTION_MOVER_LIMIT]
+
+    bullets: list[str] = []
+    for rec in selected:
+        label = rec.get("label") or rec.get("name") or rec.get("key", "?")
+        pos = rec.get("pos") or rec.get("position") or ""
+        team = rec.get("team") or ""
+        old_rank = rec.get("rank_old")
+        new_rank = rec.get("rank_new")
+        old_n = _parse_rank_int(old_rank)
+        new_n = _parse_rank_int(new_rank)
+        arrow = "↑" if (old_n is not None and new_n is not None and new_n < old_n) else "↓"
+        meta = " / ".join(p for p in [pos, team] if p)
+        meta_part = f" ({meta})" if meta else ""
+        bullets.append(f"- **{label}**{meta_part}: {old_rank} → {new_rank} {arrow}")
+
+    summary = "\n".join(bullets) if bullets else "No projection rank changes today."
+    return {"summary": summary, "count": len(movers)}
+
+
+def _ordered_sections(sections: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Reorder section dict according to SECTION_ORDER, with unknown keys at the tail."""
+    ordered: dict[str, dict[str, Any]] = {}
+    for key in SECTION_ORDER:
+        if key in sections:
+            ordered[key] = sections[key]
+    for key, value in sections.items():
+        if key not in ordered:
+            ordered[key] = value
+    return ordered
+
+
 def build_report(
     date_str: str,
     sections: dict,
@@ -362,12 +511,20 @@ def build_report(
     transcripts: list[Transcript],
     llm_usage: Optional[dict[str, Any]] = None,
     alerts: Optional[list[dict[str, Any]]] = None,
+    depth_chart_changes: Optional[list[dict]] = None,
+    projection_movers: Optional[list[dict]] = None,
 ) -> DailyReport:
     """Build a DailyReport from summarized data."""
     source_counts: dict[str, int] = {}
     for item in news_items:
         source_counts[item.source_type] = source_counts.get(item.source_type, 0) + 1
     source_counts["youtube"] = len(transcripts)
+
+    sections = dict(sections)  # don't mutate caller's dict
+    if depth_chart_changes is not None:
+        sections["depth_chart_movement"] = _build_depth_chart_section(depth_chart_changes)
+    if projection_movers is not None:
+        sections["projection_movers"] = _build_projection_movers_section(projection_movers)
 
     section_sources = _build_section_sources(news_items, transcripts)
     normalized_sections: dict[str, dict[str, Any]] = {}
@@ -376,6 +533,8 @@ def build_report(
         if not normalized.get("sources"):
             normalized["sources"] = section_sources.get(section_key, [])
         normalized_sections[section_key] = normalized
+
+    normalized_sections = _ordered_sections(normalized_sections)
 
     team_sources = _build_team_sources(news_items, transcripts)
     normalized_team_highlights: dict[str, dict[str, Any]] = {}
@@ -393,6 +552,8 @@ def build_report(
         collection_stats=source_counts,
         llm_usage=llm_usage or {},
         alerts=alerts or [],
+        depth_chart_changes=depth_chart_changes or [],
+        projection_movers=projection_movers or [],
     )
 
     return report

@@ -154,11 +154,19 @@ def save_depth_charts(players: dict, date_str: str | None = None):
     return path
 
 
-def load_latest_depth_charts() -> dict | None:
-    """Load the most recent depth chart data."""
+def load_latest_depth_charts(before_date: str | None = None) -> dict | None:
+    """Load the most recent depth chart data.
+
+    When `before_date` is provided (YYYY-MM-DD), the most recent snapshot
+    strictly *older* than that date is returned. The daily pipeline uses
+    this to avoid diffing today's fresh scrape against today's own
+    earlier snapshot from a re-run, which would always be zero changes.
+    """
     if not DEPTH_CHART_DIR.exists():
         return None
     files = sorted(DEPTH_CHART_DIR.glob("*.json"), reverse=True)
+    if before_date:
+        files = [f for f in files if f.stem < before_date]
     if not files:
         return None
     with open(files[0], encoding="utf-8") as f:

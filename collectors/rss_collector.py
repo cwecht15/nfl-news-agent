@@ -103,10 +103,24 @@ def collect_rss(
 
     logger.info("Polling %d RSS feeds (lookback=%dh)...", len(feeds), lookback_hours)
 
+    # Lazy import to avoid circular dependency at module load.
+    from collectors.web_scraper import fetch_article_body, _matches_generic_domain
+    import requests as _requests
+    enrich_session = _requests.Session()
+    enrich_session.headers.update({
+        "User-Agent": settings["collection"].get("user_agent", "NFL-News-Agent/1.0")
+    })
+    enrich_timeout = int(settings["collection"].get("request_timeout", 30))
+
     for feed_config in feeds:
         name = feed_config["name"]
         url = feed_config["url"]
         category = feed_config.get("category", "national")
+        # Optional: pre-tag every item from this feed with these team
+        # abbreviations. Useful for single-team blogs (e.g. SB Nation
+        # team sites) where alias detection would otherwise miss items
+        # whose titles only mention player names.
+        feed_teams = list(feed_config.get("teams") or [])
 
         try:
             logger.debug("Fetching feed: %s", name)
@@ -133,9 +147,34 @@ def collect_rss(
                 if not title or not link:
                     continue
 
-                # Tag teams mentioned in title + summary
-                search_text = f"{title} {summary}"
-                teams = _detect_teams(search_text, teams_by_abbr)
+                # Some feeds (notably SB Nation team blogs) include the
+                # full article body in `content:encoded`. Use it when
+                # present so team-note prompts get player-level detail.
+                full_text = ""
+                content_list = entry.get("content") or []
+                if content_list:
+                    raw = str(content_list[0].get("value", "") or "")
+                    if raw:
+                        cleaned = re.sub(r"<[^>]+>", " ", raw)
+                        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+                        if len(cleaned) > 8000:
+                            cleaned = cleaned[:8000].rsplit(" ", 1)[0] + "…"
+                        full_text = cleaned
+
+                # Tag teams mentioned in title + summary + body
+                search_text = f"{title} {summary} {full_text}"
+                detected = _detect_teams(search_text, teams_by_abbr)
+                # Union of feed-level pre-tags and detected teams.
+                teams = list(dict.fromkeys(feed_teams + detected))
+
+                # If feed didn't carry body content but the link points to
+                # a known-extractable site (ESPN, CBS, NBC, Yahoo),
+                # fetch the article body to give team-notes prompts the
+                # same depth they get from SI/SBN/Athletic.
+                if not full_text and _matches_generic_domain(link):
+                    full_text = fetch_article_body(
+                        enrich_session, link, enrich_timeout
+                    )
 
                 items.append(NewsItem(
                     title=title,
@@ -144,6 +183,7 @@ def collect_rss(
                     source_type="rss",
                     published=pub_date,
                     summary=summary,
+                    full_text=full_text,
                     teams=teams,
                     author=author,
                     category=category,
@@ -198,6 +238,12 @@ def collect_espn_team_news(
     items: list[NewsItem] = []
     seen_ids: set[int] = set()  # dedupe across teams (articles appear for multiple teams)
 
+    # Enrichment session for fetching article bodies.
+    from collectors.web_scraper import fetch_article_body
+    import requests as _requests
+    enrich_session = _requests.Session()
+    enrich_session.headers.update({"User-Agent": user_agent})
+
     logger.info("Collecting ESPN team-specific news for %d teams...", len(ESPN_TEAM_IDS))
 
     for abbr, espn_id in ESPN_TEAM_IDS.items():
@@ -251,13 +297,22 @@ def collect_espn_team_news(
                 text_teams = _detect_teams(f"{headline} {description}", teams_by_abbr)
                 all_teams = list(dict.fromkeys(api_teams + text_teams))
 
+                article_url = article.get("links", {}).get("web", {}).get("href", "")
+                full_body = ""
+                if article_url:
+                    full_body = fetch_article_body(
+                        enrich_session, article_url,
+                        timeout=settings["collection"].get("request_timeout", 30),
+                    )
+
                 items.append(NewsItem(
                     title=headline,
-                    url=article.get("links", {}).get("web", {}).get("href", ""),
+                    url=article_url,
                     source=f"ESPN {abbr}",
                     source_type="espn_api",
                     published=pub_date,
                     summary=description,
+                    full_text=full_body,
                     teams=all_teams,
                     category="news",
                 ))

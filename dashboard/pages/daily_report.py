@@ -14,7 +14,12 @@ from dashboard.auth import require_password
 require_password()
 
 from config_loader import get_teams_by_abbr
-from dashboard.helpers import highlight_summary, highlight_sources, render_sources
+from dashboard.helpers import (
+    highlight_summary,
+    highlight_sources,
+    highlight_numbered_sources,
+    render_sources,
+)
 from reports.flagged_findings import (
     CATEGORIES,
     add_or_update_flag,
@@ -268,7 +273,12 @@ if report.alerts:
 TITLES = {
     "transactions": "Transactions & Signings",
     "injuries": "Injury Reports",
+    "depth_chart_movement": "Depth Chart Movement",
+    "projection_movers": "Today's Projection Movers",
     "press_conferences": "Press Conference Highlights",
+    "league_wide": "League-Wide Notes",
+    # Legacy key kept so older reports on disk still render with the
+    # right title rather than as "Analysis".
     "analysis": "Analysis & What to Watch",
 }
 
@@ -324,9 +334,9 @@ for key, section_data in report.sections.items():
         else:
             render_sources(sources)
 
-# Team highlights
+# Team notes
 if report.team_highlights:
-    st.subheader("Team Highlights")
+    st.subheader("Team Notes")
     # Let user filter teams
     teams = sorted(report.team_highlights.keys())
     selected_teams = st.multiselect(
@@ -354,15 +364,36 @@ if report.team_highlights:
         matched += 1
         st.markdown(f"**{team}**")
         team_srcs = highlight_sources(highlight)
+        team_numbered = highlight_numbered_sources(highlight)
+        team_linkify = _build_citation_linker(team_numbered)
         if flag_mode:
             _render_flaggable(
                 summary_text, selected_date, f"team:{team}", f"Team: {team}",
                 key_prefix=f"team_{team}",
                 default_team=team, section_sources=team_srcs,
+                linkify=team_linkify, numbered_sources=team_numbered,
             )
+        elif team_linkify:
+            st.markdown(team_linkify(summary_text), unsafe_allow_html=True)
         else:
             st.markdown(summary_text)
-        render_sources(team_srcs)
+
+        if team_numbered:
+            st.caption("Sources")
+            lines = []
+            for src in team_numbered:
+                num = src.get("num", "")
+                title_text = src.get("title", "Source")
+                source_name = src.get("source", "")
+                url = src.get("url", "")
+                suffix = f" ({source_name})" if source_name else ""
+                if url:
+                    lines.append(f"**[{num}]** [{title_text}]({url}){suffix}")
+                else:
+                    lines.append(f"**[{num}]** {title_text}{suffix}")
+            st.markdown("\n\n".join(lines))
+        else:
+            render_sources(team_srcs)
         st.divider()
 
     if search_query and matched == 0:

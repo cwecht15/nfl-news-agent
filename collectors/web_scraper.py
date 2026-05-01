@@ -372,6 +372,99 @@ def _normalize_athletic_summary(title: str, parent_text: str) -> str:
     return cleaned[:400]
 
 
+ATHLETIC_BODY_MAX_CHARS = 8000
+
+# Domains we'll opportunistically fetch article bodies for via the
+# generic extractor. Each entry maps a URL substring to a list of CSS
+# selectors that locate the article body (in order of preference).
+GENERIC_ARTICLE_SELECTORS = {
+    "espn.com": ["div.article-body", "article"],
+    "cbssports.com": ["article", "div.ArticleBody"],
+    "nbcsports.com": ["article", "div.article-body"],
+    "yahoo.com": ["div.caas-body", "article"],
+}
+
+GENERIC_BODY_MAX_CHARS = 8000
+
+
+def _matches_generic_domain(url: str) -> list[str] | None:
+    """Return the list of selectors to try for `url`, or None if unknown."""
+    for domain, selectors in GENERIC_ARTICLE_SELECTORS.items():
+        if domain in url:
+            return selectors
+    return None
+
+
+def fetch_article_body(
+    session: "requests.Session",
+    url: str,
+    timeout: int,
+    max_chars: int = GENERIC_BODY_MAX_CHARS,
+) -> str:
+    """Generic article body extractor for non-paywalled news sites.
+
+    Tries domain-specific CSS selectors first, then falls back to <article>
+    or the whole document. Returns "" on any error.
+    """
+    selectors = _matches_generic_domain(url) or ["article"]
+    try:
+        resp = session.get(url, timeout=timeout)
+        resp.raise_for_status()
+    except Exception as e:
+        logger.debug("Article body fetch failed for %s: %s", url, e)
+        return ""
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    container = None
+    for sel in selectors:
+        found = soup.select_one(sel)
+        if found and found.find_all("p"):
+            container = found
+            break
+    if container is None:
+        container = soup
+
+    paragraphs = [p.get_text(" ", strip=True) for p in container.find_all("p")]
+    body = "\n".join(p for p in paragraphs if p and len(p) > 25)
+    if len(body) > max_chars:
+        body = body[:max_chars].rsplit(" ", 1)[0] + "…"
+    return body
+
+
+def _fetch_athletic_article_body(
+    session: requests.Session,
+    url: str,
+    timeout: int,
+) -> str:
+    """Fetch an Athletic article and return up to ATHLETIC_BODY_MAX_CHARS of body text.
+
+    Returns "" on auth redirect or any error — callers must tolerate
+    a thin/empty body. The session must already have cookies loaded.
+    """
+    try:
+        resp = session.get(url, timeout=timeout)
+        resp.raise_for_status()
+    except Exception as e:
+        logger.debug("Athletic body fetch failed for %s: %s", url, e)
+        return ""
+
+    if _athletic_auth_redirected(resp):
+        return ""
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    # The Athletic article body lives inside <article>; if absent, fall
+    # back to the full document. Extract <p> text and concatenate.
+    container = soup.find("article") or soup
+    paragraphs = [
+        p.get_text(" ", strip=True)
+        for p in container.find_all("p")
+    ]
+    body = "\n".join(p for p in paragraphs if p and len(p) > 25)
+    if len(body) > ATHLETIC_BODY_MAX_CHARS:
+        body = body[:ATHLETIC_BODY_MAX_CHARS].rsplit(" ", 1)[0] + "…"
+    return body
+
+
 def _extract_team_page_stories(
     soup: BeautifulSoup,
     page_url: str,
@@ -425,7 +518,7 @@ def _extract_team_page_stories(
             source_type="web",
             published=published,
             summary=summary,
-            full_text=summary,
+            full_text=summary,  # placeholder; enriched by body fetch below
             teams=detected_teams,
             category="news",
         ))
@@ -521,6 +614,16 @@ def scrape_athletic_nfl(
                 cutoff,
                 max_items_per_team,
             )
+            # Enrich each item with the article body so the team-notes
+            # prompt can extract player-level detail. The Colts article
+            # `colts-draft-depth-nfl-draft-2026` is exactly the kind of
+            # piece that's worthless from the title alone.
+            for item in team_items:
+                body = _fetch_athletic_article_body(session, item.url, timeout)
+                if body:
+                    item.full_text = body
+                    if not item.summary:
+                        item.summary = body[:500]
             items.extend(team_items)
 
         if not items:
@@ -945,6 +1048,123 @@ def _match_team(text: str, teams_by_abbr: dict) -> list[str]:
     return []
 
 
+SI_TEAM_ITEM_LIMIT = 10
+SI_BODY_MAX_CHARS = 8000
+
+
+def _fetch_si_article_body(
+    session: requests.Session,
+    url: str,
+    timeout: int,
+) -> str:
+    """Fetch an SI.com article and return body text up to SI_BODY_MAX_CHARS."""
+    try:
+        resp = session.get(url, timeout=timeout)
+        resp.raise_for_status()
+    except Exception as e:
+        logger.debug("SI body fetch failed for %s: %s", url, e)
+        return ""
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    container = soup.find("article") or soup
+    paragraphs = [
+        p.get_text(" ", strip=True)
+        for p in container.find_all("p")
+    ]
+    body = "\n".join(p for p in paragraphs if p and len(p) > 25)
+    if len(body) > SI_BODY_MAX_CHARS:
+        body = body[:SI_BODY_MAX_CHARS].rsplit(" ", 1)[0] + "…"
+    return body
+
+
+def scrape_si_team(
+    session: requests.Session,
+    settings: dict,
+    teams_by_abbr: dict,
+    source: dict,
+) -> list[NewsItem]:
+    """Scrape an SI.com team page (e.g. https://www.si.com/nfl/bills).
+
+    SI doesn't expose RSS for team pages, so we pull article links from
+    the team index. Articles follow the pattern
+    `/nfl/<team-slug>/onsi/<article-slug>`. We don't have a published
+    date in the index HTML, so each item is stamped at scrape time —
+    the lookback filter and cross-day dedup keep them tidy.
+    """
+    name = source.get("name", "SI Team")
+    url = source.get("url", "")
+    team = source.get("team", "")
+
+    if not url or not team:
+        logger.warning("SI team source missing url or team: %s", name)
+        return []
+
+    timeout = settings["collection"].get("request_timeout", 30)
+    try:
+        resp = session.get(url, timeout=timeout)
+        resp.raise_for_status()
+    except Exception as e:
+        logger.warning("SI team fetch failed for %s: %s", name, e)
+        _set_source_status(
+            name, status="error", severity="error",
+            message=f"Fetch failed: {e}", item_count=0,
+        )
+        return []
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    team_slug = url.rstrip("/").rsplit("/", 1)[-1].lower()
+    pattern = f"/nfl/{team_slug}/onsi/"
+
+    article_urls: list[tuple[str, str]] = []  # (title, url)
+    seen_urls: set[str] = set()
+
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if pattern not in href:
+            continue
+        if href.startswith("/"):
+            href = "https://www.si.com" + href
+        if href in seen_urls:
+            continue
+
+        title = a.get_text(strip=True)
+        if not title or len(title) < 15:
+            continue
+
+        seen_urls.add(href)
+        article_urls.append((title, href))
+        if len(article_urls) >= SI_TEAM_ITEM_LIMIT:
+            break
+
+    items: list[NewsItem] = []
+    for title, href in article_urls:
+        body = _fetch_si_article_body(session, href, timeout)
+        items.append(NewsItem(
+            title=title,
+            url=href,
+            source=name,
+            source_type="web",
+            published=datetime.now(timezone.utc),
+            summary="",
+            full_text=body,
+            teams=[team],
+            category="news",
+        ))
+
+    logger.info(
+        "SI team %s: %d items (avg body %d chars) from %s",
+        team, len(items),
+        int(sum(len(i.full_text) for i in items) / max(len(items), 1)),
+        url,
+    )
+    _set_source_status(
+        name, status="ok", severity="info",
+        message=f"Collected {len(items)} items.",
+        item_count=len(items),
+    )
+    return items
+
+
 def collect_web(lookback_hours: Optional[int] = None) -> list[NewsItem]:
     """Collect news from all configured web sources.
 
@@ -982,6 +1202,8 @@ def collect_web(lookback_hours: Optional[int] = None) -> list[NewsItem]:
                 teams_by_abbr,
                 source,
             )
+        elif source_type == "si_team":
+            items = scrape_si_team(session, settings, teams_by_abbr, source)
         else:
             logger.warning("Unknown web source type: %s", source_type)
             continue

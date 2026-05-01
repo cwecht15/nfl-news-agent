@@ -40,7 +40,7 @@ Use only the information provided in the prompt. If a detail is missing, say it 
 Do not invent dates, player names, contract terms, injuries, quotes, or outcomes."""
 
 PRESS_MAX_ITEMS = 12
-ANALYSIS_NEWS_LIMIT = 45
+LEAGUE_WIDE_NEWS_LIMIT = 25
 TEAM_HIGHLIGHT_ITEM_LIMIT = 8
 
 PRESS_POSITIVE_SIGNALS = {
@@ -830,7 +830,10 @@ def _build_news_context_line(item: NewsItem, detail_chars: int = 260) -> str:
     teams = ", ".join(item.teams) if item.teams else "No tagged team"
     lines = [f"- [{teams}] {item.title}"]
 
-    detail = item.summary or item.full_text
+    # Prefer full_text — when present it carries article body content
+    # (player-level detail for "depth chart" / "every pick" style pieces
+    # that the title alone wouldn't hint at). Fall back to summary.
+    detail = item.full_text or item.summary
     detail = _clip_text(detail, detail_chars)
     if detail and detail.lower() != item.title.lower():
         lines.append(f"  Detail: {detail}")
@@ -853,27 +856,89 @@ def _build_transcript_context_line(
     return "\n".join(lines)
 
 
+# Side-tagged position abbreviations occasionally leak through as
+# generic_pos in the OurLads scrape. Normalize the common ones so
+# transaction bullets read like "DT Jay Tufele" not "LDT Jay Tufele".
+_POSITION_NORMALIZATION = {
+    "LDE": "DE", "RDE": "DE",
+    "LDT": "DT", "RDT": "DT", "NT": "DT",
+    "LCB": "CB", "RCB": "CB",
+    "WLB": "LB", "MLB": "LB", "SLB": "LB",
+    "FS": "S", "SS": "S",
+    "LWR": "WR", "RWR": "WR", "SWR": "WR",
+    "LT": "OL", "RT": "OL", "LG": "OL", "RG": "OL", "C": "OL",
+}
+
+
+def _normalize_position(pos: str) -> str:
+    return _POSITION_NORMALIZATION.get(pos, pos)
+
+
+def _load_position_lookup() -> dict[str, str]:
+    """Build a lower(name) -> generic position map from the latest depth chart.
+
+    Used to enrich transaction bullets with position. Falls back to {} if
+    the depth chart collector or its data isn't available.
+    """
+    try:
+        from collectors.depth_chart_collector import load_latest_depth_charts
+        dc = load_latest_depth_charts() or {}
+    except Exception:
+        return {}
+
+    lookup: dict[str, str] = {}
+    for entry in dc.values():
+        name = (entry.get("name") or "").strip().lower()
+        pos = entry.get("generic_pos") or entry.get("pos") or ""
+        if name and pos:
+            lookup.setdefault(name, _normalize_position(pos))
+    return lookup
+
+
+def _position_for_title(title: str, position_lookup: dict[str, str]) -> str:
+    """Best-effort position lookup from a transaction title.
+
+    Title format is typically 'First Last: Team (Move type)'. We extract
+    the segment before the first colon as the player name.
+    """
+    if not position_lookup or ":" not in title:
+        return ""
+    candidate = title.split(":", 1)[0].strip()
+    candidate = re.sub(r"^\[.*?\]\s*", "", candidate)
+    return position_lookup.get(candidate.lower(), "")
+
+
 def summarize_transactions(
     items: list[NewsItem],
     client: Optional[Any] = None,
     usage_tracker: Optional[dict[str, Any]] = None,
+    position_lookup: Optional[dict[str, str]] = None,
 ) -> str:
     """Generate a transactions & signings summary."""
     if not items:
         return "No notable transactions reported today."
 
     client, runtime = _resolve_client_and_runtime(client)
+    position_lookup = position_lookup or {}
 
     lines = []
     for item in items:
         teams = ", ".join(item.teams) if item.teams else "Unknown"
-        lines.append(f"- [{teams}] {item.title}")
+        pos = _position_for_title(item.title, position_lookup)
+        tag = f"[{teams} / {pos}]" if pos else f"[{teams}]"
+        lines.append(f"- {tag} {item.title}")
         if item.summary:
             lines.append(f"  {item.summary[:300]}")
 
     prompt = f"""Summarize today's NFL transactions and signings into a clear briefing.
 List every transaction — do not omit or skip any, regardless of significance.
 For each move, briefly note the impact.
+
+Each input line is tagged like `[TEAM / POS]` or `[TEAM]`. The position tag
+comes from the team's depth chart and is reliable when present. If a line
+has a position tag, include the position in your bullet (e.g. "Lions signed
+LB Joe Bachie"). If a line has no position tag, do not invent one — just
+omit the position.
 
 Today's transactions:
 {chr(10).join(lines)}"""
@@ -981,120 +1046,215 @@ Transcript:
     return "\n\n".join(summaries), len(selected_transcripts)
 
 
-def summarize_analysis(
+def summarize_league_wide(
     news_items: list[NewsItem],
-    transcripts: list[Transcript],
     client: Optional[Any] = None,
     usage_tracker: Optional[dict[str, Any]] = None,
 ) -> tuple[str, list[dict]]:
-    """Generate an analysis / what-to-watch section with inline citations.
+    """Summarize cross-team / league-office news items into a flat bullet list.
 
-    Returns:
-        Tuple of (summary_text, numbered_sources). The summary contains
-        bracketed citation numbers like [1], [3, 7] that map to the
-        numbered_sources list (1-indexed).
+    Input is restricted to items with no specific team affiliation
+    (e.g., CBA progress, league-wide mock drafts, scouting roundups).
+    Items already covered by the Transactions / Injuries sections must
+    be excluded by the caller.
+
+    Returns (summary_text, numbered_sources). Sources never cited inline
+    are dropped from the returned list.
     """
     client, runtime = _resolve_client_and_runtime(client)
-    selected_transcripts = _select_press_transcripts(transcripts, limit=PRESS_MAX_ITEMS)
-    ordered_news = sorted(
-        news_items,
-        key=lambda item: item.published,
-        reverse=True,
-    )
 
-    # Ensure source diversity — don't let high-volume feeds crowd out
-    # quality sources like The Athletic. Take at least 3 from each source,
-    # then fill remaining slots by recency.
-    selected_news: list[NewsItem] = []
-    source_counts: dict[str, int] = {}
-    MIN_PER_SOURCE = 3
-    remaining: list[NewsItem] = []
+    # Pick the most recent league-wide items.
+    ordered = sorted(news_items, key=lambda item: item.published, reverse=True)
+    selected = ordered[:LEAGUE_WIDE_NEWS_LIMIT]
 
-    for item in ordered_news:
-        src = item.source
-        count = source_counts.get(src, 0)
-        if count < MIN_PER_SOURCE:
-            selected_news.append(item)
-            source_counts[src] = count + 1
-        else:
-            remaining.append(item)
-
-    # Fill up to limit with remaining items by recency
-    slots_left = ANALYSIS_NEWS_LIMIT - len(selected_news)
-    if slots_left > 0:
-        selected_news.extend(remaining[:slots_left])
-
-    # Re-sort by recency for the prompt
-    selected_news.sort(key=lambda item: item.published, reverse=True)
+    if not selected:
+        return "No league-wide notes today.", []
 
     headlines = []
-    numbered_sources: list[dict] = []
-    source_num = 1
-    for item in selected_news:
-        line = _build_news_context_line(item, detail_chars=280)
-        headlines.append(f"[{source_num}] {line}")
-        numbered_sources.append({
-            "num": source_num,
+    candidate_sources: list[dict] = []
+    for idx, item in enumerate(selected, start=1):
+        line = _build_news_context_line(item, detail_chars=260)
+        headlines.append(f"[{idx}] {line}")
+        candidate_sources.append({
+            "num": idx,
             "title": item.title,
             "source": item.source,
             "url": item.url,
         })
-        source_num += 1
 
-    transcript_titles = []
-    for t in selected_transcripts:
-        line = _build_transcript_context_line(t, detail_chars=220)
-        transcript_titles.append(f"[{source_num}] {line}")
-        numbered_sources.append({
-            "num": source_num,
-            "title": t.title,
-            "source": t.channel_name,
-            "url": t.url,
-        })
-        source_num += 1
+    prompt = f"""Summarize today's league-wide / cross-team NFL items as a flat bullet list.
 
-    prompt = f"""Based only on today's NFL news and press conferences, write a detailed "Analysis & What to Watch" section for a knowledgeable NFL reader.
+Scope: only items below — CBA news, league-office moves, mock drafts, multi-team scouting roundups, broadcast/business news. Per-team news, transactions, and injuries are handled in their own sections, so do NOT re-summarize team-specific stories here.
 
-Output structure:
-## Biggest Storylines
-Use 2-4 substantial bullets or short paragraphs.
-
-## Team / Offseason Signals
-Synthesize recurring themes around coaching comments, roster-building direction, scheme clues, or organizational priorities when the evidence supports them.
-
-## Player / Roster Notes
-Call out the most meaningful player-specific or position-group developments.
-
-## What to Watch Next
-List 3-6 concrete follow-ups for the next few days.
+Output:
+- One bullet per distinct item.
+- Lead with the named subject (person, league office, or topic) in bold.
+- Then 1 sentence on what happened and why it matters.
+- End the bullet with the citation, e.g. [3] or [1, 4].
+- Cap at 8 bullets total. Drop the lowest-signal items if you have more than 8.
+- If nothing in the list is genuinely league-wide, output exactly: "No league-wide notes today."
 
 Rules:
-- Cite sources inline using the bracketed numbers, e.g. [1], [3, 7]. Place citations at the end of the sentence or claim they support.
-- Synthesize related items instead of listing headlines one by one.
-- When several items point to one team's direction, connect them into a mini-dossier.
-- Name specific players, coaches, executives, and teams whenever the source material supports it.
-- Prefer depth and specificity over brevity.
-- If a detail is missing, say it is not specified.
-- Do not invent contract terms, timelines, scheme changes, or quotes.
-- Do not end with a question, an offer to help, or any meta-commentary.
+- Use only the items provided. If a detail is missing, say it is not specified.
+- Do not invent timelines, contract terms, or quotes.
+- No headers, no preamble, no closing meta-commentary.
 
-Today's news headlines:
-{chr(10).join(headlines)}
-
-Press conferences covered:
-{chr(10).join(transcript_titles) if transcript_titles else "None today."}"""
+Today's items:
+{chr(10).join(headlines)}"""
 
     text = _call_model(
         client,
         prompt,
         runtime,
-        max_tokens=16384,
+        max_tokens=4000,
         usage_tracker=usage_tracker,
-        usage_label="analysis",
+        usage_label="league_wide",
         verbosity="medium",
-        reasoning_effort="medium",
+        reasoning_effort="low",
     )
+
+    cited_nums = set()
+    for match in re.findall(r"\[(\d+(?:[,\s]+\d+)*)\]", text):
+        for n in re.split(r"[,\s]+", match):
+            if n.strip().isdigit():
+                cited_nums.add(int(n))
+
+    numbered_sources = [s for s in candidate_sources if s["num"] in cited_nums]
     return text, numbered_sources
+
+
+def _trim_cited_sources(
+    text: str,
+    candidates: list[dict],
+) -> list[dict]:
+    """Drop sources that aren't referenced inline as [N] in the text."""
+    cited: set[int] = set()
+    for match in re.findall(r"\[(\d+(?:[,\s]+\d+)*)\]", text):
+        for n in re.split(r"[,\s]+", match):
+            if n.strip().isdigit():
+                cited.add(int(n))
+    return [s for s in candidates if s["num"] in cited]
+
+
+# Title patterns that signal a "deep" team article worth force-including
+# in the team-notes pool — these usually contain per-player breakdowns
+# that the LLM can mine for specific notes.
+_DEEP_ARTICLE_PATTERNS = re.compile(
+    r"\b(depth chart|every pick|every selection|every player|"
+    r"post[- ]draft|draft class|draft haul|draft grades?|"
+    r"draft recap|two[- ]deep|projected starters?|day 1 starters?|"
+    r"position by position|player by player|breakdown of|"
+    r"who has the best chance|udfas? (?:to )?watch|"
+    r"undrafted free agents?)\b",
+    re.IGNORECASE,
+)
+
+
+def _is_deep_article(item) -> bool:
+    """Heuristic: does this item probably contain per-player notes worth surfacing?"""
+    if not isinstance(item, NewsItem):
+        return False
+    title = item.title or ""
+    body = item.full_text or ""
+    if _DEEP_ARTICLE_PATTERNS.search(title):
+        return True
+    # Long body alone isn't enough — many articles are length-padded with
+    # quotes and recap. Pair length with the title heuristic instead.
+    return False
+
+
+def _diversify_by_source(
+    items: list,
+    limit: int,
+    max_per_source: int | None = None,
+    deep_reserve: int | None = None,
+) -> list:
+    """Pick up to `limit` items, prioritizing relevance with a soft anti-domination cap.
+
+    Approach:
+      1) Score each item: deep articles (depth charts, post-draft, UDFA
+         trackers) outrank ordinary items; within each tier, prefer richer
+         body content, then more recent items.
+      2) Walk items in score order, soft-capping any single source at
+         half of `limit` (so one outlet can carry up to half of a team's
+         pool when warranted, but never all of it).
+      3) Fill any remaining slots by score, ignoring the cap.
+    """
+    def _source_label(item) -> str:
+        if isinstance(item, NewsItem):
+            return item.source or "?"
+        return getattr(item, "channel_name", "?") or "?"
+
+    _PRIMARY_TITLE = re.compile(
+        r"\b(depth chart|every pick|every selection|two[- ]deep|projected starters?|day 1 starters?)\b",
+        re.IGNORECASE,
+    )
+
+    def _score(it) -> tuple:
+        if not isinstance(it, NewsItem):
+            # Transcripts: rank below news but ahead of nothing.
+            return (0, 0, 0, getattr(it, "published", 0))
+        title = it.title or ""
+        body = it.full_text or ""
+        primary = 1 if _PRIMARY_TITLE.search(title) else 0
+        deep = 1 if _is_deep_article(it) else 0
+        return (primary, deep, len(body), it.published)
+
+    soft_cap = max(1, limit // 2)  # one source can't take more than half the slots
+    ordered = sorted(items, key=_score, reverse=True)
+
+    picked: list = []
+    per_source: dict[str, int] = {}
+
+    # Pass 1: respect the soft cap so no single outlet dominates.
+    for it in ordered:
+        if len(picked) >= limit:
+            break
+        src = _source_label(it)
+        if per_source.get(src, 0) >= soft_cap:
+            continue
+        per_source[src] = per_source.get(src, 0) + 1
+        picked.append(it)
+
+    # Pass 2: if we couldn't fill the limit because of caps, fill from
+    # whatever's left in score order (cap-busting is fine here — it means
+    # the team only had two real sources in the pool).
+    if len(picked) < limit:
+        remaining = [it for it in ordered if it not in picked]
+        picked.extend(remaining[: limit - len(picked)])
+
+    return picked
+
+
+def _build_team_item_lines(items: list) -> tuple[list[str], list[dict]]:
+    """Format per-team items with [N] indexing and a parallel source list."""
+    selected = _diversify_by_source(items, TEAM_HIGHLIGHT_ITEM_LIMIT)
+
+    lines: list[str] = []
+    candidates: list[dict] = []
+    for idx, item in enumerate(selected, start=1):
+        if isinstance(item, NewsItem):
+            # Deep articles (depth charts, post-draft recaps, every-pick
+            # breakdowns) cover many positions; show the LLM the whole
+            # body so per-position notes beyond QB can surface. Ordinary
+            # items get a smaller window to keep the prompt focused.
+            window = 5000 if _is_deep_article(item) else 1200
+            lines.append(f"[{idx}] " + _build_news_context_line(item, detail_chars=window))
+            candidates.append({
+                "num": idx,
+                "title": item.title,
+                "source": item.source,
+                "url": item.url,
+            })
+        else:
+            lines.append(f"[{idx}] " + _build_transcript_context_line(item, detail_chars=300))
+            candidates.append({
+                "num": idx,
+                "title": item.title,
+                "source": item.channel_name,
+                "url": item.url,
+            })
+    return lines, candidates
 
 
 def generate_team_highlights(
@@ -1102,39 +1262,38 @@ def generate_team_highlights(
     transcripts: list[Transcript],
     client: Optional[Any] = None,
     usage_tracker: Optional[dict[str, Any]] = None,
-) -> dict[str, str]:
-    """Generate per-team highlight blurbs for teams with significant news."""
+) -> dict[str, dict]:
+    """Generate per-team highlight blurbs with inline [N] citations.
+
+    Returns a dict of team -> {summary, numbered_sources} where each
+    bullet in the summary is expected to end with one or more [N] markers
+    that map to numbered_sources.
+    """
     client, runtime = _resolve_client_and_runtime(client)
     selected_transcripts = _select_press_transcripts(transcripts)
 
     team_items: dict[str, list] = {}
     for item in news_items:
+        if item.category in ("transaction", "injury"):
+            continue
         for team in item.teams:
             team_items.setdefault(team, []).append(item)
     for t in selected_transcripts:
         team_items.setdefault(t.team, []).append(t)
 
-    highlights = {}
+    highlights: dict[str, dict] = {}
     for team, items in team_items.items():
         items = sorted(items, key=lambda item: item.published, reverse=True)
-
-        lines = []
-        for item in items[:TEAM_HIGHLIGHT_ITEM_LIMIT]:
-            if isinstance(item, NewsItem):
-                lines.append(_build_news_context_line(item, detail_chars=220))
-            else:
-                lines.append(_build_transcript_context_line(item, detail_chars=180))
-
+        lines, candidates = _build_team_item_lines(items)
         item_block = chr(10).join(lines)
 
         if len(items) < 2:
-            # Single-source teams: let the LLM decide if it's noteworthy
             prompt = f"""Decide whether this item contains real, actionable NFL news for {team}, then either write a team note or skip.
 
 Real news = roster moves, injury updates, contract talks, draft strategy signals, coaching decisions, front-office quotes with substance.
 NOT real news = mock draft rankings, historical trivia, uniform reveals, podcast promos, general previews with no new information.
 
-If noteworthy: write 1-2 sentences covering what happened and why it matters.
+If noteworthy: write 1-2 sentences covering what happened and why it matters, and end with the citation [1].
 If NOT noteworthy: respond with exactly "SKIP" and nothing else.
 
 Today's item:
@@ -1144,44 +1303,62 @@ Today's item:
                 client,
                 prompt,
                 runtime,
-                max_tokens=200,
+                max_tokens=250,
                 usage_tracker=usage_tracker,
                 usage_label=f"team:{team}",
                 verbosity="low",
                 reasoning_effort="low",
             )
             if result.strip().upper() != "SKIP":
-                highlights[team] = result
+                highlights[team] = {
+                    "summary": result,
+                    "numbered_sources": _trim_cited_sources(result, candidates),
+                }
             continue
 
-        prompt = f"""Write a detailed team note for {team} based only on today's items.
+        prompt = f"""Write a bulleted team note for {team} based only on today's items.
 
-Cover:
-- the most important developments involving this team today
-- any player-specific evaluations, roster implications, or coaching/front-office signals
-- what this may mean next for the team
+Each input item is numbered like [1], [2], etc. — you MUST cite the items you use.
+
+Output: a markdown bullet list, one bullet per distinct development.
+
+Format each bullet as:
+- **Player or coach or exec name** — what happened in 1 sentence, then 1 short follow-up sentence on why it matters or what's next if helpful. End the bullet with the citation, e.g. [3] or [1, 4].
+
+Position priority (for fantasy-football relevance):
+1. Highest priority: offensive skill players — QB, RB, FB, WR, TE.
+2. Second: offensive line and head coach / OC / DC moves.
+3. Lowest: defense (non-coordinator), kickers, punters, long snappers, special-teams roles.
+When choosing which 4–6 items become bullets, prefer skill-position content over equally-newsworthy non-skill content. A WR3 competition is more interesting than a CB3 competition, all else equal.
 
 Rules:
-- Prefer one strong paragraph or two short paragraphs.
-- Connect related items into a coherent team outlook instead of listing headlines.
-- Name the specific players, coaches, or executives involved.
-- Prefer the team's full common name in the prose instead of the abbreviation when the source material makes it clear.
-- If a detail is missing, say it is not specified.
-- Keep the response under 140 words.
+- One bullet per development. Do not synthesize multiple unrelated items into one bullet.
+- Lead each bullet with the most-specific named subject (player, coach, or executive). If the item is genuinely team-level (not a person), lead with the topic in bold instead.
+- Every bullet must end with at least one [N] citation pointing to the input item(s) that source it.
+- Surface NON-OBVIOUS specifics: unexpected starters, position competitions, depth-chart shake-ups beyond the entrenched stars, late-round picks fighting for roles, UDFA roster fits. Do NOT write bullets that re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1"). If a depth-chart article only confirms the obvious at QB, look at the article's notes on RB / WR / TE / OL instead.
+- NEVER invent a player's first name, jersey number, position, or any other identifier. If the source refers to a player by last name only (e.g. "Jennings"), write the bullet using ONLY the last name as the source provides it (e.g. "**Jennings (RB)**"). Adding a wrong first name is worse than omitting it. Same for coaches and executives.
+- Skip items that are pure trivia, mock drafts not roster-relevant, jersey reveals, or filler.
+- Use only the information in today's items. If a detail is missing, say it is not specified.
+- Keep the entire response under 180 words.
+- No section headers, no preamble, no closing commentary — just the bullets.
 
 Today's items:
 {item_block}"""
 
-        highlights[team] = _call_model(
+        text = _call_model(
             client,
             prompt,
             runtime,
-            max_tokens=550,
+            max_tokens=900,
             usage_tracker=usage_tracker,
             usage_label=f"team:{team}",
             verbosity="medium",
             reasoning_effort="low",
         )
+        highlights[team] = {
+            "summary": text,
+            "numbered_sources": _trim_cited_sources(text, candidates),
+        }
 
     return highlights
 
@@ -1214,12 +1391,17 @@ def run_summarization(
 
     sections = {}
 
+    position_lookup = _load_position_lookup()
+    if position_lookup:
+        logger.info("Loaded position lookup for %d players from depth charts", len(position_lookup))
+
     logger.info("Generating transactions summary...")
     sections["transactions"] = {
         "summary": summarize_transactions(
             transactions,
             client,
             usage_tracker=usage_tracker,
+            position_lookup=position_lookup,
         ),
         "count": len(transactions),
     }
@@ -1245,21 +1427,22 @@ def run_summarization(
         "count": press_count,
     }
 
-    logger.info("Generating analysis...")
-    analysis_text, analysis_sources = summarize_analysis(
-        news_items,
-        transcripts,
+    logger.info("Generating league-wide notes...")
+    league_wide_news = [i for i in general_news if not i.teams]
+    league_wide_text, league_wide_sources = summarize_league_wide(
+        league_wide_news,
         client,
         usage_tracker=usage_tracker,
     )
-    sections["analysis"] = {
-        "summary": analysis_text,
-        "numbered_sources": analysis_sources,
+    sections["league_wide"] = {
+        "summary": league_wide_text,
+        "numbered_sources": league_wide_sources,
+        "count": len(league_wide_news),
     }
 
-    logger.info("Generating team highlights...")
+    logger.info("Generating team notes...")
     team_highlights = generate_team_highlights(
-        news_items,
+        general_news,
         transcripts,
         client,
         usage_tracker=usage_tracker,

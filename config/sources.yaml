@@ -17,18 +17,148 @@ rss_feeds:
     url: https://www.cbssports.com/rss/headlines/nfl/
     category: national
 
-  - name: Yahoo Sports NFL
-    url: https://sports.yahoo.com/nfl/rss/
-    category: national
-
   - name: The Athletic NFL
     url: https://www.nytimes.com/athletic/rss/nfl/
     category: national
+
+  # ── SB Nation team blogs ──
+  # One feed per team. `teams:` pre-tags every item so single-subject
+  # posts (e.g. "Saquon Barkley extension talks") still get attributed
+  # to the right team even when the team name isn't in the title.
+  - name: SBN Cardinals (Revenge of the Birds)
+    url: https://www.revengeofthebirds.com/rss/index.xml
+    category: team
+    teams: ["ARI"]
+  - name: SBN Falcons (The Falcoholic)
+    url: https://www.thefalcoholic.com/rss/index.xml
+    category: team
+    teams: ["ATL"]
+  - name: SBN Ravens (Baltimore Beatdown)
+    url: https://www.baltimorebeatdown.com/rss/index.xml
+    category: team
+    teams: ["BAL"]
+  - name: SBN Bills (Buffalo Rumblings)
+    url: https://www.buffalorumblings.com/rss/index.xml
+    category: team
+    teams: ["BUF"]
+  - name: SBN Panthers (Cat Scratch Reader)
+    url: https://www.catscratchreader.com/rss/index.xml
+    category: team
+    teams: ["CAR"]
+  - name: SBN Bears (Windy City Gridiron)
+    url: https://www.windycitygridiron.com/rss/index.xml
+    category: team
+    teams: ["CHI"]
+  - name: SBN Bengals (Cincy Jungle)
+    url: https://www.cincyjungle.com/rss/index.xml
+    category: team
+    teams: ["CIN"]
+  - name: SBN Browns (Dawgs by Nature)
+    url: https://www.dawgsbynature.com/rss/index.xml
+    category: team
+    teams: ["CLE"]
+  - name: SBN Cowboys (Blogging the Boys)
+    url: https://www.bloggingtheboys.com/rss/index.xml
+    category: team
+    teams: ["DAL"]
+  - name: SBN Broncos (Mile High Report)
+    url: https://www.milehighreport.com/rss/index.xml
+    category: team
+    teams: ["DEN"]
+  - name: SBN Lions (Pride of Detroit)
+    url: https://www.prideofdetroit.com/rss/index.xml
+    category: team
+    teams: ["DET"]
+  - name: SBN Packers (Acme Packing Company)
+    url: https://www.acmepackingcompany.com/rss/index.xml
+    category: team
+    teams: ["GB"]
+  - name: SBN Texans (Battle Red Blog)
+    url: https://www.battleredblog.com/rss/index.xml
+    category: team
+    teams: ["HOU"]
+  - name: SBN Colts (Stampede Blue)
+    url: https://www.stampedeblue.com/rss/index.xml
+    category: team
+    teams: ["IND"]
+  - name: SBN Jaguars (Big Cat Country)
+    url: https://www.bigcatcountry.com/rss/index.xml
+    category: team
+    teams: ["JAX"]
+  - name: SBN Chiefs (Arrowhead Pride)
+    url: https://www.arrowheadpride.com/rss/index.xml
+    category: team
+    teams: ["KC"]
+  - name: SBN Chargers (Bolts From The Blue)
+    url: https://www.boltsfromtheblue.com/rss/index.xml
+    category: team
+    teams: ["LAC"]
+  - name: SBN Rams (Turf Show Times)
+    url: https://www.turfshowtimes.com/rss/index.xml
+    category: team
+    teams: ["LAR"]
+  - name: SBN Raiders (Silver and Black Pride)
+    url: https://www.silverandblackpride.com/rss/index.xml
+    category: team
+    teams: ["LV"]
+  - name: SBN Dolphins (The Phinsider)
+    url: https://www.thephinsider.com/rss/index.xml
+    category: team
+    teams: ["MIA"]
+  - name: SBN Vikings (Daily Norseman)
+    url: https://www.dailynorseman.com/rss/index.xml
+    category: team
+    teams: ["MIN"]
+  - name: SBN Patriots (Pats Pulpit)
+    url: https://www.patspulpit.com/rss/index.xml
+    category: team
+    teams: ["NE"]
+  - name: SBN Saints (Canal Street Chronicles)
+    url: https://www.canalstreetchronicles.com/rss/index.xml
+    category: team
+    teams: ["NO"]    # quoted because NO is a YAML boolean otherwise
+  - name: SBN Giants (Big Blue View)
+    url: https://www.bigblueview.com/rss/index.xml
+    category: team
+    teams: ["NYG"]
+  - name: SBN Jets (Gang Green Nation)
+    url: https://www.ganggreennation.com/rss/index.xml
+    category: team
+    teams: ["NYJ"]
+  - name: SBN Eagles (Bleeding Green Nation)
+    url: https://www.bleedinggreennation.com/rss/index.xml
+    category: team
+    teams: ["PHI"]
+  - name: SBN Steelers (Behind the Steel Curtain)
+    url: https://www.behindthesteelcurtain.com/rss/index.xml
+    category: team
+    teams: ["PIT"]
+  - name: SBN Seahawks (Field Gulls)
+    url: https://www.fieldgulls.com/rss/index.xml
+    category: team
+    teams: ["SEA"]
+  - name: SBN 49ers (Niners Nation)
+    url: https://www.ninersnation.com/rss/index.xml
+    category: team
+    teams: ["SF"]
+  - name: SBN Buccaneers (Bucs Nation)
+    url: https://www.bucsnation.com/rss/index.xml
+    category: team
+    teams: ["TB"]
+  - name: SBN Titans (Music City Miracles)
+    url: https://www.musiccitymiracles.com/rss/index.xml
+    category: team
+    teams: ["TEN"]
+  - name: SBN Commanders (Hogs Haven)
+    url: https://www.hogshaven.com/rss/index.xml
+    category: team
+    teams: ["WAS"]
 
   # Add more feeds here:
   # - name: Your Feed Name
   #   url: https://example.com/feed
   #   category: national | team | analytics
+  #   teams: ["ABBR"]   # optional: pre-tag items with these team abbrs
 
 # ── Beat Writers & Insiders ──────────────────────────────
 # Each writer can declare any subset of sources: rss_feeds,
@@ -127,6 +257,171 @@ web_sources:
     category: national
     enabled: true
     max_items_per_team: 5
+
+  # ── SI.com / OnSI team pages ──
+  # SI doesn't expose RSS for team verticals, so we scrape the team
+  # index page once per run and pull article links matching
+  # `/nfl/<slug>/onsi/`. Each entry is pre-tagged with its team.
+  - name: SI Cardinals
+    url: https://www.si.com/nfl/cardinals
+    type: si_team
+    team: ARI
+    enabled: true
+  - name: SI Falcons
+    url: https://www.si.com/nfl/falcons
+    type: si_team
+    team: ATL
+    enabled: true
+  - name: SI Ravens
+    url: https://www.si.com/nfl/ravens
+    type: si_team
+    team: BAL
+    enabled: true
+  - name: SI Bills
+    url: https://www.si.com/nfl/bills
+    type: si_team
+    team: BUF
+    enabled: true
+  - name: SI Panthers
+    url: https://www.si.com/nfl/panthers
+    type: si_team
+    team: CAR
+    enabled: true
+  - name: SI Bears
+    url: https://www.si.com/nfl/bears
+    type: si_team
+    team: CHI
+    enabled: true
+  - name: SI Bengals
+    url: https://www.si.com/nfl/bengals
+    type: si_team
+    team: CIN
+    enabled: true
+  - name: SI Browns
+    url: https://www.si.com/nfl/browns
+    type: si_team
+    team: CLE
+    enabled: true
+  - name: SI Cowboys
+    url: https://www.si.com/nfl/cowboys
+    type: si_team
+    team: DAL
+    enabled: true
+  - name: SI Broncos
+    url: https://www.si.com/nfl/broncos
+    type: si_team
+    team: DEN
+    enabled: true
+  - name: SI Lions
+    url: https://www.si.com/nfl/lions
+    type: si_team
+    team: DET
+    enabled: true
+  - name: SI Packers
+    url: https://www.si.com/nfl/packers
+    type: si_team
+    team: GB
+    enabled: true
+  - name: SI Texans
+    url: https://www.si.com/nfl/texans
+    type: si_team
+    team: HOU
+    enabled: true
+  - name: SI Colts
+    url: https://www.si.com/nfl/colts
+    type: si_team
+    team: IND
+    enabled: true
+  - name: SI Jaguars
+    url: https://www.si.com/nfl/jaguars
+    type: si_team
+    team: JAX
+    enabled: true
+  - name: SI Chiefs
+    url: https://www.si.com/nfl/chiefs
+    type: si_team
+    team: KC
+    enabled: true
+  - name: SI Chargers
+    url: https://www.si.com/nfl/chargers
+    type: si_team
+    team: LAC
+    enabled: true
+  - name: SI Rams
+    url: https://www.si.com/nfl/rams
+    type: si_team
+    team: LAR
+    enabled: true
+  - name: SI Raiders
+    url: https://www.si.com/nfl/raiders
+    type: si_team
+    team: LV
+    enabled: true
+  - name: SI Dolphins
+    url: https://www.si.com/nfl/dolphins
+    type: si_team
+    team: MIA
+    enabled: true
+  - name: SI Vikings
+    url: https://www.si.com/nfl/vikings
+    type: si_team
+    team: MIN
+    enabled: true
+  - name: SI Patriots
+    url: https://www.si.com/nfl/patriots
+    type: si_team
+    team: NE
+    enabled: true
+  - name: SI Saints
+    url: https://www.si.com/nfl/saints
+    type: si_team
+    team: "NO"   # quoted; unquoted NO parses as YAML false
+    enabled: true
+  - name: SI Giants
+    url: https://www.si.com/nfl/giants
+    type: si_team
+    team: NYG
+    enabled: true
+  - name: SI Jets
+    url: https://www.si.com/nfl/jets
+    type: si_team
+    team: NYJ
+    enabled: true
+  - name: SI Eagles
+    url: https://www.si.com/nfl/eagles
+    type: si_team
+    team: PHI
+    enabled: true
+  - name: SI Steelers
+    url: https://www.si.com/nfl/steelers
+    type: si_team
+    team: PIT
+    enabled: true
+  - name: SI Seahawks
+    url: https://www.si.com/nfl/seahawks
+    type: si_team
+    team: SEA
+    enabled: true
+  - name: SI 49ers
+    url: https://www.si.com/nfl/49ers
+    type: si_team
+    team: SF
+    enabled: true
+  - name: SI Buccaneers
+    url: https://www.si.com/nfl/buccaneers
+    type: si_team
+    team: TB
+    enabled: true
+  - name: SI Titans
+    url: https://www.si.com/nfl/titans
+    type: si_team
+    team: TEN
+    enabled: true
+  - name: SI Commanders
+    url: https://www.si.com/nfl/commanders
+    type: si_team
+    team: WAS
+    enabled: true
 
 # ── YouTube Video Keywords ────────────────────────────────
 # Videos matching ANY of these keywords in their title will be collected.

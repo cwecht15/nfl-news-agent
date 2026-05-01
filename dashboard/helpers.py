@@ -17,6 +17,13 @@ def highlight_sources(highlight) -> list[dict]:
     return []
 
 
+def highlight_numbered_sources(highlight) -> list[dict]:
+    """Return cited sources (with [N] inline references), if any."""
+    if isinstance(highlight, dict):
+        return highlight.get("numbered_sources", []) or []
+    return []
+
+
 def render_sources(sources: list[dict]):
     """Render a compact sources list."""
     if not sources:

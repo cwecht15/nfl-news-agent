@@ -54,9 +54,9 @@ _STEPS = [
     ("Step 1", "Collecting from all sources"),
     ("Step 2", "Deduplicating stories"),
     ("Step 3", "Summarizing"),
-    ("Step 4", "Building daily report"),
-    ("Step 5", "Snapshotting projections"),
-    ("Step 6", "Updating depth charts"),
+    ("Step 4", "Snapshotting projections"),
+    ("Step 5", "Updating depth charts"),
+    ("Step 6", "Building daily report"),
     ("Step 7", "Cleaning up old data"),
 ]
 

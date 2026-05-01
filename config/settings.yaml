@@ -25,6 +25,25 @@ anthropic:
   model: "claude-sonnet-4-20250514"
   use_prompt_caching: true
 
+content_filter:
+  # Drop news items whose title matches any of these regex patterns
+  # (case-insensitive) before deduplication and summarization. Saves
+  # LLM tokens and prevents fluff (trivia, voting articles, jersey
+  # reveals, off-cycle mock drafts) from leaking into Team Notes.
+  enabled: true
+  # Plain regex patterns (always dropped if matched)
+  drop_patterns:
+    - '\b(vote|voting)\b'
+    - '\ball-time\b'
+    - '\btrivia\b'
+    - '\b(jersey|uniform) reveal\b'
+    - '\b(rip-off|ripoff)\b'
+    - '\bbest\s+\w+\s+player\b.*\?'
+  # Mock-draft handling: drop "mock draft" titles unless the title
+  # mentions one of these years (current and next NFL draft cycles).
+  # Update annually.
+  mock_draft_keep_years: ["2026", "2027"]
+
 cross_day_dedup:
   # Suppress today's items whose title is a near-duplicate of something
   # already collected in the prior `lookback_days` days. Runs after
