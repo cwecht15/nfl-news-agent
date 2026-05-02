@@ -58,19 +58,41 @@ def _parse_date(s: str) -> date | None:
         return None
 
 
+def _article_id(article: dict) -> str:
+    """Stable per-article identifier resilient to URL format changes.
+
+    Uses the URL's final path slug (case-folded) when available so a
+    legacy `/articles/<slug>` and the current `/articles/<year>/<slug>#/`
+    shape collapse to the same key. Falls back to title+author when the
+    URL is missing.
+    """
+    url = (article.get("url") or "").strip()
+    if url:
+        url = url.split("#", 1)[0].rstrip("/")
+        if "/" in url:
+            slug = url.rsplit("/", 1)[-1]
+            if slug:
+                return f"slug:{slug.lower()}"
+    title = (article.get("title") or "").strip().lower()
+    author = (article.get("author") or "").strip().lower()
+    return f"ta:{title}|{author}"
+
+
 @st.cache_data(ttl=600, show_spinner=False)
 def _load_articles_in_range(start_iso: str, end_iso: str) -> list[dict]:
     """Load every fantasypoints article whose folder date is in [start, end].
 
     Returns a list of dicts with the on-disk shape plus a `_collected_date`
-    key so callers can group/display by collection date.
+    key so callers can group/display by collection date. Deduplicates by
+    URL slug so an article whose URL changed across runs (e.g. before vs
+    after the 2026-05-01 URL builder fix) only renders once.
     """
     start = _parse_date(start_iso)
     end = _parse_date(end_iso)
     if start is None or end is None or end < start:
         return []
 
-    seen_urls: set[str] = set()
+    seen_ids: set[str] = set()
     out: list[dict] = []
     for dir_name in _list_dated_dirs():
         dir_date = _parse_date(dir_name)
@@ -83,13 +105,10 @@ def _load_articles_in_range(start_iso: str, end_iso: str) -> list[dict]:
         except Exception:
             continue
         for item in items:
-            url = (item.get("url") or "").strip()
-            # An article that runs in two consecutive collection windows
-            # would appear twice — dedupe by URL, keeping the first.
-            if url and url in seen_urls:
+            aid = _article_id(item)
+            if aid in seen_ids:
                 continue
-            if url:
-                seen_urls.add(url)
+            seen_ids.add(aid)
             item["_collected_date"] = dir_name
             out.append(item)
     return out
@@ -378,7 +397,8 @@ if query:
     header_bits.append(f"{total_blurbs} matching paragraph{'s' if total_blurbs != 1 else ''}")
 st.subheader(" · ".join(header_bits))
 
-for article, matching_blurbs, matched_in_title in results:
+def _article_meta_line(article: dict) -> str:
+    """Build a one-line article header with author, link, date, and teams."""
     title = article.get("title", "Untitled")
     url = article.get("url", "")
     author = article.get("author", "")
@@ -389,31 +409,50 @@ for article, matching_blurbs, matched_in_title in results:
         published_dt = datetime.fromisoformat(published_iso) if published_iso else None
     except ValueError:
         published_dt = None
-    published_label = published_dt.strftime("%Y-%m-%d") if published_dt else article.get("_collected_date", "")
+    published_label = (
+        published_dt.strftime("%Y-%m-%d") if published_dt
+        else article.get("_collected_date", "")
+    )
 
-    teams_label = " · ".join(sorted(teams_list)) if teams_list else "—"
-    header_label = f"{published_label} — {title}"
+    title_md = f"[{title}]({url})" if url else title
+    bits: list[str] = []
+    if author:
+        bits.append(f"**{author}**")
+    bits.append(f"*{title_md}*")
+    if published_label:
+        bits.append(published_label)
+    if teams_list:
+        bits.append(" / ".join(sorted(teams_list)))
+    return " · ".join(bits)
 
-    with st.expander(header_label, expanded=(query != "")):
-        meta_bits: list[str] = []
-        if author:
-            meta_bits.append(f"**{author}**")
-        meta_bits.append(f"Teams mentioned: {teams_label}")
-        if url:
-            meta_bits.append(f"[Open article ↗]({url})")
-        st.markdown(" · ".join(meta_bits))
 
-        if matched_in_title and query:
-            st.caption("Match in title")
+# Search mode → flat bullets (one block per article: meta line + matching
+# excerpts as blockquotes directly underneath, no per-article expander).
+# Browse mode (no query) → keep per-article expanders so 9+ full articles
+# don't render as a single wall of text.
 
-        if matching_blurbs:
-            for blurb in matching_blurbs:
-                st.markdown(f"> {_highlight(blurb, needle)}")
-        else:
-            st.caption("No body text available for this article.")
-
-        # Always offer the full article body for context.
-        full_body = article.get("full_text") or article.get("summary") or ""
-        if full_body and (query or len(matching_blurbs) < len(_split_into_blurbs(full_body))):
-            with st.expander("Show full article", expanded=False):
-                st.markdown(_highlight(full_body, needle))
+if query:
+    for article, matching_blurbs, matched_in_title in results:
+        st.markdown(_article_meta_line(article))
+        if matched_in_title and not matching_blurbs:
+            st.caption("Match in title only")
+        for blurb in matching_blurbs:
+            st.markdown(f"> {_highlight(blurb, needle)}")
+        st.divider()
+else:
+    for article, matching_blurbs, _ in results:
+        title = article.get("title", "Untitled")
+        published_iso = article.get("published") or ""
+        try:
+            published_dt = datetime.fromisoformat(published_iso) if published_iso else None
+        except ValueError:
+            published_dt = None
+        published_label = (
+            published_dt.strftime("%Y-%m-%d") if published_dt
+            else article.get("_collected_date", "")
+        )
+        with st.expander(f"{published_label} — {title}", expanded=False):
+            st.markdown(_article_meta_line(article))
+            full_body = article.get("full_text") or article.get("summary") or ""
+            if full_body:
+                st.markdown(full_body)
