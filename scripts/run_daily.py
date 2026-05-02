@@ -46,11 +46,16 @@ from collectors.beat_writer_collector import (
     collect_beat_writers,
     save_beat_writer_results,
 )
+from collectors.fantasypoints_collector import (
+    collect_fantasypoints,
+    save_fantasypoints_results,
+)
 from models import Transcript
 from processing.cross_day_filter import filter_recent_duplicates
 from processing.deduplicator import deduplicate, flatten_groups
 from processing.quality_filter import filter_news_items
 from processing.source_health import get_health_alerts, record_source_result
+from processing.fp_section import build_fp_section
 from processing.summarizer import run_summarization
 from processing.yt_section import build_yt_section
 from reports.report_builder import build_report, save_report
@@ -230,7 +235,7 @@ def run(
             })
             return []
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=6) as executor:
         future_rss = executor.submit(collect_rss, lookback_hours=lookback_hours)
         future_espn = executor.submit(
             collect_espn_team_news, lookback_hours=lookback_hours
@@ -245,6 +250,10 @@ def run(
             lookback_hours=lookback_hours,
             skip_youtube=not include_yt_section,
         )
+        # FantasyPoints articles use their own per-section lookback
+        # (settings.fantasypoints.lookback_hours), not the news pipeline's
+        # window — the section is meant to mirror "today's articles".
+        future_fp = executor.submit(collect_fantasypoints)
 
     rss_items = _safe_result(future_rss, "RSS")
     espn_items = _safe_result(future_espn, "ESPN Teams")
@@ -255,11 +264,13 @@ def run(
         bw_items, bw_transcripts = bw_result
     else:
         bw_items, bw_transcripts = [], []
+    fp_items = _safe_result(future_fp, "FantasyPoints")
 
     save_rss_results(rss_items + espn_items, date_str)
     save_web_results(web_items, date_str)
     save_reddit_results(reddit_items, date_str)
     save_beat_writer_results(bw_items, bw_transcripts, date_str)
+    save_fantasypoints_results(fp_items, date_str)
 
     # Record source health
     record_source_result("RSS Feeds", len(rss_items),
@@ -274,6 +285,12 @@ def run(
         "Beat Writers",
         len(bw_items) + len(bw_transcripts),
         error=next((a["message"] for a in collector_alerts if "Beat Writers" in a.get("source", "")), ""),
+        low_volume=True,
+    )
+    record_source_result(
+        "FantasyPoints",
+        len(fp_items),
+        error=next((a["message"] for a in collector_alerts if "FantasyPoints" in a.get("source", "")), ""),
         low_volume=True,
     )
 
@@ -491,6 +508,25 @@ def run(
         except Exception as e:
             logger.error("YouTube section build failed (non-fatal): %s", e)
 
+    fp_section: dict | None = None
+    if fp_items:
+        write_status("Step 6b", "running", "Building FantasyPoints section")
+        logger.info(
+            "Step 6b: Building FantasyPoints section from %d articles...",
+            len(fp_items),
+        )
+        try:
+            # Reuse summarization's usage tracker so FP tokens roll up
+            # into the same daily total displayed at the bottom of the report.
+            fp_section = build_fp_section(
+                fp_items,
+                usage_tracker=summary_result.get("llm_usage"),
+                date_label=date_str,
+            )
+        except Exception as e:
+            logger.error("FantasyPoints section build failed (non-fatal): %s", e)
+            fp_section = None
+
     write_status("Step 6", "running", "Building daily report")
     logger.info("Step 6: Building daily report...")
     report = build_report(
@@ -503,6 +539,7 @@ def run(
         depth_chart_changes=dc_changes,
         projection_movers=rank_movers,
         yt_section=yt_section,
+        fp_section=fp_section,
     )
     json_path, html_path = save_report(report)
 

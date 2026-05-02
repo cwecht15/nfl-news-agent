@@ -235,6 +235,7 @@ SECTION_TITLES = {
     "depth_chart_movement": "Depth Chart Movement",
     "projection_movers": "Today's Projection Movers",
     "league_wide": "League-Wide Notes",
+    "fantasypoints": "FantasyPoints Player Notes",
 }
 
 # Order in which sections render in the report. Keys not listed here
@@ -247,6 +248,7 @@ SECTION_ORDER = [
     "depth_chart_movement",
     "projection_movers",
     "league_wide",
+    "fantasypoints",
 ]
 
 DEPTH_CHART_TYPE_LABELS = {
@@ -512,11 +514,16 @@ def build_report(
     depth_chart_changes: Optional[list[dict]] = None,
     projection_movers: Optional[list[dict]] = None,
     yt_section: Optional[dict[str, Any]] = None,
+    fp_section: Optional[dict[str, Any]] = None,
 ) -> DailyReport:
     """Build a DailyReport from summarized data.
 
     yt_section is the optional output of `processing.yt_section.build_yt_section`,
     attached only on local runs invoked with `--include-yt-section`.
+
+    fp_section is the optional output of
+    `processing.fp_section.build_fp_section`, rendered as a regular section
+    via the standard summary+sources renderer.
     """
     source_counts: dict[str, int] = {}
     for item in news_items:
@@ -529,6 +536,8 @@ def build_report(
         sections["depth_chart_movement"] = _build_depth_chart_section(depth_chart_changes)
     if projection_movers is not None:
         sections["projection_movers"] = _build_projection_movers_section(projection_movers)
+    if fp_section:
+        sections["fantasypoints"] = fp_section
 
     section_sources = _build_section_sources(news_items)
     normalized_sections: dict[str, dict[str, Any]] = {}

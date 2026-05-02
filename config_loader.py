@@ -91,6 +91,14 @@ def get_openai_api_key() -> str:
     return _get_required_env_key("OPENAI_API_KEY")
 
 
+def get_fantasypoints_auth() -> str:
+    return _get_required_env_key("FANTASYPOINTS_AUTH")
+
+
+def get_fantasypoints_source() -> str:
+    return _get_required_env_key("FANTASYPOINTS_SOURCE")
+
+
 def get_athletic_cookies_path() -> Path:
     """Return the configured Athletic cookies file path."""
     configured = os.environ.get("ATHLETIC_COOKIES_PATH", "").strip()

@@ -78,6 +78,13 @@ collection:
 reddit:
   enabled: true
 
+fantasypoints:
+  # Pull recent FantasyPoints articles into a dedicated section.
+  # Auth values live in .env (FANTASYPOINTS_AUTH, FANTASYPOINTS_SOURCE).
+  enabled: true
+  lookback_hours: 24
+  max_articles: 15
+
 nitter:
   # Nitter instances for Twitter RSS (tried in order).
   # As of April 2026 all major public Nitter instances are dead.

@@ -55,6 +55,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           ATHLETIC_COOKIES: ${{ secrets.ATHLETIC_COOKIES }}
+          FANTASYPOINTS_AUTH: ${{ secrets.FANTASYPOINTS_AUTH }}
+          FANTASYPOINTS_SOURCE: ${{ secrets.FANTASYPOINTS_SOURCE }}
         run: |
           mkdir -p secrets
           # .env for the pipeline to load via python-dotenv
@@ -63,6 +65,8 @@ jobs:
             if [ -n "${ANTHROPIC_API_KEY}" ]; then echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}"; fi
             echo "GOOGLE_SERVICE_ACCOUNT_KEY=${GITHUB_WORKSPACE}/secrets/service_account.json"
             if [ -n "${ATHLETIC_COOKIES}" ]; then echo "ATHLETIC_COOKIES_PATH=${GITHUB_WORKSPACE}/secrets/athletic_cookies.txt"; fi
+            if [ -n "${FANTASYPOINTS_AUTH}" ]; then echo "FANTASYPOINTS_AUTH=${FANTASYPOINTS_AUTH}"; fi
+            if [ -n "${FANTASYPOINTS_SOURCE}" ]; then echo "FANTASYPOINTS_SOURCE=${FANTASYPOINTS_SOURCE}"; fi
           } > .env
 
           # Google service-account JSON (required for projection snapshots)
