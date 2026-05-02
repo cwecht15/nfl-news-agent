@@ -41,18 +41,23 @@ st.title("NFL News Agent")
 st.markdown("Daily NFL news, transactions, press conferences, and analysis.")
 
 # Navigation
+from dashboard.helpers import running_locally as _running_locally
+
 st.sidebar.title("Navigation")
-st.sidebar.markdown("""
-- **Daily Report** — Today's full briefing
-- **Team View** — Filter by team
-- **Projections** — Projection changes & player lookup
-- **Depth Charts** — Depth chart changes & browse
-- **Transcripts** — Download for NotebookLM
-- **Trends** — Historical patterns & cost tracking
-- **Digest** — Weekly rollup reports
-- **Flagged** — Items you've flagged across reports
-- **Config** — Edit sources.yaml, settings.yaml
-""")
+_nav_lines = [
+    "- **Daily Report** — Today's full briefing",
+    "- **Team View** — Filter by team",
+    "- **Projections** — Projection changes & player lookup",
+    "- **Depth Charts** — Depth chart changes & browse",
+    "- **FantasyPoints** — Searchable archive of FP articles",
+    "- **Transcripts** — Download for NotebookLM",
+    "- **Trends** — Historical patterns & cost tracking",
+    "- **Digest** — Weekly rollup reports",
+    "- **Flagged** — Items you've flagged across reports",
+]
+if _running_locally():
+    _nav_lines.append("- **Config** — Edit sources.yaml, settings.yaml")
+st.sidebar.markdown("\n".join(_nav_lines))
 
 # --- Pipeline status helpers ---
 

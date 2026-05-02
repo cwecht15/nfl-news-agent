@@ -18,6 +18,9 @@ st.set_page_config(page_title="Config", page_icon="🏈", layout="wide")
 from dashboard.auth import require_password
 require_password()
 
+from dashboard.helpers import stop_if_not_local
+stop_if_not_local("Config")
+
 import yaml
 
 import config_loader
