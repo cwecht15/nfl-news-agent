@@ -154,24 +154,84 @@ def _highlight(blurb: str, needle_re: re.Pattern | None) -> str:
     return needle_re.sub(lambda m: f"**{m.group(0)}**", blurb)
 
 
-def _build_search_regex(query: str) -> re.Pattern | None:
-    """Build a case-insensitive whole-word-ish regex from the query.
-
-    Multi-word queries match the full phrase. Punctuation between tokens
-    is tolerated (so "K.C." matches "K. C." too).
-    """
-    q = (query or "").strip()
-    if not q:
-        return None
-    tokens = re.findall(r"\w+", q)
+def _phrase_pattern(phrase: str) -> str | None:
+    """Build a single phrase regex fragment (no anchoring/grouping)."""
+    tokens = re.findall(r"\w+", phrase or "")
     if not tokens:
         return None
-    parts = [re.escape(tok) for tok in tokens]
-    pattern = r"\b" + r"[\s\W_]+".join(parts) + r"\b"
+    return r"\b" + r"[\s\W_]+".join(re.escape(tok) for tok in tokens) + r"\b"
+
+
+def _build_search_regex(phrases: str | list[str]) -> re.Pattern | None:
+    """Build a case-insensitive regex matching ANY of the supplied phrases.
+
+    Accepts a single string (one phrase) or a list. Returns None when
+    nothing usable was supplied. Whole-word match; punctuation between
+    tokens of a multi-word phrase is tolerated (so "K.C." matches
+    "K. C." too).
+    """
+    if isinstance(phrases, str):
+        phrases = [phrases]
+    fragments: list[str] = []
+    seen: set[str] = set()
+    for phrase in phrases:
+        frag = _phrase_pattern(phrase)
+        if frag and frag not in seen:
+            seen.add(frag)
+            fragments.append(frag)
+    if not fragments:
+        return None
+    pattern = "(?:" + "|".join(fragments) + ")" if len(fragments) > 1 else fragments[0]
     try:
         return re.compile(pattern, re.IGNORECASE)
     except re.error:
         return None
+
+
+def _expand_query_for_teams(
+    query: str,
+    teams_by_abbr: dict,
+) -> tuple[list[str], list[str]]:
+    """Auto-expand a query that exactly matches a team alias.
+
+    "CLE", "Cleveland", "Browns", and "Cleveland Browns" all expand to
+    the same alias set so any of them surface every Cleveland mention.
+    Matching is exact-alias (case-insensitive), not substring — so
+    "Brown" stays a literal text search for the Pro Bowler's name.
+
+    Returns (phrases, matched_team_abbrs). When no team alias matches,
+    returns ([query], []) so the caller falls back to plain text search.
+    """
+    q = (query or "").strip().lower()
+    if not q:
+        return ([], [])
+
+    def _aliases_for(team: dict, abbr: str) -> list[str]:
+        name = (team.get("name") or "").strip()
+        parts = name.split()
+        nickname = parts[-1] if parts else ""
+        city = " ".join(parts[:-1]) if len(parts) > 1 else ""
+        return [a for a in (abbr, name, nickname, city) if a]
+
+    matched_abbrs: list[str] = []
+    for abbr, team in teams_by_abbr.items():
+        for alias in _aliases_for(team, abbr):
+            if alias.lower() == q:
+                matched_abbrs.append(abbr)
+                break
+
+    if not matched_abbrs:
+        return ([query], [])
+
+    expanded: list[str] = []
+    seen: set[str] = set()
+    for abbr in matched_abbrs:
+        for alias in _aliases_for(teams_by_abbr[abbr], abbr):
+            key = alias.lower()
+            if key not in seen:
+                seen.add(key)
+                expanded.append(alias)
+    return (expanded, matched_abbrs)
 
 
 # ──────────────────────────────────────────────────────────
@@ -250,7 +310,23 @@ if team_filter_list:
     wanted_teams = set(team_filter_list)
     articles = [a for a in articles if wanted_teams.intersection(a.get("teams") or [])]
 
-needle = _build_search_regex(query)
+# When the search query *itself* names a team (CLE / Cleveland / Browns
+# / Cleveland Browns), expand to the full alias set so any variant
+# surfaces every mention. Falls through to a plain literal phrase
+# search otherwise.
+search_phrases, matched_team_abbrs = _expand_query_for_teams(query, teams_by_abbr)
+needle = _build_search_regex(search_phrases) if search_phrases else None
+
+if matched_team_abbrs:
+    team_labels = ", ".join(
+        teams_by_abbr[a]["name"] for a in matched_team_abbrs
+        if a in teams_by_abbr
+    )
+    alias_preview = ", ".join(f"`{p}`" for p in search_phrases)
+    st.caption(
+        f"Treating `{query}` as a team search → {team_labels} "
+        f"(matching: {alias_preview})"
+    )
 
 # Per-article match info: (article, matching_blurbs, matched_in_title)
 results: list[tuple[dict, list[str], bool]] = []
