@@ -1010,19 +1010,20 @@ def summarize_press_conferences(
 
     summaries = []
     for t in selected_transcripts:
-        text = t.text[:6000] if len(t.text) > 6000 else t.text
+        text = t.text[:10000] if len(t.text) > 10000 else t.text
 
-        individual_prompt = f"""Read this NFL press conference transcript and return exactly two bullet points.
+        individual_prompt = f"""Read this NFL press conference transcript and write a substantive briefing of the actual content.
 
-Bullet 1: the most concrete new information, quote paraphrase, or takeaway from the transcript.
-Bullet 2: why it matters or what to watch next.
+Output 4–6 bullets covering distinct, concrete points. Cover whichever of these are present in the transcript: roster decisions, player evaluations and where guys fit, scheme/coaching philosophy, injury or rehab updates, position competitions, depth-chart implications, contract or front-office signals, schedule or practice plans, and direct paraphrased quotes that carry real substance. Lead each bullet with the most specific named subject in bold (player, coach, exec, position group). End each bullet with a brief "what to watch next" only when it adds something the transcript actually supports.
 
 Rules:
-- Use only information from the transcript.
-- If the transcript contains little real news, say that clearly.
-- Prefer direct paraphrases of what was actually said over speculation.
-- Keep the full response under 70 words.
-- Return bullet points only.
+- Use only information from the transcript. Do not extrapolate.
+- Prefer concrete paraphrases (numbers, role descriptions, named matchups) over generalities.
+- If a bullet is just a generic platitude ("we're excited about the kid", "we're going to compete"), drop it.
+- If the transcript genuinely contains nothing of substance, say "Limited substantive news — mostly platitudes." and stop. Do not pad.
+- NEVER invent a player's first name, jersey number, position, or stat. If only a last name is given, use only the last name.
+- Keep the full response under 220 words.
+- Return bullet points only — no headers, no preamble.
 
 Team: {t.team} - {t.channel_name}
 Title: {t.title}
@@ -1034,12 +1035,12 @@ Transcript:
             client,
             individual_prompt,
             runtime,
-            max_tokens=1200,
+            max_tokens=2500,
             usage_tracker=usage_tracker,
             usage_label=f"press:{t.team}",
-            reasoning_effort="low",
+            reasoning_effort="medium",
         )
-        summary = _normalize_bullet_summary(summary, max_bullets=2)
+        summary = _normalize_bullet_summary(summary, max_bullets=6)
         t.ai_summary = summary
         summaries.append(f"**{t.team} - {t.title}**\n{summary}")
 
@@ -1262,6 +1263,7 @@ def _build_team_highlights_for_pool(
     client: Any,
     runtime: dict[str, Any],
     usage_tracker: Optional[dict[str, Any]] = None,
+    is_transcript_pool: bool = False,
 ) -> dict[str, dict]:
     """Shared per-team highlight builder.
 
@@ -1269,6 +1271,10 @@ def _build_team_highlights_for_pool(
     transcripts-only path (`summarize_team_highlights_from_transcripts`)
     that drives the YouTube section. The pool can mix NewsItem and
     Transcript objects — `_build_team_item_lines` handles both shapes.
+
+    `is_transcript_pool=True` switches to a deeper prompt geared toward
+    long-form press-conference content (more bullets, longer cap, medium
+    reasoning effort).
     """
     highlights: dict[str, dict] = {}
     for team, items in team_items.items():
@@ -1277,7 +1283,29 @@ def _build_team_highlights_for_pool(
         item_block = chr(10).join(lines)
 
         if len(items) < 2:
-            prompt = f"""Decide whether this item contains real, actionable NFL news for {team}, then either write a team note or skip.
+            if is_transcript_pool:
+                prompt = f"""Decide whether this {team} press-conference transcript contains real, actionable content, then either write a team note or skip.
+
+Real content = roster decisions, player evaluations with specifics, scheme/coaching detail, injury or rehab specifics, position competitions, contract or front-office signals, substantive paraphrased quotes.
+NOT real content = generic platitudes, hype, hello/intro pleasantries with no info, mock-draft chatter unrelated to roster moves.
+
+If noteworthy: write 3–5 bullets covering distinct points. Lead each bullet with the most specific named subject in bold and end with the citation [1]. Keep the full response under 200 words.
+If NOT noteworthy: respond with exactly "SKIP" and nothing else.
+
+Today's transcript:
+{item_block}"""
+                result = _call_model(
+                    client,
+                    prompt,
+                    runtime,
+                    max_tokens=2000,
+                    usage_tracker=usage_tracker,
+                    usage_label=f"team:{team}",
+                    verbosity="medium",
+                    reasoning_effort="medium",
+                )
+            else:
+                prompt = f"""Decide whether this item contains real, actionable NFL news for {team}, then either write a team note or skip.
 
 Real news = roster moves, injury updates, contract talks, draft strategy signals, coaching decisions, front-office quotes with substance.
 NOT real news = mock draft rankings, historical trivia, uniform reveals, podcast promos, general previews with no new information.
@@ -1287,17 +1315,16 @@ If NOT noteworthy: respond with exactly "SKIP" and nothing else.
 
 Today's item:
 {item_block}"""
-
-            result = _call_model(
-                client,
-                prompt,
-                runtime,
-                max_tokens=250,
-                usage_tracker=usage_tracker,
-                usage_label=f"team:{team}",
-                verbosity="low",
-                reasoning_effort="low",
-            )
+                result = _call_model(
+                    client,
+                    prompt,
+                    runtime,
+                    max_tokens=250,
+                    usage_tracker=usage_tracker,
+                    usage_label=f"team:{team}",
+                    verbosity="low",
+                    reasoning_effort="low",
+                )
             if result.strip().upper() != "SKIP":
                 highlights[team] = {
                     "summary": result,
@@ -1305,7 +1332,48 @@ Today's item:
                 }
             continue
 
-        prompt = f"""Write a bulleted team note for {team} based only on today's items.
+        if is_transcript_pool:
+            prompt = f"""Write a substantive bulleted team note for {team} based only on today's press-conference transcripts.
+
+Each input item is numbered like [1], [2], etc. — you MUST cite the items you use.
+
+Output: a markdown bullet list of 6–10 bullets covering the distinct developments across the transcripts. Aim for breadth and depth: roster decisions, position competitions, scheme philosophy, injury / rehab specifics, depth-chart implications, contract / front-office signals, named-quote paraphrases with real substance.
+
+Format each bullet as:
+- **Player or coach or exec name** — what was said or decided in 1–2 sentences, then a short follow-up on why it matters or what's next when the transcripts actually support it. End the bullet with the citation, e.g. [3] or [1, 4].
+
+Position priority (for fantasy-football relevance):
+1. Highest priority: offensive skill players — QB, RB, FB, WR, TE.
+2. Second: offensive line and head coach / OC / DC philosophy.
+3. Lowest: defense (non-coordinator), kickers, punters, long snappers, special-teams roles.
+Skill-position content beats equally-newsworthy non-skill content.
+
+Rules:
+- One bullet per development. Do not synthesize multiple unrelated items into one bullet.
+- Lead each bullet with the most-specific named subject (player, coach, exec, or position group). For genuinely team-level points, lead with the topic in bold.
+- Every bullet must end with at least one [N] citation.
+- Surface NON-OBVIOUS specifics: unexpected starters, position competitions, depth-chart shake-ups beyond entrenched stars, late-round picks fighting for roles, UDFA fits, scheme tweaks. Do NOT restate common knowledge.
+- Skip pure platitudes ("we're excited", "we're going to compete"). If a transcript only contains platitudes, ignore it.
+- NEVER invent a player's first name, jersey number, position, or stat. If only a last name is given, use only the last name.
+- Use only the information in the transcripts. If a detail is missing, say it is not specified.
+- Keep the entire response under 350 words.
+- No section headers, no preamble, no closing commentary — just the bullets.
+
+Today's transcripts:
+{item_block}"""
+
+            text = _call_model(
+                client,
+                prompt,
+                runtime,
+                max_tokens=2500,
+                usage_tracker=usage_tracker,
+                usage_label=f"team:{team}",
+                verbosity="medium",
+                reasoning_effort="medium",
+            )
+        else:
+            prompt = f"""Write a bulleted team note for {team} based only on today's items.
 
 Each input item is numbered like [1], [2], etc. — you MUST cite the items you use.
 
@@ -1334,16 +1402,16 @@ Rules:
 Today's items:
 {item_block}"""
 
-        text = _call_model(
-            client,
-            prompt,
-            runtime,
-            max_tokens=900,
-            usage_tracker=usage_tracker,
-            usage_label=f"team:{team}",
-            verbosity="medium",
-            reasoning_effort="low",
-        )
+            text = _call_model(
+                client,
+                prompt,
+                runtime,
+                max_tokens=900,
+                usage_tracker=usage_tracker,
+                usage_label=f"team:{team}",
+                verbosity="medium",
+                reasoning_effort="low",
+            )
         highlights[team] = {
             "summary": text,
             "numbered_sources": _trim_cited_sources(text, candidates),
@@ -1397,6 +1465,7 @@ def summarize_team_highlights_from_transcripts(
 
     return _build_team_highlights_for_pool(
         team_items, client, runtime, usage_tracker,
+        is_transcript_pool=True,
     )
 
 
