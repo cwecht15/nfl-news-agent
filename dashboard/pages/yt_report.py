@@ -260,12 +260,16 @@ flag_mode = st.selectbox(
     ),
 )
 if flag_mode == MODE_HANDBOOK:
-    st.text_input(
+    page_flagger = st.text_input(
         "Your name (saved with each flag for attribution)",
-        key="flagger_name",
+        value=st.session_state.get("flagger_name_remembered", ""),
+        key="yt_page_flagger_name",
         placeholder="optional — leave blank to flag anonymously",
         help="Other visitors will see this name next to flags you create.",
     )
+    # Mirror into the non-widget canonical key so popovers can read it
+    # as their default without hitting Streamlit's widget-key write ban.
+    st.session_state["flagger_name_remembered"] = (page_flagger or "").strip()
 
 flag_report_date = label or f"{start_d.isoformat()} → {end_d.isoformat()}"
 

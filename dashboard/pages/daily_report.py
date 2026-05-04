@@ -132,13 +132,18 @@ with flag_col:
     )
 
 if flag_mode == MODE_HANDBOOK:
-    st.text_input(
+    page_flagger = st.text_input(
         "Your name (saved with each flag for attribution)",
-        key="flagger_name",
+        value=st.session_state.get("flagger_name_remembered", ""),
+        key="page_flagger_name",
         placeholder="optional — leave blank to flag anonymously",
         help="Other visitors will see this name next to flags you create. "
              "Stored only with the flag entry, not used for auth.",
     )
+    # Mirror into the non-widget canonical key so popovers can read it
+    # as their default. Direct write to a widget key would crash on
+    # save inside any popover.
+    st.session_state["flagger_name_remembered"] = (page_flagger or "").strip()
 
 if report.alerts:
     for alert in report.alerts:

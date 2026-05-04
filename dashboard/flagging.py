@@ -143,7 +143,11 @@ def flag_control(
 
         flagger = ""
         if mode == MODE_HANDBOOK:
-            default_name = st.session_state.get("flagger_name", "")
+            # Read the remembered name from a non-widget session-state key.
+            # Writing to a key that's already bound to an instantiated
+            # widget (e.g. the page-level "Your name" input) is forbidden
+            # by Streamlit, so we keep a separate canonical key here.
+            default_name = st.session_state.get("flagger_name_remembered", "")
             flagger_input = st.text_input(
                 "Your name (saved with this flag)",
                 value=default_name,
@@ -154,7 +158,8 @@ def flag_control(
 
         if st.button("Save flag", key=f"{key_prefix}_save", type="primary"):
             if mode == MODE_HANDBOOK and flagger:
-                st.session_state["flagger_name"] = flagger
+                # Safe: this key is NOT bound to a widget anywhere.
+                st.session_state["flagger_name_remembered"] = flagger
             add_or_update_flag(
                 report_date, section_id, section_label, content,
                 category=cat, note=note,
