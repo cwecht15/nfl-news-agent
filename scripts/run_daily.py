@@ -600,21 +600,27 @@ def cleanup_old_data(logger: logging.Logger):
     if removed_reports:
         logger.info("Removed %d report files older than %d days.", removed_reports, reports_keep)
 
-    # Clean old raw data directories
-    raw_dir = get_data_dir("raw")
-    old_raw = _date_dirs_older_than(raw_dir, raw_keep)
-    for d in old_raw:
-        shutil.rmtree(d)
-    if old_raw:
-        logger.info("Removed %d raw data directories older than %d days.", len(old_raw), raw_keep)
+    # Skip raw/transcript pruning when running on GitHub Actions: the cloud
+    # repo intentionally accumulates these year-round (manual end-of-season
+    # reset) so the YouTube Report tab can summarize transcripts the user
+    # pushed locally days or weeks ago. Local runs still prune to keep disk
+    # usage in check.
+    if os.environ.get("GITHUB_ACTIONS"):
+        logger.info("Skipping raw/transcript cleanup on CI (preserves pushed YouTube data).")
+    else:
+        raw_dir = get_data_dir("raw")
+        old_raw = _date_dirs_older_than(raw_dir, raw_keep)
+        for d in old_raw:
+            shutil.rmtree(d)
+        if old_raw:
+            logger.info("Removed %d raw data directories older than %d days.", len(old_raw), raw_keep)
 
-    # Clean old transcript directories
-    transcripts_dir = get_data_dir("transcripts")
-    old_transcripts = _date_dirs_older_than(transcripts_dir, raw_keep)
-    for d in old_transcripts:
-        shutil.rmtree(d)
-    if old_transcripts:
-        logger.info("Removed %d transcript directories older than %d days.", len(old_transcripts), raw_keep)
+        transcripts_dir = get_data_dir("transcripts")
+        old_transcripts = _date_dirs_older_than(transcripts_dir, raw_keep)
+        for d in old_transcripts:
+            shutil.rmtree(d)
+        if old_transcripts:
+            logger.info("Removed %d transcript directories older than %d days.", len(old_transcripts), raw_keep)
 
     # Clean old log files
     logs_dir = get_data_dir("logs")
