@@ -196,19 +196,35 @@ if start_d > end_d:
 
 generate = st.button("Generate Report", type="primary")
 
-if not generate:
+# Cache the rendered report in session_state so unrelated reruns (e.g.
+# toggling the flag-mode dropdown below) don't blank it out. Only the
+# Generate button or a real input change re-runs the LLM call.
+session_key = "yt_report_section"
+session_inputs_key = "yt_report_inputs"
+current_inputs = (start_d.isoformat(), end_d.isoformat(), tuple(team_filter_list))
+
+if generate:
+    with st.spinner("Summarizing transcripts..."):
+        section = _generate_cached(*current_inputs)
+    st.session_state[session_key] = section
+    st.session_state[session_inputs_key] = current_inputs
+else:
+    section = st.session_state.get(session_key)
+    cached_inputs = st.session_state.get(session_inputs_key)
+    # Drop the cached render when the user changed the date range or
+    # team filter — otherwise a stale report would render against
+    # currently-displayed inputs.
+    if section is not None and cached_inputs != current_inputs:
+        section = None
+        st.session_state.pop(session_key, None)
+        st.session_state.pop(session_inputs_key, None)
+
+if section is None:
     st.info(
         "Pick a range and click **Generate Report**. Each generation runs "
         "an LLM call across the transcripts in the selected window."
     )
     st.stop()
-
-with st.spinner("Summarizing transcripts..."):
-    section = _generate_cached(
-        start_d.isoformat(),
-        end_d.isoformat(),
-        tuple(team_filter_list),
-    )
 
 if not section:
     st.error("Could not load transcripts for that range.")
