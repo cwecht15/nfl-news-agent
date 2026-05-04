@@ -31,8 +31,16 @@ from dashboard.helpers import bootstrap_secrets
 bootstrap_secrets()
 
 from config_loader import get_data_dir, get_teams_by_abbr
+from dashboard.flagging import (
+    FLAG_MODE_LABELS,
+    FLAG_MODE_VALUES,
+    render_flaggable,
+)
 from models import Transcript
 from processing.yt_section import build_yt_section
+from reports.flagged_findings import MODE_HANDBOOK
+
+ALL_TEAMS = sorted(get_teams_by_abbr().keys())
 
 
 st.header("YouTube Report")
@@ -219,11 +227,46 @@ count = section.get("transcript_count", 0)
 label = section.get("date_label", "")
 st.success(f"Summarized {count} transcripts ({label}).")
 
+# Per-bullet flagging — same UX as the Daily Report. report_date is the
+# range label so all flags from one Generate click stay together; section
+# IDs are `yt:` prefixed so the same content can be flagged here without
+# colliding with daily-report flags.
+flag_mode = st.selectbox(
+    "Flag mode",
+    options=FLAG_MODE_VALUES,
+    format_func=lambda v: FLAG_MODE_LABELS[v],
+    key="yt_flag_mode",
+    help=(
+        "Off: just read the report. "
+        "Internal FP Handbook: long-running, persistent flags with "
+        "category + author. "
+        "Daily Site Report: range-scoped flags (team + note only)."
+    ),
+)
+if flag_mode == MODE_HANDBOOK:
+    st.text_input(
+        "Your name (saved with each flag for attribution)",
+        key="flagger_name",
+        placeholder="optional — leave blank to flag anonymously",
+        help="Other visitors will see this name next to flags you create.",
+    )
+
+flag_report_date = label or f"{start_d.isoformat()} → {end_d.isoformat()}"
+
 pc = section.get("press_conferences", {}) or {}
 pc_summary = (pc.get("summary") or "").strip()
 if pc_summary:
     st.subheader(f"Press Conference Highlights ({pc.get('count', 0)} transcripts)")
-    st.markdown(pc_summary)
+    if flag_mode:
+        render_flaggable(
+            pc_summary, flag_report_date, "yt:press_conferences",
+            "YT: Press Conference Highlights",
+            key_prefix="yt_pc",
+            all_teams=ALL_TEAMS,
+            mode=flag_mode,
+        )
+    else:
+        st.markdown(pc_summary)
 
 team_notes = section.get("team_notes", {}) or {}
 if team_notes:
@@ -234,10 +277,21 @@ if team_notes:
         if not note_summary:
             continue
 
-        st.markdown(f"**{team}**")
-        st.markdown(note_summary)
-
         numbered = note.get("numbered_sources", []) or []
+
+        st.markdown(f"**{team}**")
+        if flag_mode:
+            render_flaggable(
+                note_summary, flag_report_date, f"yt:team:{team}",
+                f"YT Team: {team}",
+                key_prefix=f"yt_team_{team}",
+                all_teams=ALL_TEAMS,
+                default_team=team, numbered_sources=numbered,
+                mode=flag_mode,
+            )
+        else:
+            st.markdown(note_summary)
+
         if numbered:
             lines = []
             for src in numbered:

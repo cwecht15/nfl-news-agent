@@ -21,28 +21,15 @@ from dashboard.helpers import (
     render_sources,
     to_et_display,
 )
-from reports.flagged_findings import (
-    CATEGORIES,
-    MODE_DAILY,
-    MODE_HANDBOOK,
-    add_or_update_flag,
-    get_flag,
-    get_flag_id,
-    remove_flag,
+from reports.flagged_findings import MODE_HANDBOOK
+from dashboard.flagging import (
+    FLAG_MODE_LABELS,
+    FLAG_MODE_VALUES,
+    render_flaggable,
 )
-
-# Selectbox label → internal mode value. Empty string is "off" (no flag
-# UI rendered alongside report content).
-_FLAG_MODE_LABELS: dict[str, str] = {
-    "": "Off",
-    MODE_HANDBOOK: "🚩 Internal FP Handbook",
-    MODE_DAILY: "📋 Daily Site Report",
-}
-_FLAG_MODE_VALUES: list[str] = list(_FLAG_MODE_LABELS.keys())
 from reports.report_builder import list_available_reports, load_report
 
 ALL_TEAMS = sorted(get_teams_by_abbr().keys())
-NONE_TEAM = "(none)"
 
 st.header("Daily Report")
 
@@ -76,57 +63,6 @@ def _filter_paragraphs(summary: str, query: str) -> str:
     return "\n\n".join(matching)
 
 
-def _parse_flaggable_items(summary: str) -> list[tuple[str, str]]:
-    """Split a markdown summary into (kind, content) units.
-
-    kind is "heading" (not flaggable), "table", "bullet", or "paragraph".
-    """
-    items: list[tuple[str, str]] = []
-    for block in summary.split("\n\n"):
-        block = block.strip("\n")
-        if not block.strip():
-            continue
-        lines = block.split("\n")
-        if any(line.lstrip().startswith("|") for line in lines):
-            items.append(("table", block))
-            continue
-
-        prose: list[str] = []
-
-        def _flush():
-            if prose:
-                items.append(("paragraph", " ".join(prose).strip()))
-                prose.clear()
-
-        i = 0
-        while i < len(lines):
-            stripped = lines[i].strip()
-            if not stripped:
-                i += 1
-                continue
-            if stripped.startswith("#"):
-                _flush()
-                items.append(("heading", stripped))
-                i += 1
-                continue
-            if stripped.startswith(("- ", "* ")):
-                _flush()
-                bullet = stripped[2:].strip()
-                i += 1
-                while i < len(lines):
-                    nxt = lines[i].strip()
-                    if not nxt or nxt.startswith(("- ", "* ", "#")):
-                        break
-                    bullet += " " + nxt
-                    i += 1
-                items.append(("bullet", bullet))
-                continue
-            prose.append(stripped)
-            i += 1
-        _flush()
-    return items
-
-
 def _build_citation_linker(numbered_sources):
     """Return a function that linkifies `[N]` citations in markdown text.
 
@@ -157,125 +93,6 @@ def _build_citation_linker(numbered_sources):
     return _linkify
 
 
-def _citations_for(content: str, numbered_sources) -> list[dict]:
-    """Return the subset of numbered_sources referenced by [N] in content."""
-    if not numbered_sources:
-        return []
-    nums = set()
-    for m in _re.finditer(r"\[(\d+(?:[,\s]+\d+)*)\]", content):
-        for n in _re.split(r"[,\s]+", m.group(1)):
-            n = n.strip()
-            if n:
-                nums.add(n)
-    if not nums:
-        return []
-    return [s for s in numbered_sources if str(s.get("num", "")) in nums]
-
-
-def _flag_control(content: str, report_date: str, section_id: str,
-                   section_label: str, key_prefix: str,
-                   default_team: str = "", attached_sources=None,
-                   mode: str = MODE_HANDBOOK) -> None:
-    """Render a popover flag control for a single content item.
-
-    `mode` selects the flag schema:
-      - MODE_HANDBOOK: Category + Team + Note + flagger name
-      - MODE_DAILY: Team + Note (no category, no attribution)
-    Each mode keys a distinct flag ID for the same content, so an item
-    can carry one flag in each mode without collision.
-    """
-    fid = get_flag_id(report_date, section_id, content, mode=mode)
-    existing = get_flag(fid)
-    icon = "🚩" if existing else "⚐"
-    with st.popover(icon, use_container_width=False):
-        cur_note = existing.get("note", "") if existing else ""
-        cur_team = existing.get("team") if existing else default_team
-
-        if mode == MODE_HANDBOOK:
-            cur_cat = existing.get("category") if existing else CATEGORIES[0]
-            cat_idx = CATEGORIES.index(cur_cat) if cur_cat in CATEGORIES else 0
-            cat = st.selectbox(
-                "Category", CATEGORIES, index=cat_idx,
-                key=f"{key_prefix}_cat",
-            )
-        else:
-            st.caption("📋 Daily Site Report")
-            cat = ""
-
-        team_options = [NONE_TEAM] + ALL_TEAMS
-        team_idx = team_options.index(cur_team) if cur_team in team_options else 0
-        team_choice = st.selectbox(
-            "Team", team_options, index=team_idx, key=f"{key_prefix}_team",
-        )
-        team = "" if team_choice == NONE_TEAM else team_choice
-
-        note = st.text_area(
-            "Note (optional)" if mode == MODE_HANDBOOK else "Note",
-            value=cur_note, height=80, key=f"{key_prefix}_note",
-        )
-
-        flagger = ""
-        if mode == MODE_HANDBOOK:
-            # Per-popover name input. Defaults to whatever the visitor
-            # set earlier this session (via this popover or the
-            # page-level field at the top of the report). Editing here
-            # also updates the session-wide value so subsequent
-            # popovers pre-fill the new name.
-            default_name = st.session_state.get("flagger_name", "")
-            flagger_input = st.text_input(
-                "Your name (saved with this flag)",
-                value=default_name,
-                key=f"{key_prefix}_flagger",
-                placeholder="optional",
-            )
-            flagger = (flagger_input or "").strip()
-
-        if st.button("Save flag", key=f"{key_prefix}_save", type="primary"):
-            if mode == MODE_HANDBOOK and flagger:
-                st.session_state["flagger_name"] = flagger
-            add_or_update_flag(
-                report_date, section_id, section_label, content,
-                category=cat, note=note,
-                team=team, sources=attached_sources or [],
-                flagged_by=flagger, mode=mode,
-            )
-            st.rerun()
-        if existing and st.button("Unflag", key=f"{key_prefix}_unflag"):
-            remove_flag(fid)
-            st.rerun()
-
-
-def _render_flaggable(summary: str, report_date: str, section_id: str,
-                      section_label: str, key_prefix: str,
-                      linkify=None, default_team: str = "",
-                      section_sources=None, numbered_sources=None,
-                      mode: str = MODE_HANDBOOK) -> None:
-    """Render a markdown summary as item-by-item flaggable units."""
-    items = _parse_flaggable_items(summary)
-    for idx, (kind, content) in enumerate(items):
-        display = linkify(content) if linkify else content
-        if kind == "heading":
-            st.markdown(display)
-            continue
-        if numbered_sources:
-            attached = _citations_for(content, numbered_sources)
-        else:
-            attached = list(section_sources or [])
-        col_l, col_r = st.columns([24, 1])
-        with col_l:
-            if kind == "bullet":
-                st.markdown(f"- {display}")
-            else:
-                st.markdown(display)
-        with col_r:
-            _flag_control(
-                content, report_date, section_id, section_label,
-                key_prefix=f"{key_prefix}_{idx}",
-                default_team=default_team, attached_sources=attached,
-                mode=mode,
-            )
-
-
 # Date selector
 available = list_available_reports()
 
@@ -302,8 +119,8 @@ with search_col:
 with flag_col:
     flag_mode = st.selectbox(
         "Flag mode",
-        options=_FLAG_MODE_VALUES,
-        format_func=lambda v: _FLAG_MODE_LABELS[v],
+        options=FLAG_MODE_VALUES,
+        format_func=lambda v: FLAG_MODE_LABELS[v],
         key="flag_mode",
         help=(
             "Off: just read the report. "
@@ -381,9 +198,10 @@ for key, section_data in report.sections.items():
         linkify = _build_citation_linker(numbered_sources)
 
         if flag_mode:
-            _render_flaggable(
+            render_flaggable(
                 display_summary, selected_date, key, title,
                 key_prefix=f"sec_{key}", linkify=linkify,
+                all_teams=ALL_TEAMS,
                 section_sources=sources, numbered_sources=numbered_sources,
                 mode=flag_mode,
             )
@@ -442,9 +260,10 @@ if report.team_highlights:
         team_numbered = highlight_numbered_sources(highlight)
         team_linkify = _build_citation_linker(team_numbered)
         if flag_mode:
-            _render_flaggable(
+            render_flaggable(
                 summary_text, selected_date, f"team:{team}", f"Team: {team}",
                 key_prefix=f"team_{team}",
+                all_teams=ALL_TEAMS,
                 default_team=team, section_sources=team_srcs,
                 linkify=team_linkify, numbered_sources=team_numbered,
                 mode=flag_mode,
