@@ -1081,6 +1081,10 @@ def _fetch_si_article_body(
         logger.debug("SI body fetch failed for %s: %s", url, e)
         return ""
 
+    # SI doesn't send a charset header on every response, so requests'
+    # default ISO-8859-1 fallback turns curly quotes into mojibake (â…).
+    # Force UTF-8 — SI serves UTF-8 throughout.
+    resp.encoding = "utf-8"
     soup = BeautifulSoup(resp.text, "html.parser")
     container = soup.find("article") or soup
     paragraphs = [
@@ -1127,6 +1131,8 @@ def scrape_si_team(
         )
         return []
 
+    # SI doesn't always send a charset; force UTF-8 (see _fetch_si_article_body).
+    resp.encoding = "utf-8"
     soup = BeautifulSoup(resp.text, "html.parser")
     team_slug = url.rstrip("/").rsplit("/", 1)[-1].lower()
     pattern = f"/nfl/{team_slug}/onsi/"

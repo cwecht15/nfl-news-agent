@@ -200,21 +200,23 @@ rss_feeds:
 # underlying RSS feed instead (usually listed on Apple Podcasts or
 # the show's website; podcastindex.org works as a lookup).
 
-beat_writers:
-  - name: Nick Underhill
-    outlet: NewOrleans.Football
-    teams: ["NO"]    # quoted because NO is a YAML boolean otherwise
-    role: beat
-    custom_feeds:
-      - type: neworleans_football
-        url: https://neworleans.football/api/feed
-        authors: ["Nick Underhill"]   # omit/empty to include all site authors
-        quickposts: false             # true = also include short live-feed posts
-    youtube_channels:
-      - id: UCO3-HuPUXFliHV_u-qc33bQ
-        handle: "@NOF"
-        keyword_filter: false
-        transcribe: true
+beat_writers: []
+  # Disabled: paywalled excerpts caused empty Saints summaries with no
+  # team-specific takeaway. Keep the config for reference / future re-enable.
+  # - name: Nick Underhill
+  #   outlet: NewOrleans.Football
+  #   teams: ["NO"]    # quoted because NO is a YAML boolean otherwise
+  #   role: beat
+  #   custom_feeds:
+  #     - type: neworleans_football
+  #       url: https://neworleans.football/api/feed
+  #       authors: ["Nick Underhill"]   # omit/empty to include all site authors
+  #       quickposts: false             # true = also include short live-feed posts
+  #   youtube_channels:
+  #     - id: UCO3-HuPUXFliHV_u-qc33bQ
+  #       handle: "@NOF"
+  #       keyword_filter: false
+  #       transcribe: true
 
 # Example entries — copy, uncomment, fill in real URLs/IDs to enable:
 #

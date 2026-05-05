@@ -4,6 +4,7 @@ Polls configurable RSS feeds and returns NewsItem objects.
 Feeds are defined in config/sources.yaml — add/remove without touching code.
 """
 
+import html
 import logging
 import re
 import sys
@@ -139,9 +140,13 @@ def collect_rss(
                 if pub_date < cutoff:
                     continue
 
-                title = str(entry.get("title", "") or "").strip()
+                # Some feeds (cincyjungle, hogshaven) double-encode entities
+                # like &amp;#8217; — feedparser un-amps once, leaving raw
+                # &#8217; in the title. html.unescape() is idempotent on
+                # already-clean text, so it's safe to apply unconditionally.
+                title = html.unescape(str(entry.get("title", "") or "")).strip()
                 link = str(entry.get("link", "") or "").strip()
-                summary = str(entry.get("summary", "") or "").strip()
+                summary = html.unescape(str(entry.get("summary", "") or "")).strip()
                 author = str(entry.get("author", "") or "").strip()
 
                 if not title or not link:
@@ -156,6 +161,7 @@ def collect_rss(
                     raw = str(content_list[0].get("value", "") or "")
                     if raw:
                         cleaned = re.sub(r"<[^>]+>", " ", raw)
+                        cleaned = html.unescape(cleaned)
                         cleaned = re.sub(r"\s+", " ", cleaned).strip()
                         if len(cleaned) > 8000:
                             cleaned = cleaned[:8000].rsplit(" ", 1)[0] + "…"

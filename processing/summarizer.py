@@ -1307,11 +1307,11 @@ Today's transcript:
             else:
                 prompt = f"""Decide whether this item contains real, actionable NFL news for {team}, then either write a team note or skip.
 
-Real news = roster moves, injury updates, contract talks, draft strategy signals, coaching decisions, front-office quotes with substance.
-NOT real news = mock draft rankings, historical trivia, uniform reveals, podcast promos, general previews with no new information.
+Real news = roster moves, injury updates, contract talks, draft strategy signals, coaching decisions, front-office quotes with substance — and the item must name a {team} player, coach, or executive and say something specific about them.
+NOT real news = mock draft rankings, historical trivia, uniform reveals, podcast promos, general previews with no new information, paywalled excerpts that only describe what the article will cover, items where the only {team}-related "subject" is the journalist or outlet, items where you would have to write "the excerpt does not specify any {team} player / decision / detail."
 
 If noteworthy: write 1-2 sentences covering what happened and why it matters, and end with the citation [1].
-If NOT noteworthy: respond with exactly "SKIP" and nothing else.
+If NOT noteworthy: respond with exactly "SKIP" and nothing else. When in doubt, SKIP — a missing team note is far better than a bullet that admits it has no {team} content.
 
 Today's item:
 {item_block}"""
@@ -1380,13 +1380,13 @@ Each input item is numbered like [1], [2], etc. — you MUST cite the items you 
 Output: a markdown bullet list, one bullet per distinct development.
 
 Format each bullet as:
-- **Player or coach or exec name** — what happened in 1 sentence, then 1 short follow-up sentence on why it matters or what's next if helpful. End the bullet with the citation, e.g. [3] or [1, 4].
+- **Player or coach or exec name** — what happened in 1–2 sentences, then 1–2 short follow-up sentences on why it matters, what's next, or supporting context (snap share, depth-chart implications, scheme fit) when the items genuinely support it. End the bullet with the citation, e.g. [3] or [1, 4].
 
 Position priority (for fantasy-football relevance):
 1. Highest priority: offensive skill players — QB, RB, FB, WR, TE.
 2. Second: offensive line and head coach / OC / DC moves.
 3. Lowest: defense (non-coordinator), kickers, punters, long snappers, special-teams roles.
-When choosing which 4–6 items become bullets, prefer skill-position content over equally-newsworthy non-skill content. A WR3 competition is more interesting than a CB3 competition, all else equal.
+Prefer skill-position content over equally-newsworthy non-skill content. A WR3 competition is more interesting than a CB3 competition, all else equal. Include one bullet per genuinely distinct development the items support — don't pad to hit a target, but don't drop a substantive development just to stay short either.
 
 Rules:
 - One bullet per development. Do not synthesize multiple unrelated items into one bullet.
@@ -1395,8 +1395,9 @@ Rules:
 - Surface NON-OBVIOUS specifics: unexpected starters, position competitions, depth-chart shake-ups beyond the entrenched stars, late-round picks fighting for roles, UDFA roster fits. Do NOT write bullets that re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1"). If a depth-chart article only confirms the obvious at QB, look at the article's notes on RB / WR / TE / OL instead.
 - NEVER invent a player's first name, jersey number, position, or any other identifier. If the source refers to a player by last name only (e.g. "Jennings"), write the bullet using ONLY the last name as the source provides it (e.g. "**Jennings (RB)**"). Adding a wrong first name is worse than omitting it. Same for coaches and executives.
 - Skip items that are pure trivia, mock drafts not roster-relevant, jersey reveals, or filler.
-- Use only the information in today's items. If a detail is missing, say it is not specified.
-- Keep the entire response under 180 words.
+- DROP any item whose {team}-relevant content boils down to "the excerpt does not specify any {team} player / decision / detail" or where the only named subject is the journalist or outlet rather than a {team} player, coach, or exec. Skip the item entirely — do NOT write a bullet about the absence of information.
+- Use only the information in today's items. If a detail is missing for an otherwise-substantive bullet, say it is not specified.
+- Keep the entire response under 280 words. This is a ceiling, not a target — only use the room when the items genuinely support more detail.
 - No section headers, no preamble, no closing commentary — just the bullets.
 
 Today's items:
@@ -1406,7 +1407,7 @@ Today's items:
                 client,
                 prompt,
                 runtime,
-                max_tokens=900,
+                max_tokens=1400,
                 usage_tracker=usage_tracker,
                 usage_label=f"team:{team}",
                 verbosity="medium",
