@@ -54,6 +54,7 @@ _nav_lines = [
     "- **Trends** — Historical patterns & cost tracking",
     "- **Digest** — Weekly rollup reports",
     "- **Flagged** — Items you've flagged across reports",
+    "- **Depth Chart Manager** — Reconcile the master 2026 Depth Chart against agent data",
 ]
 if _running_locally():
     _nav_lines.append("- **Config** — Edit sources.yaml, settings.yaml")
