@@ -60,29 +60,7 @@ models). Subsequent runs reuse the cache and are faster.
 
    This is the password every visitor must enter. Only share with invited people. To rotate later, edit it in Streamlit Cloud's app settings.
 
-5. **(For Depth Chart Manager only)** In the same Secrets editor, append the Google service-account credentials below the password line:
-
-   ```toml
-   [gcp_service_account]
-   type = "service_account"
-   project_id = "fp-data-357113"
-   private_key_id = "..."
-   private_key = """-----BEGIN PRIVATE KEY-----
-   <paste the full multi-line key from your fp-data-357113-*.json file>
-   -----END PRIVATE KEY-----
-   """
-   client_email = "fp-data@fp-data-357113.iam.gserviceaccount.com"
-   client_id = "..."
-   auth_uri = "https://accounts.google.com/o/oauth2/auth"
-   token_uri = "https://oauth2.googleapis.com/token"
-   auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"
-   client_x509_cert_url = "..."
-   universe_domain = "googleapis.com"
-   ```
-
-   Paste the values from your local service-account JSON file. The `private_key` must be a TOML triple-quoted string so the embedded newlines survive. Without this section, the Depth Chart Manager tab fails with `[Errno 2] No such file or directory`. The other dashboard pages don't need this and will keep working without it.
-
-6. Click **Deploy**. First deploy takes ~5 min (installs requirements).
+5. Click **Deploy**. First deploy takes ~5 min (installs requirements).
 
 The dashboard will be live at `https://nfl-news-agent.streamlit.app/`.
 Anyone visiting hits the password gate first; only matches let them in.

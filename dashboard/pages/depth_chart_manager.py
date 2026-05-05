@@ -26,6 +26,7 @@ from dashboard.auth import require_password
 require_password()
 
 from processing.sheet_reconciliation import (
+    SNAPSHOT_PATH,
     _build_ourlads_by_name,
     _collect_recent_transactions,
     _index_recent_transactions_by_player,
@@ -35,10 +36,10 @@ from processing.sheet_reconciliation import (
     dismiss,
     filter_dismissed,
     load_dismissals,
-    load_master_depthchart,
-    load_master_transactions,
+    load_master_snapshot,
+    parse_depthchart_rows,
+    parse_transactions_rows,
     undismiss,
-    _get_gspread_client,
 )
 
 st.header("Depth Chart Manager")
@@ -50,18 +51,24 @@ st.caption(
 
 
 # ---------------------------------------------------------------------------
-# Cached loaders (1h TTL; refresh button busts cache)
+# Cached loaders
 # ---------------------------------------------------------------------------
+# The dashboard reads master-sheet data from a CI-committed snapshot at
+# data/master_sheet/latest.json. Cache key includes the file's mtime so
+# a fresh snapshot landing via workflow run busts the cache automatically
+# without any manual refresh.
 
 
-@st.cache_data(ttl=3600, show_spinner="Loading master DepthCharts...")
-def _cached_master_depthchart() -> dict:
-    return load_master_depthchart(_get_gspread_client())
+def _snapshot_mtime() -> float:
+    return SNAPSHOT_PATH.stat().st_mtime if SNAPSHOT_PATH.exists() else 0.0
 
 
-@st.cache_data(ttl=3600, show_spinner="Loading master Transactions_New...")
-def _cached_master_transactions() -> set:
-    return load_master_transactions(_get_gspread_client())
+@st.cache_data(show_spinner="Loading master sheet snapshot...")
+def _cached_master_data(snapshot_mtime: float):
+    snap = load_master_snapshot()
+    master = parse_depthchart_rows(snap["depthchart_rows"])
+    master_tx = parse_transactions_rows(snap["transactions_rows"])
+    return master, master_tx, snap.get("snapshot_at", "")
 
 
 @st.cache_data(ttl=600, show_spinner="Loading agent depth chart + transactions...")
@@ -87,11 +94,16 @@ with st.sidebar:
         help="How far back to scan agent-side transactions when checking "
         "for staleness in the master sheet.",
     )
-    if st.button("🔄 Refresh data", use_container_width=True):
-        _cached_master_depthchart.clear()
-        _cached_master_transactions.clear()
+    if st.button("🔄 Reload from disk", use_container_width=True):
+        _cached_master_data.clear()
         _cached_agent_data.clear()
         st.rerun()
+
+    st.caption(
+        "To pull a fresh snapshot from the master sheet, open the GitHub "
+        "**Actions** tab → **Master Sheet Snapshot** → **Run workflow**. "
+        "It commits a new snapshot in ~30s and the dashboard auto-redeploys."
+    )
 
     show_dismissed = st.checkbox(
         "Show dismissed rows", value=False,
@@ -103,12 +115,21 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 
 try:
-    master = _cached_master_depthchart()
-    master_tx = _cached_master_transactions()
+    master, master_tx, snapshot_at = _cached_master_data(_snapshot_mtime())
     ourlads, agent_tx, tx_by_player = _cached_agent_data(lookback_days)
+except FileNotFoundError as e:
+    st.error(
+        f"Master-sheet snapshot not available yet: {e}\n\n"
+        "Trigger the **Master Sheet Snapshot** workflow on GitHub Actions, "
+        "or run `python scripts/snapshot_master_sheet.py` locally."
+    )
+    st.stop()
 except Exception as e:
     st.error(f"Failed to load data: {e}")
     st.stop()
+
+if snapshot_at:
+    st.caption(f"Master-sheet snapshot taken: **{snapshot_at}** UTC")
 
 team_rows = compute_team_mismatches(master, ourlads, tx_by_player)
 status_rows = compute_status_mismatches(master, ourlads, tx_by_player)
