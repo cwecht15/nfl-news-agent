@@ -132,66 +132,65 @@ def to_news_team(proj_abbr: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-# The dashboard reads master-sheet data from a CI-committed snapshot at
-# this path, not from Google Sheets directly. The snapshot is refreshed
-# by `scripts/snapshot_master_sheet.py`, scheduled in
-# `.github/workflows/master_sheet_snapshot.yml` (daily + workflow_dispatch).
-SNAPSHOT_PATH = PROJECT_ROOT / "data" / "master_sheet" / "latest.json"
-
-
 def _get_gspread_client():
-    """Build a gspread client (CI / CLI use only).
+    """Build a gspread client.
 
-    The dashboard never calls this — it reads from the local snapshot file.
-    Only the snapshot script (`scripts/snapshot_master_sheet.py`) and the
-    CLI smoke-test (`python -m processing.sheet_reconciliation`) need a
-    live Sheets connection.
+    Streamlit Cloud has no access to local files or env vars set in CI,
+    so the service-account JSON must come from `st.secrets`. CLI use
+    (`python -m processing.sheet_reconciliation`) and local Streamlit
+    runs both fall back to the file-based resolver in
+    `scripts.snapshot_projections._resolve_service_account_key`.
     """
     from google.oauth2.service_account import Credentials
     import gspread
 
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets.readonly",
+        "https://www.googleapis.com/auth/drive.readonly",
+    ]
+
+    try:
+        import streamlit as st
+        if "gcp_service_account" in st.secrets:
+            info = dict(st.secrets["gcp_service_account"])
+            creds = Credentials.from_service_account_info(info, scopes=scopes)
+            return gspread.authorize(creds)
+    except Exception:
+        # Streamlit not installed, no secrets.toml present, key missing,
+        # or streamlit-specific access error — fall through to file-based
+        # resolution. Any genuine credential failure will surface there.
+        pass
+
     from scripts.snapshot_projections import _resolve_service_account_key
     creds = Credentials.from_service_account_file(
         str(_resolve_service_account_key()),
-        scopes=[
-            "https://www.googleapis.com/auth/spreadsheets.readonly",
-            "https://www.googleapis.com/auth/drive.readonly",
-        ],
+        scopes=scopes,
     )
     return gspread.authorize(creds)
 
 
-# ---------------------------------------------------------------------------
-# Live fetch (used by the snapshot script only)
-# ---------------------------------------------------------------------------
+def load_master_depthchart(client=None) -> dict[str, dict]:
+    """Read the DepthCharts tab and return a dict keyed by gsisId.
 
-
-def fetch_depthchart_rows(client) -> list[list[str]]:
-    """Live-fetch raw rows from the DepthCharts tab."""
-    return client.open_by_key(MASTER_SHEET_ID).worksheet(DEPTHCHART_TAB).get_all_values()
-
-
-def fetch_transactions_rows(client) -> list[list[str]]:
-    """Live-fetch raw rows from the Transactions_New tab."""
-    return client.open_by_key(MASTER_SHEET_ID).worksheet(TRANSACTIONS_TAB).get_all_values()
-
-
-# ---------------------------------------------------------------------------
-# Parsers (operate on raw rows from either live fetch or the snapshot)
-# ---------------------------------------------------------------------------
-
-
-def parse_depthchart_rows(rows: list[list[str]]) -> dict[str, dict]:
-    """Parse DepthCharts rows into a {gsisId: {team, status_desc, ...}} dict.
-
+    Each value: {gsis_id, name, pos, team, status_desc, depth_pos, order, name_key}
+    where name_key is _normalize_name() of the display name (used as fallback
+    when matching against OurLads which has no gsisId).
     Rows without a gsisId are skipped — they can't be reliably matched.
     """
+    if client is None:
+        client = _get_gspread_client()
+
+    sh = client.open_by_key(MASTER_SHEET_ID)
+    ws = sh.worksheet(DEPTHCHART_TAB)
+    rows = ws.get_all_values()
+
     out: dict[str, dict] = {}
     for row in rows[_DC_DATA_START - 1:]:
         if len(row) < _DC_COL_STATUS:
             continue
         gsis = row[_DC_COL_GSIS - 1].strip()
         if not gsis or gsis.upper() == "ROOKIE001":
+            # Skip placeholder/rookie rows without real GSIS IDs
             continue
         name = row[_DC_COL_NAME - 1].strip()
         if not name:
@@ -206,16 +205,27 @@ def parse_depthchart_rows(rows: list[list[str]]) -> dict[str, dict]:
             "depth_pos": row[_DC_COL_DEPTH_POS - 1].strip() if len(row) >= _DC_COL_DEPTH_POS else "",
             "order": row[_DC_COL_ORDER - 1].strip() if len(row) >= _DC_COL_ORDER else "",
         }
-    logger.info("Parsed %d players from DepthCharts rows", len(out))
+    logger.info("Loaded %d players from master DepthCharts", len(out))
     return out
 
 
-def parse_transactions_rows(rows: list[list[str]]) -> set[tuple[str, str, str]]:
-    """Parse Transactions_New rows into a set of (date, gsisId, type) tuples."""
+def load_master_transactions(client=None) -> set[tuple[str, str, str]]:
+    """Read Transactions_New tab; return set of (date, gsisId, type) tuples.
+
+    Used to detect transactions our agent has seen that the master
+    sheet hasn't imported yet.
+    """
+    if client is None:
+        client = _get_gspread_client()
+
+    sh = client.open_by_key(MASTER_SHEET_ID)
+    ws = sh.worksheet(TRANSACTIONS_TAB)
+    rows = ws.get_all_values()
     if not rows:
         return set()
-    headers = rows[0]
 
+    headers = rows[0]
+    # Find columns by header — the layout could shift if the sheet owner edits it.
     def _col(name: str) -> int:
         for i, h in enumerate(headers):
             if h.strip().lower() == name.lower():
@@ -226,7 +236,7 @@ def parse_transactions_rows(rows: list[list[str]]) -> set[tuple[str, str, str]]:
     type_col = _col("transactionType")
     gsis_col = _col("person_gsisId")
     if min(date_col, type_col, gsis_col) < 0:
-        logger.warning("Transactions_New rows missing one of date/transactionType/person_gsisId")
+        logger.warning("Transactions_New is missing one of date/transactionType/person_gsisId columns")
         return set()
 
     out: set[tuple[str, str, str]] = set()
@@ -238,61 +248,8 @@ def parse_transactions_rows(rows: list[list[str]]) -> set[tuple[str, str, str]]:
         ttype = row[type_col].strip().lower()
         if date and gsis:
             out.add((date, gsis, ttype))
-    logger.info("Parsed %d transaction keys from Transactions_New rows", len(out))
+    logger.info("Loaded %d (date,gsisId,type) keys from master Transactions_New", len(out))
     return out
-
-
-# ---------------------------------------------------------------------------
-# Snapshot file I/O (the dashboard's primary data source)
-# ---------------------------------------------------------------------------
-
-
-def load_master_snapshot(path: Path | None = None) -> dict:
-    """Load the CI-committed master-sheet snapshot.
-
-    Returns a dict with keys `snapshot_at`, `depthchart_rows`,
-    `transactions_rows`. Raises FileNotFoundError if the snapshot has
-    never been written.
-    """
-    snap_path = path or SNAPSHOT_PATH
-    if not snap_path.exists():
-        raise FileNotFoundError(
-            f"Master-sheet snapshot not found at {snap_path}. "
-            f"Run scripts/snapshot_master_sheet.py (or trigger the "
-            f"Master Sheet Snapshot workflow on GitHub Actions)."
-        )
-    with open(snap_path, encoding="utf-8") as f:
-        return json.load(f)
-
-
-# ---------------------------------------------------------------------------
-# Backward-compatible loaders (used by reconcile() below)
-# ---------------------------------------------------------------------------
-
-
-def load_master_depthchart(client=None) -> dict[str, dict]:
-    """Return the parsed DepthCharts dict.
-
-    Default path: read from the local snapshot. Pass a `client` to
-    bypass the snapshot and live-fetch (used by the snapshot script
-    and the CLI smoke-test).
-    """
-    if client is None:
-        snap = load_master_snapshot()
-        return parse_depthchart_rows(snap["depthchart_rows"])
-    return parse_depthchart_rows(fetch_depthchart_rows(client))
-
-
-def load_master_transactions(client=None) -> set[tuple[str, str, str]]:
-    """Return the parsed Transactions_New key set.
-
-    Default path: read from the local snapshot. Pass a `client` to
-    live-fetch.
-    """
-    if client is None:
-        snap = load_master_snapshot()
-        return parse_transactions_rows(snap["transactions_rows"])
-    return parse_transactions_rows(fetch_transactions_rows(client))
 
 
 # ---------------------------------------------------------------------------
@@ -552,11 +509,10 @@ def filter_dismissed(rows: list[dict], dismissals: dict[str, dict]) -> tuple[lis
 
 
 def reconcile(lookback_days: int = 30, client=None) -> dict[str, list[dict]]:
-    """Run all three discrepancy computations and return them keyed by category.
+    """Run all three discrepancy computations and return them keyed by category."""
+    if client is None:
+        client = _get_gspread_client()
 
-    Default reads master-sheet data from the local snapshot file. Pass a
-    `client` to live-fetch instead (CLI / one-off use).
-    """
     master = load_master_depthchart(client)
     master_tx = load_master_transactions(client)
     ourlads = _build_ourlads_by_name()
@@ -571,19 +527,8 @@ def reconcile(lookback_days: int = 30, client=None) -> dict[str, list[dict]]:
 
 
 if __name__ == "__main__":
-    import argparse
-
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--live",
-        action="store_true",
-        help="Live-fetch from Google Sheets instead of using the local snapshot.",
-    )
-    args = parser.parse_args()
-
-    client = _get_gspread_client() if args.live else None
-    results = reconcile(client=client)
+    results = reconcile()
     for category, rows in results.items():
         print(f"\n=== {category}: {len(rows)} ===")
         for r in rows[:8]:
