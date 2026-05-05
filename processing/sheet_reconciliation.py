@@ -133,18 +133,38 @@ def to_news_team(proj_abbr: str) -> str:
 
 
 def _get_gspread_client():
-    """Build a gspread client using the same key resolver as the projections
-    pipeline."""
-    from scripts.snapshot_projections import _resolve_service_account_key
+    """Build a gspread client.
+
+    Streamlit Cloud has no access to local files or env vars set in CI,
+    so the service-account JSON must come from `st.secrets`. CLI use
+    (`python -m processing.sheet_reconciliation`) and local Streamlit
+    runs both fall back to the file-based resolver in
+    `scripts.snapshot_projections._resolve_service_account_key`.
+    """
     from google.oauth2.service_account import Credentials
     import gspread
 
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets.readonly",
+        "https://www.googleapis.com/auth/drive.readonly",
+    ]
+
+    try:
+        import streamlit as st
+        if "gcp_service_account" in st.secrets:
+            info = dict(st.secrets["gcp_service_account"])
+            creds = Credentials.from_service_account_info(info, scopes=scopes)
+            return gspread.authorize(creds)
+    except Exception:
+        # Streamlit not installed, no secrets.toml present, key missing,
+        # or streamlit-specific access error — fall through to file-based
+        # resolution. Any genuine credential failure will surface there.
+        pass
+
+    from scripts.snapshot_projections import _resolve_service_account_key
     creds = Credentials.from_service_account_file(
         str(_resolve_service_account_key()),
-        scopes=[
-            "https://www.googleapis.com/auth/spreadsheets.readonly",
-            "https://www.googleapis.com/auth/drive.readonly",
-        ],
+        scopes=scopes,
     )
     return gspread.authorize(creds)
 
