@@ -1,7 +1,11 @@
-"""Setup Windows Task Scheduler for daily runs.
+"""Setup Windows Task Scheduler entries for this project.
 
-Creates a scheduled task that runs run_daily.bat at 6:00 AM daily.
-Uses StartWhenAvailable so missed runs execute as soon as the PC wakes up.
+Two tasks are supported:
+
+  - NFL_News_Agent_Daily      → scripts/run_daily.bat at 6:00 AM
+  - NFL_News_Agent_YT_Backfill → scripts/auto_backfill_youtube.bat at 5:30 AM
+
+Both use StartWhenAvailable so missed runs execute as soon as the PC wakes up.
 Must be run with administrator privileges.
 """
 
@@ -11,13 +15,14 @@ import tempfile
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
-BAT_PATH = PROJECT_ROOT / "scripts" / "run_daily.bat"
+DAILY_BAT = PROJECT_ROOT / "scripts" / "run_daily.bat"
+YT_BACKFILL_BAT = PROJECT_ROOT / "scripts" / "auto_backfill_youtube.bat"
 
 TASK_XML_TEMPLATE = """\
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>NFL News Agent — daily news collection and report generation</Description>
+    <Description>{description}</Description>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
@@ -44,7 +49,7 @@ TASK_XML_TEMPLATE = """\
     <AllowStartOnDemand>true</AllowStartOnDemand>
     <Enabled>true</Enabled>
     <Hidden>false</Hidden>
-    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <ExecutionTimeLimit>{exec_time_limit}</ExecutionTimeLimit>
     <Priority>7</Priority>
   </Settings>
   <Actions Context="Author">
@@ -60,15 +65,19 @@ TASK_XML_TEMPLATE = """\
 def create_task(
     task_name: str = "NFL_News_Agent_Daily",
     run_time: str = "06:00",
+    bat_path: Path = DAILY_BAT,
+    description: str = "NFL News Agent — daily news collection and report generation",
+    exec_time_limit: str = "PT2H",
 ):
     """Register a daily task in Windows Task Scheduler with missed-run catch-up."""
     xml_content = TASK_XML_TEMPLATE.format(
         run_time=run_time,
-        bat_path=str(BAT_PATH),
+        bat_path=str(bat_path),
         working_dir=str(PROJECT_ROOT),
+        description=description,
+        exec_time_limit=exec_time_limit,
     )
 
-    # Write XML to a temp file and import it
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".xml", delete=False, encoding="utf-16"
     ) as f:
@@ -83,8 +92,9 @@ def create_task(
     ]
 
     print(f"Creating scheduled task: {task_name}")
-    print(f"  Script:  {BAT_PATH}")
+    print(f"  Script:   {bat_path}")
     print(f"  Schedule: Daily at {run_time}")
+    print(f"  Time cap: {exec_time_limit}")
     print(f"  Missed runs: Will execute on next wake/login")
     print()
 
@@ -121,17 +131,43 @@ def query_task(task_name: str = "NFL_News_Agent_Daily"):
         print(f"Task '{task_name}' not found.")
 
 
+USAGE = (
+    "Usage:\n"
+    "  python setup_scheduler.py create [HH:MM]              # daily news task (default 06:00)\n"
+    "  python setup_scheduler.py create-yt [HH:MM]           # YT auto-backfill task (default 05:30)\n"
+    "  python setup_scheduler.py delete [task-name]          # default: NFL_News_Agent_Daily\n"
+    "  python setup_scheduler.py status [task-name]          # default: NFL_News_Agent_Daily\n"
+)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        action = sys.argv[1].lower()
-        if action == "delete":
-            delete_task()
-        elif action == "status":
-            query_task()
-        elif action == "create":
-            time_arg = sys.argv[2] if len(sys.argv) > 2 else "06:00"
-            create_task(run_time=time_arg)
-        else:
-            print("Usage: python setup_scheduler.py [create|delete|status] [HH:MM]")
-    else:
+    if len(sys.argv) < 2:
         create_task()
+        sys.exit(0)
+
+    action = sys.argv[1].lower()
+
+    if action == "create":
+        time_arg = sys.argv[2] if len(sys.argv) > 2 else "06:00"
+        create_task(run_time=time_arg)
+    elif action == "create-yt":
+        time_arg = sys.argv[2] if len(sys.argv) > 2 else "05:30"
+        create_task(
+            task_name="NFL_News_Agent_YT_Backfill",
+            run_time=time_arg,
+            bat_path=YT_BACKFILL_BAT,
+            description=(
+                "NFL News Agent — daily YouTube transcript catch-up "
+                "(captions-only) + git push to master"
+            ),
+            exec_time_limit="PT1H",
+        )
+    elif action == "delete":
+        name = sys.argv[2] if len(sys.argv) > 2 else "NFL_News_Agent_Daily"
+        delete_task(name)
+    elif action == "status":
+        name = sys.argv[2] if len(sys.argv) > 2 else "NFL_News_Agent_Daily"
+        query_task(name)
+    else:
+        print(USAGE)
+        sys.exit(1)

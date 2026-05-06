@@ -897,6 +897,30 @@ with tab_backfill:
                         {**v, "team": abbr, "team_name": team["name"]}
                     )
 
+                    # Resumability: if a transcript .txt for this video
+                    # already exists in the backfill's transcripts dir,
+                    # the prior run got this one — skip caption + Whisper
+                    # and reuse the existing text. Lets an interrupted
+                    # backfill re-run pick up from where it left off in
+                    # seconds rather than re-doing every video.
+                    existing_slug = re.sub(
+                        r"[^\w\s-]", "", v["title"]
+                    )[:60].strip().replace(" ", "_")
+                    existing_txt = (
+                        bf_transcripts_dir / f"{abbr}_{existing_slug}.txt"
+                    )
+                    if existing_txt.exists() and existing_txt.stat().st_size > 0:
+                        team_transcripts.append({
+                            "video_id": v["video_id"],
+                            "title": v["title"],
+                            "team": abbr,
+                            "team_name": team["name"],
+                            "url": v["url"],
+                            "upload_date": v.get("upload_date", ""),
+                            "method": "cached",
+                        })
+                        continue
+
                     # 1) Try auto-generated captions first.
                     caption_path = download_captions(
                         v["video_id"], v["url"], bf_temp_dir, bf_settings,

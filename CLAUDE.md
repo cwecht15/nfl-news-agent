@@ -9,6 +9,12 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py
 # Collect YouTube transcripts (local-only — yt-dlp doesn't work on CI)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\collect_youtube.py
 
+# Auto YT catch-up: fills in missing days since last run, captions-only,
+# then git-pushes to master. Driven by NFL_News_Agent_YT_Backfill task.
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\auto_backfill_youtube.py
+# Register the auto-catch-up task (default 05:30 daily; admin shell)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\setup_scheduler.py create-yt
+
 # Local report with the YouTube section attached (run collect_youtube first)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py --include-yt-section
 
@@ -97,7 +103,8 @@ YouTube collection is decoupled from the news pipeline because yt-dlp doesn't wo
 
 ## Scheduling
 
-- Windows Task Scheduler: `NFL_News_Agent_Daily` at 6:00 AM
+- Windows Task Scheduler: `NFL_News_Agent_Daily` at 6:00 AM (news pipeline)
+- Windows Task Scheduler: `NFL_News_Agent_YT_Backfill` at 5:30 AM (YouTube catch-up; runs first so transcripts are on disk before the news task). Captions-only by default for fast unattended runs; pushes new YouTube files to master via `git push`.
 - `StartWhenAvailable: true` — catches up on missed runs
 - `InteractiveToken` logon — must be logged in (screen lock OK)
 - Dashboard has a manual run button with live step-by-step progress

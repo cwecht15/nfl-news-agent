@@ -316,8 +316,16 @@ def download_captions(
     """Download captions (auto-generated) for a video.
 
     Returns path to the subtitle file, or None if no captions available.
+    Reuses an existing .vtt/.srt in `output_dir` if present so re-runs of
+    an interrupted backfill (and the unattended auto-backfill) skip the
+    network round-trip.
     """
     import yt_dlp
+
+    for ext in ("vtt", "srt"):
+        for cached in output_dir.glob(f"{video_id}*.{ext}"):
+            if cached.stat().st_size > 0:
+                return cached
 
     ydl_opts = {
         "quiet": True,
@@ -354,9 +362,16 @@ def download_audio(
 ) -> Optional[Path]:
     """Download audio only for Whisper transcription.
 
-    Returns path to the audio file, or None on failure.
+    Returns path to the audio file, or None on failure. Reuses an existing
+    audio file in `output_dir` if present (mostly relevant when
+    `delete_audio_after` is False).
     """
     import yt_dlp
+
+    for ext in ("mp3", "m4a", "wav", "webm", "opus"):
+        for cached in output_dir.glob(f"{video_id}*.{ext}"):
+            if cached.stat().st_size > 0:
+                return cached
 
     ydl_opts = {
         "quiet": True,
@@ -418,6 +433,7 @@ def _process_team(
     temp_dir: Path,
     seen_snapshot: set[str],
     delay: float,
+    enable_whisper: bool = True,
 ) -> tuple[list[Transcript], set[str]]:
     """Scan one team and return (transcripts, newly_seen_ids).
 
@@ -451,6 +467,10 @@ def _process_team(
         if caption_path:
             transcript_text = _parse_subtitle_file(caption_path)
             logger.info("Got captions for: %s", title)
+        elif not enable_whisper:
+            logger.info(
+                "No captions for '%s'; Whisper disabled, skipping.", title,
+            )
         else:
             duration = int(video.get("duration") or 0)
             max_dur = int(
@@ -522,6 +542,7 @@ def _process_team(
 def collect_youtube(
     date_str: str,
     lookback_hours: Optional[int] = None,
+    enable_whisper: bool = True,
 ) -> list[Transcript]:
     """Collect press conference transcripts from all team YouTube channels.
 
@@ -529,6 +550,10 @@ def collect_youtube(
     Within a team, videos are processed serially with the configured polite
     delay. Whisper transcription is serialized via a module-level lock
     because PyTorch inference is not thread-safe.
+
+    Set `enable_whisper=False` for unattended runs that should finish in
+    minutes regardless of how many videos lack auto-captions. Captions-only
+    runs cover the vast majority of NFL team uploads.
     """
     settings = get_settings()
     teams = get_teams()
@@ -557,6 +582,7 @@ def collect_youtube(
             executor.submit(
                 _process_team, team, keywords, settings, date_str,
                 lookback_hours, transcripts_dir, temp_dir, snapshot, delay,
+                enable_whisper,
             ): team
             for team in teams
         }
