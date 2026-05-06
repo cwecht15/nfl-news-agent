@@ -37,6 +37,7 @@ from dashboard.flagging import (
     render_flaggable,
 )
 from models import Transcript
+from processing.summarizer import _press_relevance_score
 from processing.yt_section import build_yt_section
 from reports.flagged_findings import MODE_HANDBOOK
 
@@ -114,12 +115,19 @@ def _load_transcripts_in_range(start: date, end: date) -> list[Transcript]:
     return out
 
 
-def _summary_payload(start_iso: str, end_iso: str, team_filter: tuple) -> dict:
+def _summary_payload(
+    start_iso: str,
+    end_iso: str,
+    team_filter: tuple,
+    selected_video_ids: tuple,
+) -> dict:
     """Pure cache key surface for `@st.cache_data` — small, hashable inputs.
 
     Lives outside the cached function so the cache key is identical
     across reruns of this page even though Transcript objects aren't
-    hashable.
+    hashable. `selected_video_ids` is the explicit user pick from the
+    table; the score-based pre-filter is bypassed downstream so every
+    selected video contributes regardless of its title score.
     """
     start = _parse_date(start_iso)
     end = _parse_date(end_iso)
@@ -131,19 +139,30 @@ def _summary_payload(start_iso: str, end_iso: str, team_filter: tuple) -> dict:
         wanted = set(team_filter)
         transcripts = [t for t in transcripts if t.team in wanted]
 
+    if selected_video_ids:
+        wanted_ids = set(selected_video_ids)
+        transcripts = [t for t in transcripts if t.video_id in wanted_ids]
+
     if not transcripts:
         return {"empty": True, "reason": "no_transcripts"}
 
     label = start_iso if start_iso == end_iso else f"{start_iso} → {end_iso}"
-    section = build_yt_section(transcripts, date_label=label)
+    # User explicitly picked these videos — skip the title-score filter
+    # so every selection is honored.
+    section = build_yt_section(transcripts, date_label=label, pre_filtered=True)
     return section
 
 
 # `build_yt_section` calls OpenAI; cache so a reload doesn't re-spend tokens.
 # 24h is generous given the user controls the inputs by pushing files.
 @st.cache_data(ttl=86400, show_spinner=False)
-def _generate_cached(start_iso: str, end_iso: str, team_filter: tuple) -> dict:
-    return _summary_payload(start_iso, end_iso, team_filter)
+def _generate_cached(
+    start_iso: str,
+    end_iso: str,
+    team_filter: tuple,
+    selected_video_ids: tuple,
+) -> dict:
+    return _summary_payload(start_iso, end_iso, team_filter, selected_video_ids)
 
 
 # ──────────────────────────────────────────────────────────
@@ -194,14 +213,99 @@ if start_d > end_d:
     st.error("Start date must be on or before end date.")
     st.stop()
 
-generate = st.button("Generate Report", type="primary")
+
+# ──────────────────────────────────────────────────────────
+# Per-video selection table
+# ──────────────────────────────────────────────────────────
+# Lets the user pick exactly which transcripts go into the summary.
+# Default selection is "would have passed the press-relevance filter"
+# (score > 0) so the default Generate output matches pre-selector
+# behavior. The user can check noisy items they actually want included
+# (e.g. the LV "Presser" the score dictionary missed) or uncheck low-
+# value picks to keep the summary tight.
+candidate_transcripts = _load_transcripts_in_range(start_d, end_d)
+if team_filter_list:
+    wanted = set(team_filter_list)
+    candidate_transcripts = [
+        t for t in candidate_transcripts if t.team in wanted
+    ]
+
+if not candidate_transcripts:
+    st.info(
+        "No transcripts in this date range / team filter. "
+        "Push more transcripts or widen the range."
+    )
+    st.stop()
+
+import pandas as pd
+
+candidate_rows = []
+for t in candidate_transcripts:
+    score = _press_relevance_score(t.title)
+    candidate_rows.append({
+        "Select": score > 0,
+        "Team": t.team,
+        "Date": t.published.date().isoformat() if t.published else "",
+        "Score": score,
+        "Title": t.title,
+        "video_id": t.video_id,
+        "url": t.url,
+    })
+candidate_df = pd.DataFrame(candidate_rows)
+
+st.caption(
+    f"{len(candidate_df)} transcripts available in range. "
+    f"Default selection includes the {int(candidate_df['Select'].sum())} "
+    f"that score > 0 on the press-conference relevance filter — "
+    f"check additional rows to include them, or uncheck to drop them."
+)
+
+edited = st.data_editor(
+    candidate_df,
+    hide_index=True,
+    use_container_width=True,
+    column_config={
+        "Select": st.column_config.CheckboxColumn(required=True),
+        "Team": st.column_config.TextColumn(width="small"),
+        "Date": st.column_config.TextColumn(width="small"),
+        "Score": st.column_config.NumberColumn(
+            width="small",
+            help="Press-conference relevance score from title keywords. "
+                 "Positive = scored as a presser by default; check the "
+                 "row to force-include a zero or negative one.",
+        ),
+        "Title": st.column_config.TextColumn(width="large"),
+        "video_id": None,
+        "url": st.column_config.LinkColumn("Open", width="small"),
+    },
+    disabled=["Team", "Date", "Score", "Title", "url"],
+    key=f"yt_video_editor_{start_d}_{end_d}_{','.join(team_filter_list)}",
+)
+
+selected_video_ids = tuple(
+    edited.loc[edited["Select"], "video_id"].astype(str).tolist()
+)
+
+if not selected_video_ids:
+    st.warning("No videos selected — pick at least one to generate.")
+    st.stop()
+
+generate = st.button(
+    f"Generate Report ({len(selected_video_ids)} videos)",
+    type="primary",
+)
 
 # Cache the rendered report in session_state so unrelated reruns (e.g.
 # toggling the flag-mode dropdown below) don't blank it out. Only the
 # Generate button or a real input change re-runs the LLM call.
 session_key = "yt_report_section"
 session_inputs_key = "yt_report_inputs"
-current_inputs = (start_d.isoformat(), end_d.isoformat(), tuple(team_filter_list))
+current_inputs = (
+    start_d.isoformat(),
+    end_d.isoformat(),
+    tuple(team_filter_list),
+    selected_video_ids,
+)
 
 if generate:
     with st.spinner("Summarizing transcripts..."):

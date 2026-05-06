@@ -36,6 +36,7 @@ def build_yt_section(
     client: Optional[Any] = None,
     usage_tracker: Optional[dict[str, Any]] = None,
     date_label: str = "",
+    pre_filtered: bool = False,
 ) -> dict:
     """Summarize transcripts into the YouTube report section.
 
@@ -49,6 +50,9 @@ def build_yt_section(
             callers (e.g. the dashboard tab) can render token cost.
         date_label: Free-form label for logging / display (e.g.
             "2026-05-04" or "2026-04-25 → 2026-05-01").
+        pre_filtered: When True, the caller has already curated the
+            transcript list (e.g. user picked specific videos). Skip the
+            internal press-relevance filter and use every transcript.
 
     Returns:
         {
@@ -80,12 +84,14 @@ def build_yt_section(
         transcripts,
         client,
         usage_tracker=usage_tracker,
+        pre_filtered=pre_filtered,
     )
 
     team_notes = summarize_team_highlights_from_transcripts(
         transcripts,
         client,
         usage_tracker=usage_tracker,
+        pre_filtered=pre_filtered,
     )
 
     result: dict[str, Any] = {

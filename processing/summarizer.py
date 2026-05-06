@@ -50,6 +50,7 @@ PRESS_POSITIVE_SIGNALS = {
     "speaks to media": 4,
     "meets with the media": 4,
     "introductory press": 4,
+    "presser": 4,
     "podium": 3,
     "q&a": 2,
 }
@@ -990,8 +991,15 @@ def summarize_press_conferences(
     transcripts: list[Transcript],
     client: Optional[Any] = None,
     usage_tracker: Optional[dict[str, Any]] = None,
+    pre_filtered: bool = False,
 ) -> tuple[str, int]:
     """Generate press conference highlights from transcripts.
+
+    Args:
+        pre_filtered: When True, skip the relevance-score filter — caller
+            has already curated the list (e.g. user picked specific videos
+            in the dashboard). The first PRESS_MAX_ITEMS are still taken
+            in the order received.
 
     Returns:
         Tuple of (summary_text, count_of_summarized_transcripts).
@@ -1000,10 +1008,13 @@ def summarize_press_conferences(
         return "No press conference transcripts available today.", 0
 
     client, runtime = _resolve_client_and_runtime(client)
-    selected_transcripts = _select_press_transcripts(
-        transcripts,
-        limit=PRESS_MAX_ITEMS,
-    )
+    if pre_filtered:
+        selected_transcripts = list(transcripts)[:PRESS_MAX_ITEMS]
+    else:
+        selected_transcripts = _select_press_transcripts(
+            transcripts,
+            limit=PRESS_MAX_ITEMS,
+        )
 
     if not selected_transcripts:
         return "No high-signal press conference highlights today.", 0
@@ -1450,15 +1461,23 @@ def summarize_team_highlights_from_transcripts(
     transcripts: list[Transcript],
     client: Optional[Any] = None,
     usage_tracker: Optional[dict[str, Any]] = None,
+    pre_filtered: bool = False,
 ) -> dict[str, dict]:
     """Per-team highlights drawn solely from press-conference transcripts.
 
     Powers the per-team subsection of the YouTube report. Same prompt
     rules as `generate_team_highlights` — the pool just contains
     Transcript objects instead of NewsItem.
+
+    When `pre_filtered=True`, every passed transcript is grouped by team
+    regardless of its press-relevance score (caller has already curated
+    the list — typically the dashboard's per-video selector).
     """
     client, runtime = _resolve_client_and_runtime(client)
-    selected_transcripts = _select_press_transcripts(transcripts)
+    if pre_filtered:
+        selected_transcripts = list(transcripts)
+    else:
+        selected_transcripts = _select_press_transcripts(transcripts)
 
     team_items: dict[str, list] = {}
     for t in selected_transcripts:
