@@ -466,6 +466,51 @@ with tab_txn:
         from scripts.transaction_reconciler import (
             reconcile, load_overrides, add_override, remove_override,
         )
+        from dashboard.helpers import running_locally
+        from dashboard._repo_sync import has_pat_configured, push_overrides_to_repo
+
+        # On Streamlit Cloud the container's filesystem is ephemeral, so
+        # dismissals written via add_override() live only inside the running
+        # container. A code push to master spawns a fresh container and
+        # discards them. The Save-to-repo button below uses the GitHub
+        # Contents API (PAT in `GITHUB_PAT` secret) to commit the current
+        # overrides file immediately so dismissals survive the next redeploy.
+        if not running_locally():
+            pat_ok = has_pat_configured()
+            banner_left, banner_right = st.columns([4, 1])
+            with banner_left:
+                if pat_ok:
+                    st.info(
+                        "Cloud dismissals are wiped on every Streamlit "
+                        "redeploy (which fires after each master push, "
+                        "including the daily 10:00 UTC cron). Click "
+                        "**💾 Save dismissals to repo** after dismissing "
+                        "alerts so they survive the next redeploy."
+                    )
+                else:
+                    st.warning(
+                        "Cloud dismissals don't persist across redeploys. "
+                        "To enable manual saves, add a fine-grained PAT "
+                        "with Contents:write on this repo to Streamlit "
+                        "secrets as `GITHUB_PAT`."
+                    )
+            with banner_right:
+                st.write("")  # vertical alignment
+                if st.button(
+                    "💾 Save dismissals to repo",
+                    use_container_width=True,
+                    disabled=not pat_ok,
+                    help=("Commits data/projections/transaction_overrides.json "
+                          "to origin/master via the GitHub API. Triggers a "
+                          "Streamlit Cloud redeploy ~1 minute later."),
+                    key="save_overrides_to_repo_btn",
+                ):
+                    with st.spinner("Pushing dismissals to origin/master..."):
+                        ok, message = push_overrides_to_repo()
+                    if ok:
+                        st.success(message)
+                    else:
+                        st.error(message)
 
         lookback_days = st.slider("Lookback window (days)", 7, 90, 30, key="txn_lookback")
         alerts = reconcile(days=lookback_days)

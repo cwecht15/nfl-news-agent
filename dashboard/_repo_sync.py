@@ -1,19 +1,23 @@
-"""Push the local flag store to origin/master via GitHub Contents API.
+"""Push small visitor-edited state files to origin/master via GitHub Contents API.
 
 Exists because Streamlit Cloud's container has a writable but ephemeral
-filesystem. When a visitor adds flags through the UI we write them to
-`data/flagged_findings.json` inside the container, but that file is
-discarded on every redeploy (a redeploy fires on any master push,
-including unrelated code commits). The daily 10:00 UTC cron commits
-the file back, but in-flight changes between cron runs are at risk
-until they're persisted.
+filesystem. When a visitor flags a finding or dismisses a transaction
+through the UI we write to a JSON file inside the container, but that
+file is discarded on every redeploy (a redeploy fires on any master
+push, including unrelated code commits). The daily 10:00 UTC cron
+commits these files back, but in-flight changes between cron runs are
+at risk until they're persisted.
 
-This module provides a manual escape hatch: a "Save flags to repo"
-button on the Flagged tab calls `push_flag_store_to_repo()`, which
-uses the GitHub Contents API + a fine-grained PAT (stored in
-Streamlit secrets as `GITHUB_PAT`) to commit the current file
-contents to master with a `[skip ci]` marker. After this push the
-flags are durable across redeploys.
+This module provides a manual escape hatch: pages render a "Save to
+repo" button that calls `push_file_to_repo()`, which uses the GitHub
+Contents API + a fine-grained PAT (stored in Streamlit secrets as
+`GITHUB_PAT`) to commit the current file contents to master with a
+`[skip ci]` marker. After this push the changes are durable across
+redeploys.
+
+`push_flag_store_to_repo` and `push_overrides_to_repo` are thin
+wrappers around `push_file_to_repo` for the two files that have UIs
+hooked up so far.
 
 The PAT scope only needs:
   - Repository: cwecht15/nfl-news-agent
@@ -33,7 +37,8 @@ import streamlit as st
 REPO_OWNER = "cwecht15"
 REPO_NAME = "nfl-news-agent"
 BRANCH = "master"
-FILE_PATH = "data/flagged_findings.json"
+FLAG_FILE_PATH = "data/flagged_findings.json"
+OVERRIDES_FILE_PATH = "data/projections/transaction_overrides.json"
 
 _SECRET_KEY = "GITHUB_PAT"
 _GITHUB_API = "https://api.github.com"
@@ -53,15 +58,19 @@ def has_pat_configured() -> bool:
     return bool(_get_pat())
 
 
-def push_flag_store_to_repo(
-    commit_message: str | None = None,
-    flagger_name: str = "",
+def push_file_to_repo(
+    repo_path: str,
+    commit_message: str,
+    success_label: str = "file",
 ) -> tuple[bool, str]:
-    """Commit `data/flagged_findings.json` to origin/master.
+    """Commit `<repo_root>/<repo_path>` to origin/master via GitHub Contents API.
 
-    Returns (ok, human_message). Caller renders the message inline.
-    `flagger_name` shows up in the commit message so the master log
-    has some attribution beyond "anonymous flag sync".
+    `repo_path` is the path inside the repo (also used as the local path
+    relative to the project root). `commit_message` is the message
+    written to the GitHub commit. `success_label` is the noun used in
+    the success message rendered to the user (e.g. "flags", "dismissals").
+
+    Returns (ok, human_message).
     """
     token = _get_pat()
     if not token:
@@ -71,9 +80,9 @@ def push_flag_store_to_repo(
         )
 
     project_root = Path(__file__).parent.parent
-    local_path = project_root / FILE_PATH
+    local_path = project_root / repo_path
     if not local_path.exists():
-        return False, f"Local file missing: {FILE_PATH}"
+        return False, f"Local file missing: {repo_path}"
 
     try:
         content_bytes = local_path.read_bytes()
@@ -87,7 +96,7 @@ def push_flag_store_to_repo(
     # break the page on import time.
     import requests
 
-    url = f"{_GITHUB_API}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
+    url = f"{_GITHUB_API}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{repo_path}"
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
@@ -118,10 +127,8 @@ def push_flag_store_to_repo(
             f"{r.text[:200]}"
         )
 
-    suffix = f" — by {flagger_name}" if flagger_name else ""
     payload = {
-        "message": (commit_message or
-                    f"Sync flag store from cloud dashboard{suffix} [skip ci]"),
+        "message": commit_message,
         "content": content_b64,
         "branch": BRANCH,
     }
@@ -140,7 +147,7 @@ def push_flag_store_to_repo(
             new_sha = ""
         return True, (
             f"Pushed to origin/master ({new_sha or 'ok'}). Streamlit Cloud "
-            "will redeploy in ~1 minute; flags are now durable."
+            f"will redeploy in ~1 minute; {success_label} are now durable."
         )
 
     if r.status_code == 409:
@@ -151,3 +158,21 @@ def push_flag_store_to_repo(
     return False, (
         f"GitHub API returned {r.status_code}: {r.text[:200]}"
     )
+
+
+def push_flag_store_to_repo(
+    commit_message: str | None = None,
+    flagger_name: str = "",
+) -> tuple[bool, str]:
+    """Commit `data/flagged_findings.json` to origin/master."""
+    suffix = f" — by {flagger_name}" if flagger_name else ""
+    msg = commit_message or f"Sync flag store from cloud dashboard{suffix} [skip ci]"
+    return push_file_to_repo(FLAG_FILE_PATH, msg, success_label="flags")
+
+
+def push_overrides_to_repo(
+    commit_message: str | None = None,
+) -> tuple[bool, str]:
+    """Commit `data/projections/transaction_overrides.json` to origin/master."""
+    msg = commit_message or "Sync transaction dismissals from cloud dashboard [skip ci]"
+    return push_file_to_repo(OVERRIDES_FILE_PATH, msg, success_label="dismissals")
