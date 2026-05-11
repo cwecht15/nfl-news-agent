@@ -125,7 +125,13 @@ def push_to_github(today_str: str, logger: logging.Logger) -> bool:
         logger.info("None of the expected YouTube paths exist — nothing to push.")
         return True
 
-    pull = run_git(["git", "pull", "--rebase", "origin", "master"], logger)
+    # --autostash so a dirty working tree (e.g. unrelated re-runs of older
+    # days that left data/depth_charts/ or data/raw/<other-date>/ files
+    # modified) doesn't make rebase abort with "cannot pull with rebase:
+    # You have unstaged changes." Git auto-stashes, rebases, then pops.
+    pull = run_git(
+        ["git", "pull", "--rebase", "--autostash", "origin", "master"], logger,
+    )
     if pull.returncode != 0:
         logger.error(
             "git pull --rebase failed:\nstdout: %s\nstderr: %s",
@@ -209,37 +215,46 @@ def main() -> int:
         today, last_covered, args.max_gap_days, logger,
     )
 
-    if gap_days == 0:
-        logger.info("Already covered through today (%s). Nothing to do.", today_str)
-        return 0
-
-    logger.info(
-        "Gap: %d days. Lookback window: %d hours. Target date_str: %s",
-        gap_days, lookback_hours, today_str,
-    )
-
-    if args.dry_run:
-        logger.info("--dry-run set; exiting without collection.")
-        return 0
-
     error = ""
-    try:
-        transcripts = collect_youtube(
+    if gap_days == 0:
+        # find_last_covered_date looks at local disk, so gap_days==0 just
+        # means "today's youtube.json exists locally" — it does NOT mean
+        # the file is committed and visible on the cloud. A prior run may
+        # have collected data but failed at the push step (e.g. dirty
+        # working tree before --autostash was added). Skip collection but
+        # still attempt to push, so the cloud catches up.
+        logger.info(
+            "Already covered locally for %s. Skipping collection but "
+            "still attempting push in case prior run failed to publish.",
             today_str,
-            lookback_hours=lookback_hours,
-            enable_whisper=args.enable_whisper,
         )
-    except Exception as e:
-        logger.exception("YouTube collection failed")
-        transcripts = []
-        error = f"YouTube collection failed: {e}"
+    else:
+        logger.info(
+            "Gap: %d days. Lookback window: %d hours. Target date_str: %s",
+            gap_days, lookback_hours, today_str,
+        )
 
-    save_youtube_results(transcripts, today_str)
-    record_source_result(
-        "YouTube", len(transcripts), error=error, low_volume=True,
-    )
+        if args.dry_run:
+            logger.info("--dry-run set; exiting without collection.")
+            return 0
 
-    logger.info("Wrote %d transcripts for %s.", len(transcripts), today_str)
+        try:
+            transcripts = collect_youtube(
+                today_str,
+                lookback_hours=lookback_hours,
+                enable_whisper=args.enable_whisper,
+            )
+        except Exception as e:
+            logger.exception("YouTube collection failed")
+            transcripts = []
+            error = f"YouTube collection failed: {e}"
+
+        save_youtube_results(transcripts, today_str)
+        record_source_result(
+            "YouTube", len(transcripts), error=error, low_volume=True,
+        )
+
+        logger.info("Wrote %d transcripts for %s.", len(transcripts), today_str)
 
     if args.no_push:
         logger.info("--no-push set; skipping git push.")
