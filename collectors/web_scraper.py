@@ -643,10 +643,16 @@ def scrape_athletic_nfl(
             items.extend(team_items)
 
         if not items:
-            message = (
-                "The Athletic returned no recent team-page stories. "
-                "If this repeats, refresh your Athletic cookies file."
-            )
+            # Reaching this branch means: discovery returned team_pages,
+            # every per-team-page fetch returned 200, and none redirected
+            # to the login wall. So the cookies were exercised end-to-end
+            # and worked. The only legitimately-cookie-related failure
+            # mode left is timestamp-based expiry that the site hasn't
+            # yet rejected (i.e. expiry passed but session still warm) —
+            # surface that as the warning. Otherwise treat zero items as
+            # a quiet news window and explicitly confirm cookies are OK,
+            # so the dashboard's auto-appended "Latest cookie expiry: …"
+            # line doesn't read as contradicting the alert.
             if cookie_info.get("expired"):
                 expiry = cookie_info.get("latest_expiry")
                 message = (
@@ -654,9 +660,19 @@ def scrape_athletic_nfl(
                     f"{f' (latest expiry: {expiry})' if expiry else ''}. "
                     "Refresh the cookies file."
                 )
+                status = "athletic_no_recent_items"
+            else:
+                message = (
+                    f"The Athletic returned no stories in the last "
+                    f"{lookback_hours}h, but cookies validated end-to-end "
+                    f"(discovered {len(team_pages)} team pages, no auth "
+                    f"redirect on any page fetch). Likely just a quiet "
+                    f"offseason news window — no action needed."
+                )
+                status = "athletic_no_recent_items_cookies_ok"
             _set_source_status(
                 source_name,
-                status="athletic_no_recent_items",
+                status=status,
                 severity="warning",
                 message=message,
                 latest_expiry=cookie_info.get("latest_expiry"),
