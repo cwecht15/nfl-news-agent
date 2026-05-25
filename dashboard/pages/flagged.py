@@ -14,7 +14,11 @@ from dashboard.auth import require_password
 require_password()
 
 from config_loader import get_teams_by_abbr
-from dashboard._repo_sync import has_pat_configured, push_flag_store_to_repo
+from dashboard._repo_sync import (
+    has_pat_configured,
+    push_flag_store_to_repo,
+    request_flag_autopush,
+)
 from dashboard.helpers import running_locally, to_et_display
 from reports.flagged_findings import (
     CATEGORIES,
@@ -373,18 +377,45 @@ for f in filtered:
         with head_r:
             with st.popover("Edit"):
                 entry_mode = _flag_mode(f)
+
+                def _make_edit_autosave(flag_id, this_mode):
+                    """on_change: persist edits the moment a field changes."""
+
+                    def _save():
+                        team_choice = st.session_state.get(
+                            f"edit_team_{flag_id}", NONE_TEAM
+                        )
+                        update_kwargs: dict = {
+                            "team": "" if team_choice == NONE_TEAM else team_choice,
+                            "note": st.session_state.get(f"edit_note_{flag_id}", ""),
+                        }
+                        if this_mode == MODE_HANDBOOK:
+                            update_kwargs["category"] = st.session_state.get(
+                                f"edit_cat_{flag_id}", ""
+                            )
+                            update_kwargs["flagged_by"] = (
+                                st.session_state.get(f"edit_flagger_{flag_id}", "")
+                                or ""
+                            ).strip()
+                        update_flag_fields(flag_id, **update_kwargs)
+                        request_flag_autopush()
+
+                    return _save
+
+                edit_autosave = _make_edit_autosave(fid, entry_mode)
+
                 if entry_mode == MODE_HANDBOOK:
                     cat_idx = (
                         known_categories.index(category)
                         if category in known_categories else 0
                     )
-                    new_cat = st.selectbox(
+                    st.selectbox(
                         "Category", known_categories, index=cat_idx,
                         key=f"edit_cat_{fid}",
+                        on_change=edit_autosave,
                     )
                 else:
                     st.caption("📋 Daily Site Report")
-                    new_cat = ""
 
                 team_choice_options = [NONE_TEAM] + ALL_TEAMS
                 cur_team_label = team if team else NONE_TEAM
@@ -392,36 +423,32 @@ for f in filtered:
                     team_choice_options.index(cur_team_label)
                     if cur_team_label in team_choice_options else 0
                 )
-                new_team_choice = st.selectbox(
-                    "Team", team_choice_options, index=team_idx, key=f"edit_team_{fid}",
+                st.selectbox(
+                    "Team", team_choice_options, index=team_idx,
+                    key=f"edit_team_{fid}",
+                    on_change=edit_autosave,
                 )
-                new_team = "" if new_team_choice == NONE_TEAM else new_team_choice
-                new_note = st.text_area(
+                st.text_area(
                     "Note", value=note, height=100, key=f"edit_note_{fid}",
+                    on_change=edit_autosave,
                 )
 
-                update_kwargs: dict = {
-                    "team": new_team,
-                    "note": new_note,
-                }
                 if entry_mode == MODE_HANDBOOK:
-                    update_kwargs["category"] = new_cat
                     # Allow editing the attribution — useful if someone
                     # flagged anonymously and now wants to claim it, or
                     # to fix a typo. Empty string clears attribution.
-                    new_flagger = st.text_input(
+                    st.text_input(
                         "Flagged by",
                         value=flagger,
                         key=f"edit_flagger_{fid}",
                         placeholder="leave blank to clear attribution",
+                        on_change=edit_autosave,
                     )
-                    update_kwargs["flagged_by"] = (new_flagger or "").strip()
 
-                if st.button("Save", key=f"edit_save_{fid}", type="primary"):
-                    update_flag_fields(fid, **update_kwargs)
-                    st.rerun()
+                st.caption("✓ Edits auto-save as you change fields.")
                 if st.button("Delete", key=f"edit_del_{fid}"):
                     remove_flag(fid)
+                    request_flag_autopush()
                     st.rerun()
 
         st.markdown(_linkify_citations(content, sources))

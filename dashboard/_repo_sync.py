@@ -29,6 +29,8 @@ Generate at: github.com → Settings → Developer settings →
 from __future__ import annotations
 
 import base64
+import threading
+import time
 from pathlib import Path
 
 import streamlit as st
@@ -176,3 +178,147 @@ def push_overrides_to_repo(
     """Commit `data/projections/transaction_overrides.json` to origin/master."""
     msg = commit_message or "Sync transaction dismissals from cloud dashboard [skip ci]"
     return push_file_to_repo(OVERRIDES_FILE_PATH, msg, success_label="dismissals")
+
+
+# -----------------------------------------------------------------------
+# Debounced auto-push for the flag store.
+#
+# Each visitor save writes `data/flagged_findings.json` on the ephemeral
+# Streamlit Cloud container. A code push to master between cron runs
+# triggers a redeploy that throws those writes away. The autosave UI
+# now calls `request_flag_autopush()` after every mutation so the file
+# is committed to origin/master in the background, without the visitor
+# having to remember the manual "Save flags to repo" button.
+#
+# Constraints:
+#   - Every GitHub Contents API push triggers a Streamlit Cloud
+#     redeploy (~1 min). Pushing on every keystroke would thrash the
+#     site. We coalesce into one push per AUTO_PUSH_THROTTLE_SECONDS.
+#   - The first save in a fresh container pushes immediately so the
+#     visitor's work is protected against an imminent redeploy.
+#   - Subsequent saves within the throttle window arm a trailing-edge
+#     timer so the latest state gets pushed once the window closes.
+#   - Background threads can't read `st.secrets` (no ScriptRunContext)
+#     so we resolve the PAT once on the main thread and cache it.
+#   - All failures are silent best-effort: the daily 10 UTC cron and
+#     the manual Save-to-repo button remain as fallbacks.
+# -----------------------------------------------------------------------
+
+AUTO_PUSH_THROTTLE_SECONDS = 60
+
+_autopush_lock = threading.Lock()
+_autopush_last_at: float = 0.0
+_autopush_timer: threading.Timer | None = None
+_autopush_cached_pat: str | None = None
+_autopush_pat_resolved: bool = False
+
+
+def _autopush_get_token() -> str | None:
+    """Return the cached PAT, resolving it on first call.
+
+    Must be called at least once from inside a ScriptRunContext (i.e.
+    a Streamlit page render or callback) so st.secrets is reachable.
+    After that, the cached value is safe to read from any thread.
+    """
+    global _autopush_cached_pat, _autopush_pat_resolved
+    if _autopush_pat_resolved:
+        return _autopush_cached_pat
+    try:
+        _autopush_cached_pat = _get_pat()
+    except Exception:
+        _autopush_cached_pat = None
+    _autopush_pat_resolved = True
+    return _autopush_cached_pat
+
+
+def request_flag_autopush() -> None:
+    """Schedule a debounced auto-push of the flag store.
+
+    Cold-start (first call in this container): push immediately in a
+    background thread. Within the throttle window: arm a trailing-edge
+    timer so the most-recent state still lands without thrashing
+    redeploys. No-op when no PAT is configured (local dev or missing
+    GITHUB_PAT secret).
+    """
+    token = _autopush_get_token()
+    if not token:
+        return
+
+    global _autopush_last_at, _autopush_timer
+    now = time.time()
+    with _autopush_lock:
+        elapsed = now - _autopush_last_at
+        cold_start = _autopush_last_at == 0.0
+        if cold_start or elapsed >= AUTO_PUSH_THROTTLE_SECONDS:
+            _autopush_last_at = now
+            threading.Thread(
+                target=_autopush_run, args=(token,), daemon=True,
+            ).start()
+        else:
+            # Inside throttle window. Arm a single deferred flush if
+            # one isn't already in flight, so the most recent save
+            # gets pushed once the window closes.
+            if _autopush_timer is None or not _autopush_timer.is_alive():
+                delay = max(1.0, AUTO_PUSH_THROTTLE_SECONDS - elapsed)
+                _autopush_timer = threading.Timer(
+                    delay, _autopush_timer_fired, args=(token,),
+                )
+                _autopush_timer.daemon = True
+                _autopush_timer.start()
+
+
+def _autopush_timer_fired(token: str) -> None:
+    global _autopush_last_at, _autopush_timer
+    with _autopush_lock:
+        _autopush_last_at = time.time()
+        _autopush_timer = None
+    _autopush_run(token)
+
+
+def _autopush_run(token: str) -> None:
+    try:
+        _autopush_push_with_token(token)
+    except Exception:
+        # Best-effort. Failures fall back to the daily 10 UTC cron and
+        # the manual Save-flags-to-repo button on the Flagged page.
+        pass
+
+
+def _autopush_push_with_token(token: str) -> None:
+    """Inline copy of `push_file_to_repo` that takes the token directly
+    so background threads don't need ScriptRunContext for `st.secrets`."""
+    project_root = Path(__file__).parent.parent
+    local_path = project_root / FLAG_FILE_PATH
+    if not local_path.exists():
+        return
+
+    content_b64 = base64.b64encode(local_path.read_bytes()).decode("ascii")
+
+    import requests
+
+    url = f"{_GITHUB_API}/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FLAG_FILE_PATH}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+    sha: str | None = None
+    r = requests.get(url, headers=headers, params={"ref": BRANCH}, timeout=15)
+    if r.status_code == 200:
+        try:
+            sha = r.json().get("sha")
+        except Exception:
+            sha = None
+    elif r.status_code != 404:
+        # Auth, permission, or transient — bail; fallbacks will catch us.
+        return
+
+    payload = {
+        "message": "Auto-sync visitor flag from cloud dashboard [skip ci]",
+        "content": content_b64,
+        "branch": BRANCH,
+    }
+    if sha:
+        payload["sha"] = sha
+    requests.put(url, headers=headers, json=payload, timeout=20)

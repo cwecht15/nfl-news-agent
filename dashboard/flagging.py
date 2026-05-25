@@ -12,6 +12,7 @@ from typing import Callable, Optional, Sequence
 
 import streamlit as st
 
+from dashboard._repo_sync import request_flag_autopush
 from reports.flagged_findings import (
     CATEGORIES,
     MODE_DAILY,
@@ -99,6 +100,51 @@ def citations_for(content: str, numbered_sources) -> list[dict]:
     return [s for s in numbered_sources if str(s.get("num", "")) in nums]
 
 
+def _make_autosave(
+    report_date: str,
+    section_id: str,
+    section_label: str,
+    content: str,
+    key_prefix: str,
+    mode: str,
+    attached_sources,
+):
+    """Build an on_change callback that persists current widget state.
+
+    Streamlit writes the new widget value into session_state *before*
+    invoking on_change, so reading by widget key here gets the freshly
+    committed value. Every field change fires this, so the flag is
+    saved without the user needing to click anything.
+    """
+
+    def _save():
+        note_val = st.session_state.get(f"{key_prefix}_note", "")
+        team_choice = st.session_state.get(f"{key_prefix}_team", NONE_TEAM)
+        team_val = "" if team_choice == NONE_TEAM else team_choice
+        if mode == MODE_HANDBOOK:
+            cat_val = st.session_state.get(f"{key_prefix}_cat", CATEGORIES[0])
+            flagger_val = (
+                st.session_state.get(f"{key_prefix}_flagger", "") or ""
+            ).strip()
+            if flagger_val:
+                # Safe: this key is NOT bound to a widget.
+                st.session_state["flagger_name_remembered"] = flagger_val
+        else:
+            cat_val = ""
+            flagger_val = ""
+        add_or_update_flag(
+            report_date, section_id, section_label, content,
+            category=cat_val, note=note_val, team=team_val,
+            sources=attached_sources or [],
+            flagged_by=flagger_val, mode=mode,
+        )
+        # Best-effort: also commit to origin/master so this save
+        # survives a Streamlit Cloud redeploy. No-op locally.
+        request_flag_autopush()
+
+    return _save
+
+
 def flag_control(
     content: str,
     report_date: str,
@@ -110,10 +156,19 @@ def flag_control(
     attached_sources=None,
     mode: str = MODE_HANDBOOK,
 ) -> None:
-    """Render a popover flag control for a single content item."""
+    """Render a popover flag control for a single content item.
+
+    Auto-saves on every field change so visitors never have to remember
+    to click a Save button. Closing the popover (or navigating away)
+    can't lose data — the previous on_change has already persisted it.
+    """
     fid = get_flag_id(report_date, section_id, content, mode=mode)
     existing = get_flag(fid)
     icon = "🚩" if existing else "⚐"
+    autosave = _make_autosave(
+        report_date, section_id, section_label, content,
+        key_prefix, mode, attached_sources,
+    )
     with st.popover(icon, use_container_width=False):
         cur_note = existing.get("note", "") if existing else ""
         cur_team = existing.get("team") if existing else default_team
@@ -121,55 +176,63 @@ def flag_control(
         if mode == MODE_HANDBOOK:
             cur_cat = existing.get("category") if existing else CATEGORIES[0]
             cat_idx = CATEGORIES.index(cur_cat) if cur_cat in CATEGORIES else 0
-            cat = st.selectbox(
+            st.selectbox(
                 "Category", CATEGORIES, index=cat_idx,
                 key=f"{key_prefix}_cat",
+                on_change=autosave,
             )
         else:
             st.caption("📋 Daily Site Report")
-            cat = ""
 
         team_options = [NONE_TEAM] + list(all_teams)
         team_idx = team_options.index(cur_team) if cur_team in team_options else 0
-        team_choice = st.selectbox(
+        st.selectbox(
             "Team", team_options, index=team_idx, key=f"{key_prefix}_team",
+            on_change=autosave,
         )
-        team = "" if team_choice == NONE_TEAM else team_choice
 
-        note = st.text_area(
+        st.text_area(
             "Note (optional)" if mode == MODE_HANDBOOK else "Note",
             value=cur_note, height=80, key=f"{key_prefix}_note",
+            on_change=autosave,
         )
 
-        flagger = ""
         if mode == MODE_HANDBOOK:
             # Read the remembered name from a non-widget session-state key.
             # Writing to a key that's already bound to an instantiated
             # widget (e.g. the page-level "Your name" input) is forbidden
             # by Streamlit, so we keep a separate canonical key here.
             default_name = st.session_state.get("flagger_name_remembered", "")
-            flagger_input = st.text_input(
+            st.text_input(
                 "Your name (saved with this flag)",
                 value=default_name,
                 key=f"{key_prefix}_flagger",
                 placeholder="optional",
+                on_change=autosave,
             )
-            flagger = (flagger_input or "").strip()
 
-        if st.button("Save flag", key=f"{key_prefix}_save", type="primary"):
-            if mode == MODE_HANDBOOK and flagger:
-                # Safe: this key is NOT bound to a widget anywhere.
-                st.session_state["flagger_name_remembered"] = flagger
-            add_or_update_flag(
-                report_date, section_id, section_label, content,
-                category=cat, note=note,
-                team=team, sources=attached_sources or [],
-                flagged_by=flagger, mode=mode,
+        # Refresh `existing` — the autosave callback may have just
+        # created/updated the flag during this run, in which case the
+        # status caption and Unflag button should reflect that.
+        existing = get_flag(fid)
+        if existing:
+            status_col, btn_col = st.columns([3, 2])
+            with status_col:
+                st.caption("✓ Saved automatically")
+            with btn_col:
+                if st.button(
+                    "Unflag",
+                    key=f"{key_prefix}_unflag",
+                    use_container_width=True,
+                ):
+                    remove_flag(fid)
+                    request_flag_autopush()
+                    st.rerun()
+        else:
+            st.caption(
+                "Pick a team, category, or type a note — saves as you go. "
+                "No Save button needed."
             )
-            st.rerun()
-        if existing and st.button("Unflag", key=f"{key_prefix}_unflag"):
-            remove_flag(fid)
-            st.rerun()
 
 
 def render_flaggable(
