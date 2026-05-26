@@ -24,6 +24,7 @@ from config_loader import (
     get_summary_provider,
 )
 from models import NewsItem, Transcript
+from processing.deduplicator import is_primary_source
 
 logger = logging.getLogger(__name__)
 
@@ -1187,10 +1188,17 @@ def _diversify_by_source(
       1) Score each item: deep articles (depth charts, post-draft, UDFA
          trackers) outrank ordinary items; within each tier, prefer richer
          body content, then more recent items.
-      2) Walk items in score order, soft-capping any single source at
-         half of `limit` (so one outlet can carry up to half of a team's
-         pool when warranted, but never all of it).
-      3) Fill any remaining slots by score, ignoring the cap.
+      2) Walk items in score order with two caps:
+           - primary outlets (ESPN, PFT, Athletic, beat writers, …) can
+             still carry up to `limit // 2` of a team's slots when
+             warranted (no change from before).
+           - non-primary outlets (SI team pages, SBN team blogs, Reddit)
+             are capped tighter at `limit // 3` so aggregators / blogs
+             can't crowd out actual reporting even when they publish a
+             lot per team.
+      3) Fill any remaining slots by score, ignoring the cap (this
+         intentionally cap-busts when a team's pool is thin so we don't
+         return half-empty sections).
     """
     def _source_label(item) -> str:
         if isinstance(item, NewsItem):
@@ -1212,18 +1220,24 @@ def _diversify_by_source(
         deep = 1 if _is_deep_article(it) else 0
         return (primary, deep, len(body), it.published)
 
-    soft_cap = max(1, limit // 2)  # one source can't take more than half the slots
+    primary_cap = max(1, limit // 2)
+    nonprimary_cap = max(1, limit // 3)
+
+    def _cap_for(item) -> int:
+        src = item.source if isinstance(item, NewsItem) else ""
+        return primary_cap if is_primary_source(src) else nonprimary_cap
+
     ordered = sorted(items, key=_score, reverse=True)
 
     picked: list = []
     per_source: dict[str, int] = {}
 
-    # Pass 1: respect the soft cap so no single outlet dominates.
+    # Pass 1: respect the per-tier soft caps so no single outlet dominates.
     for it in ordered:
         if len(picked) >= limit:
             break
         src = _source_label(it)
-        if per_source.get(src, 0) >= soft_cap:
+        if per_source.get(src, 0) >= _cap_for(it):
             continue
         per_source[src] = per_source.get(src, 0) + 1
         picked.append(it)

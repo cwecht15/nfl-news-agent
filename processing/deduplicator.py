@@ -261,12 +261,16 @@ def deduplicate(items: list[NewsItem]) -> list[list[NewsItem]]:
 # longer. Order doesn't matter; we just check `startswith`.
 _NON_PRIMARY_SOURCE_PREFIXES: tuple[str, ...] = (
     "SBN ",        # SBN team blogs — mostly commentary on insider scoops
-    "SI team ",    # SI per-team pages — mix, but mostly secondary
+    "SI ",         # SI per-team pages ("SI Bills", "SI Patriots", …) —
+                   # they aggregate league reporting more than they break it.
+                   # NOTE: the old value "SI team " never matched anything,
+                   # so SI was incorrectly treated as primary by pick_primary
+                   # and dominated the team pools.
     "r/nfl",       # Reddit user-submitted pointers, not original reporting
 )
 
 
-def _is_primary_source(source: str) -> bool:
+def is_primary_source(source: str) -> bool:
     if not source:
         return False
     return not any(source.startswith(p) for p in _NON_PRIMARY_SOURCE_PREFIXES)
@@ -287,7 +291,7 @@ def pick_primary(group: list[NewsItem]) -> NewsItem:
     return max(
         group,
         key=lambda x: (
-            1 if _is_primary_source(x.source) else 0,
+            1 if is_primary_source(x.source) else 0,
             len(x.summary or ""),
             -x.published.timestamp(),
         ),
