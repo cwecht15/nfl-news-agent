@@ -160,6 +160,16 @@ HTML_TEMPLATE = Template(
         {% if yt_section.get('press_conferences', {}).get('summary') %}
         <h3>Press Conference Highlights</h3>
         <div>{{ yt_section.press_conferences.summary | replace('\\n', '<br>') }}</div>
+        {% if yt_section.press_conferences.get('sources') %}
+        <div class="sources">
+            <strong>Videos</strong>
+            <ul>
+                {% for s in yt_section.press_conferences.sources %}
+                <li><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer">{{ s.team }} — {{ s.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         {% endif %}
         {% if yt_section.get('team_notes') %}
         <h3>Per-Team Notes</h3>

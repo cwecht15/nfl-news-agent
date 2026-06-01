@@ -56,7 +56,8 @@ def build_yt_section(
 
     Returns:
         {
-            "press_conferences": {"summary": str, "count": int},
+            "press_conferences": {"summary": str, "count": int,
+                                   "sources": [{"team","title","url","channel"}]},
             "team_notes": {team_abbr: {"summary": str,
                                         "numbered_sources": [...]}},
             "date_label": str,
@@ -80,7 +81,7 @@ def build_yt_section(
         date_label or "no label",
     )
 
-    press_summary, press_count = summarize_press_conferences(
+    press_summary, press_count, press_sources = summarize_press_conferences(
         transcripts,
         client,
         usage_tracker=usage_tracker,
@@ -98,6 +99,7 @@ def build_yt_section(
         "press_conferences": {
             "summary": press_summary,
             "count": press_count,
+            "sources": press_sources,
         },
         "team_notes": team_notes,
         "date_label": date_label,

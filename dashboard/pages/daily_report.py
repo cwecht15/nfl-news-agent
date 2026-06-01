@@ -28,6 +28,7 @@ from dashboard.flagging import (
     render_flaggable,
 )
 from reports.report_builder import list_available_reports, load_report
+from dashboard.citations import build_citation_linker
 
 ALL_TEAMS = sorted(get_teams_by_abbr().keys())
 
@@ -63,34 +64,9 @@ def _filter_paragraphs(summary: str, query: str) -> str:
     return "\n\n".join(matching)
 
 
-def _build_citation_linker(numbered_sources):
-    """Return a function that linkifies `[N]` citations in markdown text.
-
-    Returns None when no numbered_sources are available.
-    """
-    if not numbered_sources:
-        return None
-    url_map: dict[str, str] = {}
-    for src in numbered_sources:
-        num = str(src.get("num", ""))
-        url = src.get("url", "")
-        if num and url:
-            url_map[num] = url
-
-    def _linkify(text: str) -> str:
-        def _sub(m):
-            parts = []
-            for n in _re.split(r"[,\s]+", m.group(1)):
-                n = n.strip()
-                if n in url_map:
-                    parts.append(f"[[{n}]]({url_map[n]})")
-                elif n:
-                    parts.append(f"[{n}]")
-            return " ".join(parts)
-
-        return _re.sub(r"\[(\d+(?:[,\s]+\d+)*)\]", _sub, text)
-
-    return _linkify
+# Shared with the YouTube Report page; lives in dashboard.citations so both
+# pages can import it without a second st.set_page_config.
+_build_citation_linker = build_citation_linker
 
 
 # Date selector

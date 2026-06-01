@@ -31,12 +31,14 @@ from dashboard.helpers import bootstrap_secrets
 bootstrap_secrets()
 
 from config_loader import get_data_dir, get_teams_by_abbr
+from dashboard.citations import build_citation_linker
 from dashboard.flagging import (
     FLAG_MODE_LABELS,
     FLAG_MODE_VALUES,
     render_flaggable,
 )
 from models import Transcript
+from processing import yt_cache
 from processing.summarizer import _press_relevance_score
 from processing.yt_section import build_yt_section
 from reports.flagged_findings import MODE_HANDBOOK
@@ -146,10 +148,31 @@ def _summary_payload(
     if not transcripts:
         return {"empty": True, "reason": "no_transcripts"}
 
+    # Durable disk cache keyed by the exact inputs. Survives Streamlit
+    # redeploys (which wipe the in-memory @st.cache_data), so a range that
+    # was generated before loads instantly and spends no tokens.
+    cache_key = yt_cache.make_key(start_iso, end_iso, team_filter, selected_video_ids)
+    cached = yt_cache.load(cache_key)
+    if cached and cached.get("section"):
+        section = cached["section"]
+        section["_cache"] = {"hit": True, "generated_at": cached.get("generated_at")}
+        return section
+
     label = start_iso if start_iso == end_iso else f"{start_iso} → {end_iso}"
     # User explicitly picked these videos — skip the title-score filter
     # so every selection is honored.
     section = build_yt_section(transcripts, date_label=label, pre_filtered=True)
+    yt_cache.save(
+        cache_key,
+        section,
+        meta={
+            "start": start_iso,
+            "end": end_iso,
+            "teams": sorted(team_filter or []),
+            "video_count": len(selected_video_ids or []),
+        },
+    )
+    section["_cache"] = {"hit": False}
     return section
 
 
@@ -347,6 +370,13 @@ count = section.get("transcript_count", 0)
 label = section.get("date_label", "")
 st.success(f"Summarized {count} transcripts ({label}).")
 
+cache_info = section.get("_cache", {}) or {}
+if cache_info.get("hit"):
+    ts = cache_info.get("generated_at", "")
+    st.caption(
+        f"⚡ Loaded from saved cache (generated {ts} UTC) — no tokens spent on this view."
+    )
+
 # Per-bullet flagging — same UX as the Daily Report. report_date is the
 # range label so all flags from one Generate click stay together; section
 # IDs are `yt:` prefixed so the same content can be flagged here without
@@ -392,6 +422,16 @@ if pc_summary:
     else:
         st.markdown(pc_summary)
 
+    pc_sources = pc.get("sources", []) or []
+    if pc_sources:
+        links = [
+            f"[{s.get('team', '')} — {s.get('title', 'video')}]({s.get('url', '')})"
+            for s in pc_sources if s.get("url")
+        ]
+        if links:
+            st.caption("Videos in this summary")
+            st.markdown(" · ".join(links))
+
 team_notes = section.get("team_notes", {}) or {}
 if team_notes:
     st.subheader("Per-Team Notes")
@@ -402,6 +442,7 @@ if team_notes:
             continue
 
         numbered = note.get("numbered_sources", []) or []
+        note_linkify = build_citation_linker(numbered)
 
         st.markdown(f"**{team}**")
         if flag_mode:
@@ -411,10 +452,11 @@ if team_notes:
                 key_prefix=f"yt_team_{team}",
                 all_teams=ALL_TEAMS,
                 default_team=team, numbered_sources=numbered,
+                linkify=note_linkify,
                 mode=flag_mode,
             )
         else:
-            st.markdown(note_summary)
+            st.markdown(note_linkify(note_summary) if note_linkify else note_summary)
 
         if numbered:
             lines = []

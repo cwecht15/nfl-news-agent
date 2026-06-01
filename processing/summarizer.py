@@ -1003,10 +1003,13 @@ def summarize_press_conferences(
             in the order received.
 
     Returns:
-        Tuple of (summary_text, count_of_summarized_transcripts).
+        Tuple of (summary_text, count_of_summarized_transcripts, sources)
+        where `sources` is one dict per summarized transcript
+        ({"team", "title", "url", "channel"}) so callers can link each
+        press-conference block back to its source video.
     """
     if not transcripts:
-        return "No press conference transcripts available today.", 0
+        return "No press conference transcripts available today.", 0, []
 
     client, runtime = _resolve_client_and_runtime(client)
     if pre_filtered:
@@ -1018,7 +1021,7 @@ def summarize_press_conferences(
         )
 
     if not selected_transcripts:
-        return "No high-signal press conference highlights today.", 0
+        return "No high-signal press conference highlights today.", 0, []
 
     summaries = []
     for t in selected_transcripts:
@@ -1056,7 +1059,16 @@ Transcript:
         t.ai_summary = summary
         summaries.append(f"**{t.team} - {t.title}**\n{summary}")
 
-    return "\n\n".join(summaries), len(selected_transcripts)
+    sources = [
+        {
+            "team": t.team,
+            "title": t.title,
+            "url": t.url,
+            "channel": t.channel_name,
+        }
+        for t in selected_transcripts
+    ]
+    return "\n\n".join(summaries), len(selected_transcripts), sources
 
 
 def summarize_league_wide(
