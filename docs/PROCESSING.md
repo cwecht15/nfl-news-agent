@@ -75,7 +75,17 @@ The LLM engine. Provider-agnostic across three backends, selected by
   (primary ≤ `limit//2`, non-primary ≤ `limit//3`) so one blog can't dominate.
   `_is_deep_article` (depth charts, post-draft recaps, "every pick") gets the
   full body (~5000 chars) into the prompt; ordinary articles get 1200 chars, so
-  the LLM can reach past QB notes into RB/WR/TE/OL.
+  the LLM can reach past QB notes into RB/WR/TE/OL. The prompt **orders bullets
+  by fantasy impact** and keeps qualitative role signals ("running with the
+  first team", "in the mix for WR3") — concrete numbers are a bonus, not a
+  gate — while dropping contentless praise and not restating transactions/
+  injuries that have their own sections. This is the **player-news extractor**,
+  and it's tunable per-section in `settings.yaml` (`openai.sections.team_news`:
+  `model` / `reasoning_effort` / `max_output_tokens`); it ships at
+  `reasoning_effort: medium` on `gpt-5.4-mini`, and setting `model: "gpt-5.4"`
+  upgrades **only this section** to the full model. Per-call model overrides
+  are priced off the call's actual model, so mixed-model runs cost correctly
+  (the report footer shows "mixed models" when a section is upgraded).
 - **`summarize_press_conferences(transcripts, ...) -> (summary, count)`** and
   **`summarize_team_highlights_from_transcripts(...)`** — YouTube side.
   `_press_relevance_score` rewards presser signals ("press conference" +5,

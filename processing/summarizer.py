@@ -139,6 +139,9 @@ def _get_runtime_config() -> dict[str, Any]:
             "max_output_tokens": max_output_tokens,
             "reasoning_effort": openai_settings.get("reasoning_effort", "low"),
             "service_tier": openai_settings.get("service_tier", "default"),
+            # Optional per-section overrides (model / reasoning_effort /
+            # max_output_tokens). See config/settings.yaml `openai.sections`.
+            "sections": openai_settings.get("sections", {}) or {},
         }
 
     ollama_settings = settings.get("ollama", {})
@@ -266,8 +269,14 @@ def _record_openai_usage(
     runtime: dict[str, Any],
     usage_tracker: Optional[dict[str, Any]],
     usage_label: Optional[str] = None,
+    model: Optional[str] = None,
 ):
-    """Accumulate token usage and estimated cost from an OpenAI response."""
+    """Accumulate token usage and estimated cost from an OpenAI response.
+
+    `model` is the model actually used for this call (a per-call override
+    may differ from runtime["model"]); pricing is resolved off it so cost
+    stays correct when sections mix models.
+    """
     if usage_tracker is None:
         return
 
@@ -288,7 +297,7 @@ def _record_openai_usage(
         _obj_get(response, "service_tier", runtime.get("service_tier", "default"))
     )
     pricing_model, pricing_tier, pricing = _resolve_openai_pricing(
-        runtime["model"],
+        model or runtime["model"],
         actual_tier,
     )
 
@@ -299,7 +308,12 @@ def _record_openai_usage(
     output_cost = (output_tokens / 1_000_000) * pricing["output"]
 
     usage_tracker["service_tier"] = pricing_tier
-    usage_tracker["pricing_model"] = pricing_model
+    # Aggregate label: stays the single model until two different models are
+    # seen, then "mixed". Per-operation costs below remain exact regardless.
+    existing_pm = usage_tracker.get("pricing_model")
+    usage_tracker["pricing_model"] = (
+        pricing_model if existing_pm in (None, pricing_model) else "mixed"
+    )
     usage_tracker["request_count"] += 1
     usage_tracker["input_tokens"] += input_tokens
     usage_tracker["cached_input_tokens"] += cached_input_tokens
@@ -434,10 +448,20 @@ def _should_retry_openai_no_text(response: Any, text: str) -> bool:
     status = str(_obj_get(response, "status", "") or "").lower()
     incomplete_details = _obj_get(response, "incomplete_details")
 
+    # Share of the output budget consumed by reasoning. We're already past
+    # `if text: return False`, so any no-text response where reasoning ate
+    # (nearly) the whole budget is a candidate to re-roll with more room —
+    # this covers both the exact-equality case AND "completed" responses
+    # that stopped right after reasoning with no visible text (e.g.
+    # reasoning 832 / output 838), which previously fell through to an
+    # empty summary because status was "completed" and the tokens weren't
+    # exactly equal.
+    reasoning_share = (reasoning_tokens / output_tokens) if output_tokens else 0.0
+
     return (
         status == "incomplete"
         or incomplete_details is not None
-        or (output_tokens > 0 and output_tokens == reasoning_tokens)
+        or (output_tokens > 0 and reasoning_share >= 0.9)
     )
 
 
@@ -535,9 +559,14 @@ def _call_openai(
     usage_label: Optional[str] = None,
     verbosity: str = "low",
     reasoning_effort: Optional[str] = None,
+    model: Optional[str] = None,
     _retry_count: int = 0,
 ) -> str:
-    """Make a single OpenAI Responses API call."""
+    """Make a single OpenAI Responses API call.
+
+    `model` overrides runtime["model"] for this call only (e.g. upgrading
+    one section to full gpt-5.4). Cost is attributed to the effective model.
+    """
     try:
         from openai import RateLimitError
     except ImportError as exc:
@@ -545,12 +574,18 @@ def _call_openai(
             "OpenAI SDK not installed. Install with: pip install openai"
         ) from exc
 
-    def _create_response(request_max_tokens: int) -> Any:
-        resolved_reasoning_effort = reasoning_effort or runtime.get(
+    effective_model = model or runtime["model"]
+
+    def _create_response(
+        request_max_tokens: int,
+        effort: Optional[str] = None,
+        model_override: Optional[str] = None,
+    ) -> Any:
+        resolved_reasoning_effort = effort or reasoning_effort or runtime.get(
             "reasoning_effort", "low"
         )
         return client.responses.create(
-            model=runtime["model"],
+            model=model_override or effective_model,
             instructions=SYSTEM_PROMPT,
             input=user_prompt,
             max_output_tokens=request_max_tokens,
@@ -566,6 +601,7 @@ def _call_openai(
             runtime,
             usage_tracker,
             usage_label=usage_label,
+            model=effective_model,
         )
         text = _extract_openai_text(response)
         if text:
@@ -599,11 +635,42 @@ def _call_openai(
                     runtime,
                     usage_tracker,
                     usage_label=f"{usage_label}:retry" if usage_label else "retry",
+                    model=effective_model,
                 )
                 retry_text = _extract_openai_text(retry_response)
                 if retry_text:
                     return retry_text
                 response = retry_response
+
+                # Final fallback: same-input retries are deterministically
+                # futile for some pathological inputs — the model emits only
+                # reasoning and no text, even at low effort, with byte-identical
+                # token counts across attempts. Changing the MODEL is the lever
+                # that actually breaks the loop, so make one last attempt on a
+                # different model at low reasoning effort.
+                fallback_model = (
+                    "gpt-5.4-mini" if effective_model == "gpt-5.4" else "gpt-5.4"
+                )
+                logger.warning(
+                    "OpenAI still returned no text for %s after retry; "
+                    "final attempt on %s at reasoning_effort=low",
+                    usage_label or "summary",
+                    fallback_model,
+                )
+                fallback_response = _create_response(
+                    retry_max_tokens, effort="low", model_override=fallback_model,
+                )
+                _record_openai_usage(
+                    fallback_response,
+                    runtime,
+                    usage_tracker,
+                    usage_label=f"{usage_label}:fallback" if usage_label else "fallback",
+                    model=fallback_model,
+                )
+                fallback_text = _extract_openai_text(fallback_response)
+                if fallback_text:
+                    return fallback_text
+                response = fallback_response
 
         return _build_openai_no_text_message(response)
     except RateLimitError:
@@ -621,6 +688,7 @@ def _call_openai(
             usage_label=usage_label,
             verbosity=verbosity,
             reasoning_effort=reasoning_effort,
+            model=model,
             _retry_count=_retry_count + 1,
         )
     except Exception as e:
@@ -692,8 +760,13 @@ def _call_model(
     usage_label: Optional[str] = None,
     verbosity: str = "low",
     reasoning_effort: Optional[str] = None,
+    model: Optional[str] = None,
 ) -> str:
-    """Route a prompt to the configured provider."""
+    """Route a prompt to the configured provider.
+
+    `model` is an OpenAI-only per-call model override (None = use the
+    configured runtime model); ignored on the Anthropic/Ollama paths.
+    """
     budget_msg = _check_token_budget(usage_tracker, usage_label)
     if budget_msg:
         return budget_msg
@@ -711,6 +784,7 @@ def _call_model(
             usage_label=usage_label,
             verbosity=verbosity,
             reasoning_effort=reasoning_effort,
+            model=model,
         )
     if runtime["provider"] == "ollama":
         return _call_ollama(
@@ -1314,6 +1388,15 @@ def _build_team_highlights_for_pool(
     reasoning effort).
     """
     highlights: dict[str, dict] = {}
+    # Player-news section overrides (news pool only). Defaults equal the
+    # historical hardcoded values, so an absent `openai.sections.team_news`
+    # block leaves behavior unchanged. The transcript pool keeps its own
+    # tuning and ignores this.
+    news_cfg = {} if is_transcript_pool else runtime.get("sections", {}).get("team_news", {})
+    news_model = news_cfg.get("model")  # None => use runtime model
+    news_effort = news_cfg.get("reasoning_effort", "low")
+    news_max_tokens = news_cfg.get("max_output_tokens", 1400)
+
     for team, items in team_items.items():
         items = sorted(items, key=lambda item: item.published, reverse=True)
         lines, candidates = _build_team_item_lines(items)
@@ -1414,28 +1497,34 @@ Today's transcripts:
 
 Each input item is numbered like [1], [2], etc. — you MUST cite the items you use.
 
-Output: a markdown bullet list, one bullet per distinct development.
+Output: a markdown bullet list, ORDERED BY FANTASY IMPACT (most roster-relevant first), one bullet per distinct development.
+
+Rank the developments in this order, then write the bullets in that order:
+1. Direct fantasy-relevant role/usage change at a skill position (QB, RB, FB, WR, TE): a new starter, a snap/target/carry-share shift, a depth-chart move, a return to a role, a committee change, a player rising or falling on the depth chart.
+2. A skill-position competition or depth battle with a named contender and a stated edge or direction.
+3. Coaching / scheme signals that change skill-position usage (pace, pass rate, scheme fit, who the play-caller features).
+4. Everything else (offensive line, defense, special teams). Include only if genuinely newsworthy.
 
 Format each bullet as:
-- **Player or coach or exec name** — what happened in 1–2 sentences, then 1–2 short follow-up sentences on why it matters, what's next, or supporting context (snap share, depth-chart implications, scheme fit) when the items genuinely support it. End the bullet with the citation, e.g. [3] or [1, 4].
+- **Player or coach or exec name (POS)** — what happened in 1–2 sentences, then a short follow-up on why it matters for fantasy/role. End with the citation, e.g. [3] or [1, 4].
 
-Position priority (for fantasy-football relevance):
-1. Highest priority: offensive skill players — QB, RB, FB, WR, TE.
-2. Second: offensive line and head coach / OC / DC moves.
-3. Lowest: defense (non-coordinator), kickers, punters, long snappers, special-teams roles.
-Prefer skill-position content over equally-newsworthy non-skill content. A WR3 competition is more interesting than a CB3 competition, all else equal. Include one bullet per genuinely distinct development the items support — don't pad to hit a target, but don't drop a substantive development just to stay short either.
+Specificity is a BONUS, not a requirement:
+- When an item gives concrete detail, put it in the bullet — snap/target/carry share, depth-chart slot (RB1/WR3), red-zone usage, scheme role.
+- When only a qualitative signal is available (which is common and still valuable), KEEP IT and state the role/usage implication in plain terms: "running with the first team", "in the mix for the WR3 job", "getting first-team reps at LG", "coaches singled him out in OTAs", "expected to handle early-down work". Do NOT drop a bullet just because it lacks a number.
+- The test is role-relevance, not numbers: keep anything signaling who is rising/falling, competing for a job, changing roles, or fitting a scheme. Drop only CONTENTLESS praise with no role implication ("looked good out there" and nothing else, generic hype, platitudes).
 
 Rules:
 - One bullet per development. Do not synthesize multiple unrelated items into one bullet.
-- Lead each bullet with the most-specific named subject (player, coach, or executive). If the item is genuinely team-level (not a person), lead with the topic in bold instead.
+- Lead each bullet with the most-specific named subject (player, coach, or executive). For genuinely team-level points, lead with the topic in bold.
 - Every bullet must end with at least one [N] citation pointing to the input item(s) that source it.
-- Surface NON-OBVIOUS specifics: unexpected starters, position competitions, depth-chart shake-ups beyond the entrenched stars, late-round picks fighting for roles, UDFA roster fits. Do NOT write bullets that re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1"). If a depth-chart article only confirms the obvious at QB, look at the article's notes on RB / WR / TE / OL instead.
-- NEVER invent a player's first name, jersey number, position, or any other identifier. If the source refers to a player by last name only (e.g. "Jennings"), write the bullet using ONLY the last name as the source provides it (e.g. "**Jennings (RB)**"). Adding a wrong first name is worse than omitting it. Same for coaches and executives.
-- Skip items that are pure trivia, mock drafts not roster-relevant, jersey reveals, or filler.
-- DROP any item whose {team}-relevant content boils down to "the excerpt does not specify any {team} player / decision / detail" or where the only named subject is the journalist or outlet rather than a {team} player, coach, or exec. Skip the item entirely — do NOT write a bullet about the absence of information.
+- Do NOT restate transactions (signings, releases, trades, contract terms) or injury-status updates — those have their own report sections. Only mention one if it directly changes a skill-position role AND you add the role/usage angle those sections would not (e.g. "with X gone, Y becomes the early-down back").
+- Surface NON-OBVIOUS developments; do NOT re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1"). If a depth-chart article only confirms the obvious at QB, mine its RB / WR / TE / OL notes instead.
+- NEVER invent a player's first name, jersey number, position, or any other identifier. If the source gives only a last name (e.g. "Jennings"), use ONLY the last name (e.g. "**Jennings (RB)**"). A wrong first name is worse than omitting it. Same for coaches and execs.
+- Skip pure trivia, non-roster mock drafts, jersey reveals, and filler.
+- DROP any item whose {team}-relevant content boils down to "the excerpt does not specify any {team} player / decision / detail" or where the only named subject is the journalist or outlet. Skip it — never write a bullet about the absence of information.
 - Use only the information in today's items. If a detail is missing for an otherwise-substantive bullet, say it is not specified.
-- Keep the entire response under 280 words. This is a ceiling, not a target — only use the room when the items genuinely support more detail.
-- No section headers, no preamble, no closing commentary — just the bullets.
+- Keep the entire response under 280 words. This is a ceiling, not a target — prefer a few high-signal bullets over many thin ones.
+- No section headers, no preamble, no closing commentary — just the bullets, highest fantasy impact first.
 
 Today's items:
 {item_block}"""
@@ -1444,11 +1533,12 @@ Today's items:
                 client,
                 prompt,
                 runtime,
-                max_tokens=1400,
+                max_tokens=news_max_tokens,
                 usage_tracker=usage_tracker,
                 usage_label=f"team:{team}",
                 verbosity="medium",
-                reasoning_effort="low",
+                reasoning_effort=news_effort,
+                model=news_model,
             )
         highlights[team] = {
             "summary": text,

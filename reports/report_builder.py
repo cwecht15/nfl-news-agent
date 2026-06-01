@@ -208,6 +208,9 @@ HTML_TEMPLATE = Template(
     <div class="stats">
         <strong>LLM Usage:</strong>
         {{ llm_usage.get('provider', 'unknown') | upper }} / {{ llm_usage.get('model', 'unknown') }}
+        {% if llm_usage.get('pricing_model') == 'mixed' %}
+        <span class="source-meta">(mixed models — some sections upgraded)</span>
+        {% endif %}
         {% if llm_usage.get('request_count') %}
         | calls: {{ llm_usage.get('request_count') }}
         {% endif %}

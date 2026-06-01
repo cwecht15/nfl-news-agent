@@ -29,6 +29,7 @@ team map built around the `CAR`/`WAS` abbreviation-collision edge cases).
 | `test_projection_colmap.py` | `scripts.snapshot_projections._build_player_col_map` | duplicate "YPA Adj" disambiguated to "Scramble YPA Adj"/"Pass YPA Adj", skip-headers excluded, column indices preserved |
 | `test_citations.py` | `dashboard.citations.build_citation_linker` | `[N]` / `[1, 2]` linkified to source URLs, unknown numbers pass through, int `num` coerced to string |
 | `test_yt_cache.py` | `processing.yt_cache` | cache key deterministic + order-independent, changes with range/videos, save/load round-trip, corrupt-file tolerance |
+| `test_summarizer_usage.py` | `processing.summarizer` per-call model + section tuning | per-call `model` reaches `responses.create`; cost priced off the call's model; `pricing_model == "mixed"` with correct summed cost; `team_news` overrides reach the call; defaults apply when absent; transcript pool ignores `team_news` |
 
 The `deduplicate()` tests are written to hold **regardless of whether
 sentence-transformers loads** — the transaction-name gate runs before any

@@ -11,7 +11,7 @@ clears the cache after editing.
 | Section | Key settings |
 |---------|-------------|
 | `summarization` | `provider` (`openai` default / `anthropic` / `ollama`), `max_output_tokens`, `daily_token_budget` (500k cost cap) |
-| `openai` / `anthropic` / `ollama` | per-provider model + options (e.g. `openai.model: gpt-5.4-mini`, `reasoning_effort: high`; `anthropic.use_prompt_caching`) |
+| `openai` / `anthropic` / `ollama` | per-provider model + options (e.g. `openai.model: gpt-5.4-mini`, `reasoning_effort: high`; `anthropic.use_prompt_caching`). `openai.sections.team_news` tunes the player-news extractor (`model` / `reasoning_effort` / `max_output_tokens`) — set `model: "gpt-5.4"` to upgrade just that section. |
 | `content_filter` | `enabled`, `drop_patterns` (regex), `mock_draft_keep_years` (update annually) |
 | `cross_day_dedup` | `enabled`, `lookback_days` (2), `threshold` (0.82), `skip_categories` (`[transaction]`) |
 | `collection` | `lookback_hours` (28), `youtube_max_per_channel`, `youtube_workers`, `request_delay`, `request_timeout`, `user_agent` |
