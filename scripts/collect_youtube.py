@@ -36,6 +36,14 @@ from processing.source_health import record_source_result
 def setup_logging(date_str: str) -> None:
     log_dir = get_data_dir("logs")
     log_file = log_dir / f"{date_str}-youtube.log"
+    # Video titles often contain emoji (👀, 🏈, …). The Windows console
+    # stream defaults to cp1252 and raises UnicodeEncodeError mid-log,
+    # which Python's logging then dumps as a noisy (harmless) traceback.
+    # Make stdout encode losslessly where possible and replace otherwise.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -74,6 +82,16 @@ def main() -> None:
             "to 96+ when catching up after several missed days."
         ),
     )
+    parser.add_argument(
+        "--no-whisper",
+        action="store_true",
+        help=(
+            "Captions-only: skip the Whisper fallback for videos without "
+            "auto-captions. Whisper runs FP32 on CPU here and can take "
+            "20-30 min per video, so disable it for fast interactive runs "
+            "(this is what the unattended backfill uses)."
+        ),
+    )
     args = parser.parse_args()
 
     date_str = args.date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -88,7 +106,11 @@ def main() -> None:
 
     error = ""
     try:
-        transcripts = collect_youtube(date_str, lookback_hours=args.lookback_hours)
+        transcripts = collect_youtube(
+            date_str,
+            lookback_hours=args.lookback_hours,
+            enable_whisper=not args.no_whisper,
+        )
     except Exception as e:
         logger.exception("YouTube collection failed")
         transcripts = []

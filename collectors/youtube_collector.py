@@ -42,6 +42,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config_loader import (
     get_teams, get_settings, get_youtube_keywords, get_data_dir,
+    get_national_youtube_channels,
 )
 from models import Transcript
 from collectors._transcription import (
@@ -105,10 +106,17 @@ def _extract_published_datetime(info: dict) -> Optional[datetime]:
 
 
 def _fetch_video_details(video_url: str) -> dict:
-    """Fetch full metadata for a single video.
+    """Fetch metadata for a single video (publish time + duration).
 
     Flat channel scans often omit upload timestamps. Resolving the actual
     watch URL gives us reliable publish metadata for recency filtering.
+
+    Uses cookies (channel/metadata calls are what trip YouTube's "confirm
+    you're not a bot" wall under high volume) but with `process=False` so
+    yt-dlp does NOT run format selection. An authenticated session is served
+    PO-token-gated formats; processing them raises "Requested format is not
+    available" even though we only want metadata. process=False skips all of
+    that and still returns timestamp / upload_date / duration.
     """
     import yt_dlp
 
@@ -120,7 +128,7 @@ def _fetch_video_details(video_url: str) -> dict:
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(video_url, download=False)
+        info = ydl.extract_info(video_url, download=False, process=False)
 
     if isinstance(info, dict):
         return info
@@ -327,6 +335,12 @@ def download_captions(
             if cached.stat().st_size > 0:
                 return cached
 
+    # NOTE: deliberately NO cookies here. Subtitle/audio fetches run format
+    # selection, and an authenticated (cookie'd) session is served
+    # PO-token-gated formats that yt-dlp can't resolve -> "Requested format
+    # is not available". Anonymous requests get normal formats and succeed.
+    # Cookies are only needed for the channel/metadata scan to dodge the
+    # bot-detection wall; per-video downloads are low-volume and fine without.
     ydl_opts = {
         "quiet": True,
         "no_warnings": True,
@@ -335,7 +349,6 @@ def download_captions(
         "subtitleslangs": ["en"],
         "subtitlesformat": "vtt",
         "outtmpl": str(output_dir / f"{video_id}.%(ext)s"),
-        **_ydl_cookie_opts(),
     }
 
     try:
@@ -373,6 +386,8 @@ def download_audio(
             if cached.stat().st_size > 0:
                 return cached
 
+    # No cookies — see download_captions: authenticated sessions get
+    # PO-token-gated formats that fail format selection. Anonymous works.
     ydl_opts = {
         "quiet": True,
         "no_warnings": True,
@@ -383,7 +398,6 @@ def download_audio(
             "preferredcodec": "mp3",
             "preferredquality": "64",
         }],
-        **_ydl_cookie_opts(),
     }
 
     try:
@@ -561,6 +575,21 @@ def collect_youtube(
     delay = settings["collection"].get("request_delay", 2.0)
     workers = int(settings["collection"].get("youtube_workers", 6))
 
+    # National / league-wide channels have no single team. Wrap each one in a
+    # synthetic "team" dict so the existing per-team scan path handles it: all
+    # are tagged abbr="NFL" (they share a league-wide group in the YouTube
+    # Report) but each keeps its real channel name as the transcript's
+    # channel_name.
+    national_targets = [
+        {
+            "abbr": "NFL",
+            "name": ch.get("name") or ch.get("handle", "NFL"),
+            "youtube_channels": [ch],
+        }
+        for ch in get_national_youtube_channels()
+    ]
+    scan_targets = list(teams) + national_targets
+
     transcripts_dir = get_data_dir("transcripts", date_str)
     temp_dir = get_data_dir("raw", date_str) / "youtube_temp"
     temp_dir.mkdir(exist_ok=True)
@@ -569,8 +598,8 @@ def collect_youtube(
     all_transcripts: list[Transcript] = []
 
     logger.info(
-        "Scanning %d team YouTube channels (workers=%d)...",
-        len(teams), workers,
+        "Scanning %d team + %d national YouTube channels (workers=%d)...",
+        len(teams), len(national_targets), workers,
     )
 
     # Snapshot seen_ids at start; workers only read it. Each worker returns
@@ -584,7 +613,7 @@ def collect_youtube(
                 lookback_hours, transcripts_dir, temp_dir, snapshot, delay,
                 enable_whisper,
             ): team
-            for team in teams
+            for team in scan_targets
         }
         for fut in as_completed(futures):
             team = futures[fut]

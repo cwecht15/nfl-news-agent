@@ -43,7 +43,9 @@ from processing.summarizer import _press_relevance_score
 from processing.yt_section import build_yt_section
 from reports.flagged_findings import MODE_HANDBOOK
 
-ALL_TEAMS = sorted(get_teams_by_abbr().keys())
+# "NFL" is the league-wide bucket for national channels (no single team);
+# it isn't in teams.yaml, so add it explicitly for filtering / flagging.
+ALL_TEAMS = sorted(set(get_teams_by_abbr().keys()) | {"NFL"})
 
 
 st.header("YouTube Report")
@@ -220,7 +222,8 @@ with col_r:
     )
 
 teams_by_abbr = get_teams_by_abbr()
-all_team_abbrs = sorted(teams_by_abbr.keys())
+# Include the league-wide "NFL" bucket (national channels) as a filter option.
+all_team_abbrs = sorted(set(teams_by_abbr.keys()) | {"NFL"})
 team_filter_list = st.multiselect(
     "Filter teams (leave empty for all)",
     all_team_abbrs,
@@ -276,12 +279,24 @@ for t in candidate_transcripts:
     })
 candidate_df = pd.DataFrame(candidate_rows)
 
+# "Clear all" empties every checkbox. The data_editor seeds its checkbox
+# state from the dataframe only when its `key` changes, so we bump a nonce
+# (forcing a fresh widget) and zero out the Select column before render.
+editor_nonce = st.session_state.get("yt_editor_nonce", 0)
+if st.session_state.pop("yt_force_clear", False):
+    candidate_df["Select"] = False
+
 st.caption(
     f"{len(candidate_df)} transcripts available in range. "
     f"Default selection includes the {int(candidate_df['Select'].sum())} "
     f"that score > 0 on the press-conference relevance filter — "
     f"check additional rows to include them, or uncheck to drop them."
 )
+
+if st.button("Clear all selections"):
+    st.session_state["yt_force_clear"] = True
+    st.session_state["yt_editor_nonce"] = editor_nonce + 1
+    st.rerun()
 
 edited = st.data_editor(
     candidate_df,
@@ -302,7 +317,10 @@ edited = st.data_editor(
         "url": st.column_config.LinkColumn("Open", width="small"),
     },
     disabled=["Team", "Date", "Score", "Title", "url"],
-    key=f"yt_video_editor_{start_d}_{end_d}_{','.join(team_filter_list)}",
+    key=(
+        f"yt_video_editor_{start_d}_{end_d}_"
+        f"{','.join(team_filter_list)}_{editor_nonce}"
+    ),
 )
 
 selected_video_ids = tuple(

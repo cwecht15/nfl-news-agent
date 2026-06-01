@@ -8,7 +8,9 @@
 #       most teams publish pressers as live streams that land there)
 #     keyword_filter: false to accept every video on the channel —
 #       use only on dedicated press-conference channels where every
-#       upload is a presser and the keyword filter loses signal
+#       upload is a presser and the keyword filter loses signal, OR on
+#       beat/analysis channels (pods, "Collective" shows) whose titles
+#       aren't presser-style and would otherwise be filtered out entirely.
 
 teams:
   - abbr: ARI
@@ -32,6 +34,10 @@ teams:
     youtube_channels:
       - id: UCbpj2JAUMb8G_oQQFPeGrhg
         handle: "@BaltimoreRavens"
+      # Beat/analysis channel — accept all (titles aren't presser-style).
+      - id: UC8mT1wzi7fRHET14PzTdsTw
+        handle: "@BaltimoreCollective"
+        keyword_filter: false
     conference: AFC
     division: North
 
@@ -40,6 +46,14 @@ teams:
     youtube_channels:
       - id: UCcEvCxUe2Sm5W6MliEUv0vg
         handle: "@buffalobills"
+      # Sal Capaccio (WGR550 Bills beat) — "Always Gameday in Buffalo".
+      - id: UCe7jt-qc9_qBrfgTIhnsrxQ
+        handle: "@SalSports"
+        keyword_filter: false
+      # Tim Graham And Friends (The Athletic) — some Sabres/NHL crossover.
+      - id: UCCvD_V5lj6w4hFzskFv8HYw
+        handle: "@TGAFtimgrahamandfriends"
+        keyword_filter: false
     conference: AFC
     division: East
 
@@ -69,6 +83,12 @@ teams:
       # filters still apply, so analysis and mock-draft content stays out.
       - id: UCIs_LnL98oXupcixZDoSovQ
         handle: "@BengalsTalk"
+      # First Star Media Group hosts "Bengals on the Brain with Joe Goodberry".
+      # It's a shared multi-show network channel, so accept-all will include
+      # some non-Bengals uploads — curate in the YouTube Report selector.
+      - id: UCQtx4pVJTakqPhrXitChP-g
+        handle: "@firststarmediagroup"
+        keyword_filter: false
     conference: AFC
     division: North
 
@@ -85,6 +105,10 @@ teams:
     youtube_channels:
       - id: UCC0BPKJxAyxjQoRTYbpW0FQ
         handle: "@DallasCowboys"
+      # Beat/analysis channel — accept all (titles aren't presser-style).
+      - id: UCWp6BousL84dmG9XKHOEAUw
+        handle: "@CowboysCollective"
+        keyword_filter: false
     conference: NFC
     division: East
 
@@ -101,6 +125,10 @@ teams:
     youtube_channels:
       - id: UCv5J06V-ESk5_1uriG65f3w
         handle: "@detroitlionsnfl"
+      # Beat/analysis channel — accept all (titles aren't presser-style).
+      - id: UCd2fNQQO047Bv6fx4WZmxDA
+        handle: "@LionsCollective"
+        keyword_filter: false
     conference: NFC
     division: North
 
@@ -117,6 +145,10 @@ teams:
     youtube_channels:
       - id: UCa_FcpOBe8G6VAR18RYS-aA
         handle: "@HoustonTexans"
+      # Aaron Wilson (Texans beat) — accept all (interviews/notes).
+      - id: UCeauI2kqGE-WjpiaeOXjpTA
+        handle: "@AaronWilsonSport"
+        keyword_filter: false
     conference: AFC
     division: South
 
@@ -125,6 +157,10 @@ teams:
     youtube_channels:
       - id: UCyYn26HPC4HIedifGnNbjBw
         handle: "@colts"
+      # IndyStarTV: Colts (beat) — accept all (insider/pod + player quotes).
+      - id: UCFjr1IPZTDwCdlpQ3TITrGg
+        handle: "@indystartv-colts"
+        keyword_filter: false
     conference: AFC
     division: South
 
@@ -173,6 +209,10 @@ teams:
     youtube_channels:
       - id: UCHUSfEzpSRkUUsRkk_aJwDw
         handle: "@MiamiDolphins"
+      # Beat/analysis channel — accept all (titles aren't presser-style).
+      - id: UCHNshTC1jv2dlCKnEXg-dug
+        handle: "@DolphinsCollective"
+        keyword_filter: false
     conference: AFC
     division: East
 
@@ -181,6 +221,10 @@ teams:
     youtube_channels:
       - id: UCcsw_KrB_wg5lQ5nXWR_LFA
         handle: "@vikings"
+      # Locked On Vikings (daily pod) — accept all (titles aren't presser-style).
+      - id: UCU9qwCJcClgWI0JNTezBLqQ
+        handle: "@LockedOnVikings"
+        keyword_filter: false
     conference: NFC
     division: North
 
@@ -193,6 +237,14 @@ teams:
       - id: UCCmDMJ4OF5Vvik1vLp2M9lA
         handle: "@patriotspressconferences"
         keyword_filter: false
+      # Andrew Callahan (Boston Herald Patriots beat) — accept all.
+      - id: UC1VvCL12j8gKm32LohBFqPw
+        handle: "@_AndrewCallahan"
+        keyword_filter: false
+      # Greg Bedard Patriots Podcast w/ Nick Cattles — accept all.
+      - id: UCIhjCPfw8TfIZYtFNSWGBfQ
+        handle: "@gregbedardpatriotspodcastw8960"
+        keyword_filter: false
     conference: AFC
     division: East
 
@@ -201,6 +253,10 @@ teams:
     youtube_channels:
       - id: UCwuddf1JrodMlc5fYpVlrQA
         handle: "@NewOrleansSaints"
+      # NewOrleans.Football (Nick Underhill) — pressers + beat analysis.
+      - id: UCO3-HuPUXFliHV_u-qc33bQ
+        handle: "@NOF"
+        keyword_filter: false
     conference: NFC
     division: South
 
@@ -209,6 +265,18 @@ teams:
     youtube_channels:
       - id: UCk2FqoG8dN5EAz5WU3A0D7A
         handle: "@nygiants"
+      # Giants Nation Show (fan/analysis) — accept all.
+      - id: UCQwhXRcE9MvLnuFwlMCksfg
+        handle: "@GiantsNationShow"
+        keyword_filter: false
+      # Giants Collective (analysis) — accept all; some NBA/Knicks crossover.
+      - id: UC2uN7halHCl7g2GW_r7p6DA
+        handle: "@GiantsCollective"
+        keyword_filter: false
+      # Pat Leonard (NY Daily News Giants beat) — accept all.
+      - id: UCnkC4K-ca8Fvl6VaTtGK2Aw
+        handle: "@PLonNFL"
+        keyword_filter: false
     conference: NFC
     division: East
 
@@ -217,6 +285,10 @@ teams:
     youtube_channels:
       - id: UCROj9vBjc4ZW3AL4cd_BjHg
         handle: "@nyjets"
+      # Beat/analysis channel — accept all (titles aren't presser-style).
+      - id: UCwmKsyGGa1N2QDHiOlODiJA
+        handle: "@JetsCollective"
+        keyword_filter: false
     conference: AFC
     division: East
 
@@ -226,6 +298,14 @@ teams:
       - id: UCvXmskEtQk46alHAPPHaAxw
         handle: "@EaglesPressConferences"
         keyword_filter: false  # 100% pressers — accept all
+      # Inside The Birds (Eagles pod) — accept all.
+      - id: UChK6DQIYPdQyQ73VJRyDo8g
+        handle: "@InsideTheBirds"
+        keyword_filter: false
+      # Howard Eskin (Philly sports talk) — accept all; some non-NFL Philly.
+      - id: UCORw1f_S9MQR2lrkWK0DUyQ
+        handle: "@Howard-Eskin-Show"
+        keyword_filter: false
     conference: NFC
     division: East
 
@@ -234,6 +314,18 @@ teams:
     youtube_channels:
       - id: UChaRXjMDs4ppKfnTPE6Z89w
         handle: "@steelers"
+      # The Steelers Blitz (PennLive beat) — accept all.
+      - id: UCig2HueeribGR7caynE8U6Q
+        handle: "@SteelersonPennLive"
+        keyword_filter: false
+      # Steelers Collective (analysis) — accept all.
+      - id: UCQ-r-dcm5EwRmDx7Vhfcilg
+        handle: "@SteelersCollective"
+        keyword_filter: false
+      # Kaboly and Mack (Mark Kaboly Steelers pod) — accept all.
+      - id: UCKQVhElq0zj1Sd8PAwgAEpg
+        handle: "@KabolyAndMack"
+        keyword_filter: false
     conference: AFC
     division: North
 
@@ -242,6 +334,14 @@ teams:
     youtube_channels:
       - id: UCeIOarQkwmGhimim9cDUTng
         handle: "@49ers"
+      # Grant Cohn (49ers beat/opinion) — accept all.
+      - id: UCd7Sx0uTPLvxB8LFEB_B1MA
+        handle: "@CohnZohn"
+        keyword_filter: false
+      # David Lombardi (49ers beat) — accept all.
+      - id: UCkDZB2Cy0KiJmvoC-PTfM2A
+        handle: "@DavidLombardi"
+        keyword_filter: false
     conference: NFC
     division: West
 
@@ -251,6 +351,10 @@ teams:
       - id: UCePXu-1RLT0s6EE0Dh0JqgQ
         handle: "@SeahawksPressers"
         keyword_filter: false  # 100% pressers — accept all
+      # Seahawks Collective (analysis) — accept all.
+      - id: UCJ3HHGOsbupdQeefCV1g8xA
+        handle: "@SeahawksCollective"
+        keyword_filter: false
     conference: NFC
     division: West
 
@@ -268,6 +372,10 @@ teams:
       - id: UCysetst5Aek6_vK_89qGtVQ
         handle: "@TitansPressConferences"
         keyword_filter: false  # 100% pressers — accept all
+      # Broadway Sports Media (hosts "The Hot Read"); whole channel is Titans.
+      - id: UCA2UONiNPmt9ti7hfgaDLEg
+        handle: "@BroadwaySportsMedia"
+        keyword_filter: false
     conference: AFC
     division: South
 
@@ -276,5 +384,17 @@ teams:
     youtube_channels:
       - id: UC2a0ENbCZqIO5C1fWXGXZXA
         handle: "@commanders"
+      # Locked On Commanders (daily pod) — accept all.
+      - id: UCd2DqmOXnb1gLKf13eg5uzw
+        handle: "@LockedOnCommanders"
+        keyword_filter: false
+      # JP Finlay (Commanders beat) — accept all.
+      - id: UCx7NN0Kj-p6zUl3QFIK7hIg
+        handle: "@JPFinlayDC"
+        keyword_filter: false
+      # Trap or Dive (Commanders pod/film) — accept all.
+      - id: UCYDPzlCoYH3Rzy8bE6butAg
+        handle: "@TraporDive"
+        keyword_filter: false
     conference: NFC
     division: East

@@ -60,6 +60,15 @@ def get_youtube_keywords() -> list[str]:
     return get_sources().get("youtube_keywords", [])
 
 
+def get_national_youtube_channels() -> list[dict]:
+    """Channels with no single-team focus (e.g. NFL on NBC, ESPN).
+
+    Collected by collect_youtube and tagged team="NFL" so they render as a
+    league-wide group in the YouTube Report.
+    """
+    return get_sources().get("national_youtube_channels", [])
+
+
 def _get_required_env_key(env_name: str) -> str:
     """Load a required API key from the environment."""
     key = os.environ.get(env_name, "")

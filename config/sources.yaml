@@ -476,3 +476,54 @@ youtube_keywords:
   - "minicamp"
   - "OTA"
   - "training camp"
+
+# ── National / League-Wide YouTube Channels ───────────────
+# Channels with no single-team focus (national shows, network NFL feeds,
+# draft analysts). collect_youtube scans these alongside the per-team
+# channels in teams.yaml and tags every transcript team="NFL", so they
+# render as a league-wide "NFL" group in the YouTube Report.
+#
+# Fields (same as a teams.yaml youtube_channels entry, plus name):
+#   id              YouTube channel ID (required)
+#   handle          e.g. "@NFLonNBC" (display only)
+#   name            Display name used as the transcript's channel_name
+#   keyword_filter  false = accept every upload (default in code is True)
+#   scan_streams    false to skip the /streams tab (default true)
+#
+# Note: ESPN / Pat McAfee / Rich Eisen post a lot of non-NFL content.
+# youtube_max_per_channel (settings.yaml) bounds volume per run, and the
+# YouTube Report's per-video selector lets you curate before summarizing.
+national_youtube_channels:
+  - id: UCXn8eue3paGXJyI5UDQIyWg
+    handle: "@NFLonNBC"
+    name: "NFL on NBC"
+    keyword_filter: false
+  - id: UCvQrivswRDGK0lZ_AcUHp8g
+    handle: "@NFLonFox"
+    name: "NFL on FOX"
+    keyword_filter: false
+  - id: UC7ZUfHFsuQcW7BkTHnXJtqw
+    handle: "@NFLonCBS"
+    name: "NFL on CBS"
+    keyword_filter: false
+  - id: UCwpDj5ZRfVYefwmA2FnlwKw
+    handle: "@89Show"
+    name: "Steve Smith's NFL Draft Breakdowns"
+    keyword_filter: false
+  - id: UCxcTeAKWJca6XyJ37_ZoKIQ
+    handle: "@ThePatMcAfeeShow"
+    name: "The Pat McAfee Show"
+    keyword_filter: false
+  - id: UCqMtxjKnR7ySbEZSs2N-v0Q
+    handle: "@RichEisenShow"
+    name: "The Rich Eisen Show"
+    keyword_filter: false
+  - id: UCiWLfSweyRNmLpgEHekhoAg
+    handle: "@ESPN"
+    name: "ESPN"
+    keyword_filter: false
+  # Player-hosted interview pod; no single-team focus.
+  - id: UCaUQcRjCNSjH0DbHXkYlixg
+    handle: "@breakinhouserules"
+    name: "Breakin' House Rules"
+    keyword_filter: false
