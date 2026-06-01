@@ -52,11 +52,17 @@ def _contains_alias(text_lower: str, alias: str) -> bool:
     return bool(re.search(rf"\b{re.escape(alias)}\b", text_lower))
 
 
-def _detect_teams(text: str, teams_by_abbr: dict) -> list[str]:
-    """Detect teams using full names, nicknames, unique cities, and uppercase abbreviations."""
+def _detect_teams(text: str, teams_by_abbr: dict, *, allow_abbr: bool = True) -> list[str]:
+    """Detect teams using full names, nicknames, and uppercase abbreviations.
+
+    `allow_abbr=False` disables matching bare uppercase abbreviation tokens
+    (MIN, NO, LA, GB, …). Pass it when scanning long article bodies, where
+    such tokens are noise (stat lines, ALL-CAPS captions); keep it on for
+    short, trustworthy text (titles, summaries).
+    """
     found = []
     text_lower = text.lower()
-    upper_tokens = set(re.findall(r"\b[A-Z]{2,3}\b", text))
+    upper_tokens = set(re.findall(r"\b[A-Z]{2,3}\b", text)) if allow_abbr else set()
 
     for abbr, team in teams_by_abbr.items():
         parts = team["name"].split()
@@ -69,10 +75,83 @@ def _detect_teams(text: str, teams_by_abbr: dict) -> list[str]:
 
         # Only match abbreviations when they appear explicitly as uppercase tokens,
         # which avoids false positives like CAR in "car crash" or WAS in "was".
-        if abbr in upper_tokens:
+        if allow_abbr and abbr in upper_tokens:
             found.append(abbr)
 
     return found
+
+
+# Leading photo-caption / Getty datelines pollute body-based team detection
+# ("MINNEAPOLIS, MINNESOTA - OCTOBER 19, 2025: A.J. Brown of the Eagles…"
+# appearing on a Patriots article). Strip them before scanning the lead.
+_CAPTION_BOILERPLATE = re.compile(
+    r"[A-Z][A-Za-z.\s]+,\s+[A-Z][A-Za-z.\s]+\s*[-–—]\s*"
+    r"(?:JAN(?:UARY)?|FEB(?:RUARY)?|MAR(?:CH)?|APR(?:IL)?|MAY|JUN(?:E)?|"
+    r"JUL(?:Y)?|AUG(?:UST)?|SEP(?:TEMBER)?|OCT(?:OBER)?|NOV(?:EMBER)?|DEC(?:EMBER)?)"
+    r"\s+\d{1,2}(?:,?\s+\d{4})?\s*:?",
+    re.IGNORECASE,
+)
+_GETTY_CREDIT = re.compile(r"\(\s*Photo\s+by[^)]*\)", re.IGNORECASE)
+# How many leading body chars to scan for team mentions. The subject team is
+# named in the headline/lede; opponents and captions are scattered deeper.
+LEAD_CHARS = 500
+
+
+def _strip_caption_boilerplate(text: str) -> str:
+    """Remove leading photo-caption datelines and (Photo by …) credits."""
+    text = _GETTY_CREDIT.sub(" ", text or "")
+    text = _CAPTION_BOILERPLATE.sub(" ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def detect_teams_for_item(
+    title: str,
+    summary: str,
+    body: str,
+    feed_teams: list[str],
+    teams_by_abbr: dict,
+) -> list[str]:
+    """Resolve an item's teams without polluting from incidental body mentions.
+
+    - Title/summary are trusted (abbreviations allowed).
+    - The body contributes only via a short, boilerplate-stripped LEAD, with
+      bare abbreviations disabled.
+    - Feed-pre-tagged single-team feeds (SBN blogs) keep their declared team
+      and only gain a body team when it appears in the TITLE (a real
+      cross-team story).
+    - National feeds (no pre-tag) gain a lead team only when it's corroborated
+      in title/summary or named at least twice in the lead.
+    """
+    title = title or ""
+    summary = summary or ""
+    title_teams = _detect_teams(title, teams_by_abbr)
+    short_teams = _detect_teams(f"{title} {summary}", teams_by_abbr)
+    lead = _strip_caption_boilerplate((body or "")[: LEAD_CHARS * 4])[:LEAD_CHARS]
+    lead_teams = _detect_teams(lead, teams_by_abbr, allow_abbr=False)
+
+    if feed_teams:
+        result = list(feed_teams)
+        for t in title_teams:
+            if t not in result:
+                result.append(t)
+        return result
+
+    result = list(short_teams)
+    lead_lower = lead.lower()
+    for t in lead_teams:
+        if t in result:
+            continue
+        if t in short_teams:
+            result.append(t)
+            continue
+        name = teams_by_abbr[t]["name"]
+        nick = name.split()[-1]
+        occ = len(re.findall(rf"\b{re.escape(nick.lower())}\b", lead_lower)) + len(
+            re.findall(rf"\b{re.escape(name.lower())}\b", lead_lower)
+        )
+        if occ >= 2:
+            result.append(t)
+    return list(dict.fromkeys(result))
 
 
 def collect_rss(
@@ -167,11 +246,14 @@ def collect_rss(
                             cleaned = cleaned[:8000].rsplit(" ", 1)[0] + "…"
                         full_text = cleaned
 
-                # Tag teams mentioned in title + summary + body
-                search_text = f"{title} {summary} {full_text}"
-                detected = _detect_teams(search_text, teams_by_abbr)
-                # Union of feed-level pre-tags and detected teams.
-                teams = list(dict.fromkeys(feed_teams + detected))
+                # Tag teams from title/summary + a boilerplate-stripped lead.
+                # Scanning the whole body over-tags from photo captions,
+                # opponent mentions, and cross-team commentary (see
+                # detect_teams_for_item). full_text below is unchanged — it
+                # still feeds prompt depth; only DETECTION narrows.
+                teams = detect_teams_for_item(
+                    title, summary, full_text, feed_teams, teams_by_abbr
+                )
 
                 # If feed didn't carry body content but the link points to
                 # a known-extractable site (ESPN, CBS, NBC, Yahoo),

@@ -61,4 +61,9 @@ def fake_teams_by_abbr():
         "KC": {"name": "Kansas City Chiefs"},
         "SF": {"name": "San Francisco 49ers"},
         "PHI": {"name": "Philadelphia Eagles"},
+        # Mirror the real MIN over-tagging failure (Vikings tagged onto
+        # Bills/Patriots articles via body mentions).
+        "MIN": {"name": "Minnesota Vikings"},
+        "BUF": {"name": "Buffalo Bills"},
+        "NE": {"name": "New England Patriots"},
     }
