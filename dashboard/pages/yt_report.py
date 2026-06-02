@@ -304,9 +304,9 @@ selected_ids: set = st.session_state["yt_sel_ids"]
 st.caption(
     f"{len(candidates)} transcripts available in range. "
     f"{len(default_ids)} likely press conferences are checked by default. "
-    f"Check/uncheck rows to choose what gets summarized. Use the **Sort** "
-    f"and **Filter** controls below to reorder/narrow the table — "
-    f"selections persist through both."
+    f"Set **Sort** / **Filter** and the bulk buttons first (those reload the "
+    f"page), then tick/untick rows (ticking won't reload), then click "
+    f"**Apply selection & Generate Report**."
 )
 
 # data_editor stores checkbox edits as positional deltas that persist
@@ -363,53 +363,13 @@ df = df.sort_values(
 # Seed the checkbox column from the persisted selection.
 df.insert(0, "Select", df["video_id"].isin(selected_ids))
 
-edited = st.data_editor(
-    df,
-    hide_index=True,
-    use_container_width=True,
-    height=360,
-    column_config={
-        "Select": st.column_config.CheckboxColumn(required=True, width="small"),
-        "video_id": None,
-        "Scope": st.column_config.TextColumn(width="small", help="National = league-wide channel; Team = single-team channel."),
-        "Team": st.column_config.TextColumn(width="small"),
-        "Channel": st.column_config.TextColumn(width="medium"),
-        "Date": st.column_config.TextColumn(width="small"),
-        "Title": st.column_config.TextColumn(width="large"),
-        "Open": st.column_config.LinkColumn("Open", width="small"),
-    },
-    disabled=["Scope", "Team", "Channel", "Date", "Title", "Open"],
-    # Key changes when the sort, filter, or selection-nonce changes, which
-    # discards stale positional edit-deltas so they can't re-check the wrong
-    # rows after a reorder. Stable across plain checkbox toggles.
-    key=(
-        f"yt_video_editor_{sel_token}_{sort_by}_{descending}_"
-        f"{len(search.strip())}_{search.strip().lower()}_{editor_nonce}"
-    ),
-)
-
-# Reconcile the persisted set from the rows currently shown. Rows filtered
-# out keep their prior selection; shown rows take the editor's checkbox
-# state. Keyed by video_id, so it's correct regardless of row order.
-shown_ids = set(edited["video_id"])
-checked_ids = set(edited.loc[edited["Select"], "video_id"])
-st.session_state["yt_sel_ids"] = (selected_ids - shown_ids) | checked_ids
-selected_video_ids = tuple(sorted(st.session_state["yt_sel_ids"]))
-
-if not selected_video_ids:
-    st.warning("No videos selected — pick at least one to generate.")
-    st.stop()
-
-generate = st.button(
-    f"Generate Report ({len(selected_video_ids)} videos)",
-    type="primary",
-)
-
-# Cache the rendered report in session_state so unrelated reruns (e.g.
-# toggling the flag-mode dropdown below) don't blank it out. Only the
-# Generate button or a real input change re-runs the LLM call.
+# Checkbox edits live inside a form so ticking boxes does NOT rerun the page
+# (which would redraw the table and wipe a column-header sort). Edits apply
+# only on Generate. Sort/filter/bulk buttons are OUTSIDE the form, so set
+# those BEFORE ticking — changing them reruns and resets un-applied ticks.
 session_key = "yt_report_section"
 session_inputs_key = "yt_report_inputs"
+selected_video_ids = tuple(sorted(selected_ids))
 current_inputs = (
     start_d.isoformat(),
     end_d.isoformat(),
@@ -417,7 +377,49 @@ current_inputs = (
     selected_video_ids,
 )
 
-if generate:
+with st.form("yt_video_form", clear_on_submit=False):
+    edited = st.data_editor(
+        df,
+        hide_index=True,
+        use_container_width=True,
+        height=360,
+        column_config={
+            "Select": st.column_config.CheckboxColumn(required=True, width="small"),
+            "video_id": None,
+            "Scope": st.column_config.TextColumn(width="small", help="National = league-wide channel; Team = single-team channel."),
+            "Team": st.column_config.TextColumn(width="small"),
+            "Channel": st.column_config.TextColumn(width="medium"),
+            "Date": st.column_config.TextColumn(width="small"),
+            "Title": st.column_config.TextColumn(width="large"),
+            "Open": st.column_config.LinkColumn("Open", width="small"),
+        },
+        disabled=["Scope", "Team", "Channel", "Date", "Title", "Open"],
+        # Key changes when the sort, filter, or selection-nonce changes, which
+        # discards stale positional edit-deltas so they can't re-check the
+        # wrong rows after a reorder. Stable across plain checkbox toggles.
+        key=(
+            f"yt_video_editor_{sel_token}_{sort_by}_{descending}_"
+            f"{len(search.strip())}_{search.strip().lower()}_{editor_nonce}"
+        ),
+    )
+    submitted = st.form_submit_button("Apply selection & Generate Report", type="primary")
+
+if submitted:
+    # Reconcile the persisted set from the rows shown (keyed by video_id, so
+    # it's correct regardless of sort); filtered-out rows keep their state.
+    shown_ids = set(edited["video_id"])
+    checked_ids = set(edited.loc[edited["Select"], "video_id"])
+    st.session_state["yt_sel_ids"] = (selected_ids - shown_ids) | checked_ids
+    selected_video_ids = tuple(sorted(st.session_state["yt_sel_ids"]))
+    if not selected_video_ids:
+        st.warning("No videos selected — tick at least one and Generate again.")
+        st.stop()
+    current_inputs = (
+        start_d.isoformat(),
+        end_d.isoformat(),
+        tuple(team_filter_list),
+        selected_video_ids,
+    )
     with st.spinner("Summarizing transcripts..."):
         section = _generate_cached(*current_inputs)
     st.session_state[session_key] = section
