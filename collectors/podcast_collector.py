@@ -375,10 +375,34 @@ def collect_podcasts(
 
 
 def save_podcast_results(episodes: list[Transcript], date_str: str) -> Path:
-    """Write episode metadata + transcript text to data/raw/<date>/podcast.json."""
+    """Merge new episodes into data/raw/<date>/podcast.json (union by GUID).
+
+    MERGE, not overwrite: ``collect_podcasts`` only returns episodes not yet in
+    ``podcast_seen.json``, so a second run on the same date would otherwise
+    rewrite the file with just the handful of new episodes and drop everything
+    collected earlier that day. Unioning with the existing file keeps same-day
+    re-runs (e.g. a manual run + the CI cron) additive and loss-free.
+    """
     out_dir = get_data_dir("raw", date_str)
     path = out_dir / "podcast.json"
+    by_id: dict[str, dict] = {}
+    if path.exists():
+        try:
+            for rec in json.loads(path.read_text(encoding="utf-8")):
+                vid = rec.get("video_id")
+                if vid:
+                    by_id[vid] = rec
+        except Exception:
+            pass
+    for ep in episodes:
+        rec = ep.to_dict()
+        if rec.get("video_id"):
+            by_id[rec["video_id"]] = rec
+    merged = list(by_id.values())
     with open(path, "w", encoding="utf-8") as f:
-        json.dump([e.to_dict() for e in episodes], f, indent=2, ensure_ascii=False)
-    logger.info("Saved %d podcast records to %s", len(episodes), path)
+        json.dump(merged, f, indent=2, ensure_ascii=False)
+    logger.info(
+        "Saved %d podcast records (%d new this run) to %s",
+        len(merged), len(episodes), path,
+    )
     return path
