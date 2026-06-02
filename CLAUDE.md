@@ -121,6 +121,7 @@ Podcast collection mirrors the YouTube tool but reads RSS instead of YouTube, an
 
 - Windows Task Scheduler: `NFL_News_Agent_Daily` at 6:00 AM (news pipeline)
 - Windows Task Scheduler: `NFL_News_Agent_YT_Backfill` at 5:30 AM (YouTube catch-up; runs first so transcripts are on disk before the news task). Captions-only by default for fast unattended runs; pushes new YouTube files to master via `git push`.
+- GitHub Actions: `.github/workflows/podcasts.yml` cron 11:00 UTC (1h after the daily pipeline). Runs `scripts/collect_podcasts.py` on CI — RSS-only, no Whisper/yt-dlp, so it needs no local machine and no API keys — then force-adds only `data/raw/<date>/podcast.json` + `data/podcast_seen.json` and pushes to master (`[skip ci]`, rebase-retry). `workflow_dispatch` allows a manual run with an optional `lookback_hours`. (Unlike YouTube, which can't run on CI, so it stays a local scheduled task.)
 - `StartWhenAvailable: true` — catches up on missed runs
 - `InteractiveToken` logon — must be logged in (screen lock OK)
 - Dashboard has a manual run button with live step-by-step progress
