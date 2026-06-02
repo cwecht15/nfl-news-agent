@@ -165,6 +165,15 @@ def _scan_single_url(
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             entries = info.get("entries", []) if info else []
+            # Real channel/uploader name from the channel page itself —
+            # applied to every entry as a fallback. This is the actual
+            # YouTube channel name (e.g. "Baltimore Collective"), not the
+            # team display name we tag the transcript's team with.
+            playlist_channel = (
+                (info.get("channel") if info else "")
+                or (info.get("uploader") if info else "")
+                or ""
+            )
 
             for entry in entries:
                 if not entry:
@@ -217,12 +226,22 @@ def _scan_single_url(
                     or published_at.strftime("%Y%m%d")
                 )
 
+                channel_name = (
+                    entry.get("channel")
+                    or entry.get("uploader")
+                    or detailed_info.get("channel")
+                    or detailed_info.get("uploader")
+                    or playlist_channel
+                    or ""
+                )
+
                 results.append({
                     "video_id": video_id,
                     "title": title,
                     "url": video_url,
                     "upload_date": upload_date,
                     "published_at": published_at.isoformat(),
+                    "channel": channel_name,
                     "duration": (
                         entry.get("duration")
                         or detailed_info.get("duration", 0)
@@ -539,7 +558,11 @@ def _process_team(
                 video_id=video_id,
                 title=title,
                 team=team["abbr"],
-                channel_name=team["name"],
+                # Actual YouTube channel name when the scan captured it,
+                # falling back to the team display name. Lets beat/analysis
+                # channels under a team show their own name instead of the
+                # team's.
+                channel_name=(video.get("channel") or team["name"]),
                 published=pub,
                 url=video_url,
                 text=transcript_text,

@@ -9,6 +9,12 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_daily.py
 # Collect YouTube transcripts (local-only — yt-dlp doesn't work on CI)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\collect_youtube.py
 
+# Collect NFL podcast episodes (RSS; transcript-tag first, show-notes fallback —
+# no Whisper, CI-safe). Feeds in config/sources.yaml under `podcasts:`.
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\collect_podcasts.py
+# Re-resolve podcast feed URLs from the iTunes API (after editing the name list)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\resolve_podcast_feeds.py
+
 # Auto YT catch-up: fills in missing days since last run, captions-only,
 # then git-pushes to master. Driven by NFL_News_Agent_YT_Backfill task.
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\auto_backfill_youtube.py
@@ -61,6 +67,14 @@ YouTube collection is decoupled from the news pipeline because yt-dlp doesn't wo
 - **Cloud daily report** (GHA cron, no flag) ignores transcripts entirely. Transactions / Injuries / Depth Chart / Projections / Team Notes / League-Wide only.
 - **Cloud `YouTube Report` dashboard tab** (`dashboard/pages/yt_report.py`) takes a date range, reads matching `youtube.json` files in repo, and calls the same `build_yt_section` on demand. The user pushes transcripts; visitors trigger summarization with one click each. Per-team bullets linkify their `[N]` citations to the source video and the press-conference block lists its source videos (`build_citation_linker` in `dashboard/citations.py`, shared with the Daily Report). Two cache layers: `@st.cache_data` (in-memory) over a durable disk cache (`processing/yt_cache.py` → `data/yt_reports/<key>.json`, keyed by date-range + selected video IDs) so a previously generated range reloads instantly and spends no tokens even after a Streamlit redeploy. Cache files are gitignored and never committed.
 
+## Podcasts — separate tool
+
+Podcast collection mirrors the YouTube tool but reads RSS instead of YouTube, and needs **no Whisper/yt-dlp** (so it's CI-safe). Strategy: **transcript-tag first, show-notes fallback** — use a show's Podcasting 2.0 `<podcast:transcript>` (VTT/SRT/JSON, parsed by the same `_transcription.parse_subtitle_file`) when present, else the episode's show notes. In practice the big network feeds (Megaphone/Acast/Art19) rarely publish the tag, so most episodes summarize from show notes; flip a per-feed `transcribe: true` flag later to Whisper the audio if notes prove too thin.
+
+- **Feeds:** `config/sources.yaml` under `podcasts:` — `{name, team (abbr or "NFL"), feed_url, itunes_id}`. Resolved from the iTunes Search API via `scripts/resolve_podcast_feeds.py` (re-run after editing the curated name→team list inside it). Loaded by `config_loader.get_podcast_feeds()`.
+- **`scripts/collect_podcasts.py`** runs locally (or CI); `collect_podcasts` fetches all feeds in parallel, writes `data/raw/<date>/podcast.json` + `data/transcripts/<date>/pod_*.txt`, and dedups by episode GUID via `data/podcast_seen.json`. Episodes are stored as `models.Transcript` (GUID in `video_id`, show title in `channel_name`, `method` = `transcript`|`shownotes`).
+- **`Podcast Report` dashboard tab** (`dashboard/pages/podcast_report.py`) mirrors the YouTube tab: date range → checkbox episode table (sort/filter in pandas to dodge the data_editor sort bug; all episodes checked by default) → on-demand `build_yt_section` (reused — episodes are Transcript lists) rendered as **Episode Highlights** + **Per-Team Notes** with `[N]` citations. Disk cache `processing/podcast_cache.py` → `data/podcast_reports/<key>.json` (gitignored).
+
 ## Google Sheets
 
 - **Spreadsheet ID:** `1bQtJKplmdOAEmKA1zCdSe8TeVFdOqO3fd-vUgtP1dH0`
@@ -93,6 +107,7 @@ YouTube collection is decoupled from the news pipeline because yt-dlp doesn't wo
 |------|---------|
 | Daily Report | Six sections + Team Notes with clickable `[N]` citations; search, transaction alerts. YouTube subsection appears only on locally-generated reports (`run_daily.py --include-yt-section`). |
 | YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
+| Podcast Report | Date-range picker → checkbox episode table → on-demand LLM summary of pushed podcast episodes (Episode Highlights + per-team bullets). Transcript-tag-first, show-notes fallback. Cached. |
 | Team View | Per-team historical drilldown |
 | Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections |
 | Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser |

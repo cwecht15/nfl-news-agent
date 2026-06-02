@@ -69,6 +69,16 @@ def get_national_youtube_channels() -> list[dict]:
     return get_sources().get("national_youtube_channels", [])
 
 
+def get_podcast_feeds() -> list[dict]:
+    """NFL podcast RSS feeds collected by collect_podcasts.
+
+    Each entry: {name, feed_url, team (abbr or "NFL" for league-wide),
+    optional itunes_id, optional transcribe}. Tagged team groups the
+    episodes in the Podcast Report just like the YouTube national bucket.
+    """
+    return get_sources().get("podcasts", [])
+
+
 def _get_required_env_key(env_name: str) -> str:
     """Load a required API key from the environment."""
     key = os.environ.get(env_name, "")

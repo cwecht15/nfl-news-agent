@@ -1131,7 +1131,13 @@ Transcript:
         )
         summary = _normalize_bullet_summary(summary, max_bullets=6)
         t.ai_summary = summary
-        summaries.append(f"**{t.team} - {t.title}**\n{summary}")
+        # Link the block header to its own source video so each press-conf
+        # block is one click from the transcript it summarizes (no more
+        # eyeball-matching against the flat source list).
+        header = f"{t.team} - {t.title}"
+        if t.url:
+            header = f"[{header}]({t.url})"
+        summaries.append(f"**{header}**\n{summary}")
 
     sources = [
         {

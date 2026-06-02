@@ -206,8 +206,11 @@ earliest = _parse_date(available_dirs[0]) or date.today() - timedelta(days=30)
 latest = _parse_date(available_dirs[-1]) or date.today()
 
 today = date.today()
-default_end = min(latest, today)
-default_start = max(earliest, default_end - timedelta(days=6))
+# Clamp into [earliest, latest]; collection stamps the UTC date, which can be
+# a day ahead of local `today`, so min(latest, today) could fall below
+# `earliest` and crash st.date_input.
+default_end = max(earliest, min(latest, today))
+default_start = max(earliest, min(latest, default_end - timedelta(days=6)))
 
 col_l, col_r = st.columns(2)
 with col_l:
@@ -265,67 +268,133 @@ if not candidate_transcripts:
 
 import pandas as pd
 
-candidate_rows = []
+# Build the candidate pool, each row carrying its stable video_id.
+candidates: list[dict] = []
+default_ids: list[str] = []
 for t in candidate_transcripts:
     score = _press_relevance_score(t.title)
-    candidate_rows.append({
-        "Select": score > 0,
-        "Team": t.team,
-        "Date": t.published.date().isoformat() if t.published else "",
-        "Score": score,
-        "Title": t.title,
+    date_str = t.published.date().isoformat() if t.published else ""
+    candidates.append({
         "video_id": t.video_id,
-        "url": t.url,
+        # "NFL"-tagged transcripts come from the league-wide national
+        # channels (NFL on NBC/FOX/CBS, Pat McAfee, Rich Eisen, ESPN, …);
+        # everything else is a single-team channel.
+        "Scope": "National" if t.team == "NFL" else "Team",
+        "Team": t.team,
+        "Channel": t.channel_name,
+        "Date": date_str,
+        "Title": t.title,
+        "Open": t.url,
     })
-candidate_df = pd.DataFrame(candidate_rows)
+    if score > 0:
+        default_ids.append(t.video_id)
+all_ids = [c["video_id"] for c in candidates]
 
-# "Clear all" empties every checkbox. The data_editor seeds its checkbox
-# state from the dataframe only when its `key` changes, so we bump a nonce
-# (forcing a fresh widget) and zero out the Select column before render.
-editor_nonce = st.session_state.get("yt_editor_nonce", 0)
-if st.session_state.pop("yt_force_clear", False):
-    candidate_df["Select"] = False
+# Selection is persisted as a set of video_ids — immune to sorting and
+# filtering, and it survives incidental reruns. Re-seeded with the score>0
+# defaults whenever the date range / team filter changes.
+sel_token = f"{start_d}_{end_d}_{','.join(team_filter_list)}"
+if st.session_state.get("yt_sel_token") != sel_token:
+    st.session_state["yt_sel_token"] = sel_token
+    st.session_state["yt_sel_ids"] = set(default_ids)
+# Drop ids that have fallen out of the candidate pool.
+st.session_state["yt_sel_ids"] &= set(all_ids)
+selected_ids: set = st.session_state["yt_sel_ids"]
 
 st.caption(
-    f"{len(candidate_df)} transcripts available in range. "
-    f"Default selection includes the {int(candidate_df['Select'].sum())} "
-    f"that score > 0 on the press-conference relevance filter — "
-    f"check additional rows to include them, or uncheck to drop them."
+    f"{len(candidates)} transcripts available in range. "
+    f"{len(default_ids)} likely press conferences are checked by default. "
+    f"Check/uncheck rows to choose what gets summarized. Use the **Sort** "
+    f"and **Filter** controls below to reorder/narrow the table — "
+    f"selections persist through both."
 )
 
-if st.button("Clear all selections"):
-    st.session_state["yt_force_clear"] = True
+# data_editor stores checkbox edits as positional deltas that persist
+# across reruns and re-apply over whatever df we pass. After a reorder or a
+# bulk change those deltas would land on the wrong rows, so we recreate the
+# editor (bump this nonce → new key) whenever the selection is changed
+# programmatically. Plain checkbox toggles keep the same key so they stick.
+editor_nonce = st.session_state.setdefault("yt_editor_nonce", 0)
+
+# Bulk-select buttons operate on the persisted set directly.
+b_score, b_all, b_clear = st.columns(3)
+if b_score.button(f"Select scoring ({len(default_ids)})"):
+    st.session_state["yt_sel_ids"] = set(default_ids)
+    st.session_state["yt_editor_nonce"] = editor_nonce + 1
+    st.rerun()
+if b_all.button("Select all"):
+    st.session_state["yt_sel_ids"] = set(all_ids)
+    st.session_state["yt_editor_nonce"] = editor_nonce + 1
+    st.rerun()
+if b_clear.button("Clear all"):
+    st.session_state["yt_sel_ids"] = set()
     st.session_state["yt_editor_nonce"] = editor_nonce + 1
     st.rerun()
 
+# Sort + filter are done HERE in pandas, so the table's row order always
+# matches the data passed to the editor. This avoids the Streamlit
+# data_editor sort-desync bug (#11345 / #10015) where clicking the built-in
+# column-header sort makes a checkbox toggle a different underlying row.
+# Use these controls rather than the table's own header sort.
+f_search, f_sort, f_dir = st.columns([2, 1, 1])
+search = f_search.text_input(
+    "Filter (title / team / channel)",
+    placeholder="e.g. Lamar, BAL, presser",
+)
+sort_by = f_sort.selectbox(
+    "Sort by", ["Date", "Scope", "Team", "Channel", "Title"], index=0,
+)
+descending = f_dir.selectbox("Order", ["Asc", "Desc"], index=0) == "Desc"
+
+df = pd.DataFrame(candidates)
+if search.strip():
+    q = search.strip().lower()
+    mask = (
+        df["Title"].str.lower().str.contains(q, regex=False, na=False)
+        | df["Team"].str.lower().str.contains(q, regex=False, na=False)
+        | df["Channel"].str.lower().str.contains(q, regex=False, na=False)
+        | df["Scope"].str.lower().str.contains(q, regex=False, na=False)
+    )
+    df = df[mask]
+df = df.sort_values(
+    by=sort_by, ascending=not descending, kind="stable",
+).reset_index(drop=True)
+
+# Seed the checkbox column from the persisted selection.
+df.insert(0, "Select", df["video_id"].isin(selected_ids))
+
 edited = st.data_editor(
-    candidate_df,
+    df,
     hide_index=True,
     use_container_width=True,
+    height=360,
     column_config={
-        "Select": st.column_config.CheckboxColumn(required=True),
-        "Team": st.column_config.TextColumn(width="small"),
-        "Date": st.column_config.TextColumn(width="small"),
-        "Score": st.column_config.NumberColumn(
-            width="small",
-            help="Press-conference relevance score from title keywords. "
-                 "Positive = scored as a presser by default; check the "
-                 "row to force-include a zero or negative one.",
-        ),
-        "Title": st.column_config.TextColumn(width="large"),
+        "Select": st.column_config.CheckboxColumn(required=True, width="small"),
         "video_id": None,
-        "url": st.column_config.LinkColumn("Open", width="small"),
+        "Scope": st.column_config.TextColumn(width="small", help="National = league-wide channel; Team = single-team channel."),
+        "Team": st.column_config.TextColumn(width="small"),
+        "Channel": st.column_config.TextColumn(width="medium"),
+        "Date": st.column_config.TextColumn(width="small"),
+        "Title": st.column_config.TextColumn(width="large"),
+        "Open": st.column_config.LinkColumn("Open", width="small"),
     },
-    disabled=["Team", "Date", "Score", "Title", "url"],
+    disabled=["Scope", "Team", "Channel", "Date", "Title", "Open"],
+    # Key changes when the sort, filter, or selection-nonce changes, which
+    # discards stale positional edit-deltas so they can't re-check the wrong
+    # rows after a reorder. Stable across plain checkbox toggles.
     key=(
-        f"yt_video_editor_{start_d}_{end_d}_"
-        f"{','.join(team_filter_list)}_{editor_nonce}"
+        f"yt_video_editor_{sel_token}_{sort_by}_{descending}_"
+        f"{len(search.strip())}_{search.strip().lower()}_{editor_nonce}"
     ),
 )
 
-selected_video_ids = tuple(
-    edited.loc[edited["Select"], "video_id"].astype(str).tolist()
-)
+# Reconcile the persisted set from the rows currently shown. Rows filtered
+# out keep their prior selection; shown rows take the editor's checkbox
+# state. Keyed by video_id, so it's correct regardless of row order.
+shown_ids = set(edited["video_id"])
+checked_ids = set(edited.loc[edited["Select"], "video_id"])
+st.session_state["yt_sel_ids"] = (selected_ids - shown_ids) | checked_ids
+selected_video_ids = tuple(sorted(st.session_state["yt_sel_ids"]))
 
 if not selected_video_ids:
     st.warning("No videos selected — pick at least one to generate.")
