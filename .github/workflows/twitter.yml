@@ -39,11 +39,13 @@ jobs:
           python-version: "3.12"
 
       - name: Install minimal dependencies
-        # Collection only needs an HTTP client + config loading. No torch/
-        # whisper/yt-dlp/openai — summarization happens on-demand in the dashboard.
+        # HTTP client + config loading + feedparser: the tweet→team helper
+        # (detect_teams_for_item) lives in rss_collector, which imports
+        # feedparser at module load. Still no torch/whisper/yt-dlp/openai —
+        # summarization is on-demand in the dashboard.
         run: |
           python -m pip install --upgrade pip
-          pip install requests PyYAML python-dotenv
+          pip install requests PyYAML python-dotenv feedparser
 
       - name: Collect Twitter lists
         env:
