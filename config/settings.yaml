@@ -123,7 +123,9 @@ twitter:
   lookback_hours: 28
   # Hard cap on new tweets pulled per run, across all lists. Each tweet is
   # billed, so this bounds cost on busy days (free agency, draft, game day).
-  max_per_run: 500
+  # ~$0.15/1k, so 1000 ≈ $4.50/mo worst case. Raised from 500 because the
+  # insiders list (incl. team house accounts) exceeds 500 tweets / 28h.
+  max_per_run: 1000
   # Replies are noisy and double the bill; default to originals + retweets.
   include_replies: false
 
