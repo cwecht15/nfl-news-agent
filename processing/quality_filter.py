@@ -2,7 +2,9 @@
 
 Catches voting articles, trivia, jersey reveals, off-cycle mock drafts,
 and similar low-signal patterns. Patterns are configured in
-`config/settings.yaml` under `content_filter.drop_patterns`.
+`config/settings.yaml` under `content_filter.drop_patterns` (applied to every
+source) and `content_filter.drop_patterns_by_source_type` (applied only to a
+named source_type, e.g. promo/holiday fluff scoped to `twitter`).
 """
 
 import logging
@@ -26,6 +28,15 @@ def filter_news_items(items: list[NewsItem]) -> tuple[list[NewsItem], list[NewsI
         return list(items), []
 
     drop_patterns = _compile_patterns(cfg.get("drop_patterns") or [])
+    # Patterns applied ONLY to items of a matching source_type (matched against
+    # the title; for tweets the title is the full tweet text). Lets us strip
+    # aggressive Twitter promo/holiday fluff — insider lists include team house
+    # accounts that post marketing — without touching real RSS headlines.
+    scoped_raw = cfg.get("drop_patterns_by_source_type") or {}
+    scoped_patterns = {
+        str(st): _compile_patterns(pats or [])
+        for st, pats in scoped_raw.items()
+    }
     keep_years = [str(y) for y in (cfg.get("mock_draft_keep_years") or [])]
     mock_pattern = re.compile(r"\bmock draft\b", re.IGNORECASE)
 
@@ -36,6 +47,11 @@ def filter_news_items(items: list[NewsItem]) -> tuple[list[NewsItem], list[NewsI
         title = item.title or ""
 
         if any(p.search(title) for p in drop_patterns):
+            dropped.append(item)
+            continue
+
+        scoped = scoped_patterns.get(item.source_type)
+        if scoped and any(p.search(title) for p in scoped):
             dropped.append(item)
             continue
 

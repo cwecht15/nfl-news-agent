@@ -55,6 +55,21 @@ content_filter:
   # mentions one of these years (current and next NFL draft cycles).
   # Update annually.
   mock_draft_keep_years: ["2026", "2027"]
+  # Patterns applied ONLY to a given source_type (the title for tweets is the
+  # full tweet text). Insider Twitter lists include team house accounts that
+  # post marketing/holiday content — strip that here without risking real RSS
+  # headlines. Add more source_types (e.g. reddit) below as needed.
+  drop_patterns_by_source_type:
+    twitter:
+      - '\bjuneteenth\b'
+      - 'celebrat\w* (freedom|juneteenth|black history|independence)'
+      - 'happy (juneteenth|fourth of july|independence day|thanksgiving|holidays?|new year|birthday|anniversary)'
+      - 'join us (in|as we) celebrat'
+      - '\btune in\b.*(broadcast|special|premiere|watch party|tonight|this (sunday|week))'
+      - '\b(giveaway|sweepstakes|enter to win|raffle)\b'
+      - 'tickets? (on sale|available|presale|now available)'
+      - '\b(presale|flash sale|shop now|link in bio|promo code|use code)\b'
+      - 'single[- ]game tickets'
 
 cross_day_dedup:
   # Suppress today's items whose title is a near-duplicate of something
@@ -97,13 +112,20 @@ fantasypoints:
   lookback_hours: 24
   max_articles: 15
 
-nitter:
-  # Nitter instances for Twitter RSS (tried in order).
-  # As of April 2026 all major public Nitter instances are dead.
-  # To re-enable: self-host a Nitter fork with your own Twitter
-  # session tokens, or use a paid RSS bridge service (e.g. RSS.app).
-  instances: []
-  enabled: false
+twitter:
+  # X/Twitter list monitoring via the TwitterAPI.io REST API (a cheap
+  # third-party scraper — $0.15 / 1,000 tweets, no monthly minimum).
+  # Lists live in sources.yaml under `twitter_lists:`. API key in .env as
+  # TWITTERAPI_IO_KEY. (Replaces the dead Nitter path.)
+  enabled: true
+  # How far back to pull on each run (hours). Sent server-side as sinceTime
+  # so the API only returns — and only bills for — tweets in the window.
+  lookback_hours: 28
+  # Hard cap on new tweets pulled per run, across all lists. Each tweet is
+  # billed, so this bounds cost on busy days (free agency, draft, game day).
+  max_per_run: 500
+  # Replies are noisy and double the bill; default to originals + retweets.
+  include_replies: false
 
 transcription:
   # Whisper model: tiny, base, small, medium, large

@@ -1,7 +1,7 @@
 """Daily orchestrator.
 
 Main entry point that runs the full news pipeline:
-1. Collect from all sources (RSS, web, Reddit, beat writers — no YouTube)
+1. Collect from all sources (RSS, web, Reddit, beat writers, Twitter — no YouTube)
 2. Deduplicate news items
 3. Summarize with the configured LLM provider
 4. Build and save the daily report
@@ -49,6 +49,10 @@ from collectors.beat_writer_collector import (
 from collectors.fantasypoints_collector import (
     collect_fantasypoints,
     save_fantasypoints_results,
+)
+from collectors.twitter_collector import (
+    collect_twitter_list,
+    save_twitter_results,
 )
 from models import Transcript
 from processing.cross_day_filter import filter_recent_duplicates
@@ -235,7 +239,12 @@ def run(
             })
             return []
 
-    with ThreadPoolExecutor(max_workers=6) as executor:
+    # Twitter is collected on the cloud pipeline ONLY (GitHub Actions), so it
+    # isn't double-pulled and double-summarized by both the local scheduled
+    # task and the cloud run. For a manual local pull use scripts/collect_twitter.py.
+    collect_twitter_on_ci = bool(os.environ.get("GITHUB_ACTIONS"))
+
+    with ThreadPoolExecutor(max_workers=7) as executor:
         future_rss = executor.submit(collect_rss, lookback_hours=lookback_hours)
         future_espn = executor.submit(
             collect_espn_team_news, lookback_hours=lookback_hours
@@ -254,6 +263,15 @@ def run(
         # (settings.fantasypoints.lookback_hours), not the news pipeline's
         # window — the section is meant to mirror "today's articles".
         future_fp = executor.submit(collect_fantasypoints)
+        # Twitter/X insider lists via the TwitterAPI.io REST API. API-only and
+        # CI-safe (unlike YouTube), but collected on the cloud run ONLY (see
+        # collect_twitter_on_ci) to avoid double-pull/double-summarize. Tweets
+        # come back as NewsItems and flow through dedup → Team Notes /
+        # League-Wide exactly like RSS. Still self-gates on twitter.enabled.
+        future_twitter = (
+            executor.submit(collect_twitter_list, date_str, lookback_hours=lookback_hours)
+            if collect_twitter_on_ci else None
+        )
 
     rss_items = _safe_result(future_rss, "RSS")
     espn_items = _safe_result(future_espn, "ESPN Teams")
@@ -265,12 +283,15 @@ def run(
     else:
         bw_items, bw_transcripts = [], []
     fp_items = _safe_result(future_fp, "FantasyPoints")
+    twitter_items = _safe_result(future_twitter, "Twitter") if future_twitter else []
 
     save_rss_results(rss_items + espn_items, date_str)
     save_web_results(web_items, date_str)
     save_reddit_results(reddit_items, date_str)
     save_beat_writer_results(bw_items, bw_transcripts, date_str)
     save_fantasypoints_results(fp_items, date_str)
+    if future_twitter:
+        save_twitter_results(twitter_items, date_str)
 
     # Record source health
     record_source_result("RSS Feeds", len(rss_items),
@@ -293,13 +314,20 @@ def run(
         error=next((a["message"] for a in collector_alerts if "FantasyPoints" in a.get("source", "")), ""),
         low_volume=True,
     )
+    if future_twitter:
+        record_source_result(
+            "Twitter",
+            len(twitter_items),
+            error=next((a["message"] for a in collector_alerts if "Twitter" in a.get("source", "")), ""),
+            low_volume=True,
+        )
 
     web_source_status = get_last_web_source_status()
     health_alerts = get_health_alerts()
     source_alerts = collector_alerts + _build_source_alerts(web_source_status) + health_alerts
     _log_source_alerts(logger, source_alerts)
 
-    all_news = rss_items + espn_items + web_items + reddit_items + bw_items
+    all_news = rss_items + espn_items + web_items + reddit_items + bw_items + twitter_items
 
     # Optional: hydrate transcripts for the YT section. The news pipeline
     # itself never collects YouTube — that's `scripts/collect_youtube.py`.

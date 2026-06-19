@@ -57,6 +57,7 @@ jobs:
           ATHLETIC_COOKIES: ${{ secrets.ATHLETIC_COOKIES }}
           FANTASYPOINTS_AUTH: ${{ secrets.FANTASYPOINTS_AUTH }}
           FANTASYPOINTS_SOURCE: ${{ secrets.FANTASYPOINTS_SOURCE }}
+          TWITTERAPI_IO_KEY: ${{ secrets.TWITTERAPI_IO_KEY }}
         run: |
           mkdir -p secrets
           # .env for the pipeline to load via python-dotenv
@@ -67,6 +68,7 @@ jobs:
             if [ -n "${ATHLETIC_COOKIES}" ]; then echo "ATHLETIC_COOKIES_PATH=${GITHUB_WORKSPACE}/secrets/athletic_cookies.txt"; fi
             if [ -n "${FANTASYPOINTS_AUTH}" ]; then echo "FANTASYPOINTS_AUTH=${FANTASYPOINTS_AUTH}"; fi
             if [ -n "${FANTASYPOINTS_SOURCE}" ]; then echo "FANTASYPOINTS_SOURCE=${FANTASYPOINTS_SOURCE}"; fi
+            if [ -n "${TWITTERAPI_IO_KEY}" ]; then echo "TWITTERAPI_IO_KEY=${TWITTERAPI_IO_KEY}"; fi
           } > .env
 
           # Google service-account JSON (required for projection snapshots)
@@ -106,6 +108,7 @@ jobs:
               data/logs \
               data/source_health.json \
               data/youtube_seen.json \
+              data/twitter_seen.json \
               data/notebooklm_pushed.json \
               data/flagged_findings.json; do
             if [ -e "$path" ]; then

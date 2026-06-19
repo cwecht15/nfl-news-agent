@@ -1,0 +1,97 @@
+name: Twitter list collection (manual backfill)
+
+# Manual backfill ONLY — not scheduled. Routine daily Twitter collection now
+# happens inside the main daily pipeline (daily.yml → scripts/run_daily.py);
+# running a second scheduled job here would double-pull (and double-bill)
+# tweets. Kept for on-demand catch-ups, e.g. a wide --lookback-hours backfill.
+# Uses the TwitterAPI.io REST API; requires the TWITTERAPI_IO_KEY repo secret.
+
+on:
+  workflow_dispatch:
+    inputs:
+      lookback_hours:
+        description: "Override how far back to pull (hours)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write  # commit twitter.json + twitter_seen.json back to the repo
+
+concurrency:
+  group: twitter-pipeline
+  cancel-in-progress: false
+
+jobs:
+  collect-twitter:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal dependencies
+        # Collection only needs an HTTP client + config loading. No torch/
+        # whisper/yt-dlp/openai — summarization happens on-demand in the dashboard.
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests PyYAML python-dotenv
+
+      - name: Collect Twitter lists
+        env:
+          TWITTERAPI_IO_KEY: ${{ secrets.TWITTERAPI_IO_KEY }}
+        run: |
+          mkdir -p data/logs
+          LOOKBACK="${{ github.event.inputs.lookback_hours }}"
+          if [ -n "$LOOKBACK" ]; then
+            python scripts/collect_twitter.py --lookback-hours "$LOOKBACK"
+          else
+            python scripts/collect_twitter.py
+          fi
+
+      - name: Commit Twitter output back to repo
+        run: |
+          git config user.name "nfl-news-agent-bot"
+          git config user.email "nfl-news-agent-bot@users.noreply.github.com"
+
+          DAY="$(date -u +%F)"
+          # data/ is gitignored; force-add only the Twitter artifacts (never a
+          # broad `git add data/`, so visitor-written files like
+          # data/flagged_findings.json are never touched).
+          for path in "data/raw/${DAY}/twitter.json" "data/twitter_seen.json"; do
+            if [ -e "$path" ]; then
+              git add -f "$path"
+              echo "Staged: $path"
+            else
+              echo "Skipped (missing): $path"
+            fi
+          done
+
+          if git diff --staged --quiet; then
+            echo "No Twitter changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Twitter list ${DAY} [skip ci]"
+
+          # Push with rebase-retry — master may have moved (e.g. the daily
+          # pipeline or podcast cron) while this ran.
+          for attempt in 1 2 3; do
+            if git push origin HEAD:master; then
+              echo "Push succeeded on attempt $attempt."
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt). Rebasing onto latest master..."
+            git fetch origin master
+            git rebase origin/master
+          done
+          echo "Push failed after 3 attempts."
+          exit 1

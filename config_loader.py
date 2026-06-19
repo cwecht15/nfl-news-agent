@@ -79,6 +79,16 @@ def get_podcast_feeds() -> list[dict]:
     return get_sources().get("podcasts", [])
 
 
+def get_twitter_lists() -> list[dict]:
+    """X/Twitter lists collected by collect_twitter_list (TwitterAPI.io).
+
+    Each entry: {name, list_id, optional team (abbr) for a single-team list}.
+    An entry with no ``team`` is treated as league-wide — its tweets get their
+    teams detected from the tweet text, like a national RSS feed.
+    """
+    return get_sources().get("twitter_lists", [])
+
+
 def _get_required_env_key(env_name: str) -> str:
     """Load a required API key from the environment."""
     key = os.environ.get(env_name, "")
@@ -108,6 +118,11 @@ def get_anthropic_api_key() -> str:
 
 def get_openai_api_key() -> str:
     return _get_required_env_key("OPENAI_API_KEY")
+
+
+def get_twitter_api_key() -> str:
+    """TwitterAPI.io API key for the Twitter list collector."""
+    return _get_required_env_key("TWITTERAPI_IO_KEY")
 
 
 def get_fantasypoints_auth() -> str:

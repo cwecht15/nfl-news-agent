@@ -15,6 +15,10 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\collect_podcasts.py
 # Re-resolve podcast feed URLs from the iTunes API (after editing the name list)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\resolve_podcast_feeds.py
 
+# Collect X/Twitter insider-list tweets (TwitterAPI.io; CI-safe). Routine
+# collection is cloud-only via the daily pipeline — this is for manual backfill.
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\collect_twitter.py
+
 # Auto YT catch-up: fills in missing days since last run, captions-only,
 # then git-pushes to master. Driven by NFL_News_Agent_YT_Backfill task.
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\auto_backfill_youtube.py
@@ -50,7 +54,7 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\transaction_reconcile
 ## Architecture
 
 7-step daily pipeline (build-report runs late so depth-chart and projection diffs flow into the report):
-1. **Collect** — RSS (ESPN, PFT, CBS, Athletic, plus 32 SB Nation team blogs), web (NFL.com transactions/injuries, Athletic team pages, 32 SI.com team pages), Reddit (r/nfl), beat writers — all parallel. **No YouTube** — transcripts are produced by `scripts/collect_youtube.py` running locally and consumed only by the YouTube Report dashboard tab and (optionally) the local daily report's YT section. Then `processing.quality_filter` strips obvious fluff (voting articles, off-cycle mock drafts, jersey reveals, trivia) before dedup.
+1. **Collect** — RSS (ESPN, PFT, CBS, Athletic, plus 32 SB Nation team blogs), web (NFL.com transactions/injuries, Athletic team pages, 32 SI.com team pages), Reddit (r/nfl), beat writers, plus — on the cloud run only — X/Twitter insider lists via TwitterAPI.io — all parallel. **No YouTube** — transcripts are produced by `scripts/collect_youtube.py` running locally and consumed only by the YouTube Report dashboard tab and (optionally) the local daily report's YT section. Then `processing.quality_filter` strips obvious fluff (voting articles, off-cycle mock drafts, jersey reveals, trivia) before dedup.
 2. **Deduplicate** — Embedding-based (sentence-transformers) with transaction-aware name matching. Cross-day filter (2-day lookback, 0.82 cosine) suppresses repeats from previous days.
 3. **Summarize** — OpenAI gpt-5.4-mini, single call per section. Article bodies (3.5k–8k chars each) flow into the team-notes prompt so depth-chart and post-draft pieces yield real player-level bullets, not just title-level paraphrase.
 4. **Snapshot projections** — Google Sheets: player metrics (80 cols), fantasy points (PPR/rank), team metrics (66 cols). Compares against most-recent snapshot strictly *before today's date* (otherwise same-day re-runs would diff today against itself).
@@ -74,6 +78,14 @@ Podcast collection mirrors the YouTube tool but reads RSS instead of YouTube, an
 - **Feeds:** `config/sources.yaml` under `podcasts:` — `{name, team (abbr or "NFL"), feed_url, itunes_id}`. Resolved from the iTunes Search API via `scripts/resolve_podcast_feeds.py` (re-run after editing the curated name→team list inside it). Loaded by `config_loader.get_podcast_feeds()`.
 - **`scripts/collect_podcasts.py`** runs locally (or CI); `collect_podcasts` fetches all feeds in parallel, writes `data/raw/<date>/podcast.json` + `data/transcripts/<date>/pod_*.txt`, and dedups by episode GUID via `data/podcast_seen.json`. Episodes are stored as `models.Transcript` (GUID in `video_id`, show title in `channel_name`, `method` = `transcript`|`shownotes`).
 - **`Podcast Report` dashboard tab** (`dashboard/pages/podcast_report.py`) mirrors the YouTube tab: date range → checkbox episode table (sort/filter in pandas to dodge the data_editor sort bug; all episodes checked by default) → on-demand `build_yt_section` (reused — episodes are Transcript lists) rendered as **Episode Highlights** + **Per-Team Notes** with `[N]` citations. Disk cache `processing/podcast_cache.py` → `data/podcast_reports/<key>.json` (gitignored).
+
+## Twitter — cloud-collected source + on-demand report
+
+X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap third-party scraper, ~$0.15/1k tweets — API-key only, CI-safe, unlike yt-dlp). Lists in `config/sources.yaml` under `twitter_lists:` (`{name, list_id, optional team}`); knobs in `config/settings.yaml` under `twitter:`; key in `.env` / GitHub secret `TWITTERAPI_IO_KEY`.
+
+- **Collection is cloud-only.** `run_daily.py` collects tweets ONLY when `GITHUB_ACTIONS` is set (`collect_twitter_on_ci`), so the local scheduled task and the cloud run don't both pull and bill. `collectors/twitter_collector.py` maps each tweet to a `NewsItem` (`source_type="twitter"`, dedup via `data/twitter_seen.json`); they flow through quality-filter → dedup → Team Notes / League-Wide like RSS. Standalone `scripts/collect_twitter.py` + `.github/workflows/twitter.yml` (`workflow_dispatch`-only) are for manual backfill.
+- **Fluff scrub:** Twitter-scoped promo/holiday regexes in `content_filter.drop_patterns_by_source_type.twitter` (`quality_filter`); an un-teamed tweet only reaches League-Wide if it carries a news signal or names a known player (`summarizer._league_wide_eligible` / `_TWITTER_LEAGUE_SIGNAL`).
+- **`Twitter Report` dashboard tab** (`dashboard/pages/twitter_report.py` + `processing/twitter_section.py`): on-demand LLM report that (1) LLM-attributes each tweet to a team even with no team named (correcting keyword false positives), (2) clusters same-story tweets into one bullet with multi-`[N]` citations to the tweet **account** (`summarizer._citation_source`), and (3) offers a pop-open raw tweet list. Disk cache `processing/twitter_cache.py` → `data/twitter_reports/<key>.json` (gitignored).
 
 ## Google Sheets
 
@@ -108,6 +120,7 @@ Podcast collection mirrors the YouTube tool but reads RSS instead of YouTube, an
 | Daily Report | Six sections + Team Notes with clickable `[N]` citations; search, transaction alerts. YouTube subsection appears only on locally-generated reports (`run_daily.py --include-yt-section`). |
 | YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
 | Podcast Report | Date-range picker → checkbox episode table → on-demand LLM summary of pushed podcast episodes (Episode Highlights + per-team bullets). Transcript-tag-first, show-notes fallback. Cached. |
+| Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
 | Team View | Per-team historical drilldown |
 | Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections |
 | Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser |
@@ -122,6 +135,7 @@ Podcast collection mirrors the YouTube tool but reads RSS instead of YouTube, an
 - Windows Task Scheduler: `NFL_News_Agent_Daily` at 6:00 AM (news pipeline)
 - Windows Task Scheduler: `NFL_News_Agent_YT_Backfill` at 5:30 AM (YouTube catch-up; runs first so transcripts are on disk before the news task). Captions-only by default for fast unattended runs; pushes new YouTube files to master via `git push`.
 - GitHub Actions: `.github/workflows/podcasts.yml` cron 11:00 UTC (1h after the daily pipeline). Runs `scripts/collect_podcasts.py` on CI — RSS-only, no Whisper/yt-dlp, so it needs no local machine and no API keys — then force-adds only `data/raw/<date>/podcast.json` + `data/podcast_seen.json` and pushes to master (`[skip ci]`, rebase-retry). `workflow_dispatch` allows a manual run with an optional `lookback_hours`. (Unlike YouTube, which can't run on CI, so it stays a local scheduled task.)
+- Twitter: collected inside the **cloud** daily pipeline (`daily.yml`, 10:00 UTC) — `run_daily.py` gates it to CI-only (`GITHUB_ACTIONS`) so the local task doesn't also pull/bill. `.github/workflows/twitter.yml` is `workflow_dispatch`-only (manual backfill), NOT a scheduled cron. Needs the `TWITTERAPI_IO_KEY` repo secret.
 - `StartWhenAvailable: true` — catches up on missed runs
 - `InteractiveToken` logon — must be logged in (screen lock OK)
 - Dashboard has a manual run button with live step-by-step progress

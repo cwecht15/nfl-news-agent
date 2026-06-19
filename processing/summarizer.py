@@ -917,6 +917,22 @@ def _build_news_context_line(item: NewsItem, detail_chars: int = 260) -> str:
     return "\n".join(lines)
 
 
+def _citation_source(item: Any) -> str:
+    """Source label for the `[N]` list under a section.
+
+    For tweets, show the actual account (e.g. "Rich Cimini @RichCimini") rather
+    than the generic list name ("Twitter/NFL Insiders") — the account is the
+    useful attribution. The author is stored as "Display (@handle)"; strip the
+    parens around the handle so it doesn't nest inside the renderer's own
+    parentheses. All other sources keep their `source` string.
+    """
+    if isinstance(item, NewsItem) and item.source_type == "twitter":
+        author = (item.author or "").strip()
+        if author:
+            return re.sub(r"\(\s*(@\w+)\s*\)", r"\1", author)
+    return getattr(item, "source", "") or ""
+
+
 def _build_transcript_context_line(
     transcript: Transcript,
     detail_chars: int = 220,
@@ -1151,6 +1167,42 @@ Transcript:
     return "\n\n".join(summaries), len(selected_transcripts), sources
 
 
+# A no-team tweet earns a League-Wide slot only if it carries a real news
+# signal — a transaction/injury/roster verb or a genuine league-office topic.
+# Without one (and without naming a known player) it's almost always team-
+# account marketing, holiday posts, or cross-sport chatter, which we keep out.
+_TWITTER_LEAGUE_SIGNAL = re.compile(
+    r"\b(sign(ed|ing|s)?|releas|waiv|trade[ds]?|claim|activat|reinstat|cut|"
+    r"roster|depth chart|start(er|ing)|snap|reps|first team|"
+    r"injur(y|ed|ies)?|hurt|surgery|IR|PUP|questionable|doubtful|"
+    r"ruled out|return|practice|workout|visit|contract|extension|deal|agree|"
+    r"restructur|hold ?out|suspend|fine|retir|drafted|rookie|camp|OTA|"
+    r"minicamp|CBA|collective bargaining|franchise tag|salary cap|"
+    r"schedule release|rule change|owners meeting|commissioner)\b",
+    re.IGNORECASE,
+)
+
+
+def _league_wide_eligible(
+    item: NewsItem,
+    player_names: set[str],
+    signal_re: re.Pattern,
+) -> bool:
+    """Whether a no-team item belongs in League-Wide Notes.
+
+    Only Twitter is gated (other sources keep their prior behavior): an
+    untagged tweet must show a news signal or name a known player, otherwise
+    it's almost certainly team-account marketing / off-topic noise.
+    """
+    if item.source_type != "twitter":
+        return True
+    title = item.title or ""
+    if signal_re.search(title):
+        return True
+    low = title.lower()
+    return any(name in low for name in player_names)
+
+
 def summarize_league_wide(
     news_items: list[NewsItem],
     client: Optional[Any] = None,
@@ -1183,7 +1235,7 @@ def summarize_league_wide(
         candidate_sources.append({
             "num": idx,
             "title": item.title,
-            "source": item.source,
+            "source": _citation_source(item),
             "url": item.url,
         })
 
@@ -1361,7 +1413,7 @@ def _build_team_item_lines(items: list) -> tuple[list[str], list[dict]]:
             candidates.append({
                 "num": idx,
                 "title": item.title,
-                "source": item.source,
+                "source": _citation_source(item),
                 "url": item.url,
             })
         else:
@@ -1520,7 +1572,7 @@ Specificity is a BONUS, not a requirement:
 - The test is role-relevance, not numbers: keep anything signaling who is rising/falling, competing for a job, changing roles, or fitting a scheme. Drop only CONTENTLESS praise with no role implication ("looked good out there" and nothing else, generic hype, platitudes).
 
 Rules:
-- One bullet per development. Do not synthesize multiple unrelated items into one bullet.
+- One bullet per development. Do not synthesize multiple unrelated items into one bullet. But when MULTIPLE items report the SAME development (e.g. several reporters on one signing or the same depth-chart move), MERGE them into ONE bullet and cite every source, e.g. [1, 4].
 - Lead each bullet with the most-specific named subject (player, coach, or executive). For genuinely team-level points, lead with the topic in bold.
 - Every bullet must end with at least one [N] citation pointing to the input item(s) that source it.
 - Do NOT restate transactions (signings, releases, trades, contract terms) or injury-status updates — those have their own report sections. Only mention one if it directly changes a skill-position role AND you add the role/usage angle those sections would not (e.g. "with X gone, Y becomes the early-down back").
@@ -1663,7 +1715,24 @@ def run_summarization(
     }
 
     logger.info("Generating league-wide notes...")
-    league_wide_news = [i for i in general_news if not i.teams]
+    # Full player names from the depth chart (multi-word only, to avoid
+    # single-token false matches) let an untagged tweet that clearly names a
+    # player still qualify even without an explicit transaction verb.
+    _lw_player_names = {n for n in position_lookup if " " in n}
+    league_wide_news = []
+    _lw_dropped_tweets = 0
+    for i in general_news:
+        if i.teams:
+            continue
+        if _league_wide_eligible(i, _lw_player_names, _TWITTER_LEAGUE_SIGNAL):
+            league_wide_news.append(i)
+        elif i.source_type == "twitter":
+            _lw_dropped_tweets += 1
+    if _lw_dropped_tweets:
+        logger.info(
+            "League-wide: dropped %d no-signal Twitter item(s) (marketing/off-topic)",
+            _lw_dropped_tweets,
+        )
     league_wide_text, league_wide_sources = summarize_league_wide(
         league_wide_news,
         client,
