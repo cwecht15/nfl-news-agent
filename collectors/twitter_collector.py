@@ -55,6 +55,15 @@ _USER_AGENT = "NFL-News-Agent/1.0 (+twitter list collector)"
 _CREATED_FMT = "%a %b %d %H:%M:%S %z %Y"
 
 
+class TwitterAuthError(RuntimeError):
+    """TwitterAPI.io auth/billing failure (HTTP 401 / 402 / 403).
+
+    The key is missing/invalid or the account is out of credits, so every list
+    will fail identically — raised (not swallowed) so it surfaces as a loud
+    source-health error instead of a silent zero-tweet run.
+    """
+
+
 # ──────────────────────────────────────────────────────────────────────
 # Seen-tweet dedup (parity with data/podcast_seen.json)
 # ──────────────────────────────────────────────────────────────────────
@@ -98,7 +107,13 @@ def _fetch_page(
     include_replies: bool,
     timeout: int,
 ) -> Optional[dict]:
-    """Fetch one page of a list timeline. Returns the parsed JSON or None."""
+    """Fetch one page of a list timeline.
+
+    Returns the parsed JSON, or None on a transient/network error. Raises
+    :class:`TwitterAuthError` on an auth/billing failure (HTTP 401/402/403) so a
+    bad key or an empty TwitterAPI.io balance surfaces as a source-health error
+    rather than a silent zero-tweet run.
+    """
     params = {
         "listId": list_id,
         "cursor": cursor,
@@ -112,6 +127,26 @@ def _fetch_page(
             headers={"X-API-Key": api_key, "User-Agent": _USER_AGENT},
             timeout=timeout,
         )
+    except requests.RequestException as e:
+        logger.warning("TwitterAPI.io request failed for list %s: %s", list_id, e)
+        return None
+
+    if resp.status_code in (401, 403):
+        msg = (
+            f"TwitterAPI.io returned HTTP {resp.status_code} — the "
+            "TWITTERAPI_IO_KEY is missing, invalid, or unauthorized."
+        )
+        logger.error(msg)
+        raise TwitterAuthError(msg)
+    if resp.status_code == 402:
+        msg = (
+            "TwitterAPI.io returned HTTP 402 (Payment Required) — the account "
+            "is out of credits. Add a balance at twitterapi.io."
+        )
+        logger.error(msg)
+        raise TwitterAuthError(msg)
+
+    try:
         resp.raise_for_status()
         return resp.json()
     except Exception as e:
@@ -285,6 +320,12 @@ def collect_twitter_list(
                 cfg, api_key, cutoff, max_tweets, include_replies,
                 timeout, delay, snapshot, teams_by_abbr,
             )
+        except TwitterAuthError:
+            # Account-level failure (bad key / no credits) — every list will
+            # fail the same way, so don't swallow it. Persist any seen IDs
+            # gathered so far, then surface it to the caller's error handling.
+            _save_seen(seen)
+            raise
         except Exception as e:
             logger.error("Twitter list %s failed: %s", cfg.get("name"), e)
             continue
