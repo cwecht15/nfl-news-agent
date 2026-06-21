@@ -1,0 +1,226 @@
+2026-06-21 12:10:13,832 [INFO] orchestrator: ============================================================
+2026-06-21 12:10:13,832 [INFO] orchestrator: NFL News Agent - Daily Run: 2026-06-21
+2026-06-21 12:10:13,832 [INFO] orchestrator: ============================================================
+2026-06-21 12:10:13,840 [INFO] orchestrator: Step 1: Collecting from all sources (parallel)...
+2026-06-21 12:10:13,934 [INFO] collectors.rss_collector: Collecting ESPN team-specific news for 32 teams...
+2026-06-21 12:10:13,937 [INFO] collectors.rss_collector: Polling 36 RSS feeds (lookback=28h)...
+2026-06-21 12:10:13,944 [INFO] collectors.beat_writer_collector: No beat writers configured.
+2026-06-21 12:10:13,948 [INFO] collectors.web_scraper: Scraping 35 web sources...
+2026-06-21 12:10:13,948 [INFO] collectors.fantasypoints_collector: Fetching FantasyPoints articles (lookback=24h, cap=15)
+2026-06-21 12:10:13,949 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/6
+2026-06-21 12:10:13,972 [INFO] collectors.twitter_collector: Scanning 1 Twitter list(s) (lookback=28h, max=1000, replies=False)...
+2026-06-21 12:10:14,377 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/6
+2026-06-21 12:10:14,422 [INFO] collectors.reddit_collector: Fetched 25 posts from r/nfl/new.
+2026-06-21 12:10:14,427 [INFO] collectors.reddit_collector: Collected 8 news items from r/nfl (skipped 16 highlights/threads).
+2026-06-21 12:10:14,472 [INFO] collectors.fantasypoints_collector: FantasyPoints: 0 articles within window.
+2026-06-21 12:10:15,260 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/6
+2026-06-21 12:10:16,044 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/6
+2026-06-21 12:10:17,021 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/6
+2026-06-21 12:10:17,623 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/6
+2026-06-21 12:10:18,054 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/5
+2026-06-21 12:10:18,546 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/5
+2026-06-21 12:10:19,112 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/5
+2026-06-21 12:10:19,628 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/5
+2026-06-21 12:10:20,171 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/5
+2026-06-21 12:10:20,687 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/5
+2026-06-21 12:10:21,304 [INFO] collectors.web_scraper: Found 0 transactions.
+2026-06-21 12:10:23,305 [INFO] collectors.web_scraper: Scraping NFL.com injuries: https://www.nfl.com/injuries/
+2026-06-21 12:10:23,583 [INFO] collectors.web_scraper: Found injury reports for 0 teams.
+2026-06-21 12:10:25,584 [INFO] collectors.web_scraper: Scraping The Athletic NFL: https://www.nytimes.com/athletic/nfl/
+2026-06-21 12:10:58,133 [INFO] collectors.rss_collector: Collected 8 unique articles from ESPN team feeds.
+2026-06-21 12:11:01,966 [INFO] collectors.twitter_collector: NFL Insiders [52021139]: 237 new tweet(s)
+2026-06-21 12:11:01,967 [INFO] collectors.twitter_collector: Collected 237 tweet(s) (1076 total seen).
+2026-06-21 12:11:06,047 [WARNING] collectors.web_scraper: The Athletic returned no stories in the last 28h, but cookies validated end-to-end (discovered 32 team pages, no auth redirect on any page fetch). Likely just a quiet offseason news window — no action needed.
+2026-06-21 12:11:11,990 [INFO] collectors.web_scraper: SI team ARI: 10 items (avg body 3491 chars) from https://www.si.com/nfl/cardinals
+2026-06-21 12:11:17,259 [INFO] collectors.web_scraper: SI team ATL: 10 items (avg body 4429 chars) from https://www.si.com/nfl/falcons
+2026-06-21 12:11:22,075 [INFO] collectors.web_scraper: SI team BAL: 10 items (avg body 3838 chars) from https://www.si.com/nfl/ravens
+2026-06-21 12:11:26,944 [INFO] collectors.web_scraper: SI team BUF: 10 items (avg body 3801 chars) from https://www.si.com/nfl/bills
+2026-06-21 12:11:31,034 [INFO] collectors.rss_collector: Collected 85 items from RSS feeds.
+2026-06-21 12:11:32,293 [INFO] collectors.web_scraper: SI team CAR: 10 items (avg body 2968 chars) from https://www.si.com/nfl/panthers
+2026-06-21 12:11:37,663 [INFO] collectors.web_scraper: SI team CHI: 10 items (avg body 5129 chars) from https://www.si.com/nfl/bears
+2026-06-21 12:11:43,223 [INFO] collectors.web_scraper: SI team CIN: 10 items (avg body 3155 chars) from https://www.si.com/nfl/bengals
+2026-06-21 12:11:48,323 [INFO] collectors.web_scraper: SI team CLE: 10 items (avg body 3773 chars) from https://www.si.com/nfl/browns
+2026-06-21 12:11:53,273 [INFO] collectors.web_scraper: SI team DAL: 10 items (avg body 2879 chars) from https://www.si.com/nfl/cowboys
+2026-06-21 12:11:58,475 [INFO] collectors.web_scraper: SI team DEN: 10 items (avg body 4206 chars) from https://www.si.com/nfl/broncos
+2026-06-21 12:12:04,013 [INFO] collectors.web_scraper: SI team DET: 10 items (avg body 3957 chars) from https://www.si.com/nfl/lions
+2026-06-21 12:12:09,180 [INFO] collectors.web_scraper: SI team GB: 10 items (avg body 6511 chars) from https://www.si.com/nfl/packers
+2026-06-21 12:12:15,544 [INFO] collectors.web_scraper: SI team HOU: 10 items (avg body 4711 chars) from https://www.si.com/nfl/texans
+2026-06-21 12:12:20,994 [INFO] collectors.web_scraper: SI team IND: 10 items (avg body 4366 chars) from https://www.si.com/nfl/colts
+2026-06-21 12:12:26,348 [INFO] collectors.web_scraper: SI team JAX: 10 items (avg body 4315 chars) from https://www.si.com/nfl/jaguars
+2026-06-21 12:12:31,800 [INFO] collectors.web_scraper: SI team KC: 10 items (avg body 3590 chars) from https://www.si.com/nfl/chiefs
+2026-06-21 12:12:37,368 [INFO] collectors.web_scraper: SI team LAC: 10 items (avg body 3411 chars) from https://www.si.com/nfl/chargers
+2026-06-21 12:12:42,875 [INFO] collectors.web_scraper: SI team LAR: 10 items (avg body 4573 chars) from https://www.si.com/nfl/rams
+2026-06-21 12:12:47,944 [INFO] collectors.web_scraper: SI team LV: 10 items (avg body 2836 chars) from https://www.si.com/nfl/raiders
+2026-06-21 12:12:53,425 [INFO] collectors.web_scraper: SI team MIA: 10 items (avg body 5274 chars) from https://www.si.com/nfl/dolphins
+2026-06-21 12:12:58,542 [INFO] collectors.web_scraper: SI team MIN: 10 items (avg body 3351 chars) from https://www.si.com/nfl/vikings
+2026-06-21 12:13:03,843 [INFO] collectors.web_scraper: SI team NE: 10 items (avg body 4457 chars) from https://www.si.com/nfl/patriots
+2026-06-21 12:13:09,893 [INFO] collectors.web_scraper: SI team NO: 10 items (avg body 5366 chars) from https://www.si.com/nfl/saints
+2026-06-21 12:13:15,463 [INFO] collectors.web_scraper: SI team NYG: 10 items (avg body 4775 chars) from https://www.si.com/nfl/giants
+2026-06-21 12:13:20,445 [INFO] collectors.web_scraper: SI team NYJ: 10 items (avg body 4096 chars) from https://www.si.com/nfl/jets
+2026-06-21 12:13:25,887 [INFO] collectors.web_scraper: SI team PHI: 10 items (avg body 4411 chars) from https://www.si.com/nfl/eagles
+2026-06-21 12:13:31,025 [INFO] collectors.web_scraper: SI team PIT: 10 items (avg body 3544 chars) from https://www.si.com/nfl/steelers
+2026-06-21 12:13:36,331 [INFO] collectors.web_scraper: SI team SEA: 10 items (avg body 3630 chars) from https://www.si.com/nfl/seahawks
+2026-06-21 12:13:41,643 [INFO] collectors.web_scraper: SI team SF: 10 items (avg body 3937 chars) from https://www.si.com/nfl/49ers
+2026-06-21 12:13:47,464 [INFO] collectors.web_scraper: SI team TB: 10 items (avg body 3501 chars) from https://www.si.com/nfl/buccaneers
+2026-06-21 12:13:53,026 [INFO] collectors.web_scraper: SI team TEN: 10 items (avg body 4282 chars) from https://www.si.com/nfl/titans
+2026-06-21 12:13:58,454 [INFO] collectors.web_scraper: SI team WAS: 10 items (avg body 4289 chars) from https://www.si.com/nfl/commanders
+2026-06-21 12:14:00,454 [INFO] collectors.web_scraper: Collected 320 items from web scraping.
+2026-06-21 12:14:00,463 [INFO] collectors.rss_collector: Saved 93 RSS items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-06-21/rss.json
+2026-06-21 12:14:00,483 [INFO] collectors.web_scraper: Saved 320 web items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-06-21/web.json
+2026-06-21 12:14:00,484 [INFO] collectors.reddit_collector: Saved 8 Reddit items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-06-21/reddit.json
+2026-06-21 12:14:00,484 [INFO] collectors.beat_writer_collector: Saved 0 beat writer news items + 0 transcripts to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-06-21/beat_writers.json
+2026-06-21 12:14:00,484 [INFO] collectors.fantasypoints_collector: Saved 0 FantasyPoints items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-06-21/fantasypoints.json
+2026-06-21 12:14:00,492 [INFO] collectors.twitter_collector: Saved 237 tweet records (237 new this run) to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-06-21/twitter.json
+2026-06-21 12:14:00,502 [WARNING] orchestrator: Source alert [WARNING] The Athletic NFL: The Athletic returned no stories in the last 28h, but cookies validated end-to-end (discovered 32 team pages, no auth redirect on any page fetch). Likely just a quiet offseason news window — no action needed.
+2026-06-21 12:14:00,502 [INFO] orchestrator: Collection complete: 658 news items
+2026-06-21 12:14:00,520 [INFO] processing.quality_filter: Quality filter dropped 4 items
+2026-06-21 12:14:00,520 [INFO] orchestrator: Quality filter: dropped 4 items (e.g. Happy birthday Darren Sproles! 🎂 https://t.co/HMObraWIxY)
+2026-06-21 12:14:00,520 [INFO] orchestrator: Step 2: Deduplicating stories...
+2026-06-21 12:14:07,082 [INFO] processing.deduplicator: Loading embedding model 'all-MiniLM-L6-v2' for deduplication...
+2026-06-21 12:14:07,083 [INFO] sentence_transformers.base.model: No device provided, using cpu
+2026-06-21 12:14:07,194 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-06-21 12:14:07,267 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:07,271 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/modules.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:07,346 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:07,351 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:07,352 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+2026-06-21 12:14:07,426 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:07,426 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-06-21 12:14:07,431 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:07,509 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:07,513 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/README.md "HTTP/1.1 200 OK"
+2026-06-21 12:14:07,584 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:07,590 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/modules.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:07,682 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:07,687 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:07,762 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-06-21 12:14:07,839 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:07,844 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:08,127 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-06-21 12:14:08,206 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-06-21 12:14:08,281 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-06-21 12:14:08,358 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-06-21 12:14:08,431 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:08,436 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:08,510 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:08,515 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:08,590 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:08,595 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:08,672 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:08,676 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:08,755 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-06-21 12:14:08,831 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-06-21 12:14:08,940 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-06-21 12:14:08,945 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-06-21 12:14:09,020 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
+2026-06-21 12:14:12,454 [INFO] processing.deduplicator: Using embedding-based deduplication (all-MiniLM-L6-v2).
+2026-06-21 12:14:12,831 [INFO] processing.deduplicator: Deduplicated 654 items into 591 story groups.
+2026-06-21 12:14:12,833 [INFO] orchestrator: Deduplicated: 654 items -> 591 unique stories
+2026-06-21 12:14:12,833 [INFO] orchestrator: Step 2b: Filtering cross-day duplicates...
+2026-06-21 12:14:19,408 [INFO] processing.cross_day_filter: Cross-day filter: 591 -> 367 items (224 suppressed, lookback=2 days, threshold=0.82).
+2026-06-21 12:14:19,408 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Malik Willis still building chemistry with receivers – The Splash Zone 6/20/26
+2026-06-21 12:14:19,408 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): 49ers News: A magnificent weekend for a big beautiful trade, ideally a lineman
+2026-06-21 12:14:19,408 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Want to keep the Boston-Scotland party going? Get the New England Patriots involved
+2026-06-21 12:14:19,408 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Patriots WR DeMario Douglas: Josh McDaniels wants me adding my swagger to his playbook
+2026-06-21 12:14:19,408 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Sean Payton pointed to margins when asked about roster consistency
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Giants news, 6/20: Jaxson Dart, Brandon Sorsby, Josh Ezeudu’s roster chances
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): AFC West offseason storylines: QB buzz, underrated moves, rookies
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Saturday Dawg Chow (6/20): What might have been
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): So, why is Cardinals QB Carson Beck wearing #19?
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): 2026 Season Opener Countdown: 85 Days Remaining
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Cowboys news: Dak Prescott says the playoffs are only the floor for Dallas
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): New York Jets Flight Connections 06/20/26
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Commanders UDFA spotlight: former Michigan State safety Malik Spencer
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): It's a Father's Day weekend Father of Mine free ebook giveaway
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Bengals have lofty hopes for Myles Murphy in 2026
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Goodell on girls' flag football: If you play, you're more likely to be a lifelong fan
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=0.92): Jeffery Simmons became the NFL's highest-paid defensive tackle with his contract extension with the Titans.
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=0.87): 30 Day Challenge: One player from another team I wish the Bears had
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=0.90): Josh Allen, Hailee Steinfeld announce baby name
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   suppressed (sim=0.97): Cowboys countdown to kickoff: Top 100 iconic games – Day 85
+2026-06-21 12:14:19,409 [INFO] processing.cross_day_filter:   ... and 204 more
+2026-06-21 12:14:19,410 [INFO] orchestrator: Cross-day filter: 591 -> 367 unique stories (224 suppressed as repeats)
+2026-06-21 12:14:19,410 [INFO] orchestrator: Step 3: Summarizing with OpenAI API...
+2026-06-21 12:14:19,812 [INFO] processing.summarizer: Summarizing with openai/gpt-5.4-mini: 0 transactions, 0 injuries, 367 general news
+2026-06-21 12:14:19,822 [INFO] processing.summarizer: Loaded position lookup for 2921 players from depth charts
+2026-06-21 12:14:19,822 [INFO] processing.summarizer: Generating transactions summary...
+2026-06-21 12:14:19,822 [INFO] processing.summarizer: Generating injury report...
+2026-06-21 12:14:19,822 [INFO] processing.summarizer: Generating league-wide notes...
+2026-06-21 12:14:19,896 [INFO] processing.summarizer: League-wide: dropped 137 no-signal Twitter item(s) (marketing/off-topic)
+2026-06-21 12:14:25,289 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:14:25,672 [INFO] processing.summarizer: Generating team notes...
+2026-06-21 12:14:38,321 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:14:38,323 [WARNING] processing.summarizer: OpenAI returned no visible text for team:DET at max_output_tokens=1600; retrying once with max_output_tokens=3200
+2026-06-21 12:14:47,663 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:14:58,232 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:14:58,233 [WARNING] processing.summarizer: OpenAI returned no visible text for team:ATL at max_output_tokens=1600; retrying once with max_output_tokens=3200
+2026-06-21 12:15:13,668 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:15:18,291 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:15:26,998 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:15:32,512 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:15:41,177 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:15:48,057 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:15:52,657 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:15:57,824 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:16:02,795 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:16:06,578 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:16:11,133 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:16:22,652 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 503 Service Unavailable"
+2026-06-21 12:16:22,652 [INFO] openai._base_client: Retrying request to /responses in 0.436190 seconds
+2026-06-21 12:16:31,543 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:16:41,990 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:16:48,004 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:16:52,918 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:17:04,851 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:17:04,852 [WARNING] processing.summarizer: OpenAI returned no visible text for team:SF at max_output_tokens=1600; retrying once with max_output_tokens=3200
+2026-06-21 12:17:12,664 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:17:22,438 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:17:22,439 [WARNING] processing.summarizer: OpenAI truncated team:TB output at max_output_tokens=1600 (reason=max_output_tokens); consider raising the cap for this call
+2026-06-21 12:17:31,674 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:17:39,935 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:17:51,609 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:17:51,610 [WARNING] processing.summarizer: OpenAI truncated team:LV output at max_output_tokens=1600 (reason=max_output_tokens); consider raising the cap for this call
+2026-06-21 12:18:04,513 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:18:04,514 [WARNING] processing.summarizer: OpenAI returned no visible text for team:WAS at max_output_tokens=1600; retrying once with max_output_tokens=3200
+2026-06-21 12:18:15,888 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:18:27,417 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:18:27,418 [WARNING] processing.summarizer: OpenAI returned no visible text for team:BUF at max_output_tokens=1600; retrying once with max_output_tokens=3200
+2026-06-21 12:18:45,524 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:18:51,806 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:02,533 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:02,534 [WARNING] processing.summarizer: OpenAI returned no visible text for team:CHI at max_output_tokens=1600; retrying once with max_output_tokens=3200
+2026-06-21 12:19:07,096 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:14,974 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:18,773 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:18,774 [WARNING] processing.summarizer: OpenAI returned no visible text for team:MIA at max_output_tokens=1600; retrying once with max_output_tokens=3200
+2026-06-21 12:19:22,543 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:22,544 [WARNING] processing.summarizer: OpenAI still returned no text for team:MIA after retry; final attempt on gpt-5.4 at reasoning_effort=low
+2026-06-21 12:19:30,333 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:31,362 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:35,381 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:46,396 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:46,397 [WARNING] processing.summarizer: OpenAI truncated team:CIN output at max_output_tokens=1600 (reason=max_output_tokens); consider raising the cap for this call
+2026-06-21 12:19:48,280 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:53,030 [INFO] httpx: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-06-21 12:19:53,031 [INFO] processing.summarizer: LLM usage: 41 requests | input=100185 tokens (cached=17664, uncached=82521) | output=44129 tokens (reasoning=39557) | estimated cost=$0.2712
+2026-06-21 12:19:53,032 [INFO] orchestrator: LLM summary: openai/gpt-5.4-mini | calls=41 | input=100185 | output=44129 | estimated cost=$0.2712
+2026-06-21 12:19:53,032 [INFO] orchestrator: LLM note: Exact token usage comes from OpenAI Responses API metadata.
+2026-06-21 12:19:53,032 [INFO] orchestrator: Step 4: Snapshotting projections...
+2026-06-21 12:20:02,269 [INFO] scripts.snapshot_projections: Saved player snapshot: 582 players to /home/runner/work/nfl-news-agent/nfl-news-agent/data/projections/2026-06-21/players.json
+2026-06-21 12:20:04,911 [INFO] scripts.snapshot_projections: Saved fantasy snapshot: 581 players to /home/runner/work/nfl-news-agent/nfl-news-agent/data/projections/2026-06-21/fantasy.json
+2026-06-21 12:20:07,499 [INFO] scripts.snapshot_projections: Saved team snapshot: 32 teams to /home/runner/work/nfl-news-agent/nfl-news-agent/data/projections/2026-06-21/teams.json
+2026-06-21 12:20:07,531 [INFO] orchestrator: Projection snapshot: 582 players, 581 fantasy, 32 teams | 0 adj tweaks, 0 projection shifts, 0 rank changes, 0 team changes
+2026-06-21 12:20:07,532 [INFO] orchestrator: Step 5: Updating depth charts...
+2026-06-21 12:20:11,322 [INFO] collectors.depth_chart_collector: Saved 2921 depth chart entries to /home/runner/work/nfl-news-agent/nfl-news-agent/data/depth_charts/2026-06-21.json
+2026-06-21 12:20:11,323 [INFO] orchestrator: Depth chart changes: 0 promotions, 0 demotions, 0 added, 0 removed, 0 team moves
+2026-06-21 12:20:11,323 [INFO] orchestrator: Step 6: Building daily report...
+2026-06-21 12:20:11,329 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-06-21.json
+2026-06-21 12:20:11,331 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-06-21.html
+2026-06-21 12:20:11,331 [INFO] orchestrator: Step 7: Cleaning up old data...
+2026-06-21 12:20:11,332 [INFO] orchestrator: Skipping raw/transcript cleanup on CI (preserves pushed YouTube data).
+2026-06-21 12:20:11,333 [INFO] orchestrator: ============================================================
+2026-06-21 12:20:11,333 [INFO] orchestrator: Daily run complete!
+2026-06-21 12:20:11,333 [INFO] orchestrator: JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-06-21.json
+2026-06-21 12:20:11,333 [INFO] orchestrator: HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-06-21.html
+2026-06-21 12:20:11,333 [INFO] orchestrator: Stats: 367 news items, 31 team highlights
+2026-06-21 12:20:11,333 [INFO] orchestrator: ============================================================
