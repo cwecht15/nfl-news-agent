@@ -54,7 +54,7 @@ from collectors.twitter_collector import (
     collect_twitter_list,
     save_twitter_results,
 )
-from models import Transcript
+from models import NewsItem, Transcript
 from processing.cross_day_filter import filter_recent_duplicates
 from processing.deduplicator import deduplicate, flatten_groups
 from processing.quality_filter import filter_news_items, reclassify_injury_items
@@ -188,6 +188,25 @@ def _load_existing_transcripts(date_str: str, logger: logging.Logger) -> list[Tr
     return [Transcript.from_dict(d) for d in raw]
 
 
+def _load_existing_tweets(date_str: str, logger: logging.Logger) -> list[NewsItem]:
+    """Hydrate tweets the cloud pipeline already collected for this date.
+
+    Twitter collection is CI-only (see collect_twitter_on_ci), so a local
+    --date re-stamp would otherwise silently drop Twitter-sourced content
+    from that day's report. Returns [] when the file is missing or malformed.
+    """
+    path = get_data_dir("raw", date_str) / "twitter.json"
+    if not path.exists():
+        return []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except Exception as e:
+        logger.warning("Could not load %s: %s", path, e)
+        return []
+    return [NewsItem.from_dict(d) for d in raw if isinstance(d, dict)]
+
+
 def run(
     lookback_hours: int | None = None,
     include_yt_section: bool = False,
@@ -283,7 +302,17 @@ def run(
     else:
         bw_items, bw_transcripts = [], []
     fp_items = _safe_result(future_fp, "FantasyPoints")
-    twitter_items = _safe_result(future_twitter, "Twitter") if future_twitter else []
+    if future_twitter:
+        twitter_items = _safe_result(future_twitter, "Twitter")
+    else:
+        # Local run: reuse tweets the cloud pipeline already saved for this
+        # date instead of silently dropping Twitter-sourced content.
+        twitter_items = _load_existing_tweets(date_str, logger)
+        if twitter_items:
+            logger.info(
+                "Loaded %d existing tweets from data/raw/%s/twitter.json",
+                len(twitter_items), date_str,
+            )
 
     save_rss_results(rss_items + espn_items, date_str)
     save_web_results(web_items, date_str)
