@@ -9,6 +9,7 @@ cheap after the model is loaded.
 
 import json
 import logging
+import re
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -26,6 +27,18 @@ from processing.deduplicator import (
 logger = logging.getLogger(__name__)
 
 RAW_FILES = ("rss.json", "web.json", "reddit.json")
+
+
+def _is_exempt(
+    item: NewsItem,
+    skip_categories: set[str],
+    skip_patterns: list[re.Pattern],
+) -> bool:
+    """Whether an item is exempt from cross-day suppression."""
+    if item.category in skip_categories:
+        return True
+    title = item.title or ""
+    return any(p.search(title) for p in skip_patterns)
 
 
 def _load_raw_titles(raw_dir: Path, date_str: str) -> list[str]:
@@ -83,6 +96,7 @@ def filter_recent_duplicates(
     lookback_days: int = 2,
     threshold: float = 0.82,
     skip_categories: Optional[set[str]] = None,
+    skip_title_patterns: Optional[list[str]] = None,
 ) -> tuple[list[NewsItem], list[tuple[NewsItem, float]]]:
     """Drop items whose title is a near-duplicate of any prior-day title.
 
@@ -95,6 +109,10 @@ def filter_recent_duplicates(
         skip_categories: Categories that are exempt (e.g. {"transaction"}).
             Transactions are usually day-unique events, so it can be worth
             letting them through even when wording is similar.
+        skip_title_patterns: Regexes (case-insensitive) whose title matches
+            are exempt — for rolling articles republished daily with fresh
+            content under a near-identical title (e.g. ESPN's per-team
+            "training camp: Latest intel, updates").
 
     Returns:
         (kept_items, dropped_pairs) where dropped_pairs is a list of
@@ -104,6 +122,10 @@ def filter_recent_duplicates(
         return list(items), []
 
     skip_categories = skip_categories or set()
+    skip_patterns = [
+        re.compile(p, re.IGNORECASE)
+        for p in (skip_title_patterns or []) if p
+    ]
 
     lookback_titles = load_lookback_titles(raw_dir, current_date, lookback_days)
     if not lookback_titles:
@@ -127,7 +149,7 @@ def filter_recent_duplicates(
     dropped: list[tuple[NewsItem, float]] = []
 
     for item, vec in zip(items, today_vecs):
-        if item.category in skip_categories:
+        if _is_exempt(item, skip_categories, skip_patterns):
             kept.append(item)
             continue
 

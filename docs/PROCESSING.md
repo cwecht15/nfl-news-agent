@@ -15,6 +15,16 @@ voting articles, "all-time", trivia, jersey/uniform reveals, rip-offs,
 mentions a year in `content_filter.mock_draft_keep_years` (`["2026","2027"]`,
 updated annually). If `content_filter.enabled` is false, everything passes.
 
+`reclassify_injury_items(items)` (same module) runs right after the quality
+filter in `run_daily.py` and retags items whose **title** is primarily an
+injury-status update to `category="injury"`, so they feed the Injuries section
+instead of competing for Team Notes slots. Without it, only NFL.com's game-week
+injury pages produce that category and the section is empty all offseason.
+Precision-first: an exclude list (returns to practice, activated/cleared, off
+PUP…) wins on conflict so positive camp notes stay in Team Notes. Defaults live
+in `DEFAULT_INJURY_PATTERNS` / `DEFAULT_INJURY_EXCLUDE`; override or disable via
+`settings.yaml → injury_classifier`.
+
 ## Deduplicator — `deduplicator.py`
 
 Groups items covering the same story across sources.
@@ -30,6 +40,11 @@ Groups items covering the same story across sources.
   stripped, then ≥2 shared name words are required (1 if a name is mononymous).
   This stops structurally identical lines ("X: Exclusive Rights Signing") from
   false-merging different players.
+- **Same-team guard** — two team-tagged, non-transaction items with disjoint
+  team sets never merge, even at high title similarity. Without this, the 32
+  per-team "training camp: Latest intel, updates" articles (titles differing
+  only by team name) collapsed into one group and 31 were silently dropped.
+  Transactions are exempt (a trade's two sides can carry different team tags).
 - **`flatten_groups(groups)`** — keeps one representative per group (via
   `pick_primary`) and appends `[Also reported by: …]` to its summary.
 - **`pick_primary(group)`** — two-tier ranking. **Tier 1:** original-reporting
@@ -39,13 +54,16 @@ Groups items covering the same story across sources.
 
 ## Cross-day filter — `cross_day_filter.py`
 
-`filter_recent_duplicates(items, raw_dir, current_date, lookback_days=2, threshold=0.82, skip_categories=None)`
+`filter_recent_duplicates(items, raw_dir, current_date, lookback_days=2, threshold=0.82, skip_categories=None, skip_title_patterns=None)`
 suppresses today's items whose titles are ≥ **0.82** cosine-similar to any title
 collected in the prior `lookback_days` (loaded from each day's `rss.json` /
 `web.json` / `reddit.json`). The threshold is **stricter** than intra-day dedup
 to avoid over-suppression across day boundaries. `skip_categories` exempts
 `transaction` by default (roster moves recur legitimately in recaps/injury
-reports). Reuses the deduplicator's embedding pass, so it's cheap after model
+reports). `skip_title_patterns` (settings.yaml `cross_day_dedup.skip_title_patterns`)
+exempts rolling articles republished daily with fresh content under a
+near-identical title — by default ESPN's "training camp: Latest intel" pages.
+Reuses the deduplicator's embedding pass, so it's cheap after model
 load. Runs before summarization, so suppressed items cost no tokens.
 
 ## Summarizer — `summarizer.py`
@@ -66,12 +84,21 @@ The LLM engine. Provider-agnostic across three backends, selected by
   chart (side-tagged positions normalized to generic), then asks the LLM to list
   every transaction with no omissions and no invented positions.
 - **`summarize_injuries(items, ...)`** — key players whose status changed or who
-  are newly listed; notes returning players.
+  are newly listed; notes returning players. Capped at the 25 most recent
+  (`INJURY_NEWS_LIMIT`); detail lines fall back to `item.summary` when
+  `full_text` is empty (retagged news items usually only have a summary).
 - **`summarize_league_wide(news_items, ...) -> (summary, numbered_sources)`** —
-  cross-team / league-office items only. Top 25 by recency in, capped at 8
-  bullets out, inline `[N]` citations; sources never cited are trimmed.
+  cross-team / league-office items only. Candidates are ordered by
+  `_order_league_wide` (non-Twitter outlets first, then primary sources, then
+  recency — pure recency let the tweet firehose crowd real outlets out of the
+  window), top 25 in, capped at 8 bullets out, inline `[N]` citations; sources
+  never cited are trimmed. Untagged tweets matching
+  `settings.yaml → league_wide.twitter_exclude_patterns` (other-sport chatter)
+  are ineligible.
 - **`generate_team_highlights(news_items, ...) -> {team: {summary, numbered_sources}}`**
-  — per-team bulleted notes. `_diversify_by_source` soft-caps any one outlet
+  — per-team bulleted notes, pool size from `settings.yaml →
+  team_notes.item_limit` (default 8 in code, 12 in shipped config).
+  `_diversify_by_source` soft-caps any one outlet
   (primary ≤ `limit//2`, non-primary ≤ `limit//3`) so one blog can't dominate.
   `_is_deep_article` (depth charts, post-draft recaps, "every pick") gets the
   full body (~5000 chars) into the prompt; ordinary articles get 1200 chars, so

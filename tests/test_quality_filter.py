@@ -85,3 +85,77 @@ def test_empty_title_is_kept(monkeypatch, make_item):
     _patch(monkeypatch)
     kept, dropped = qf.filter_news_items([make_item("")])
     assert len(kept) == 1
+
+
+# ── reclassify_injury_items ─────────────────────────────────────────────
+
+INJURY_CFG = {"injury_classifier": {"enabled": True}}
+
+
+def _patch_injury(monkeypatch, cfg=INJURY_CFG):
+    monkeypatch.setattr(qf, "get_settings", lambda: cfg)
+
+
+def test_injury_carted_off_retagged(monkeypatch, make_item):
+    _patch_injury(monkeypatch)
+    item = make_item("Bills WR carted off at practice")
+    changed = qf.reclassify_injury_items([item])
+    assert changed == [item]
+    assert item.category == "injury"
+
+
+def test_injury_torn_acl_retagged(monkeypatch, make_item):
+    _patch_injury(monkeypatch)
+    item = make_item("Jets RB tore ACL, out for the season")
+    qf.reclassify_injury_items([item])
+    assert item.category == "injury"
+
+
+def test_injury_placed_on_pup_retagged(monkeypatch, make_item):
+    _patch_injury(monkeypatch)
+    item = make_item("Cowboys TE placed on PUP to open camp")
+    qf.reclassify_injury_items([item])
+    assert item.category == "injury"
+
+
+def test_positive_camp_note_not_retagged(monkeypatch, make_item):
+    _patch_injury(monkeypatch)
+    item = make_item("Lions TE returns to practice after injury scare")
+    qf.reclassify_injury_items([item])
+    assert item.category == "news"
+
+
+def test_activation_not_retagged(monkeypatch, make_item):
+    _patch_injury(monkeypatch)
+    item = make_item("Packers activate WR from PUP, cleared for camp")
+    qf.reclassify_injury_items([item])
+    assert item.category == "news"
+
+
+def test_transaction_untouched(monkeypatch, make_item):
+    _patch_injury(monkeypatch)
+    item = make_item("Player to undergo surgery after trade",
+                     category="transaction")
+    changed = qf.reclassify_injury_items([item])
+    assert changed == []
+    assert item.category == "transaction"
+
+
+def test_injury_classifier_disabled(monkeypatch, make_item):
+    _patch_injury(monkeypatch, {"injury_classifier": {"enabled": False}})
+    item = make_item("Bills WR carted off at practice")
+    changed = qf.reclassify_injury_items([item])
+    assert changed == []
+    assert item.category == "news"
+
+
+def test_injury_config_pattern_override(monkeypatch, make_item):
+    _patch_injury(monkeypatch, {"injury_classifier": {
+        "enabled": True,
+        "patterns": [r"\bboo-boo\b"],
+    }})
+    hit = make_item("QB has a boo-boo")
+    miss = make_item("RB carted off at practice")  # default pattern not active
+    qf.reclassify_injury_items([hit, miss])
+    assert hit.category == "injury"
+    assert miss.category == "news"

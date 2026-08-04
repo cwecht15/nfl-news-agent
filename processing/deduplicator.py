@@ -223,6 +223,19 @@ def deduplicate(items: list[NewsItem]) -> list[list[NewsItem]]:
                 if not _transaction_name_overlap(norm_titles[i], norm_titles[j]):
                     continue
 
+            # Two team-tagged, non-transaction items with no team in common
+            # are never the same story, even when their titles embed nearly
+            # identically (the 32 per-team "training camp: Latest intel"
+            # articles differ only by team name and all clear the embedding
+            # threshold). Transactions are exempt: a trade's two sides can be
+            # tagged with different teams, and _transaction_name_overlap
+            # above already guards them.
+            if (getattr(item, "category", None) != "transaction"
+                    and getattr(other, "category", None) != "transaction"
+                    and item.teams and other.teams
+                    and not (set(item.teams) & set(other.teams))):
+                continue
+
             # Primary: embedding or text similarity
             if use_embeddings:
                 sim = _cosine_similarity(embeddings[i], embeddings[j])

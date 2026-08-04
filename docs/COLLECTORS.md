@@ -23,7 +23,14 @@ parsing falls back through `feedparser` structs, RFC 2822, and ISO 8601.
   fixed with `html.unescape`.
 - **`collect_espn_team_news(lookback_hours=None, teams_by_abbr=None)`** — hits the
   ESPN team news API (`site.api.espn.com/.../news?team={id}`) for all 32 teams,
-  dedupes articles that surface under multiple teams, and fetches bodies.
+  dedupes articles that surface under multiple teams, and fetches bodies. For
+  `type=="Story"` articles the body comes from the **content API**
+  (`content.core.api.espn.com/v1/sports/news/{id}`, `headlines[0].story`
+  tag-stripped by `_strip_story_html`) — unlike `www.espn.com` pages this host
+  is not behind ESPN's bot wall, so it works from GitHub Actions runners where
+  page scraping always returned 0 chars. Page scrape remains the fallback;
+  `type=="Media"` (video) is skipped. An INFO log line reports
+  `"ESPN bodies: N via content API, N via page scrape, N empty"`.
 - Saves via `save_rss_results(items, date_str)` → `data/raw/<date>/rss.json`
   (ESPN team items are merged into the same file by the orchestrator).
 

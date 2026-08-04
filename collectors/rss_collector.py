@@ -286,6 +286,44 @@ def collect_rss(
     return items
 
 
+# Full-article endpoint. Unlike www.espn.com pages, this host is not behind
+# ESPN's Akamai bot wall, so it works from GitHub Actions datacenter IPs
+# where fetch_article_body() always gets blocked (0 chars).
+ESPN_CONTENT_API = "https://content.core.api.espn.com/v1/sports/news/{id}"
+
+
+def _strip_story_html(raw: str) -> str:
+    """Strip tags from an ESPN content-API story field (HTML string)."""
+    if not raw:
+        return ""
+    text = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", raw,
+                  flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r"</p\s*>", "\n", text, flags=re.IGNORECASE)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html.unescape(text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _fetch_espn_story_body(session, article_id, timeout, max_chars: int = 8000) -> str:
+    """Fetch an article body from ESPN's content API by article id."""
+    if not article_id:
+        return ""
+    try:
+        resp = session.get(ESPN_CONTENT_API.format(id=article_id), timeout=timeout)
+        resp.raise_for_status()
+        headlines = resp.json().get("headlines") or []
+        story = (headlines[0] or {}).get("story", "") if headlines else ""
+    except Exception as e:
+        logger.debug("ESPN content API failed for article %s: %s", article_id, e)
+        return ""
+    body = _strip_story_html(story)
+    if len(body) > max_chars:
+        body = body[:max_chars].rsplit(" ", 1)[0] + "…"
+    return body
+
+
 # ESPN API team IDs (abbreviation -> ESPN numeric ID)
 ESPN_TEAM_IDS = {
     "ARI": 22, "ATL": 1, "BAL": 33, "BUF": 2, "CAR": 29, "CHI": 3,
@@ -325,6 +363,7 @@ def collect_espn_team_news(
 
     items: list[NewsItem] = []
     seen_ids: set[int] = set()  # dedupe across teams (articles appear for multiple teams)
+    n_api_body = n_scrape_body = n_empty_body = 0
 
     # Enrichment session for fetching article bodies.
     from collectors.web_scraper import fetch_article_body
@@ -386,12 +425,25 @@ def collect_espn_team_news(
                 all_teams = list(dict.fromkeys(api_teams + text_teams))
 
                 article_url = article.get("links", {}).get("web", {}).get("href", "")
+                article_type = article.get("type") or ""
                 full_body = ""
-                if article_url:
-                    full_body = fetch_article_body(
-                        enrich_session, article_url,
-                        timeout=settings["collection"].get("request_timeout", 30),
-                    )
+                if article_type != "Media":  # Media = video clips, no body
+                    if article_type == "Story":
+                        full_body = _fetch_espn_story_body(
+                            enrich_session, article_id,
+                            timeout=settings["collection"].get("request_timeout", 30),
+                        )
+                        if full_body:
+                            n_api_body += 1
+                    if not full_body and article_url:
+                        full_body = fetch_article_body(
+                            enrich_session, article_url,
+                            timeout=settings["collection"].get("request_timeout", 30),
+                        )
+                        if full_body:
+                            n_scrape_body += 1
+                    if not full_body:
+                        n_empty_body += 1
 
                 items.append(NewsItem(
                     title=headline,
@@ -411,6 +463,10 @@ def collect_espn_team_news(
         time.sleep(delay / 2)  # lighter delay for API calls
 
     logger.info("Collected %d unique articles from ESPN team feeds.", len(items))
+    logger.info(
+        "ESPN bodies: %d via content API, %d via page scrape, %d empty.",
+        n_api_body, n_scrape_body, n_empty_body,
+    )
     return items
 
 

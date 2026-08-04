@@ -57,7 +57,7 @@ from collectors.twitter_collector import (
 from models import Transcript
 from processing.cross_day_filter import filter_recent_duplicates
 from processing.deduplicator import deduplicate, flatten_groups
-from processing.quality_filter import filter_news_items
+from processing.quality_filter import filter_news_items, reclassify_injury_items
 from processing.source_health import get_health_alerts, record_source_result
 from processing.fp_section import build_fp_section
 from processing.summarizer import run_summarization
@@ -361,6 +361,14 @@ def run(
             (dropped_fluff[0].title if dropped_fluff else "")[:80],
         )
 
+    retagged_injuries = reclassify_injury_items(all_news)
+    if retagged_injuries:
+        logger.info(
+            "Injury classifier: retagged %d items as injuries (e.g. %s)",
+            len(retagged_injuries),
+            (retagged_injuries[0].title or "")[:80],
+        )
+
     write_status("Step 2", "running", "Deduplicating stories")
     logger.info("Step 2: Deduplicating stories...")
     groups = deduplicate(all_news)
@@ -384,6 +392,7 @@ def run(
             lookback_days=int(cross_day_cfg.get("lookback_days", 2)),
             threshold=float(cross_day_cfg.get("threshold", 0.82)),
             skip_categories=skip,
+            skip_title_patterns=list(cross_day_cfg.get("skip_title_patterns") or []),
         )
         logger.info(
             "Cross-day filter: %d -> %d unique stories (%d suppressed as repeats)",

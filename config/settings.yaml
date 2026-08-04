@@ -85,6 +85,42 @@ cross_day_dedup:
   # unique events per day, but similar structural wording ("Player X:
   # Exclusive rights signing") can trip the filter.
   skip_categories: ["transaction"]
+  # Titles matching any of these regexes (case-insensitive) are exempt —
+  # rolling articles republished daily with fresh content under a
+  # near-identical title (e.g. ESPN's per-team "training camp: Latest
+  # intel, updates" pages).
+  skip_title_patterns:
+    - 'training camp:?\s*latest\b'
+
+injury_classifier:
+  # Retag news items whose title is PRIMARILY an injury-status update into
+  # the Injuries section. Without this, only NFL.com's game-week injury
+  # pages produce category="injury", so the section is empty all offseason
+  # while camp injuries fight for Team Notes slots. Title-based and
+  # precision-first: positive notes ("returns to practice") stay in Team
+  # Notes. Omit patterns/exclude_patterns to use the built-in defaults in
+  # processing/quality_filter.py; set them here to override.
+  enabled: true
+
+league_wide:
+  # Untagged tweets matching any of these regexes (case-insensitive) are
+  # never eligible for League-Wide Notes — other-sport chatter that passes
+  # the news-signal gate via words like "trade". ONLY unambiguous names:
+  # never Cardinals/Giants/Jets/Panthers/Rangers/Kings/Hawks, which
+  # collide with NFL or crossover usage.
+  twitter_exclude_patterns:
+    - '\b(MLB|NBA|NHL|WNBA|NWSL|MLS)\b'
+    - '\b(Dodgers|Yankees|Mets|Phillies|Braves|Astros|Cubs|Red Sox|White Sox|Blue Jays|Orioles|Mariners|Diamondbacks|Rockies|Pirates|Reds|Royals|Twins|Angels|Athletics|Rays|Brewers|Nationals|Marlins|Padres|Guardians|Tigers)\b'
+
+team_notes:
+  # Max news items per team fed to the Team Notes LLM call (code default 8).
+  # During camp a busy team can have 90+ candidates; 12 widens coverage at
+  # roughly +38k input tokens/day (cents on the mini model).
+  item_limit: 12
+  # Max entries in the per-team flat "Sources" list of the built report
+  # (code default 6). Dashboard [N] citations come from numbered_sources
+  # and are not capped by this; raised to keep pace with item_limit.
+  source_limit: 10
 
 collection:
   # How far back to look for new content (hours)

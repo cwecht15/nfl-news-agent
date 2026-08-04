@@ -114,6 +114,55 @@ def test_empty_input():
     assert dd.deduplicate([]) == []
 
 
+# ── Same-team guard ─────────────────────────────────────────────────────
+
+def test_disjoint_team_items_never_merge(make_item):
+    """The 32 per-team camp-intel articles differ only by team name and
+    clear both similarity backends' thresholds — the same-team guard is
+    what keeps them apart."""
+    items = [
+        make_item("2026 Chicago Bears training camp: Latest intel, updates",
+                  teams=["CHI"]),
+        make_item("2026 Green Bay Packers training camp: Latest intel, updates",
+                  teams=["GB"]),
+    ]
+    groups = dd.deduplicate(items)
+    assert len(groups) == 2
+
+
+def test_shared_team_items_still_merge(make_item):
+    items = [
+        make_item("2026 Chicago Bears training camp: Latest intel, updates",
+                  teams=["CHI"]),
+        make_item("Chicago Bears training camp latest intel and updates 2026",
+                  teams=["CHI", "GB"]),
+    ]
+    groups = dd.deduplicate(items)
+    assert len(groups) == 1
+
+
+def test_transaction_disjoint_teams_still_merge(make_item):
+    """A trade's two sides can be tagged with different teams; the guard
+    must not apply to transactions (they're protected by the name gate)."""
+    items = [
+        make_item("Chiefs trade WR Marquise Brown to Eagles",
+                  category="transaction", teams=["KC"]),
+        make_item("Eagles acquire WR Marquise Brown from Chiefs",
+                  category="transaction", teams=["PHI"]),
+    ]
+    groups = dd.deduplicate(items)
+    assert len(groups) == 1
+
+
+def test_no_team_items_unaffected_by_guard(make_item):
+    items = [
+        make_item("NFL announces new kickoff rule changes for 2026", teams=[]),
+        make_item("NFL announces kickoff rule changes for 2026 season", teams=[]),
+    ]
+    groups = dd.deduplicate(items)
+    assert len(groups) == 1
+
+
 def test_flatten_appends_also_reported_by(make_item):
     a = make_item("Chiefs sign WR Marquise Brown", source="ESPN NFL",
                   category="transaction", teams=["KC"], summary="ESPN body")

@@ -15,8 +15,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from jinja2 import Template
 
-from config_loader import get_data_dir
+from config_loader import get_data_dir, get_settings
 from models import DailyReport, NewsItem
+from processing.deduplicator import is_primary_source
 
 logger = logging.getLogger(__name__)
 
@@ -353,12 +354,21 @@ def _build_section_sources(
     injuries = _sort_by_published(
         [item for item in news_items if item.category == "injury"]
     )
-    league_wide_items = _sort_by_published(
+    # Same ordering as summarizer._order_league_wide: real outlets first,
+    # then primary sources, then recency — otherwise the flat source list
+    # is all tweets while the bullets cite outlets.
+    league_wide_items = sorted(
         [
             item for item in news_items
             if not item.teams
             and item.category not in ("transaction", "injury")
-        ]
+        ],
+        key=lambda i: (
+            0 if i.source_type == "twitter" else 1,
+            1 if is_primary_source(i.source) else 0,
+            i.published,
+        ),
+        reverse=True,
     )
 
     return {
@@ -377,6 +387,18 @@ def _build_section_sources(
     }
 
 
+def _team_source_limit() -> int:
+    """Per-team flat source-list size (`team_notes.source_limit`), sized to
+    keep pace with the summarizer's `team_notes.item_limit` pool."""
+    try:
+        return max(1, int(
+            (get_settings().get("team_notes", {}) or {})
+            .get("source_limit", TEAM_SOURCE_LIMIT)
+        ))
+    except Exception:
+        return TEAM_SOURCE_LIMIT
+
+
 def _build_team_sources(
     news_items: list[NewsItem],
 ) -> dict[str, list[dict[str, Any]]]:
@@ -390,6 +412,7 @@ def _build_team_sources(
             team_items.setdefault(team, []).append(item)
 
     team_sources: dict[str, list[dict[str, Any]]] = {}
+    source_limit = _team_source_limit()
     for team, items in team_items.items():
         # Round-robin across distinct source labels first so a single
         # high-volume source (e.g. SI team pages, all stamped at scrape
@@ -406,14 +429,14 @@ def _build_team_sources(
         for r in range(max_per_source):
             for src in list(by_source.keys()):
                 bucket = by_source[src]
-                if r < len(bucket) and len(picked) < TEAM_SOURCE_LIMIT:
+                if r < len(bucket) and len(picked) < source_limit:
                     picked.append(bucket[r])
-        if len(picked) < TEAM_SOURCE_LIMIT:
+        if len(picked) < source_limit:
             remaining = [it for it in _sort_by_published(items) if it not in picked]
-            picked.extend(remaining[: TEAM_SOURCE_LIMIT - len(picked)])
+            picked.extend(remaining[: source_limit - len(picked)])
 
         sources = [_build_news_source(item) for item in picked]
-        team_sources[team] = _dedupe_sources(sources, limit=TEAM_SOURCE_LIMIT)
+        team_sources[team] = _dedupe_sources(sources, limit=source_limit)
 
     return team_sources
 

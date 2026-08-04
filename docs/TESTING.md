@@ -24,12 +24,15 @@ team map built around the `CAR`/`WAS` abbreviation-collision edge cases).
 | File | Module under test | Key guarantees |
 |------|-------------------|----------------|
 | `test_quality_filter.py` | `processing.quality_filter` | drop-pattern matching, mock-draft keep-year logic, disabled-filter passthrough (config monkeypatched, not coupled to live settings) |
-| `test_deduplicator.py` | `processing.deduplicator` | title normalization, transaction-name overlap (different players never merge), `pick_primary` ranking (ESPN beats SBN even with a longer blog body), `flatten_groups` "Also reported by" note |
+| `test_deduplicator.py` | `processing.deduplicator` | title normalization, transaction-name overlap (different players never merge), same-team guard (disjoint-team camp-intel articles never merge; transactions exempt), `pick_primary` ranking (ESPN beats SBN even with a longer blog body), `flatten_groups` "Also reported by" note |
 | `test_team_detection.py` | `collectors.rss_collector._detect_teams` | full-name/nickname matching; abbreviations only match as uppercase tokens, so "car crash"→not CAR and "was traded"→not WAS |
 | `test_projection_colmap.py` | `scripts.snapshot_projections._build_player_col_map` | duplicate "YPA Adj" disambiguated to "Scramble YPA Adj"/"Pass YPA Adj", skip-headers excluded, column indices preserved |
 | `test_citations.py` | `dashboard.citations.build_citation_linker` | `[N]` / `[1, 2]` linkified to source URLs, unknown numbers pass through, int `num` coerced to string |
 | `test_yt_cache.py` | `processing.yt_cache` | cache key deterministic + order-independent, changes with range/videos, save/load round-trip, corrupt-file tolerance |
 | `test_summarizer_usage.py` | `processing.summarizer` per-call model + section tuning | per-call `model` reaches `responses.create`; cost priced off the call's model; `pricing_model == "mixed"` with correct summed cost; `team_news` overrides reach the call; defaults apply when absent; transcript pool ignores `team_news` |
+| `test_cross_day_filter.py` | `processing.cross_day_filter` | `_is_exempt` (category + title-pattern exemptions), pattern-exempt rolling article kept while a non-exempt duplicate is dropped (embeddings monkeypatched) |
+| `test_summarizer_selection.py` | `processing.summarizer` selection helpers | `_order_league_wide` (outlets before tweets, primary before aggregator), other-sport tweet blocklist in `_league_wide_eligible`, `_team_item_limit` settings knob + fallback |
+| `test_rss_collector.py` | `collectors.rss_collector` ESPN content-API fetch | `_strip_story_html` (tags/scripts/entities), `_fetch_espn_story_body` with stubbed session (happy path, cap, missing story, request error) |
 
 The `deduplicate()` tests are written to hold **regardless of whether
 sentence-transformers loads** — the transaction-name gate runs before any
@@ -44,6 +47,6 @@ caches HF models). It is independent of the daily data-pipeline workflow.
 
 ## Where to extend next
 
-Good next candidates, all pure or near-pure: `cross_day_filter` thresholding,
+Good next candidates, all pure or near-pure:
 `reddit_collector._should_skip` / `_extract_reporter`, the summarizer's
 `_press_relevance_score`, and `depth_chart_collector.diff_depth_charts`.

@@ -13,7 +13,10 @@ clears the cache after editing.
 | `summarization` | `provider` (`openai` default / `anthropic` / `ollama`), `max_output_tokens`, `daily_token_budget` (500k cost cap) |
 | `openai` / `anthropic` / `ollama` | per-provider model + options (e.g. `openai.model: gpt-5.4-mini`, `reasoning_effort: high`; `anthropic.use_prompt_caching`). `openai.sections.team_news` tunes the player-news extractor (`model` / `reasoning_effort` / `max_output_tokens`) — set `model: "gpt-5.4"` to upgrade just that section. |
 | `content_filter` | `enabled`, `drop_patterns` (regex), `mock_draft_keep_years` (update annually) |
-| `cross_day_dedup` | `enabled`, `lookback_days` (2), `threshold` (0.82), `skip_categories` (`[transaction]`) |
+| `injury_classifier` | `enabled`; optional `patterns` / `exclude_patterns` override the built-in title regexes that retag injury-status news into the Injuries section (offseason coverage — NFL.com's game-week pages are empty then) |
+| `cross_day_dedup` | `enabled`, `lookback_days` (2), `threshold` (0.82), `skip_categories` (`[transaction]`), `skip_title_patterns` (regexes exempting rolling articles like ESPN's "training camp: Latest intel") |
+| `league_wide` | `twitter_exclude_patterns` — regexes making untagged other-sport tweets (MLB/NBA names) ineligible for League-Wide Notes |
+| `team_notes` | `item_limit` (12; per-team pool for the Team Notes LLM call, code default 8), `source_limit` (10; per-team flat source list in the report, code default 6) |
 | `collection` | `lookback_hours` (28), `youtube_max_per_channel`, `youtube_workers`, `request_delay`, `request_timeout`, `user_agent` |
 | `fantasypoints` | `enabled`, `lookback_hours` (24), `max_articles` |
 | `nitter` | disabled (instances dead) |

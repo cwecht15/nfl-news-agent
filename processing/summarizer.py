@@ -42,6 +42,7 @@ Do not invent dates, player names, contract terms, injuries, quotes, or outcomes
 
 PRESS_MAX_ITEMS = 12
 LEAGUE_WIDE_NEWS_LIMIT = 25
+INJURY_NEWS_LIMIT = 25
 TEAM_HIGHLIGHT_ITEM_LIMIT = 8
 
 PRESS_POSITIVE_SIGNALS = {
@@ -1055,12 +1056,19 @@ def summarize_injuries(
 
     client, runtime = _resolve_client_and_runtime(client)
 
+    # Cap at the most recent items — the classifier can retag a lot of
+    # camp-injury news items, which unlike NFL.com team reports arrive
+    # one per story.
+    items = sorted(items, key=lambda i: i.published, reverse=True)[:INJURY_NEWS_LIMIT]
+
     lines = []
     for item in items:
         teams = ", ".join(item.teams) if item.teams else "Unknown"
         lines.append(f"## {teams} - {item.title}")
-        if item.full_text:
-            lines.append(item.full_text[:500])
+        # Retagged news items usually have summary but no full_text.
+        detail = (item.full_text or item.summary or "")[:500]
+        if detail:
+            lines.append(detail)
 
     prompt = f"""Summarize today's NFL injury updates into a briefing.
 Focus on key players whose status has changed or who are newly listed.
@@ -1187,20 +1195,41 @@ def _league_wide_eligible(
     item: NewsItem,
     player_names: set[str],
     signal_re: re.Pattern,
+    exclude_re: Optional[re.Pattern] = None,
 ) -> bool:
     """Whether a no-team item belongs in League-Wide Notes.
 
     Only Twitter is gated (other sources keep their prior behavior): an
     untagged tweet must show a news signal or name a known player, otherwise
-    it's almost certainly team-account marketing / off-topic noise.
+    it's almost certainly team-account marketing / off-topic noise. An
+    `exclude_re` match (other-sport chatter — MLB trades pass the signal
+    gate via "trade") makes a tweet ineligible regardless of signal.
     """
     if item.source_type != "twitter":
         return True
     title = item.title or ""
+    if exclude_re is not None and exclude_re.search(title):
+        return False
     if signal_re.search(title):
         return True
     low = title.lower()
     return any(name in low for name in player_names)
+
+
+def _order_league_wide(items: list[NewsItem]) -> list[NewsItem]:
+    """Order league-wide candidates: non-Twitter outlets first (scarce,
+    highest-signal), then primary sources, then recency. Several collectors
+    pseudo-stamp published=now, so a pure recency sort let the tweet
+    firehose crowd real outlets out of the selection window."""
+    return sorted(
+        items,
+        key=lambda i: (
+            0 if i.source_type == "twitter" else 1,
+            1 if is_primary_source(i.source) else 0,
+            i.published,
+        ),
+        reverse=True,
+    )
 
 
 def summarize_league_wide(
@@ -1220,9 +1249,8 @@ def summarize_league_wide(
     """
     client, runtime = _resolve_client_and_runtime(client)
 
-    # Pick the most recent league-wide items.
-    ordered = sorted(news_items, key=lambda item: item.published, reverse=True)
-    selected = ordered[:LEAGUE_WIDE_NEWS_LIMIT]
+    # Real outlets first, then tweets by recency.
+    selected = _order_league_wide(news_items)[:LEAGUE_WIDE_NEWS_LIMIT]
 
     if not selected:
         return "No league-wide notes today.", []
@@ -1396,9 +1424,24 @@ def _diversify_by_source(
     return picked
 
 
+def _team_item_limit() -> int:
+    """Per-team pool size for the Team Notes LLM call.
+
+    Read from settings (`team_notes.item_limit`) rather than the runtime
+    config so it works on every provider branch, not just OpenAI.
+    """
+    try:
+        return max(1, int(
+            (get_settings().get("team_notes", {}) or {})
+            .get("item_limit", TEAM_HIGHLIGHT_ITEM_LIMIT)
+        ))
+    except Exception:
+        return TEAM_HIGHLIGHT_ITEM_LIMIT
+
+
 def _build_team_item_lines(items: list) -> tuple[list[str], list[dict]]:
     """Format per-team items with [N] indexing and a parallel source list."""
-    selected = _diversify_by_source(items, TEAM_HIGHLIGHT_ITEM_LIMIT)
+    selected = _diversify_by_source(items, _team_item_limit())
 
     lines: list[str] = []
     candidates: list[dict] = []
@@ -1719,12 +1762,23 @@ def run_summarization(
     # single-token false matches) let an untagged tweet that clearly names a
     # player still qualify even without an explicit transaction verb.
     _lw_player_names = {n for n in position_lookup if " " in n}
+    _lw_exclude = [
+        p for p in (
+            (get_settings().get("league_wide", {}) or {})
+            .get("twitter_exclude_patterns") or []
+        ) if p
+    ]
+    _lw_exclude_re = (
+        re.compile("|".join(f"(?:{p})" for p in _lw_exclude), re.IGNORECASE)
+        if _lw_exclude else None
+    )
     league_wide_news = []
     _lw_dropped_tweets = 0
     for i in general_news:
         if i.teams:
             continue
-        if _league_wide_eligible(i, _lw_player_names, _TWITTER_LEAGUE_SIGNAL):
+        if _league_wide_eligible(i, _lw_player_names, _TWITTER_LEAGUE_SIGNAL,
+                                 exclude_re=_lw_exclude_re):
             league_wide_news.append(i)
         elif i.source_type == "twitter":
             _lw_dropped_tweets += 1
