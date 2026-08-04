@@ -291,6 +291,11 @@ def collect_rss(
 # where fetch_article_body() always gets blocked (0 chars).
 ESPN_CONTENT_API = "https://content.core.api.espn.com/v1/sports/news/{id}"
 
+# site.api.espn.com started 403ing both our custom UA and browser UAs
+# (2026-08-04, from home and GitHub IPs alike) — python-requests' TLS
+# fingerprint plus a browser-ish UA reads as a bot. A plain curl UA passes.
+ESPN_API_USER_AGENT = "curl/8.4.0"
+
 
 def _strip_story_html(raw: str) -> str:
     """Strip tags from an ESPN content-API story field (HTML string)."""
@@ -355,7 +360,6 @@ def collect_espn_team_news(
 
     cutoff = datetime.now(timezone.utc) - timedelta(hours=lookback_hours)
     delay = settings["collection"].get("request_delay", 2.0)
-    user_agent = settings["collection"].get("user_agent", "NFL-News-Agent/1.0")
 
     if teams_by_abbr is None:
         from config_loader import get_teams_by_abbr
@@ -369,7 +373,7 @@ def collect_espn_team_news(
     from collectors.web_scraper import fetch_article_body
     import requests as _requests
     enrich_session = _requests.Session()
-    enrich_session.headers.update({"User-Agent": user_agent})
+    enrich_session.headers.update({"User-Agent": ESPN_API_USER_AGENT})
 
     logger.info("Collecting ESPN team-specific news for %d teams...", len(ESPN_TEAM_IDS))
 
@@ -377,7 +381,7 @@ def collect_espn_team_news(
         try:
             resp = requests.get(
                 f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/news?team={espn_id}",
-                headers={"User-Agent": user_agent},
+                headers={"User-Agent": ESPN_API_USER_AGENT},
                 timeout=settings["collection"].get("request_timeout", 30),
             )
             resp.raise_for_status()
