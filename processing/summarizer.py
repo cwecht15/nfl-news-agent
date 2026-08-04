@@ -608,14 +608,36 @@ def _call_openai(
         if text:
             incomplete_details = _obj_get(response, "incomplete_details")
             incomplete_reason = _obj_get(incomplete_details, "reason")
-            if incomplete_reason:
+            if not incomplete_reason:
+                return text
+            # Truncated mid-output (reasoning ate most of the budget and the
+            # visible text got cut off, often mid-sentence with no citation).
+            # Retry once with a larger cap and keep the longer result.
+            retry_max_tokens = _get_openai_retry_max_tokens(max_tokens)
+            if not retry_max_tokens:
                 logger.warning(
                     "OpenAI truncated %s output at max_output_tokens=%d (reason=%s); "
-                    "consider raising the cap for this call",
-                    usage_label or "summary",
-                    max_tokens,
-                    incomplete_reason,
+                    "no larger retry budget available",
+                    usage_label or "summary", max_tokens, incomplete_reason,
                 )
+                return text
+            logger.warning(
+                "OpenAI truncated %s output at max_output_tokens=%d (reason=%s); "
+                "retrying once with max_output_tokens=%d",
+                usage_label or "summary", max_tokens, incomplete_reason,
+                retry_max_tokens,
+            )
+            retry_response = _create_response(retry_max_tokens)
+            _record_openai_usage(
+                retry_response,
+                runtime,
+                usage_tracker,
+                usage_label=f"{usage_label}:retry" if usage_label else "retry",
+                model=effective_model,
+            )
+            retry_text = _extract_openai_text(retry_response)
+            if retry_text and len(retry_text) > len(text):
+                return retry_text
             return text
 
         if _should_retry_openai_no_text(response, text):

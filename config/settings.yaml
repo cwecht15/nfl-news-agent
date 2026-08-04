@@ -25,7 +25,10 @@ openai:
     team_news:
       model: null              # null => use openai.model above
       reasoning_effort: "medium"
-      max_output_tokens: 1600
+      # Responses API counts reasoning tokens against this cap. With the
+      # wider 12-item pools, 1600 left some teams a single cut-off bullet
+      # (reasoning ate the budget); 3200 gives output room to breathe.
+      max_output_tokens: 3200
 
 ollama:
   model: "gemma3:4b"
