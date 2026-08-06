@@ -466,6 +466,21 @@ def _should_retry_openai_no_text(response: Any, text: str) -> bool:
     )
 
 
+def _strip_truncated_tail(text: str) -> str:
+    """Drop trailing partial line(s) from a truncated response.
+
+    A complete line ends with terminal punctuation or a [N] citation; a
+    response cut off at max_output_tokens usually stops mid-line (e.g. a
+    dangling "- **K" bullet). Never strips the text down to nothing.
+    """
+    lines = text.rstrip().splitlines()
+    kept = list(lines)
+    while kept and not re.search(r'[.!?:\]"”)]\s*$', kept[-1].strip()):
+        kept.pop()
+    stripped = "\n".join(kept).rstrip()
+    return stripped if stripped else text
+
+
 def _get_openai_retry_max_tokens(max_tokens: int) -> Optional[int]:
     """Compute a larger retry budget for high-reasoning no-text responses."""
     retry_tokens = min(max(max_tokens * 2, max_tokens + 1024, 1200), 8192)
@@ -620,7 +635,7 @@ def _call_openai(
                     "no larger retry budget available",
                     usage_label or "summary", max_tokens, incomplete_reason,
                 )
-                return text
+                return _strip_truncated_tail(text)
             logger.warning(
                 "OpenAI truncated %s output at max_output_tokens=%d (reason=%s); "
                 "retrying once with max_output_tokens=%d",
@@ -637,8 +652,17 @@ def _call_openai(
             )
             retry_text = _extract_openai_text(retry_response)
             if retry_text and len(retry_text) > len(text):
+                # The retry can hit its (larger) cap too — never return a
+                # response that still ends mid-line.
+                if _obj_get(retry_response, "incomplete_details") is not None:
+                    logger.warning(
+                        "OpenAI retry for %s still truncated at "
+                        "max_output_tokens=%d; stripping partial tail",
+                        usage_label or "summary", retry_max_tokens,
+                    )
+                    return _strip_truncated_tail(retry_text)
                 return retry_text
-            return text
+            return _strip_truncated_tail(text)
 
         if _should_retry_openai_no_text(response, text):
             retry_max_tokens = _get_openai_retry_max_tokens(max_tokens)

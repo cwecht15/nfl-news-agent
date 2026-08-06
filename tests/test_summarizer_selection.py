@@ -96,3 +96,31 @@ def test_team_item_limit_bad_value_falls_back(monkeypatch):
     monkeypatch.setattr(sm, "get_settings",
                         lambda: {"team_notes": {"item_limit": "garbage"}})
     assert sm._team_item_limit() == sm.TEAM_HIGHLIGHT_ITEM_LIMIT
+
+
+# ── _strip_truncated_tail ───────────────────────────────────────────────
+
+def test_strip_dangling_partial_bullet():
+    text = "- **Cole Kmet (TE)** — Full bullet with citation. [3]\n\n- **K"
+    assert sm._strip_truncated_tail(text) == \
+        "- **Cole Kmet (TE)** — Full bullet with citation. [3]"
+
+
+def test_strip_mid_sentence_tail():
+    text = "- **A** — Complete thought. [1]\n- **B** — noted that Burden was not a full-time starter"
+    assert sm._strip_truncated_tail(text) == "- **A** — Complete thought. [1]"
+
+
+def test_complete_text_untouched():
+    text = "- **A** — Complete thought. [1]\n\n- **B** — Another one. [2, 4]"
+    assert sm._strip_truncated_tail(text) == text
+
+
+def test_citation_before_period_untouched():
+    text = "- **A** — shift suggests an adjustment on the 53 [10, 9]."
+    assert sm._strip_truncated_tail(text) == text
+
+
+def test_all_partial_returns_original():
+    text = "- **K"
+    assert sm._strip_truncated_tail(text) == text
