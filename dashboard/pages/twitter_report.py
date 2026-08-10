@@ -1,18 +1,19 @@
-"""Twitter Report — on-demand AI summary of insider tweets in a date range.
+"""Twitter Report — browsable insider-tweet list, with an optional AI summary.
 
 Pairs with `scripts/collect_twitter.py` / the daily pipeline: those collect
-tweets into `data/raw/<date>/twitter.json`; this page summarizes whatever's in
-the selected range, on demand. Mirrors the YouTube / Podcast tabs.
+tweets into `data/raw/<date>/twitter.json`; this page browses whatever's in
+the selected range.
 
-Unlike the keyword team-detection in the news pipeline, the report
+The primary view is the **Tweet List** tab — no LLM, no tokens: pick a date
+range, filter by team / player / keyword, sort, and read the raw tweets with
+promo/holiday fluff and off-topic noise scrubbed out.
+
+The **AI Summary** tab keeps the on-demand LLM report
 (`processing.twitter_section.build_twitter_section`):
   * uses the LLM to place each tweet on the right team even when no team is
     named (and to drop off-topic tweets),
   * clusters tweets reporting the same development into one bullet citing every
     source [N].
-
-The raw, scrubbed, team-grouped tweet list is one click away under "Show full
-tweet list" — no LLM, no tokens.
 """
 
 import json
@@ -50,21 +51,10 @@ raw_base = get_data_dir("raw")
 
 st.header("Twitter Report")
 
-if not os.environ.get("OPENAI_API_KEY"):
-    st.error(
-        "**OpenAI API key is not configured for this dashboard.** The Twitter "
-        "Report calls OpenAI on demand to summarize tweets, so a key has to be "
-        "reachable to the Streamlit process.\n\n"
-        "**On Streamlit Cloud:** *Manage app → Settings → Secrets*, add "
-        "`OPENAI_API_KEY = \"sk-...\"`, save, and reload."
-    )
-    st.stop()
-
 st.caption(
-    "AI-summarized insider tweets: the model places each tweet on the right "
-    "team (even with no team named), clusters tweets about the same story, and "
-    "cites every source. Pick a range and click Generate — each click runs LLM "
-    "calls; results are cached. The raw list is under *Show full tweet list*."
+    "Insider-list tweets, scrubbed of promo/off-topic junk. Browse the raw "
+    "list by team, player, or keyword — no LLM involved. The **AI Summary** "
+    "tab still offers the clustered, team-attributed report on demand."
 )
 
 
@@ -139,6 +129,22 @@ def _scrubbed_in_range(start: date, end: date) -> list[NewsItem]:
     return kept
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def _players_mentioned(ids_tuple: tuple) -> list[str]:
+    """Known player names (lowercase) appearing in the given tweets."""
+    wanted = set(ids_tuple)
+    players = _player_names()
+    found: set[str] = set()
+    for t in _load_all_tweets():
+        if t.url not in wanted:
+            continue
+        low = (t.title or "").lower()
+        for name in players:
+            if name in low:
+                found.add(name)
+    return sorted(found)
+
+
 @st.cache_data(ttl=86400, show_spinner=False)
 def _generate_cached(start_iso: str, end_iso: str, ids_tuple: tuple, force: bool = False) -> dict:
     """Build (or load from disk cache) the Twitter report for a range.
@@ -174,7 +180,7 @@ def _generate_cached(start_iso: str, end_iso: str, ids_tuple: tuple, force: bool
 
 
 # ──────────────────────────────────────────────────────────
-# UI — range + filters
+# UI — date range
 # ──────────────────────────────────────────────────────────
 
 if not _list_dated_dirs():
@@ -213,13 +219,6 @@ if start_d > end_d:
     st.error("Start date must be on or before end date.")
     st.stop()
 
-all_team_abbrs = sorted(get_teams_by_abbr().keys())
-team_filter = st.multiselect(
-    "Filter teams (leave empty for all)", all_team_abbrs,
-    help="Filters which Per-Team Notes (and raw tweets) are shown. The full "
-         "range is always summarized so attribution stays accurate.",
-)
-
 st.caption(f"Tweets available (by published date): {earliest.isoformat()} → {latest.isoformat()}")
 
 scrubbed = _scrubbed_in_range(start_d, end_d)
@@ -228,43 +227,130 @@ if not scrubbed:
     st.info("No tweets in this date range (after fluff scrub). Widen the range or push more.")
     st.stop()
 
-st.caption(f"{len(scrubbed)} tweets in range after fluff scrub — ready to summarize.")
+all_team_abbrs = sorted(get_teams_by_abbr().keys())
+
+tab_list, tab_ai = st.tabs(["📋 Tweet List", "🤖 AI Summary"])
 
 
 # ──────────────────────────────────────────────────────────
-# Generate + render report
+# Tab 1 — raw tweet list (no LLM)
 # ──────────────────────────────────────────────────────────
 
-session_key = "tw_report_section"
-inputs_key = "tw_report_inputs"
-current_inputs = (start_d.isoformat(), end_d.isoformat(), ids_tuple)
+def _render_tweet(item: NewsItem, show_teams: bool = False) -> None:
+    when = to_et_display(item.published.isoformat()) if item.published else ""
+    author = item.author or item.source
+    byline = f"**{author}**"
+    if show_teams and item.teams:
+        byline += f"  ·  {'/'.join(item.teams)}"
+    if when:
+        byline += f"  ·  {when}"
+    body = byline + "  \n" + (item.title or "")
+    if item.url:
+        body += f"  \n[Open tweet ↗]({item.url})"
+    st.markdown(body)
+    st.divider()
 
-gen_col, force_col = st.columns([1, 2])
-with gen_col:
-    generate = st.button("Generate Report", type="primary")
-with force_col:
-    force = st.checkbox(
-        "Force regenerate (ignore cache)", value=False,
-        help="Re-summarize from scratch instead of loading the saved result — "
-             "spends tokens. Use after a logic/label change.",
+
+with tab_list:
+    fcol1, fcol2 = st.columns(2)
+    with fcol1:
+        team_filter = st.multiselect(
+            "Teams (empty = all)", all_team_abbrs, key="tw_list_teams",
+            help="Keyword-detected team tags. Tweets naming no team appear "
+                 "under 'General / no team detected'.",
+        )
+    with fcol2:
+        mentioned = _players_mentioned(ids_tuple)
+        player_filter = st.multiselect(
+            "Players (empty = all)", [n.title() for n in mentioned],
+            key="tw_list_players",
+            help="Players from the latest depth chart mentioned by name in "
+                 "tweets in this range.",
+        )
+
+    fcol3, fcol4, fcol5 = st.columns([3, 2, 2])
+    with fcol3:
+        search = st.text_input(
+            "Search text / author", placeholder="e.g. Schefter, contract, WR",
+            key="tw_raw_search",
+            help="Comma-separate terms to match any of them (e.g. `holdout, extension`).",
+        )
+    with fcol4:
+        view = st.selectbox("View", ["Grouped by team", "Newest first", "Oldest first"],
+                            key="tw_list_view")
+    with fcol5:
+        scrub_offtopic = st.checkbox(
+            "Scrub off-topic / non-news", value=True, key="tw_raw_scrub",
+            help="Hide un-teamed tweets with no transaction/injury/roster/player signal.",
+        )
+
+    players = _player_names()
+    terms = [t.strip().lower() for t in search.split(",") if t.strip()]
+    wanted_players = [p.lower() for p in player_filter]
+
+    def _match(item: NewsItem) -> bool:
+        low = (item.title or "").lower()
+        if wanted_players and not any(p in low for p in wanted_players):
+            return False
+        if terms:
+            author_low = (item.author or "").lower()
+            if not any(t in low or t in author_low for t in terms):
+                return False
+        return True
+
+    by_team: dict[str, list[NewsItem]] = {}
+    untagged: list[NewsItem] = []
+    offtopic = 0
+    matched: list[NewsItem] = []
+    for item in scrubbed:
+        if not _match(item):
+            continue
+        if item.teams:
+            if team_filter and not set(item.teams) & set(team_filter):
+                continue
+            matched.append(item)
+            for t in item.teams:
+                if team_filter and t not in set(team_filter):
+                    continue
+                by_team.setdefault(t, []).append(item)
+        elif team_filter:
+            continue  # team filter means specific teams only
+        elif scrub_offtopic and not _league_wide_eligible(item, players, _TWITTER_LEAGUE_SIGNAL):
+            offtopic += 1
+        else:
+            matched.append(item)
+            untagged.append(item)
+
+    st.caption(
+        f"Showing {len(matched)} of {len(scrubbed)} tweets in range · "
+        f"team-tagged: {sum(len(v) for v in by_team.values())} across {len(by_team)} teams · "
+        f"un-teamed: {len(untagged)} · off-topic hidden: {offtopic}. "
+        "(Team tags are keyword-detected; the AI Summary re-attributes with the LLM.)"
     )
 
-if generate:
-    if force:
-        # Bust the in-memory memo so a later non-force view also picks up the
-        # freshly-written disk cache instead of the stale entry.
-        _generate_cached.clear()
-    with st.spinner("Summarizing tweets (attributing teams, clustering stories)..."):
-        section = _generate_cached(start_d.isoformat(), end_d.isoformat(), ids_tuple, force)
-    st.session_state[session_key] = section
-    st.session_state[inputs_key] = current_inputs
-else:
-    section = st.session_state.get(session_key)
-    if section is not None and st.session_state.get(inputs_key) != current_inputs:
-        section = None
-        st.session_state.pop(session_key, None)
-        st.session_state.pop(inputs_key, None)
+    if view == "Grouped by team":
+        for team in sorted(by_team, key=lambda t: (-len(by_team[t]), t)):
+            items = sorted(by_team[team], key=lambda i: i.published, reverse=True)
+            with st.expander(f"{team} ({len(items)})", expanded=bool(team_filter or wanted_players or terms)):
+                for item in items:
+                    _render_tweet(item)
+        if untagged:
+            items = sorted(untagged, key=lambda i: i.published, reverse=True)
+            with st.expander(f"General / no team detected ({len(items)})", expanded=False):
+                for item in items:
+                    _render_tweet(item)
+    else:
+        newest_first = view == "Newest first"
+        for item in sorted(matched, key=lambda i: i.published, reverse=newest_first):
+            _render_tweet(item, show_teams=True)
 
+    if not matched:
+        st.info("No tweets match the current filters.")
+
+
+# ──────────────────────────────────────────────────────────
+# Tab 2 — AI summary (on-demand LLM)
+# ──────────────────────────────────────────────────────────
 
 def _render_numbered_sources(numbered: list[dict]) -> None:
     if not numbered:
@@ -284,126 +370,113 @@ def _render_numbered_sources(numbered: list[dict]) -> None:
     st.markdown("\n\n".join(lines))
 
 
-if section and not section.get("empty"):
-    cache_info = section.get("_cache", {}) or {}
-    count = section.get("tweet_count", 0)
-    label = section.get("date_label", "")
-    st.success(f"Summarized {count} tweets ({label}).")
-    if cache_info.get("hit"):
+with tab_ai:
+    if not os.environ.get("OPENAI_API_KEY"):
+        st.error(
+            "**OpenAI API key is not configured for this dashboard.** The AI "
+            "Summary calls OpenAI on demand to summarize tweets, so a key has "
+            "to be reachable to the Streamlit process. (The Tweet List tab "
+            "works without one.)\n\n"
+            "**On Streamlit Cloud:** *Manage app → Settings → Secrets*, add "
+            "`OPENAI_API_KEY = \"sk-...\"`, save, and reload."
+        )
+    else:
         st.caption(
-            f"⚡ Loaded from saved cache (generated {cache_info.get('generated_at', '')} "
-            f"UTC) — no tokens spent on this view."
+            "The model places each tweet on the right team (even with no team "
+            "named), clusters tweets about the same story, and cites every "
+            "source. Each click runs LLM calls; results are cached."
         )
 
-    highlights = section.get("highlights", {}) or {}
-    hl_summary = (highlights.get("summary") or "").strip()
-    if hl_summary:
-        st.subheader("Top Developments")
-        hl_numbered = highlights.get("numbered_sources", []) or []
-        hl_linkify = build_citation_linker(hl_numbered)
-        st.markdown(hl_linkify(hl_summary) if hl_linkify else hl_summary, unsafe_allow_html=True)
-        _render_numbered_sources(hl_numbered)
-
-    team_notes = section.get("team_notes", {}) or {}
-    show_teams = sorted(t for t in team_notes if (not team_filter or t in set(team_filter)))
-    if show_teams:
-        st.subheader("Per-Team Notes")
-        for team in show_teams:
-            note = team_notes[team]
-            note_summary = (note.get("summary") or "").strip()
-            if not note_summary:
-                continue
-            numbered = note.get("numbered_sources", []) or []
-            note_linkify = build_citation_linker(numbered)
-            st.markdown(f"**{team}**")
-            st.markdown(note_linkify(note_summary) if note_linkify else note_summary,
-                        unsafe_allow_html=True)
-            _render_numbered_sources(numbered)
-            st.divider()
-    elif team_filter:
-        st.info("No team notes for the selected team(s) in this range.")
-
-    usage = section.get("llm_usage", {}) or {}
-    if usage:
-        st.subheader("LLM Usage")
-        cols = st.columns(5)
-        cols[0].metric("Calls", usage.get("request_count", 0))
-        cols[1].metric("Input", usage.get("input_tokens", 0))
-        cols[2].metric("Output", usage.get("output_tokens", 0))
-        cols[3].metric("Reasoning", usage.get("reasoning_tokens", 0))
-        cols[4].metric("Est. Cost", f"${float(usage.get('estimated_cost_usd', 0.0)):.4f}")
-elif section and section.get("empty"):
-    st.info("No tweets in that range. Push more before regenerating.")
-else:
-    st.info("Pick a range and click **Generate Report**. Each generation runs LLM calls (then it's cached).")
-
-
-# ──────────────────────────────────────────────────────────
-# Pop-open: full raw tweet list (no LLM)
-# ──────────────────────────────────────────────────────────
-
-def _render_tweet(item: NewsItem) -> None:
-    when = to_et_display(item.published.isoformat()) if item.published else ""
-    author = item.author or item.source
-    body = f"**{author}**" + (f"  ·  {when}" if when else "") + "  \n" + (item.title or "")
-    if item.url:
-        body += f"  \n[Open tweet ↗]({item.url})"
-    st.markdown(body)
-    st.divider()
-
-
-with st.expander("Show full tweet list (raw, no LLM)", expanded=False):
-    fcol1, fcol2 = st.columns([3, 2])
-    with fcol1:
-        search = st.text_input("Search text / author", placeholder="e.g. Schefter, contract, WR",
-                               key="tw_raw_search")
-    with fcol2:
-        scrub_offtopic = st.checkbox(
-            "Scrub off-topic / non-news", value=True, key="tw_raw_scrub",
-            help="Hide un-teamed tweets with no transaction/injury/roster/player signal.",
+        ai_team_filter = st.multiselect(
+            "Filter teams (leave empty for all)", all_team_abbrs, key="tw_ai_teams",
+            help="Filters which Per-Team Notes are shown. The full range is "
+                 "always summarized so attribution stays accurate.",
         )
 
-    players = _player_names()
-    q = search.strip().lower()
+        st.caption(f"{len(scrubbed)} tweets in range after fluff scrub — ready to summarize.")
 
-    def _match(item: NewsItem) -> bool:
-        if not q:
-            return True
-        return q in (item.title or "").lower() or q in (item.author or "").lower()
+        session_key = "tw_report_section"
+        inputs_key = "tw_report_inputs"
+        current_inputs = (start_d.isoformat(), end_d.isoformat(), ids_tuple)
 
-    by_team: dict[str, list[NewsItem]] = {}
-    untagged: list[NewsItem] = []
-    offtopic = 0
-    for item in scrubbed:
-        if not _match(item):
-            continue
-        if item.teams:
-            for t in item.teams:
-                by_team.setdefault(t, []).append(item)
-        elif scrub_offtopic and not _league_wide_eligible(item, players, _TWITTER_LEAGUE_SIGNAL):
-            offtopic += 1
+        gen_col, force_col = st.columns([1, 2])
+        with gen_col:
+            generate = st.button("Generate Report", type="primary")
+        with force_col:
+            force = st.checkbox(
+                "Force regenerate (ignore cache)", value=False,
+                help="Re-summarize from scratch instead of loading the saved result — "
+                     "spends tokens. Use after a logic/label change.",
+            )
+
+        if generate:
+            if force:
+                # Bust the in-memory memo so a later non-force view also picks up the
+                # freshly-written disk cache instead of the stale entry.
+                _generate_cached.clear()
+            with st.spinner("Summarizing tweets (attributing teams, clustering stories)..."):
+                section = _generate_cached(start_d.isoformat(), end_d.isoformat(), ids_tuple, force)
+            st.session_state[session_key] = section
+            st.session_state[inputs_key] = current_inputs
         else:
-            untagged.append(item)
+            section = st.session_state.get(session_key)
+            if section is not None and st.session_state.get(inputs_key) != current_inputs:
+                section = None
+                st.session_state.pop(session_key, None)
+                st.session_state.pop(inputs_key, None)
 
-    if team_filter:
-        wanted = set(team_filter)
-        by_team = {t: v for t, v in by_team.items() if t in wanted}
-        untagged = []  # team filter means specific teams only
+        if section and not section.get("empty"):
+            cache_info = section.get("_cache", {}) or {}
+            count = section.get("tweet_count", 0)
+            label = section.get("date_label", "")
+            st.success(f"Summarized {count} tweets ({label}).")
+            if cache_info.get("hit"):
+                st.caption(
+                    f"⚡ Loaded from saved cache (generated {cache_info.get('generated_at', '')} "
+                    f"UTC) — no tokens spent on this view."
+                )
 
-    st.caption(
-        f"Keyword-tagged: {sum(len(v) for v in by_team.values())} across {len(by_team)} teams · "
-        f"un-teamed shown: {len(untagged)} · off-topic hidden: {offtopic}. "
-        "(The report above re-attributes these with the LLM.)"
-    )
+            highlights = section.get("highlights", {}) or {}
+            hl_summary = (highlights.get("summary") or "").strip()
+            if hl_summary:
+                st.subheader("Top Developments")
+                hl_numbered = highlights.get("numbered_sources", []) or []
+                hl_linkify = build_citation_linker(hl_numbered)
+                st.markdown(hl_linkify(hl_summary) if hl_linkify else hl_summary,
+                            unsafe_allow_html=True)
+                _render_numbered_sources(hl_numbered)
 
-    for team in sorted(by_team, key=lambda t: (-len(by_team[t]), t)):
-        items = sorted(by_team[team], key=lambda i: i.published, reverse=True)
-        with st.expander(f"{team} ({len(items)})", expanded=False):
-            for item in items:
-                _render_tweet(item)
+            team_notes = section.get("team_notes", {}) or {}
+            show_teams = sorted(t for t in team_notes
+                                if (not ai_team_filter or t in set(ai_team_filter)))
+            if show_teams:
+                st.subheader("Per-Team Notes")
+                for team in show_teams:
+                    note = team_notes[team]
+                    note_summary = (note.get("summary") or "").strip()
+                    if not note_summary:
+                        continue
+                    numbered = note.get("numbered_sources", []) or []
+                    note_linkify = build_citation_linker(numbered)
+                    st.markdown(f"**{team}**")
+                    st.markdown(note_linkify(note_summary) if note_linkify else note_summary,
+                                unsafe_allow_html=True)
+                    _render_numbered_sources(numbered)
+                    st.divider()
+            elif ai_team_filter:
+                st.info("No team notes for the selected team(s) in this range.")
 
-    if untagged:
-        items = sorted(untagged, key=lambda i: i.published, reverse=True)
-        with st.expander(f"General / no team detected ({len(items)})", expanded=False):
-            for item in items:
-                _render_tweet(item)
+            usage = section.get("llm_usage", {}) or {}
+            if usage:
+                st.subheader("LLM Usage")
+                cols = st.columns(5)
+                cols[0].metric("Calls", usage.get("request_count", 0))
+                cols[1].metric("Input", usage.get("input_tokens", 0))
+                cols[2].metric("Output", usage.get("output_tokens", 0))
+                cols[3].metric("Reasoning", usage.get("reasoning_tokens", 0))
+                cols[4].metric("Est. Cost", f"${float(usage.get('estimated_cost_usd', 0.0)):.4f}")
+        elif section and section.get("empty"):
+            st.info("No tweets in that range. Push more before regenerating.")
+        else:
+            st.info("Pick a range and click **Generate Report**. Each generation runs "
+                    "LLM calls (then it's cached).")
