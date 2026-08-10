@@ -6,7 +6,12 @@ the selected range.
 
 The primary view is the **Tweet List** tab — no LLM, no tokens: pick a date
 range, filter by team / player / keyword, sort, and read the raw tweets with
-promo/holiday fluff and off-topic noise scrubbed out.
+promo/holiday fluff and off-topic noise scrubbed out. Tweets that name no team
+but do name a depth-chart player are grouped under that player's team (marked
+as inferred): keyword team-detection alone would file "Joshua Palmer and IGB
+got into it" under no team, even though Palmer is a Bill. Full-name matches
+only, with a small first-name nickname table (Josh↔Joshua, A.J.↔AJ, ...);
+names that could belong to more than one team are left uninferred.
 
 The **AI Summary** tab keeps the on-demand LLM report
 (`processing.twitter_section.build_twitter_section`):
@@ -108,6 +113,80 @@ def _player_names() -> set[str]:
     return {n for n in _load_position_lookup() if " " in n}
 
 
+# First names that appear under multiple forms in tweets vs the depth chart.
+# Members of a group are interchangeable when matching a full name.
+_NICKNAME_GROUPS = [
+    {"josh", "joshua"}, {"mike", "michael"}, {"cam", "cameron"},
+    {"matt", "matthew"}, {"chris", "christopher"}, {"zach", "zachary"},
+    {"jake", "jacob"}, {"nick", "nicholas"}, {"dan", "danny", "daniel"},
+    {"will", "william"}, {"ben", "benjamin"}, {"sam", "samuel"},
+    {"tony", "anthony"}, {"drew", "andrew"}, {"gabe", "gabriel"},
+    {"ken", "kenny", "kenneth"}, {"rob", "robert"}, {"joe", "joseph"},
+    {"jeff", "jeffrey"}, {"greg", "gregory"}, {"steve", "steven", "stephen"},
+    {"dave", "david"}, {"tim", "timothy"}, {"pat", "patrick"},
+    {"nate", "nathan", "nathaniel"}, {"jon", "jonathan"},
+    {"alex", "alexander"}, {"jim", "jimmy", "james"},
+]
+
+
+def _first_name_variants(first: str) -> set[str]:
+    alts = {first}
+    if "." in first:
+        alts.add(first.replace(".", ""))  # "a.j." -> "aj"
+    elif len(first) == 2:
+        alts.add(f"{first[0]}.{first[1]}.")  # "aj" -> "a.j."
+    for group in _NICKNAME_GROUPS:
+        if first in group:
+            alts |= group
+    return alts
+
+
+def _name_variants(name: str) -> set[str]:
+    """All lowercase full-name spellings to accept for a depth-chart name."""
+    first, _, rest = name.partition(" ")
+    return {f"{a} {rest}" for a in _first_name_variants(first)}
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def _player_team_lookup() -> dict[str, str]:
+    """Lowercase full name (incl. nickname variants) -> team abbreviation.
+
+    Names whose variants could belong to more than one team are dropped —
+    a last name like Palmer spans three teams, so only unambiguous full-name
+    matches ever infer a team.
+    """
+    try:
+        from collectors.depth_chart_collector import load_latest_depth_charts
+        dc = load_latest_depth_charts() or {}
+    except Exception:
+        return {}
+    variants: dict[str, set[str]] = {}
+    for entry in dc.values():
+        name = (entry.get("name") or "").strip().lower()
+        team = entry.get("team")
+        if not name or " " not in name or not team:
+            continue
+        for v in _name_variants(name):
+            variants.setdefault(v, set()).add(team)
+    return {v: next(iter(teams)) for v, teams in variants.items() if len(teams) == 1}
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def _inferred_teams(ids_tuple: tuple) -> dict[str, list[str]]:
+    """url -> teams inferred from player mentions, for un-teamed tweets in range."""
+    lookup = _player_team_lookup()
+    wanted = set(ids_tuple)
+    out: dict[str, list[str]] = {}
+    for t in _load_all_tweets():
+        if t.url not in wanted or t.teams:
+            continue
+        low = (t.title or "").lower()
+        teams = {team for name, team in lookup.items() if name in low}
+        if teams:
+            out[t.url] = sorted(teams)
+    return out
+
+
 def _tweet_dt(item: NewsItem) -> date | None:
     return item.published.date() if item.published else None
 
@@ -140,7 +219,9 @@ def _players_mentioned(ids_tuple: tuple) -> list[str]:
             continue
         low = (t.title or "").lower()
         for name in players:
-            if name in low:
+            if name in found:
+                continue
+            if any(v in low for v in _name_variants(name)):
                 found.add(name)
     return sorted(found)
 
@@ -236,12 +317,15 @@ tab_list, tab_ai = st.tabs(["📋 Tweet List", "🤖 AI Summary"])
 # Tab 1 — raw tweet list (no LLM)
 # ──────────────────────────────────────────────────────────
 
-def _render_tweet(item: NewsItem, show_teams: bool = False) -> None:
+def _render_tweet(item: NewsItem, teams: list[str] | None = None,
+                  inferred: bool = False) -> None:
     when = to_et_display(item.published.isoformat()) if item.published else ""
     author = item.author or item.source
     byline = f"**{author}**"
-    if show_teams and item.teams:
-        byline += f"  ·  {'/'.join(item.teams)}"
+    if teams:
+        byline += f"  ·  {'/'.join(teams)}" + (" *(inferred)*" if inferred else "")
+    elif inferred:
+        byline += "  ·  *team inferred from player mention*"
     if when:
         byline += f"  ·  {when}"
     body = byline + "  \n" + (item.title or "")
@@ -256,8 +340,10 @@ with tab_list:
     with fcol1:
         team_filter = st.multiselect(
             "Teams (empty = all)", all_team_abbrs, key="tw_list_teams",
-            help="Keyword-detected team tags. Tweets naming no team appear "
-                 "under 'General / no team detected'.",
+            help="Keyword-detected team tags, plus teams inferred from "
+                 "unambiguous player-name mentions (marked *inferred*). "
+                 "Tweets naming neither appear under 'General / no team "
+                 "detected'.",
         )
     with fcol2:
         mentioned = _players_mentioned(ids_tuple)
@@ -286,11 +372,11 @@ with tab_list:
 
     players = _player_names()
     terms = [t.strip().lower() for t in search.split(",") if t.strip()]
-    wanted_players = [p.lower() for p in player_filter]
+    wanted_variants = [_name_variants(p.lower()) for p in player_filter]
 
     def _match(item: NewsItem) -> bool:
         low = (item.title or "").lower()
-        if wanted_players and not any(p in low for p in wanted_players):
+        if wanted_variants and not any(any(v in low for v in vs) for vs in wanted_variants):
             return False
         if terms:
             author_low = (item.author or "").lower()
@@ -298,18 +384,23 @@ with tab_list:
                 return False
         return True
 
+    inferred_by_url = _inferred_teams(ids_tuple)
     by_team: dict[str, list[NewsItem]] = {}
     untagged: list[NewsItem] = []
+    inferred_urls: set[str] = set()
     offtopic = 0
     matched: list[NewsItem] = []
     for item in scrubbed:
         if not _match(item):
             continue
-        if item.teams:
-            if team_filter and not set(item.teams) & set(team_filter):
+        tagged = item.teams or inferred_by_url.get(item.url or "", [])
+        if tagged:
+            if team_filter and not set(tagged) & set(team_filter):
                 continue
             matched.append(item)
-            for t in item.teams:
+            if not item.teams:
+                inferred_urls.add(item.url)
+            for t in tagged:
                 if team_filter and t not in set(team_filter):
                     continue
                 by_team.setdefault(t, []).append(item)
@@ -323,7 +414,8 @@ with tab_list:
 
     st.caption(
         f"Showing {len(matched)} of {len(scrubbed)} tweets in range · "
-        f"team-tagged: {sum(len(v) for v in by_team.values())} across {len(by_team)} teams · "
+        f"team-tagged: {sum(len(v) for v in by_team.values())} across {len(by_team)} teams "
+        f"(incl. {len(inferred_urls)} inferred from player mentions) · "
         f"un-teamed: {len(untagged)} · off-topic hidden: {offtopic}. "
         "(Team tags are keyword-detected; the AI Summary re-attributes with the LLM.)"
     )
@@ -331,9 +423,9 @@ with tab_list:
     if view == "Grouped by team":
         for team in sorted(by_team, key=lambda t: (-len(by_team[t]), t)):
             items = sorted(by_team[team], key=lambda i: i.published, reverse=True)
-            with st.expander(f"{team} ({len(items)})", expanded=bool(team_filter or wanted_players or terms)):
+            with st.expander(f"{team} ({len(items)})", expanded=bool(team_filter or wanted_variants or terms)):
                 for item in items:
-                    _render_tweet(item)
+                    _render_tweet(item, inferred=item.url in inferred_urls)
         if untagged:
             items = sorted(untagged, key=lambda i: i.published, reverse=True)
             with st.expander(f"General / no team detected ({len(items)})", expanded=False):
@@ -342,7 +434,9 @@ with tab_list:
     else:
         newest_first = view == "Newest first"
         for item in sorted(matched, key=lambda i: i.published, reverse=newest_first):
-            _render_tweet(item, show_teams=True)
+            is_inf = item.url in inferred_urls
+            teams = inferred_by_url.get(item.url or "", []) if is_inf else item.teams
+            _render_tweet(item, teams=teams, inferred=is_inf)
 
     if not matched:
         st.info("No tweets match the current filters.")
