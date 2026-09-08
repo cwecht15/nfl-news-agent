@@ -1526,7 +1526,6 @@ def run_roster_step(
     accepted = merge_new_events(existing, new)
     events = existing + accepted
     events = confirm_reported(events, window_days=int(roster_cfg.get("confirm_window_days", 3)))
-    save_events(events)
     counts["appended"] = len(accepted)
     counts["ledger"] = len(events)
     counts["confirmed_new"] = sum(1 for e in accepted if e.get("confirmed_by"))
@@ -1536,20 +1535,42 @@ def run_roster_step(
     save_state(state)
     counts["status"] = _status_counts(state)
 
+    # Enrich the new events from the rebuilt state: NFL.com's table carries
+    # no position or id, so gsis_id / pos come from the nflverse baseline
+    # (OurLads as a last resort), plus the derived IR / elevation fields.
     by_name = state.get("by_name", {})
     for ev in accepted:
         key = ev.get("gsis_id") or by_name.get(ev.get("name_key", ""))
         rec = state["players"].get(key) if key else None
-        if not rec:
-            continue
-        if ev["event_type"] in _RESERVE_PLACEMENTS and rec.get("earliest_return_week"):
-            ev["earliest_return_week"] = rec["earliest_return_week"]
-        if ev["event_type"] == "ps_elevated":
-            ev["elevations_used"] = rec.get("elevations_used", 0)
-            ev["max_elevations"] = int(roster_cfg.get("max_elevations", 3))
+        if rec:
+            if not ev.get("gsis_id") and rec.get("gsis_id"):
+                ev["gsis_id"] = rec["gsis_id"]
+            if not ev.get("pos") and rec.get("pos"):
+                ev["pos"] = rec["pos"]
+            if ev["event_type"] in _RESERVE_PLACEMENTS and rec.get("earliest_return_week"):
+                ev["earliest_return_week"] = rec["earliest_return_week"]
+            if ev["event_type"] == "ps_elevated":
+                ev["elevations_used"] = rec.get("elevations_used", 0)
+                ev["max_elevations"] = int(roster_cfg.get("max_elevations", 3))
+        if not ev.get("pos"):
+            ev["pos"] = _ourlads_pos(ev.get("name", ""))
+    save_events(events)
 
     logger.info("Roster step %s: %s", date_str, json.dumps({k: v for k, v in counts.items() if k != "status"}))
     return {"new_events": accepted, "state": state, "counts": counts}
+
+
+def _ourlads_pos(name: str) -> str:
+    """Generic position from the latest OurLads depth chart, or ""."""
+    if not name:
+        return ""
+    try:
+        from collectors.depth_chart_collector import RESERVE_BUCKETS, lookup_player
+        rec = lookup_player(name) or {}
+        pos = str(rec.get("generic_pos") or rec.get("pos") or "").upper()
+        return "" if pos in RESERVE_BUCKETS else pos
+    except Exception:  # noqa: BLE001 — enrichment only
+        return ""
 
 
 # ---------------------------------------------------------------------------

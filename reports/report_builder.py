@@ -568,7 +568,12 @@ def _build_roster_moves_section(events: list[dict]) -> dict[str, Any]:
             if meta:
                 line += f" ({meta})"
             if detail and detail.lower() != etype.replace("_", " "):
-                line += f": {detail}"
+                # OurLads-derived details repeat "Name (TEAM) Active -> IR"; keep just the transition
+                if str(name) and detail.startswith(str(name)):
+                    detail = detail[len(str(name)):].lstrip(" ").lstrip("(")
+                    detail = detail[len(team) + 1:].lstrip() if team and detail.startswith(f"{team})") else detail
+                if detail:
+                    line += f": {detail}"
             parts.append(line + tail + src_part)
         parts.append("")
 

@@ -331,7 +331,7 @@ def split_reserve_changes(changes: list[dict]) -> tuple[list[dict], list[dict]]:
             status.append({
                 "type": "status_change",
                 "name": c.get("name"), "team": c.get("team"),
-                "pos": c.get("pos"), "generic_pos": c.get("generic_pos"),
+                "pos": "", "generic_pos": "",   # OurLads shows the bucket, not the position
                 "old_status": None, "new_status": b, "depth": c.get("depth"),
                 "message": f"{c.get('name')} ({c.get('team')}) listed on {b}",
             })
@@ -341,7 +341,7 @@ def split_reserve_changes(changes: list[dict]) -> tuple[list[dict], list[dict]]:
             status.append({
                 "type": "status_change",
                 "name": c.get("name"), "team": c.get("team"),
-                "pos": c.get("pos"), "generic_pos": c.get("generic_pos"),
+                "pos": "", "generic_pos": "",
                 "old_status": b, "new_status": None, "depth": c.get("depth"),
                 "message": f"{c.get('name')} ({c.get('team')}) no longer listed on {b}",
             })
