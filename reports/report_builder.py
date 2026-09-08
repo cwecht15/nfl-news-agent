@@ -712,9 +712,24 @@ def _build_projection_movers_section(movers: list[dict]) -> dict[str, Any]:
         arrow = "↑" if (old_n is not None and new_n is not None and new_n < old_n) else "↓"
         meta = " / ".join(p for p in [pos, team] if p)
         meta_part = f" ({meta})" if meta else ""
-        bullets.append(f"- **{label}**{meta_part}: {old_rank} → {new_rank} {arrow}")
+        line = f"- **{label}**{meta_part}: {old_rank} → {new_rank} {arrow}"
+        if rec.get("weekly"):
+            # In-season records come from the weekly sheet: show the points move too
+            try:
+                po, pn = float(rec.get("ppr_old")), float(rec.get("ppr_new"))
+                line += f" ({po:.1f} → {pn:.1f} pts)"
+            except (TypeError, ValueError):
+                pass
+        bullets.append(line)
 
-    summary = "\n".join(bullets) if bullets else "No projection rank changes today."
+    weekly = next((m for m in movers if m.get("weekly")), None)
+    intro: list[str] = []
+    if weekly:
+        wk = weekly.get("week")
+        sheet = weekly.get("sheet") or "primary"
+        intro.append(f"_Week {wk} weekly sheet ({sheet}): rank and points changes since the previous snapshot,"
+                     f" adjusted players only._")
+    summary = "\n".join(intro + bullets) if bullets else "No projection rank changes today."
     return {"summary": summary, "count": len(movers)}
 
 

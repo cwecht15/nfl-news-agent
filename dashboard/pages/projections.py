@@ -15,41 +15,38 @@ st.set_page_config(page_title="Projections", page_icon="🏈", layout="wide")
 from dashboard.auth import require_password
 require_password()
 
+from dashboard.projection_data import get_projection_source
+
 PROJ_DIR = Path(__file__).parent.parent.parent / "data" / "projections"
 
+# Phase-aware data source: preseason snapshots in the offseason, the weekly
+# sheet snapshots (data/weekly_projections) once season.phase is in_season.
+SRC = get_projection_source()
+
 st.header("Projections")
+if SRC.mode == "in_season":
+    st.caption(
+        f"In-season source: **{SRC.label}**. Points are **{SRC.points_label}** and ranks are "
+        "this week's position ranks from the weekly sheet. On Tuesdays the secondary sheet "
+        "(next week's copy) is shown when it is already on the higher week."
+    )
+else:
+    st.caption(f"Source: **{SRC.label}** (season-long projections).")
 
 
 # --- Helpers ---
 
 def _get_snapshot_dates() -> list[str]:
     """Return available snapshot dates, newest first."""
-    if not PROJ_DIR.exists():
-        return []
-    return sorted(
-        [d.name for d in PROJ_DIR.iterdir() if d.is_dir()],
-        reverse=True,
-    )
+    return SRC.dates()
 
 
 def _load_snapshot(date: str, kind: str) -> dict | None:
-    path = PROJ_DIR / date / f"{kind}.json"
-    if not path.exists():
-        return None
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+    return SRC.load(date, kind)
 
 
 def _load_changelog() -> list[dict]:
-    path = PROJ_DIR / "changelog.csv"
-    if not path.exists():
-        return []
-    rows = []
-    with open(path, encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            rows.append(row)
-    return rows
+    return SRC.changelog()
 
 
 def _find_player(snapshot: dict, query: str) -> list[tuple[str, dict]]:
@@ -59,8 +56,8 @@ def _find_player(snapshot: dict, query: str) -> list[tuple[str, dict]]:
     for key, data in snapshot.items():
         name = data.get("name", "").lower()
         team = data.get("team", "").lower()
-        slot = data.get("slot", "").lower()
-        pid = data.get("player_id", "").lower()
+        slot = str(data.get("slot") or "").lower()
+        pid = str(data.get("player_id") or "").lower()
         if (query_lower in name or query_lower in team
                 or query_lower in slot or query_lower == key.lower()
                 or query_lower == pid):
@@ -81,7 +78,10 @@ def _safe_delta(old, new) -> float | None:
 dates = _get_snapshot_dates()
 
 if not dates:
-    st.warning("No projection snapshots yet. Run `python scripts/snapshot_projections.py` to create one.")
+    if SRC.mode == "in_season":
+        st.warning("No weekly projection snapshots yet. Run `python scripts/snapshot_weekly_projections.py --sheet both` or wait for the next pipeline run.")
+    else:
+        st.warning("No projection snapshots yet. Run `python scripts/snapshot_projections.py` to create one.")
     st.stop()
 
 tab_changes, tab_rankings, tab_weekly, tab_txn, tab_lookup, tab_history, tab_teams = st.tabs([
@@ -336,10 +336,17 @@ with tab_weekly:
     if len(dates) < 2:
         st.info("Need at least 2 snapshots to generate a weekly summary.")
     else:
-        # Find dates in the last 7 days
+        # Find dates in the last 7 days — in-season, the snapshots of the
+        # current NFL week instead (a rolling window would straddle the
+        # week rollover and compare two different games).
         from datetime import datetime as _dt, timedelta as _td
-        cutoff = (_dt.now() - _td(days=7)).strftime("%Y-%m-%d")
-        week_dates = sorted([d for d in dates if d >= cutoff])
+        if SRC.mode == "in_season":
+            week_dates = SRC.dates_same_week(dates[0])
+            wk = SRC.week_for_date(dates[0])
+            st.caption(f"Week {wk} sheet: first snapshot vs latest snapshot of the week.")
+        else:
+            cutoff = (_dt.now() - _td(days=7)).strftime("%Y-%m-%d")
+            week_dates = sorted([d for d in dates if d >= cutoff])
 
         if len(week_dates) < 2:
             st.info("Not enough snapshots in the last 7 days for a weekly summary.")
@@ -650,6 +657,9 @@ with tab_lookup:
                     # Full metrics in an expandable table
                     with st.expander("All metrics"):
                         all_data = [{"Metric": k, "Value": v} for k, v in sorted(metrics.items()) if v is not None]
+                        if any(isinstance(r["Value"], str) for r in all_data):
+                            # weekly sheets mix text cells (e.g. "Line Src") with numbers
+                            all_data = [{"Metric": r["Metric"], "Value": str(r["Value"])} for r in all_data]
                         st.dataframe(all_data, use_container_width=True, hide_index=True)
 
             if len(matches) > 10:
@@ -912,6 +922,8 @@ with tab_teams:
         # Full metrics
         with st.expander("All metrics"):
             all_data = [{"Metric": k, "Value": v} for k, v in sorted(metrics.items()) if v is not None]
+            if any(isinstance(r["Value"], str) for r in all_data):
+                all_data = [{"Metric": r["Metric"], "Value": str(r["Value"])} for r in all_data]
             st.dataframe(all_data, use_container_width=True, hide_index=True)
 
     # Team history across snapshots

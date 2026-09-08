@@ -86,6 +86,14 @@ except Exception as e:
     st.error(f"Failed to load report: {e}")
     st.stop()
 
+if report.team_highlights:
+    _meta = report.season_meta or {}
+    _wk = f"Week {_meta.get('week')} · " if _meta.get("week") else ""
+    st.caption(
+        f"{_wk}{len(report.sections)} sections above, **{len(report.team_highlights)} team notes** below "
+        "— [jump to Team Notes](#team-notes)"
+    )
+
 # Search box + flag-mode selector (+ name field, only when handbook mode)
 search_col, flag_col = st.columns([3, 2])
 with search_col:

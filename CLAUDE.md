@@ -218,7 +218,7 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 | Podcast Report | Date-range picker → checkbox episode table → on-demand LLM summary of pushed podcast episodes (Episode Highlights + per-team bullets). Transcript-tag-first, show-notes fallback. Cached. |
 | Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
 | Team View | Per-team historical drilldown |
-| Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections |
+| Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections. Phase-aware via `dashboard/projection_data.py`: preseason snapshots in the offseason, the weekly sheet snapshots in-season (players+kickers / Player_Projections output as "fantasy" / game rows as "teams"; Weekly Summary = this NFL week's first vs latest snapshot). |
 | Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser. In-season, reserve-list (IR/PUP/NFI/SUS) crossings are shown separately and within-bucket shuffles hidden. |
 | In Season | Week overview (games/byes/working sheet), roster state + event feed, weekly injury report grid, projection audit with dismissals. Banner only in the offseason. |
 | Transcripts | Raw press-conference transcripts with bulk-ZIP download, NotebookLM push, backfill |

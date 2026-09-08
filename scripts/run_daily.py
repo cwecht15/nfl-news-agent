@@ -643,7 +643,10 @@ def run(
             gc = _get_sheets_client()
             load_schedule(gc)  # refresh the schedule cache when stale
             weekly_result = run_weekly_snapshot(gc, date_str, ctx=season_ctx) or {}
-            rank_movers = list(weekly_result.get("rank_movers") or [])
+            rank_movers = [
+                {**m, "weekly": True, "week": weekly_result.get("week"), "sheet": weekly_result.get("active_sheet")}
+                for m in (weekly_result.get("rank_movers") or [])
+            ]
             sheet_weeks = weekly_result.get("sheet_weeks") or {}
             if sheet_weeks:
                 season_ctx = get_season_context(
