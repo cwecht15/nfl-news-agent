@@ -147,6 +147,7 @@ TITLES = {
     # In-season sections (season.phase == in_season)
     "roster_moves": "Roster Moves",
     "injury_report_changes": "Injury Report Changes",
+    "game_day_inactives": "Game-Day Inactives",
     "projection_audit": "Projection Audit",
     # Legacy key kept so older reports on disk still render with the
     # right title rather than as "Analysis".

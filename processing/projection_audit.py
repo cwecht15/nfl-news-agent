@@ -188,7 +188,7 @@ def load_inputs(ctx, date_str: str, settings: Optional[dict] = None) -> dict:
     settings = settings or get_settings()
     inputs: dict[str, Any] = {
         "snapshot": None, "state": None, "nflverse": None, "nflverse_date": None,
-        "injuries": None, "ourlads": None, "schedule": [], "errors": [],
+        "injuries": None, "ourlads": None, "schedule": [], "inactives": {}, "errors": [],
     }
     try:
         from processing.weekly_projections import load_active_snapshot
@@ -221,6 +221,11 @@ def load_inputs(ctx, date_str: str, settings: Optional[dict] = None) -> dict:
         inputs["schedule"] = season_mod.load_schedule(settings=settings, season=ctx.season)
     except Exception as e:  # noqa: BLE001
         inputs["errors"].append(f"schedule: {e}")
+    try:
+        from collectors.inactives_collector import inactive_players_for_week
+        inputs["inactives"] = inactive_players_for_week(ctx.season, ctx.week) if ctx.week else {}
+    except Exception as e:  # noqa: BLE001
+        inputs["errors"].append(f"inactives: {e}")
     return inputs
 
 
@@ -438,6 +443,31 @@ def check_injuries(rows: dict[str, dict], output: dict, injuries: Optional[dict]
     return alerts
 
 
+def check_inactives(rows: dict[str, dict], output: dict, inactives: Optional[dict], week: int, sheet: str) -> list[dict]:
+    """Declared game-day inactives that still carry projected points."""
+    alerts: list[dict] = []
+    if not inactives:
+        return alerts
+    for gid, rec in rows.items():
+        name = rec.get("name") or gid
+        team_news = to_news(str(rec.get("team") or ""), "proj")
+        p = inactives.get((team_news, _name_key(name)))
+        if not p:
+            continue
+        ppr = _ppr((output or {}).get(gid))
+        if ppr <= 0:
+            continue
+        team_proj = to_proj(team_news, "news")
+        alerts.append(_alert(
+            "inactive_but_projected", SEVERITY_ERROR, player=name, gsis_id=gid, pos=str(rec.get("pos") or ""),
+            team=team_proj, sheet=sheet, week=week,
+            message=f"{name} ({rec.get('pos')}, {team_proj}) is INACTIVE for {p.get('game') or 'this week'}"
+                    f" ({p.get('phase')}) but projected for {ppr:.1f} PPR",
+            evidence={"game": p.get("game"), "phase": p.get("phase"), "ppr": ppr},
+        ))
+    return alerts
+
+
 def check_elevations(rows: dict[str, dict], state: Optional[dict], schedule: list[dict], week: int,
                      sheet: str, max_elev: int) -> list[dict]:
     alerts: list[dict] = []
@@ -605,6 +635,7 @@ def run_audit(ctx, date_str: Optional[str] = None, run: str = "am",
         alerts += check_missing_active(rows, inputs.get("nflverse"), inputs.get("ourlads"), positions, week, sheet, byes,
                                        state=inputs.get("state"))
         alerts += check_injuries(rows, output, inputs.get("injuries"), week, sheet)
+        alerts += check_inactives(rows, output, inputs.get("inactives"), week, sheet)
         alerts += check_elevations(rows, inputs.get("state"), schedule, week, sheet, max_elev)
         alerts += check_schedule(snapshot, rows, output, schedule, week, sheet)
         alerts += check_ir_returns(rows, inputs.get("state"), week, sheet)

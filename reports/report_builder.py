@@ -253,6 +253,7 @@ SECTION_TITLES = {
     "roster_moves": "Roster Moves",
     "injuries": "Injury Reports",
     "injury_report_changes": "Injury Report Changes",
+    "game_day_inactives": "Game-Day Inactives",
     "depth_chart_movement": "Depth Chart Movement",
     "projection_movers": "Today's Projection Movers",
     "projection_audit": "Projection Audit",
@@ -269,6 +270,7 @@ SECTION_ORDER = [
     "roster_moves",            # in-season only
     "injuries",
     "injury_report_changes",   # in-season only
+    "game_day_inactives",      # in-season only, game days
     "depth_chart_movement",
     "projection_movers",
     "projection_audit",        # in-season only
@@ -615,6 +617,39 @@ def _build_injury_changes_section(changes: list[dict]) -> dict[str, Any]:
     return {"summary": "\n".join(parts).strip(), "count": len(changes)}
 
 
+def _build_inactives_section(week_data: dict) -> dict[str, Any]:
+    """Render this week's declared inactives grouped by game, then team.
+
+    ``week_data`` is the ``data/inactives/<season>/wk<NN>.json`` payload.
+    Skill positions are bolded so the fantasy-relevant scratches stand out.
+    """
+    games = (week_data or {}).get("games") or {}
+    published = [(gid, g) for gid, g in games.items()
+                 if any(t.get("inactives") for t in (g.get("teams") or {}).values())]
+    if not published:
+        return {"summary": "No inactives published yet this week.", "count": 0}
+
+    skill = {"QB", "RB", "FB", "WR", "TE", "K"}
+    parts: list[str] = []
+    total = 0
+    for _gid, g in sorted(published, key=lambda kv: (kv[1].get("date", ""), kv[1].get("short_name", ""))):
+        parts.append(f"### {g.get('short_name') or g.get('name', '')}")
+        for team in (g.get("away"), g.get("home")):
+            t = (g.get("teams") or {}).get(team)
+            if not t or not t.get("inactives"):
+                continue
+            rows = sorted(t["inactives"], key=lambda p: (0 if p.get("pos") in skill else 1, p.get("pos", ""), p.get("name", "")))
+            total += len(rows)
+            names = ", ".join(
+                (f"**{p.get('name')} ({p.get('pos')})**" if p.get("pos") in skill else f"{p.get('name')} ({p.get('pos')})")
+                for p in rows
+            )
+            tag = " _(post-game)_" if t.get("phase") == "postgame" else ""
+            parts.append(f"- **{team}**{tag}: {names}")
+        parts.append("")
+    return {"summary": "\n".join(parts).strip(), "count": total}
+
+
 def _build_audit_section(alerts: list[dict]) -> dict[str, Any]:
     """Render projection-audit alerts grouped by severity."""
     if not alerts:
@@ -710,6 +745,7 @@ def build_report(
     injury_changes: Optional[list[dict]] = None,
     audit_alerts: Optional[list[dict]] = None,
     season_meta: Optional[dict[str, Any]] = None,
+    inactives: Optional[dict[str, Any]] = None,
 ) -> DailyReport:
     """Build a DailyReport from summarized data.
 
@@ -743,6 +779,8 @@ def build_report(
         sections["injury_report_changes"] = _build_injury_changes_section(injury_changes)
     if audit_alerts is not None:
         sections["projection_audit"] = _build_audit_section(audit_alerts)
+    if inactives is not None:
+        sections["game_day_inactives"] = _build_inactives_section(inactives)
 
     section_sources = _build_section_sources(news_items)
     normalized_sections: dict[str, dict[str, Any]] = {}
@@ -777,6 +815,7 @@ def build_report(
         injury_changes=injury_changes or [],
         audit_alerts=audit_alerts or [],
         season_meta=season_meta or {},
+        inactives=inactives or {},
     )
 
     return report

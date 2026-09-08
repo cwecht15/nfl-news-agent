@@ -215,57 +215,63 @@ def run_in_season_steps(
     dc_status_changes: list[dict] | None,
     logger: logging.Logger,
     run: str = "am",
-) -> tuple[list[dict] | None, list[dict] | None, list[dict] | None]:
-    """Roster events/state → injury report → projection audit.
+    skip: set[str] | None = None,
+) -> tuple[list[dict] | None, list[dict] | None, list[dict] | None, dict | None]:
+    """Roster events/state → injury report → game-day inactives → projection audit.
 
     Shared by the morning pipeline and scripts/run_afternoon.py. Each step
     is independent and non-fatal: a failure logs and yields None for that
-    section (the report simply omits it). Returns
-    ``(roster_events, injury_changes, audit_alerts)``.
+    section (the report simply omits it). ``skip`` names steps to leave out
+    (``{"roster", "injuries", "inactives", "audit"}``) — the game-day
+    inactives cron runs only inactives + audit. Returns
+    ``(roster_events, injury_changes, audit_alerts, inactives_week)``.
     """
+    skip = skip or set()
     roster_events: list[dict] | None = None
     injury_changes: list[dict] | None = None
     audit_alerts: list[dict] | None = None
+    inactives_week: dict | None = None
 
     # --- 5b: roster events + state ---------------------------------------
-    write_status("Step 5b", "running", "Updating roster state")
-    logger.info("Step 5b: Updating roster events/state...")
-    try:
-        from collectors.nflverse_roster_collector import (
-            fetch_nflverse_roster, normalize_roster, save_nflverse_snapshot,
-            latest_nflverse_snapshot,
-        )
-        from processing.roster_events import run_roster_step
-
-        prev_nfv, prev_nfv_date = latest_nflverse_snapshot(before_date=date_str)
+    if "roster" not in skip:
+        write_status("Step 5b", "running", "Updating roster state")
+        logger.info("Step 5b: Updating roster events/state...")
         try:
-            cur_nfv = normalize_roster(fetch_nflverse_roster())
-            save_nflverse_snapshot(cur_nfv, date_str)
-        except Exception as e:  # network / format failure — keep going with the last snapshot
-            logger.warning("nflverse roster fetch failed (using last snapshot): %s", e)
-            cur_nfv, _ = latest_nflverse_snapshot()
-            prev_nfv = None
-        item_dicts = [i.to_dict() if hasattr(i, "to_dict") else dict(i) for i in (news_items or [])]
-        result = run_roster_step(
-            date_str,
-            news_items=item_dicts,
-            dc_status_changes=dc_status_changes or [],
-            nflverse_players=cur_nfv,
-            prev_nflverse=prev_nfv,
-        )
-        roster_events = list(result.get("new_events") or [])
-        counts = result.get("counts") or {}
-        logger.info(
-            "Roster events: %d new (%s); state covers %d players",
-            len(roster_events),
-            ", ".join(f"{k}={v}" for k, v in sorted(counts.items())) or "none",
-            len((result.get("state") or {}).get("players") or {}),
-        )
-    except Exception as e:
-        logger.warning("Roster step failed (non-fatal): %s", e)
+            from collectors.nflverse_roster_collector import (
+                fetch_nflverse_roster, normalize_roster, save_nflverse_snapshot,
+                latest_nflverse_snapshot,
+            )
+            from processing.roster_events import run_roster_step
+
+            prev_nfv, prev_nfv_date = latest_nflverse_snapshot(before_date=date_str)
+            try:
+                cur_nfv = normalize_roster(fetch_nflverse_roster())
+                save_nflverse_snapshot(cur_nfv, date_str)
+            except Exception as e:  # network / format failure — keep going with the last snapshot
+                logger.warning("nflverse roster fetch failed (using last snapshot): %s", e)
+                cur_nfv, _ = latest_nflverse_snapshot()
+                prev_nfv = None
+            item_dicts = [i.to_dict() if hasattr(i, "to_dict") else dict(i) for i in (news_items or [])]
+            result = run_roster_step(
+                date_str,
+                news_items=item_dicts,
+                dc_status_changes=dc_status_changes or [],
+                nflverse_players=cur_nfv,
+                prev_nflverse=prev_nfv,
+            )
+            roster_events = list(result.get("new_events") or [])
+            counts = result.get("counts") or {}
+            logger.info(
+                "Roster events: %d new (%s); state covers %d players",
+                len(roster_events),
+                ", ".join(f"{k}={v}" for k, v in sorted(counts.items())) or "none",
+                len((result.get("state") or {}).get("players") or {}),
+            )
+        except Exception as e:
+            logger.warning("Roster step failed (non-fatal): %s", e)
 
     # --- 5c: injury report tracker ---------------------------------------
-    if get_settings().get("injury_report", {}).get("enabled", True):
+    if "injuries" not in skip and get_settings().get("injury_report", {}).get("enabled", True):
         write_status("Step 5c", "running", "Collecting injury reports")
         logger.info("Step 5c: Collecting injury reports...")
         try:
@@ -285,8 +291,28 @@ def run_in_season_steps(
         except Exception as e:
             logger.warning("Injury report step failed (non-fatal): %s", e)
 
+    # --- 5e: game-day inactives (ESPN game rosters near kickoff) -----------
+    if "inactives" not in skip and get_settings().get("inactives", {}).get("enabled", True):
+        write_status("Step 5e", "running", "Checking game-day inactives")
+        logger.info("Step 5e: Checking game-day inactives...")
+        try:
+            from collectors.inactives_collector import collect_inactives, load_week_file as load_inactives_week
+
+            res = collect_inactives(date_str, week=season_ctx.week) or {}
+            if res.get("week"):
+                inactives_week = load_inactives_week(season_ctx.season, res["week"]) or {}
+            logger.info(
+                "Inactives: week %s, %d games polled, %d teams published, %d newly published/changed",
+                res.get("week"), res.get("games_polled", 0), len(res.get("published") or {}),
+                len(res.get("changes") or []),
+            )
+            for err in (res.get("errors") or [])[:5]:
+                logger.warning("Inactives source error: %s", err)
+        except Exception as e:
+            logger.warning("Inactives step failed (non-fatal): %s", e)
+
     # --- 5d: projection audit --------------------------------------------
-    if get_settings().get("projection_audit", {}).get("enabled", True):
+    if "audit" not in skip and get_settings().get("projection_audit", {}).get("enabled", True):
         write_status("Step 5d", "running", "Auditing weekly projections")
         logger.info("Step 5d: Auditing weekly projections...")
         try:
@@ -306,7 +332,7 @@ def run_in_season_steps(
         except Exception as e:
             logger.warning("Projection audit failed (non-fatal): %s", e)
 
-    return roster_events, injury_changes, audit_alerts
+    return roster_events, injury_changes, audit_alerts, inactives_week
 
 
 def run(
@@ -721,8 +747,9 @@ def run(
     roster_events: list[dict] | None = None
     injury_changes: list[dict] | None = None
     audit_alerts: list[dict] | None = None
+    inactives_week: dict | None = None
     if in_season:
-        roster_events, injury_changes, audit_alerts = run_in_season_steps(
+        roster_events, injury_changes, audit_alerts, inactives_week = run_in_season_steps(
             date_str=date_str,
             season_ctx=season_ctx,
             news_items=all_news,
@@ -780,6 +807,7 @@ def run(
         injury_changes=injury_changes,
         audit_alerts=audit_alerts,
         season_meta=season_ctx.to_dict() if in_season else None,
+        inactives=inactives_week,
     )
     json_path, html_path = save_report(report)
 

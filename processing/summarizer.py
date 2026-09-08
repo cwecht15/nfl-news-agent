@@ -1516,6 +1516,154 @@ def _build_team_item_lines(items: list) -> tuple[list[str], list[dict]]:
     return lines, candidates
 
 
+def _in_season_game_lines() -> Optional[dict[str, str]]:
+    """{news_abbr: "Week 3: KC hosts BUF on Sunday 2026-09-27"} for every team,
+    or None when season.phase is offseason / the schedule is unavailable."""
+    try:
+        from processing.season import get_season_context, load_schedule, opponent, teams_on_bye
+        from processing.team_abbr import to_news, to_proj
+        from config_loader import get_teams
+
+        ctx = get_season_context()
+        if not ctx.in_season or not ctx.week:
+            return None
+        schedule = load_schedule(season=ctx.season)
+        if not schedule:
+            return None
+        byes = teams_on_bye(schedule, ctx.week)
+        lines: dict[str, str] = {}
+        for t in get_teams():
+            abbr = t["abbr"]
+            proj = to_proj(abbr)
+            if proj in byes:
+                lines[abbr] = f"Week {ctx.week}: {abbr} is on bye this week"
+                continue
+            g = opponent(schedule, proj, ctx.week)
+            if not g:
+                continue
+            opp = to_news(g["opp"], "proj")
+            game = g.get("game") or {}
+            when = " ".join(x for x in (game.get("day", ""), g.get("date", ""), game.get("time", "")) if x).strip()
+            verb = "hosts" if g["home_away"] == "Home" else "visits"
+            lines[abbr] = f"Week {ctx.week}: {abbr} {verb} {opp}" + (f" on {when}" if when else "")
+        return lines
+    except Exception as e:  # noqa: BLE001 — context is a bonus, never a blocker
+        logger.warning("In-season game context unavailable: %s", e)
+        return None
+
+
+def _game_line(game_lines: Optional[dict[str, str]], team: str) -> Optional[str]:
+    if not game_lines:
+        return None
+    return game_lines.get(team) or game_lines.get(str(team).upper())
+
+
+def _team_note_prompt_single(team: str, item_block: str, game_line: Optional[str] = None) -> str:
+    """Single-item SKIP gate. ``game_line`` is None in the offseason (text unchanged)."""
+    if game_line is None:
+        return f"""Decide whether this item contains real, actionable NFL news for {team}, then either write a team note or skip.
+
+Real news = roster moves, injury updates, contract talks, draft strategy signals, coaching decisions, front-office quotes with substance — and the item must name a {team} player, coach, or executive and say something specific about them.
+NOT real news = mock draft rankings, historical trivia, uniform reveals, podcast promos, general previews with no new information, paywalled excerpts that only describe what the article will cover, items where the only {team}-related "subject" is the journalist or outlet, items where you would have to write "the excerpt does not specify any {team} player / decision / detail."
+
+If noteworthy: write 1-2 sentences covering what happened and why it matters, and end with the citation [1].
+If NOT noteworthy: respond with exactly "SKIP" and nothing else. When in doubt, SKIP — a missing team note is far better than a bullet that admits it has no {team} content.
+
+Today's item:
+{item_block}"""
+    return f"""Decide whether this item contains real, actionable NFL news for {team} this week, then either write a team note or skip.
+
+Game context: {game_line}. The reader sets THIS WEEK's fantasy/DFS projections.
+
+Real news = a usage or role signal at a skill position (snap/target/carry/red-zone share, a committee split, a pecking-order change, a new starter), an injury-driven role change (who absorbs the work), a game-plan or matchup detail for this game (pace, pass rate, personnel, weather, a plan to feature or limit someone), a practice-squad elevation or a return from IR/PUP that changes a role, a coaching decision — and the item must name a {team} player, coach, or executive and say something specific about them.
+NOT real news = the schedule or opponent restated, generic previews or predictions with no new information, betting-odds chatter, historical trivia, podcast promos, paywalled excerpts that only describe what the article will cover, non-committal coach quotes ("we'll see", "day-to-day") with no role implication, items where the only {team}-related "subject" is the journalist or outlet, items where you would have to write "the excerpt does not specify any {team} player / decision / detail."
+
+If noteworthy: write 1-2 sentences covering what happened and what it means for this week's role/usage, and end with the citation [1].
+If NOT noteworthy: respond with exactly "SKIP" and nothing else. When in doubt, SKIP — a missing team note is far better than a bullet that admits it has no {team} content.
+
+Today's item:
+{item_block}"""
+
+
+def _team_note_prompt_multi(team: str, item_block: str, game_line: Optional[str] = None) -> str:
+    """Multi-item bulleted team note. ``game_line`` is None in the offseason (text unchanged)."""
+    if game_line is None:
+        return f"""Write a bulleted team note for {team} based only on today's items.
+
+Each input item is numbered like [1], [2], etc. — you MUST cite the items you use.
+
+Output: a markdown bullet list, ORDERED BY FANTASY IMPACT (most roster-relevant first), one bullet per distinct development.
+
+Rank the developments in this order, then write the bullets in that order:
+1. Direct fantasy-relevant role/usage change at a skill position (QB, RB, FB, WR, TE): a new starter, a snap/target/carry-share shift, a depth-chart move, a return to a role, a committee change, a player rising or falling on the depth chart.
+2. A skill-position competition or depth battle with a named contender and a stated edge or direction.
+3. Coaching / scheme signals that change skill-position usage (pace, pass rate, scheme fit, who the play-caller features).
+4. Everything else (offensive line, defense, special teams). Include only if genuinely newsworthy.
+
+Format each bullet as:
+- **Player or coach or exec name (POS)** — what happened in 1–2 sentences, then a short follow-up on why it matters for fantasy/role. End with the citation, e.g. [3] or [1, 4].
+
+Specificity is a BONUS, not a requirement:
+- When an item gives concrete detail, put it in the bullet — snap/target/carry share, depth-chart slot (RB1/WR3), red-zone usage, scheme role.
+- When only a qualitative signal is available (which is common and still valuable), KEEP IT and state the role/usage implication in plain terms: "running with the first team", "in the mix for the WR3 job", "getting first-team reps at LG", "coaches singled him out in OTAs", "expected to handle early-down work". Do NOT drop a bullet just because it lacks a number.
+- The test is role-relevance, not numbers: keep anything signaling who is rising/falling, competing for a job, changing roles, or fitting a scheme. Drop only CONTENTLESS praise with no role implication ("looked good out there" and nothing else, generic hype, platitudes).
+
+Rules:
+- One bullet per development. Do not synthesize multiple unrelated items into one bullet. But when MULTIPLE items report the SAME development (e.g. several reporters on one signing or the same depth-chart move), MERGE them into ONE bullet and cite every source, e.g. [1, 4].
+- Lead each bullet with the most-specific named subject (player, coach, or executive). For genuinely team-level points, lead with the topic in bold.
+- Every bullet must end with at least one [N] citation pointing to the input item(s) that source it.
+- Do NOT restate transactions (signings, releases, trades, contract terms) or injury-status updates — those have their own report sections. Only mention one if it directly changes a skill-position role AND you add the role/usage angle those sections would not (e.g. "with X gone, Y becomes the early-down back").
+- Surface NON-OBVIOUS developments; do NOT re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1"). If a depth-chart article only confirms the obvious at QB, mine its RB / WR / TE / OL notes instead.
+- NEVER invent a player's first name, jersey number, position, or any other identifier. If the source gives only a last name (e.g. "Jennings"), use ONLY the last name (e.g. "**Jennings (RB)**"). A wrong first name is worse than omitting it. Same for coaches and execs.
+- Skip pure trivia, non-roster mock drafts, jersey reveals, and filler.
+- DROP any item whose {team}-relevant content boils down to "the excerpt does not specify any {team} player / decision / detail" or where the only named subject is the journalist or outlet. Skip it — never write a bullet about the absence of information.
+- Use only the information in today's items. If a detail is missing for an otherwise-substantive bullet, say it is not specified.
+- Keep the entire response under 280 words. This is a ceiling, not a target — prefer a few high-signal bullets over many thin ones.
+- No section headers, no preamble, no closing commentary — just the bullets, highest fantasy impact first.
+
+Today's items:
+{item_block}"""
+    return f"""Write a bulleted team note for {team} based only on today's items.
+
+Game context: {game_line}. It is the regular season: the reader sets weekly fantasy/DFS projections for THIS game, so every bullet should answer "does this change who plays, how much, or how well this week?"
+
+Each input item is numbered like [1], [2], etc. — you MUST cite the items you use.
+
+Output: a markdown bullet list, ORDERED BY IMPACT ON THIS WEEK'S PROJECTIONS (most projection-relevant first), one bullet per distinct development.
+
+Rank the developments in this order, then write the bullets in that order:
+1. Usage / role changes at a skill position (QB, RB, FB, WR, TE, K): snap, target, carry or red-zone share shifts; committee splits; a new starter or play-caller; a WR/TE pecking-order change; goal-line or two-minute roles.
+2. Injury-driven opportunity: who absorbs the work when a player is out, limited, or returning — the ROLE consequence only (statuses themselves live in the Injury sections).
+3. This week's game plan and matchup: pace, pass rate, personnel packages, weather, a stated plan to feature or limit a player, a defensive weakness the item names.
+4. Practice-squad elevations, returns from IR/PUP, or trades that change skill-position roles.
+5. Everything else (offensive line, defense, special teams). Include only if genuinely newsworthy.
+
+Format each bullet as:
+- **Player or coach or exec name (POS)** — what happened in 1–2 sentences, then a short follow-up on what it means for this week's projection. End with the citation, e.g. [3] or [1, 4].
+
+Specificity is a BONUS, not a requirement:
+- When an item gives concrete detail, put it in the bullet — snap/target/carry share, depth-chart slot (RB1/WR3), red-zone usage, scheme role, last week's usage numbers.
+- When only a qualitative signal is available (common and still valuable), KEEP IT and state the role/usage implication in plain terms: "expected to lead the backfield", "took first-team reps with X out", "coaches plan to get him more targets", "will handle kick returns". Do NOT drop a bullet just because it lacks a number.
+- The test is projection-relevance for this week, not numbers: keep anything signaling who is rising/falling, filling in, changing roles, or being featured/limited. Drop only CONTENTLESS praise with no role implication and generic hype.
+
+Rules:
+- One bullet per development. Do not synthesize multiple unrelated items into one bullet. But when MULTIPLE items report the SAME development, MERGE them into ONE bullet and cite every source, e.g. [1, 4].
+- Lead each bullet with the most-specific named subject (player, coach, or executive). For genuinely team-level points (game plan, pace), lead with the topic in bold.
+- Every bullet must end with at least one [N] citation pointing to the input item(s) that source it.
+- Do NOT restate transactions (signings, releases, trades, contract terms) or injury-status updates (questionable/doubtful/out, practice participation) — those have their own report sections. Mention one ONLY to add the role/usage angle those sections would not (e.g. "with X out, Y becomes the early-down back").
+- Do NOT write a bullet that merely restates the schedule, opponent, kickoff time, spread, or a generic preview — that is context, not a development.
+- Surface NON-OBVIOUS developments; do NOT re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1").
+- NEVER invent a player's first name, jersey number, position, stat, or injury. If the source gives only a last name (e.g. "Jennings"), use ONLY the last name (e.g. "**Jennings (RB)**"). A wrong first name is worse than omitting it. Same for coaches and execs.
+- Skip pure trivia, betting chatter, power rankings, and filler.
+- DROP any item whose {team}-relevant content boils down to "the excerpt does not specify any {team} player / decision / detail" or where the only named subject is the journalist or outlet. Never write a bullet about the absence of information.
+- Use only the information in today's items. If a detail is missing for an otherwise-substantive bullet, say it is not specified.
+- Keep the entire response under 280 words. This is a ceiling, not a target — prefer a few high-signal bullets over many thin ones.
+- No section headers, no preamble, no closing commentary — just the bullets, highest projection impact first.
+
+Today's items:
+{item_block}"""
+
+
 def _build_team_highlights_for_pool(
     team_items: dict[str, list],
     client: Any,
@@ -1543,6 +1691,10 @@ def _build_team_highlights_for_pool(
     news_model = news_cfg.get("model")  # None => use runtime model
     news_effort = news_cfg.get("reasoning_effort", "low")
     news_max_tokens = news_cfg.get("max_output_tokens", 1400)
+    # In-season only: this week's game per team, injected into the news
+    # prompts so bullets are framed around the upcoming matchup. None in the
+    # offseason (prompts are then byte-identical to the historical ones).
+    game_lines = None if is_transcript_pool else _in_season_game_lines()
 
     for team, items in team_items.items():
         items = sorted(items, key=lambda item: item.published, reverse=True)
@@ -1572,16 +1724,7 @@ Today's transcript:
                     reasoning_effort="medium",
                 )
             else:
-                prompt = f"""Decide whether this item contains real, actionable NFL news for {team}, then either write a team note or skip.
-
-Real news = roster moves, injury updates, contract talks, draft strategy signals, coaching decisions, front-office quotes with substance — and the item must name a {team} player, coach, or executive and say something specific about them.
-NOT real news = mock draft rankings, historical trivia, uniform reveals, podcast promos, general previews with no new information, paywalled excerpts that only describe what the article will cover, items where the only {team}-related "subject" is the journalist or outlet, items where you would have to write "the excerpt does not specify any {team} player / decision / detail."
-
-If noteworthy: write 1-2 sentences covering what happened and why it matters, and end with the citation [1].
-If NOT noteworthy: respond with exactly "SKIP" and nothing else. When in doubt, SKIP — a missing team note is far better than a bullet that admits it has no {team} content.
-
-Today's item:
-{item_block}"""
+                prompt = _team_note_prompt_single(team, item_block, _game_line(game_lines, team))
                 result = _call_model(
                     client,
                     prompt,
@@ -1640,41 +1783,7 @@ Today's transcripts:
                 reasoning_effort="medium",
             )
         else:
-            prompt = f"""Write a bulleted team note for {team} based only on today's items.
-
-Each input item is numbered like [1], [2], etc. — you MUST cite the items you use.
-
-Output: a markdown bullet list, ORDERED BY FANTASY IMPACT (most roster-relevant first), one bullet per distinct development.
-
-Rank the developments in this order, then write the bullets in that order:
-1. Direct fantasy-relevant role/usage change at a skill position (QB, RB, FB, WR, TE): a new starter, a snap/target/carry-share shift, a depth-chart move, a return to a role, a committee change, a player rising or falling on the depth chart.
-2. A skill-position competition or depth battle with a named contender and a stated edge or direction.
-3. Coaching / scheme signals that change skill-position usage (pace, pass rate, scheme fit, who the play-caller features).
-4. Everything else (offensive line, defense, special teams). Include only if genuinely newsworthy.
-
-Format each bullet as:
-- **Player or coach or exec name (POS)** — what happened in 1–2 sentences, then a short follow-up on why it matters for fantasy/role. End with the citation, e.g. [3] or [1, 4].
-
-Specificity is a BONUS, not a requirement:
-- When an item gives concrete detail, put it in the bullet — snap/target/carry share, depth-chart slot (RB1/WR3), red-zone usage, scheme role.
-- When only a qualitative signal is available (which is common and still valuable), KEEP IT and state the role/usage implication in plain terms: "running with the first team", "in the mix for the WR3 job", "getting first-team reps at LG", "coaches singled him out in OTAs", "expected to handle early-down work". Do NOT drop a bullet just because it lacks a number.
-- The test is role-relevance, not numbers: keep anything signaling who is rising/falling, competing for a job, changing roles, or fitting a scheme. Drop only CONTENTLESS praise with no role implication ("looked good out there" and nothing else, generic hype, platitudes).
-
-Rules:
-- One bullet per development. Do not synthesize multiple unrelated items into one bullet. But when MULTIPLE items report the SAME development (e.g. several reporters on one signing or the same depth-chart move), MERGE them into ONE bullet and cite every source, e.g. [1, 4].
-- Lead each bullet with the most-specific named subject (player, coach, or executive). For genuinely team-level points, lead with the topic in bold.
-- Every bullet must end with at least one [N] citation pointing to the input item(s) that source it.
-- Do NOT restate transactions (signings, releases, trades, contract terms) or injury-status updates — those have their own report sections. Only mention one if it directly changes a skill-position role AND you add the role/usage angle those sections would not (e.g. "with X gone, Y becomes the early-down back").
-- Surface NON-OBVIOUS developments; do NOT re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1"). If a depth-chart article only confirms the obvious at QB, mine its RB / WR / TE / OL notes instead.
-- NEVER invent a player's first name, jersey number, position, or any other identifier. If the source gives only a last name (e.g. "Jennings"), use ONLY the last name (e.g. "**Jennings (RB)**"). A wrong first name is worse than omitting it. Same for coaches and execs.
-- Skip pure trivia, non-roster mock drafts, jersey reveals, and filler.
-- DROP any item whose {team}-relevant content boils down to "the excerpt does not specify any {team} player / decision / detail" or where the only named subject is the journalist or outlet. Skip it — never write a bullet about the absence of information.
-- Use only the information in today's items. If a detail is missing for an otherwise-substantive bullet, say it is not specified.
-- Keep the entire response under 280 words. This is a ceiling, not a target — prefer a few high-signal bullets over many thin ones.
-- No section headers, no preamble, no closing commentary — just the bullets, highest fantasy impact first.
-
-Today's items:
-{item_block}"""
+            prompt = _team_note_prompt_multi(team, item_block, _game_line(game_lines, team))
 
             text = _call_model(
                 client,

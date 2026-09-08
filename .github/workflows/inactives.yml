@@ -1,40 +1,42 @@
-name: In-season afternoon update
+name: Game-day inactives
 
-# Light in-season run: NFL.com transactions + nflverse roster + OurLads
-# reserve-list crossings + injury reports + projection audit, then update
-# the day's report in place. No LLM calls. Exits immediately (and commits
-# nothing) while config/settings.yaml has season.phase: offseason.
+# Polls ESPN game rosters right after each inactives window (teams
+# declare ~90 minutes before kickoff), re-runs the projection audit and
+# refreshes the day's report in place. Skips itself in the offseason.
 #
-# 22:00 UTC = 18:00 EDT / 17:00 EST — after the ~4 PM ET practice reports
-# and Saturday's elevation announcements.
+# UTC crons (ET in comments; the DST shift moves these an hour in Nov):
+#   Thu 23:50 → 7:50 PM ET   TNF (8:15 kick, inactives ~6:45)
+#   Sun 16:05 → 12:05 PM ET  early window (1:00 kicks, inactives ~11:30)
+#   Sun 19:35 → 3:35 PM ET   late window (4:05/4:25 kicks)
+#   Sun 23:50 → 7:50 PM ET   SNF
+#   Mon 23:50 → 7:50 PM ET   MNF
+#   Sat 20:05 / 23:50         Saturday slates (Dec) — harmless no-ops otherwise
+#   Wed 23:50 / Fri 23:50     Week 1 opener / Black Friday — no-ops otherwise
 
 on:
   schedule:
-    - cron: "0 22 * * *"
+    - cron: "50 23 * * 3"
+    - cron: "50 23 * * 5"
+    - cron: "50 23 * * 4"
+    - cron: "5 16 * * 0"
+    - cron: "35 19 * * 0"
+    - cron: "50 23 * * 0"
+    - cron: "50 23 * * 1"
+    - cron: "5 20 * * 6"
+    - cron: "50 23 * * 6"
   workflow_dispatch:
-    inputs:
-      date:
-        description: "Report date to update (YYYY-MM-DD, default today)"
-        required: false
-        default: ""
-      backfill_from:
-        description: "One-shot: seed the roster ledger from data/raw since this date (YYYY-MM-DD)"
-        required: false
-        default: ""
 
 permissions:
   contents: write
 
 concurrency:
-  # Shares the daily pipeline's group so an AM run that overran never
-  # writes data/ at the same time as this one.
   group: daily-pipeline
   cancel-in-progress: false
 
 jobs:
-  afternoon:
+  inactives:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repo
@@ -59,7 +61,6 @@ jobs:
           phase = str(yaml.safe_load(open("config/settings.yaml", encoding="utf-8")).get("season", {}).get("phase", "offseason")).lower()
           print(f"in_season={'true' if phase in ('in_season','inseason','in-season','season') else 'false'}")
           PY
-          echo "phase output written"
 
       - name: Install Python dependencies
         if: steps.phase.outputs.in_season == 'true'
@@ -79,56 +80,28 @@ jobs:
             chmod 600 secrets/service_account.json
           fi
 
-      - name: Run afternoon update
+      - name: Poll inactives + audit
         if: steps.phase.outputs.in_season == 'true'
         run: |
           mkdir -p data/logs
-          DATE_ARG=""
-          if [ -n "${{ github.event.inputs.date }}" ]; then DATE_ARG="--date ${{ github.event.inputs.date }}"; fi
-          BACKFILL_ARG=""
-          if [ -n "${{ github.event.inputs.backfill_from }}" ]; then BACKFILL_ARG="--backfill-from ${{ github.event.inputs.backfill_from }}"; fi
-          python scripts/run_afternoon.py $DATE_ARG $BACKFILL_ARG 2>&1 | tee "data/logs/$(date -u +%F)-afternoon.log"
+          python scripts/run_afternoon.py --inactives-only 2>&1 | tee -a "data/logs/$(date -u +%F)-inactives.log"
 
       - name: Commit output back to repo
         if: steps.phase.outputs.in_season == 'true'
         run: |
           git config user.name "nfl-news-agent-bot"
           git config user.email "nfl-news-agent-bot@users.noreply.github.com"
-
-          for path in \
-              data/roster \
-              data/injuries \
-              data/inactives \
-              data/audit \
-              data/weekly_projections \
-              data/schedule \
-              data/reports \
-              data/depth_charts \
-              data/raw \
-              data/logs; do
-            if [ -e "$path" ]; then
-              git add -f "$path"
-              echo "Staged: $path"
-            else
-              echo "Skipped (missing): $path"
-            fi
+          for path in data/inactives data/audit data/reports data/logs; do
+            if [ -e "$path" ]; then git add -f "$path"; fi
           done
-
           if git diff --staged --quiet; then
             echo "No data changes to commit."
             exit 0
           fi
-
-          git commit -m "Afternoon in-season run $(date -u +%F) [skip ci]"
-
+          git commit -m "Game-day inactives $(date -u +%F) [skip ci]"
           for attempt in 1 2 3; do
-            if git push origin HEAD:master; then
-              echo "Push succeeded on attempt $attempt."
-              exit 0
-            fi
-            echo "Push failed (attempt $attempt). Rebasing onto latest master..."
+            if git push origin HEAD:master; then exit 0; fi
             git fetch origin master
             git rebase origin/master
           done
-          echo "Push failed after 3 attempts."
           exit 1

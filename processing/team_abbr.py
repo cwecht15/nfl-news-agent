@@ -34,6 +34,7 @@ SOURCE_TO_NEWS: dict[str, dict[str, str]] = {
     "nflverse": {"LA": "LAR"},
     "nflcom": {"AZ": "ARI", "LA": "LAR"},
     "rotowire": {"LA": "LAR", "ARZ": "ARI", "JAC": "JAX", "WSH": "WAS"},
+    "espn": {"WSH": "WAS", "LA": "LAR"},
 }
 
 # Explicit reverse maps for the sources we also *write* abbreviations for.

@@ -188,6 +188,7 @@ def normalize_roster(rows: list[dict]) -> dict[str, dict]:
         players[gsis] = {
             "gsis_id": gsis,
             "esb_id": (row.get("esb_id") or "").strip(),
+            "espn_id": (row.get("espn_id") or "").strip(),   # joins ESPN game-day rosters (inactives)
             "name": name,
             "name_key": name_key(name) if name else "",
             "team": to_news((row.get("team") or "").strip(), "nflverse"),

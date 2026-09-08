@@ -28,6 +28,7 @@ clears the cache after editing.
 | `roster` | `nflverse_url`, `ir_min_games` (4), `max_elevations` (3), `confirm_window_days` (3 — news-only events older than this become "unconfirmed" audit alerts), `apply_reported_events` |
 | `injury_report` | `enabled`, `sources` (precedence: `team_sites`, `rotowire`, `nflcom`), `team_site_workers` |
 | `projection_audit` | `enabled`, `positions` |
+| `inactives` | `enabled` — game-day inactives from ESPN game rosters (pipeline step 5e + `.github/workflows/inactives.yml`) |
 
 ### `sources.yaml` — feeds & sources (no code changes needed to edit)
 
@@ -102,6 +103,7 @@ data/
   weekly_projections/<season>/active.json, weekly_projections/changelog.csv
   roster/nflverse/<date>.json, roster/events.jsonl, roster/state.json
   injuries/<season>/wk<NN>.json          (accumulated weekly injury report)
+  inactives/<season>/wk<NN>.json         (game-day inactives per game/team; espn_athletes.json cache)
   audit/<date>-<am|pm>.json              (projection audit results)
   projections/audit_dismissals.json      (week-scoped dismissed audit alerts)
   notebooklm_pushed.json   (transcripts already pushed to NotebookLM)

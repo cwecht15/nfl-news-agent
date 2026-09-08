@@ -55,8 +55,12 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.roster_events -
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.roster_events --classify "Bills placed RB Ray Davis on injured reserve"
 # Projection audit ("right guys projected?") against the active weekly sheet
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.projection_audit
-# Afternoon update (transactions + nflverse + OurLads + injuries + audit, report updated in place; no LLM)
+# Afternoon update (transactions + nflverse + OurLads + injuries + inactives + audit, report updated in place; no LLM)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py
+# Game-day mode: ESPN inactives + audit + report refresh only (what .github/workflows/inactives.yml runs)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --inactives-only
+# Poll inactives directly (--all polls every game of the week; --season/--week/--event for debugging)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\inactives_collector.py --all
 # Season context (phase, week, working sheet)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.season
 ```
@@ -116,16 +120,37 @@ the offseason path.
   in `data/injuries/<season>/wk<NN>.json`, diffs day-over-day into the "Injury Report Changes"
   section (new listing, practice up/downgrade, designation, cleared). The offseason blob
   `scrape_injuries` in `web_scraper.py` is untouched.
+- **Game-day inactives (Step 5e):** `collectors/inactives_collector.py` polls ESPN's per-game
+  competitor roster (`sports.core.api.espn.com/.../events/<id>/competitions/<id>/competitors/<cid>/roster`)
+  for games within 2.5h of kickoff or finished within 30h: `active: false` before kickoff
+  (accepted only when 40–53 players are dressed, i.e. the list is really posted), `didNotPlay`
+  after. ESPN's JSON APIs 403 browser User-Agents — the collector keeps requests' default UA.
+  Identity via ESPN `playerId` → nflverse `espn_id`; unknown players fall back to the athlete
+  record (cached in `data/inactives/espn_athletes.json`). Week file
+  `data/inactives/<season>/wk<NN>.json`; report section **Game-Day Inactives** (skill positions
+  bolded); audit alert `inactive_but_projected`; In Season page "Inactives" tab.
+  `.github/workflows/inactives.yml` runs `scripts/run_afternoon.py --inactives-only` right after
+  each inactives window (Thu/Sun/Mon evenings, Sun midday/afternoon, plus Wed/Fri/Sat crons that
+  no-op without games).
 - **Projection audit (Step 5d):** `processing/projection_audit.py` cross-checks the active sheet
-  against roster state / nflverse / injuries / OurLads / schedule: `status_conflict` (projected
-  but on IR/PS), `sheet_status_stale`, `wrong_team`, `missing_active`, `out_but_projected`,
+  against roster state / nflverse / injuries / inactives / OurLads / schedule: `status_conflict`
+  (projected but on IR/PS), `sheet_status_stale`, `wrong_team`, `missing_active` (QB only when
+  the starter is missing; FB/returners/KO skipped; a team block with < 8 rows collapses to one
+  `team_block_incomplete` warning), `out_but_projected`, `inactive_but_projected`,
   `elevated_not_projected`, `elevation_limit`, `opp_mismatch`, `bye_projected`,
   `ir_return_window`, `unconfirmed_report`, `stale_secondary`. Output `data/audit/<date>-<run>.json`;
   week-scoped dismissal keys in `data/projections/audit_dismissals.json` (cloud: "Save dismissals
   to repo" via `_repo_sync.push_audit_dismissals_to_repo`).
-- **Report + dashboard:** three phase-gated sections (`roster_moves`, `injury_report_changes`,
-  `projection_audit`), `DailyReport.season_meta` / `pm_updated_at`, and the **In Season** page
-  (Week / Roster State / Injury Report / Projection Audit).
+- **Team Notes in-season prompt:** `summarizer._team_note_prompt_multi/_single` return the
+  historical prompt text byte-for-byte when `game_line` is None (offseason;
+  `tests/test_team_notes_prompt.py` pins it). In-season, `_in_season_game_lines()` injects
+  "Week N: BUF visits HOU on Sunday …" (or "on bye") and the bullets are ranked by impact on THIS
+  week's projections: usage/role changes → injury-driven opportunity → game plan & matchup →
+  elevations/returns → everything else; schedule restatements and betting chatter are excluded.
+- **Report + dashboard:** four phase-gated sections (`roster_moves`, `injury_report_changes`,
+  `game_day_inactives`, `projection_audit`), `DailyReport.season_meta` / `inactives` /
+  `pm_updated_at`, and the **In Season** page (Week / Roster State / Injury Report / Inactives /
+  Projection Audit).
 - **Afternoon run:** `scripts/run_afternoon.py` (cloud cron `.github/workflows/in_season_pm.yml`,
   22:00 UTC, shares the `daily-pipeline` concurrency group; skips itself in the offseason) —
   transactions + nflverse + OurLads + injuries + audit, then updates `data/reports/<date>.json`
@@ -228,7 +253,8 @@ data/
   weekly_projections/<season>/active.json, weekly_projections/changelog.csv
   roster/nflverse/<date>.json, roster/events.jsonl, roster/state.json
   injuries/<season>/wk<NN>.json
-  audit/<date>-<am|pm>.json
+  inactives/<season>/wk<NN>.json, inactives/espn_athletes.json
+  audit/<date>-<am|pm|gameday>.json
   projections/audit_dismissals.json
   transcripts/
   logs/YYYY-MM-DD.log

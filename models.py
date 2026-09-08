@@ -86,6 +86,7 @@ class DailyReport:
     injury_changes: list[dict] = field(default_factory=list)
     audit_alerts: list[dict] = field(default_factory=list)
     season_meta: dict = field(default_factory=dict)
+    inactives: dict = field(default_factory=dict)      # this week's game-day inactives (in-season)
     pm_updated_at: str = ""   # set by scripts/run_afternoon.py when it refreshes the report
 
     def to_json(self, path: str):

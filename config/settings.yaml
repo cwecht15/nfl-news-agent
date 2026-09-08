@@ -249,3 +249,9 @@ injury_report:
 projection_audit:
   enabled: true
   positions: [QB, RB, WR, TE, K]
+
+inactives:
+  # Game-day inactives from ESPN's per-game rosters (active flag before
+  # kickoff, didNotPlay after). Polled by the pipeline steps and by the
+  # game-day cron in .github/workflows/inactives.yml.
+  enabled: true

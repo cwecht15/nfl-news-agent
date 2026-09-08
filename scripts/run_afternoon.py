@@ -37,6 +37,7 @@ from models import DailyReport
 from processing.season import get_season_context, load_schedule
 from reports.report_builder import (
     _build_audit_section,
+    _build_inactives_section,
     _build_injury_changes_section,
     _build_roster_moves_section,
     build_report,
@@ -109,7 +110,8 @@ def _refresh_active_sheet(date_str: str, ctx, logger: logging.Logger):
     return ctx
 
 
-def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_alerts, logger: logging.Logger):
+def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_alerts, logger: logging.Logger,
+                   inactives: dict | None = None):
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
     try:
         report = load_report(date_str)
@@ -118,7 +120,7 @@ def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_aler
         report = build_report(
             date_str=date_str, sections={}, team_highlights={}, news_items=[],
             roster_events=roster_events or [], injury_changes=injury_changes or [],
-            audit_alerts=audit_alerts or [], season_meta=ctx.to_dict(),
+            audit_alerts=audit_alerts or [], season_meta=ctx.to_dict(), inactives=inactives,
         )
         report.pm_updated_at = stamp
         save_report(report)
@@ -136,6 +138,9 @@ def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_aler
     if audit_alerts is not None:
         sections["projection_audit"] = _with_sources(_build_audit_section(audit_alerts), sections.get("projection_audit"))
         report.audit_alerts = audit_alerts
+    if inactives is not None:
+        sections["game_day_inactives"] = _with_sources(_build_inactives_section(inactives), sections.get("game_day_inactives"))
+        report.inactives = inactives
 
     from reports.report_builder import _ordered_sections
     report.sections = _ordered_sections(sections)
@@ -175,7 +180,7 @@ def _merge_by_keys(existing: list[dict], new: list[dict], keys: tuple[str, ...])
 
 
 def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_transactions: bool = False,
-           backfill_from: str | None = None) -> int:
+           backfill_from: str | None = None, inactives_only: bool = False) -> int:
     date_str = date_override or datetime.now().strftime("%Y-%m-%d")
     setup_logging(date_str)
     logger = logging.getLogger("afternoon")
@@ -185,12 +190,25 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
         logger.info("season.phase is offseason — afternoon run has nothing to do.")
         return 0
 
-    write_status("PM", "running", "Afternoon in-season update")
+    mode = "game-day inactives" if inactives_only else "Afternoon in-season update"
+    write_status("PM", "running", mode)
     logger.info("=" * 60)
-    logger.info("NFL News Agent - Afternoon in-season run: %s (week %s, %s)", date_str, ctx.week, ctx.weekday)
+    logger.info("NFL News Agent - %s: %s (week %s, %s)", mode, date_str, ctx.week, ctx.weekday)
     logger.info("=" * 60)
 
     try:
+        if inactives_only:
+            # Game-day cron: poll ESPN for inactives near kickoff, re-run the
+            # audit against the current sheet snapshot, refresh the report.
+            _, _, audit_alerts, inactives_week = run_in_season_steps(
+                date_str=date_str, season_ctx=ctx, news_items=[], dc_status_changes=[],
+                logger=logger, run="gameday", skip={"roster", "injuries"},
+            )
+            write_status("PM 4", "running", "Updating daily report")
+            _update_report(date_str, ctx, None, None, audit_alerts, logger, inactives=inactives_week)
+            logger.info("Game-day inactives run complete.")
+            return 0
+
         if backfill_from:
             # One-shot: seed the roster ledger from the raw NFL.com transaction
             # files already on disk (IR dates -> earliest return weeks).
@@ -224,13 +242,14 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
         except Exception as e:  # noqa: BLE001
             logger.warning("Weekly sheet refresh failed (non-fatal): %s", e)
 
-        roster_events, injury_changes, audit_alerts = run_in_season_steps(
+        roster_events, injury_changes, audit_alerts, inactives_week = run_in_season_steps(
             date_str=date_str, season_ctx=ctx, news_items=news_items,
             dc_status_changes=dc_status, logger=logger, run="pm",
         )
 
         write_status("PM 4", "running", "Updating daily report")
-        _update_report(date_str, ctx, roster_events, injury_changes, audit_alerts, logger)
+        _update_report(date_str, ctx, roster_events, injury_changes, audit_alerts, logger,
+                       inactives=inactives_week)
         logger.info("Afternoon run complete.")
     finally:
         clear_status()
@@ -244,9 +263,12 @@ if __name__ == "__main__":
     ap.add_argument("--skip-transactions", action="store_true")
     ap.add_argument("--backfill-from", default=None, metavar="YYYY-MM-DD",
                     help="one-shot: seed the roster ledger from data/raw/<date>/web.json since this date")
+    ap.add_argument("--inactives-only", action="store_true",
+                    help="game-day mode: ESPN inactives + projection audit + report refresh only")
     args = ap.parse_args()
     try:
-        sys.exit(run_pm(args.date, args.skip_ourlads, args.skip_transactions, args.backfill_from))
+        sys.exit(run_pm(args.date, args.skip_ourlads, args.skip_transactions, args.backfill_from,
+                        inactives_only=args.inactives_only))
     except Exception:
         clear_status()
         raise
