@@ -88,21 +88,35 @@ TEAM_SHEET = "Working_Tm_Proj"
 SKIP_HEADERS = {"2025", "2024", "Career", "L10", "L5", "Career Expected"}
 
 
-def _build_player_col_map(header_row: list[str]) -> list[tuple[int, str, bool]]:
+def _build_player_col_map(
+    header_row: list[str],
+    col_start: int | None = None,
+    col_end: int | None = None,
+) -> list[tuple[int, str, bool]]:
     """Build a map of (col_index, unique_label, is_adjustment) from the header row.
 
     Skips historical/reference columns (2025, Career, L10, L5, 2024)
     and Career Expected. Disambiguates duplicate header names (e.g.
     two "YPA Adj" columns) by prefixing with the preceding named column.
+
+    ``col_start`` / ``col_end`` default to the preseason sheet's fixed
+    metric range (PLAYER_COL_START / PLAYER_COL_END); the in-season weekly
+    parser (processing/weekly_projections.py) passes its own range so the
+    same disambiguation logic is shared without changing offseason output.
     """
     from collections import Counter
+
+    if col_start is None:
+        col_start = PLAYER_COL_START
+    if col_end is None:
+        col_end = PLAYER_COL_END
 
     # First pass: collect non-skipped names and find duplicates
     raw_names = []
     current_group = ""
     entries = []
 
-    for i in range(PLAYER_COL_START, min(PLAYER_COL_END, len(header_row))):
+    for i in range(col_start, min(col_end, len(header_row))):
         raw = header_row[i].strip()
         if not raw or raw in SKIP_HEADERS:
             # Still update group tracker for non-skip named columns

@@ -58,6 +58,7 @@ from models import NewsItem, Transcript
 from processing.cross_day_filter import filter_recent_duplicates
 from processing.deduplicator import deduplicate, flatten_groups
 from processing.quality_filter import filter_news_items, reclassify_injury_items
+from processing.season import get_season_context
 from processing.source_health import get_health_alerts, record_source_result
 from processing.fp_section import build_fp_section
 from processing.summarizer import run_summarization
@@ -207,6 +208,107 @@ def _load_existing_tweets(date_str: str, logger: logging.Logger) -> list[NewsIte
     return [NewsItem.from_dict(d) for d in raw if isinstance(d, dict)]
 
 
+def run_in_season_steps(
+    date_str: str,
+    season_ctx,
+    news_items: list,
+    dc_status_changes: list[dict] | None,
+    logger: logging.Logger,
+    run: str = "am",
+) -> tuple[list[dict] | None, list[dict] | None, list[dict] | None]:
+    """Roster events/state → injury report → projection audit.
+
+    Shared by the morning pipeline and scripts/run_afternoon.py. Each step
+    is independent and non-fatal: a failure logs and yields None for that
+    section (the report simply omits it). Returns
+    ``(roster_events, injury_changes, audit_alerts)``.
+    """
+    roster_events: list[dict] | None = None
+    injury_changes: list[dict] | None = None
+    audit_alerts: list[dict] | None = None
+
+    # --- 5b: roster events + state ---------------------------------------
+    write_status("Step 5b", "running", "Updating roster state")
+    logger.info("Step 5b: Updating roster events/state...")
+    try:
+        from collectors.nflverse_roster_collector import (
+            fetch_nflverse_roster, normalize_roster, save_nflverse_snapshot,
+            latest_nflverse_snapshot,
+        )
+        from processing.roster_events import run_roster_step
+
+        prev_nfv, prev_nfv_date = latest_nflverse_snapshot(before_date=date_str)
+        try:
+            cur_nfv = normalize_roster(fetch_nflverse_roster())
+            save_nflverse_snapshot(cur_nfv, date_str)
+        except Exception as e:  # network / format failure — keep going with the last snapshot
+            logger.warning("nflverse roster fetch failed (using last snapshot): %s", e)
+            cur_nfv, _ = latest_nflverse_snapshot()
+            prev_nfv = None
+        item_dicts = [i.to_dict() if hasattr(i, "to_dict") else dict(i) for i in (news_items or [])]
+        result = run_roster_step(
+            date_str,
+            news_items=item_dicts,
+            dc_status_changes=dc_status_changes or [],
+            nflverse_players=cur_nfv,
+            prev_nflverse=prev_nfv,
+        )
+        roster_events = list(result.get("new_events") or [])
+        counts = result.get("counts") or {}
+        logger.info(
+            "Roster events: %d new (%s); state covers %d players",
+            len(roster_events),
+            ", ".join(f"{k}={v}" for k, v in sorted(counts.items())) or "none",
+            len((result.get("state") or {}).get("players") or {}),
+        )
+    except Exception as e:
+        logger.warning("Roster step failed (non-fatal): %s", e)
+
+    # --- 5c: injury report tracker ---------------------------------------
+    if get_settings().get("injury_report", {}).get("enabled", True):
+        write_status("Step 5c", "running", "Collecting injury reports")
+        logger.info("Step 5c: Collecting injury reports...")
+        try:
+            from collectors.injury_report_collector import collect_injury_report
+
+            ir = collect_injury_report(date_str) or {}
+            injury_changes = list(ir.get("changes") or [])
+            logger.info(
+                "Injury report: week %s, %s rows (%s), %d changes, %d conflicts, team sites with a table: %d",
+                ir.get("week"), ir.get("rows"),
+                ", ".join(f"{k}={v}" for k, v in sorted((ir.get("sources_used") or {}).items())) or "no sources",
+                len(injury_changes), len(ir.get("conflicts") or []),
+                len(ir.get("team_sites_with_table") or []),
+            )
+            for err in (ir.get("errors") or [])[:5]:
+                logger.warning("Injury report source error: %s", err)
+        except Exception as e:
+            logger.warning("Injury report step failed (non-fatal): %s", e)
+
+    # --- 5d: projection audit --------------------------------------------
+    if get_settings().get("projection_audit", {}).get("enabled", True):
+        write_status("Step 5d", "running", "Auditing weekly projections")
+        logger.info("Step 5d: Auditing weekly projections...")
+        try:
+            from processing.projection_audit import run_audit
+
+            audit = run_audit(season_ctx, date_str, run=run) or {}
+            audit_alerts = list(audit.get("alerts") or [])
+            by_sev: dict[str, int] = {}
+            for a in audit_alerts:
+                by_sev[a.get("severity", "info")] = by_sev.get(a.get("severity", "info"), 0) + 1
+            logger.info(
+                "Projection audit: %d open alerts (%s), %d dismissed",
+                len(audit_alerts),
+                ", ".join(f"{k}={v}" for k, v in sorted(by_sev.items())) or "none",
+                len(audit.get("dismissed") or []),
+            )
+        except Exception as e:
+            logger.warning("Projection audit failed (non-fatal): %s", e)
+
+    return roster_events, injury_changes, audit_alerts
+
+
 def run(
     lookback_hours: int | None = None,
     include_yt_section: bool = False,
@@ -240,6 +342,20 @@ def run(
     logger.info("=" * 60)
 
     summary_provider = get_summary_provider()
+
+    # Season phase gate. Offseason → exactly the historical pipeline.
+    # In-season → weekly-sheet snapshots + roster/injury/audit steps.
+    season_ctx = get_season_context(today=date_str)
+    in_season = season_ctx.in_season
+    dc_status_changes: list[dict] = []
+    if in_season:
+        logger.info(
+            "Season phase: in_season (week %s, %s, secondary sheet %s)",
+            season_ctx.week, season_ctx.weekday,
+            "read" if season_ctx.read_secondary else "skipped",
+        )
+    else:
+        logger.info("Season phase: offseason")
 
     write_status("Step 1", "running", "Collecting from all sources")
     logger.info("Step 1: Collecting from all sources (parallel)...")
@@ -485,51 +601,81 @@ def run(
 
     _log_llm_usage(logger, summary_result.get("llm_usage", {}))
 
-    write_status("Step 4", "running", "Snapshotting projections")
-    logger.info("Step 4: Snapshotting projections...")
     rank_movers: list[dict] = []
-    try:
-        from scripts.snapshot_projections import (
-            _get_client as _get_sheets_client,
-            snapshot_players,
-            snapshot_teams,
-            snapshot_fantasy,
-            diff_snapshots,
-            diff_fantasy,
-            write_changelog,
-            _latest_snapshot,
-        )
-        gc = _get_sheets_client()
-        prev_players = _latest_snapshot("players", before_date=date_str)
-        cur_players = snapshot_players(gc, date_str)
+    weekly_result: dict = {}
+    if in_season:
+        # In-season: snapshot the weekly projection sheet(s) instead of the
+        # preseason sheet. Everything below the `else` is the untouched
+        # offseason path.
+        write_status("Step 4", "running", "Snapshotting weekly projections")
+        logger.info("Step 4: Snapshotting weekly projections...")
+        try:
+            from scripts.snapshot_projections import _get_client as _get_sheets_client
+            from processing.weekly_projections import run_weekly_snapshot
+            from processing.season import load_schedule
 
-        prev_fantasy = _latest_snapshot("fantasy", before_date=date_str)
-        cur_fantasy = snapshot_fantasy(gc, date_str)
+            gc = _get_sheets_client()
+            load_schedule(gc)  # refresh the schedule cache when stale
+            weekly_result = run_weekly_snapshot(gc, date_str, ctx=season_ctx) or {}
+            rank_movers = list(weekly_result.get("rank_movers") or [])
+            sheet_weeks = weekly_result.get("sheet_weeks") or {}
+            if sheet_weeks:
+                season_ctx = get_season_context(
+                    today=date_str,
+                    sheet_metas={k: {"week": v} for k, v in sheet_weeks.items()},
+                )
+            logger.info(
+                "Weekly projections: week %s, working sheet %s, sheet weeks %s | %d rank movers",
+                weekly_result.get("week"), weekly_result.get("active_sheet"),
+                sheet_weeks, len(rank_movers),
+            )
+        except Exception as e:
+            logger.warning("Weekly projection snapshot failed (non-fatal): %s", e)
+    else:
+        write_status("Step 4", "running", "Snapshotting projections")
+        logger.info("Step 4: Snapshotting projections...")
+        try:
+            from scripts.snapshot_projections import (
+                _get_client as _get_sheets_client,
+                snapshot_players,
+                snapshot_teams,
+                snapshot_fantasy,
+                diff_snapshots,
+                diff_fantasy,
+                write_changelog,
+                _latest_snapshot,
+            )
+            gc = _get_sheets_client()
+            prev_players = _latest_snapshot("players", before_date=date_str)
+            cur_players = snapshot_players(gc, date_str)
 
-        prev_teams = _latest_snapshot("teams", before_date=date_str)
-        cur_teams = snapshot_teams(gc, date_str)
+            prev_fantasy = _latest_snapshot("fantasy", before_date=date_str)
+            cur_fantasy = snapshot_fantasy(gc, date_str)
 
-        player_changes = diff_snapshots(cur_players, prev_players, "player") if prev_players else []
-        fantasy_changes = diff_fantasy(cur_fantasy, prev_fantasy) if prev_fantasy else []
-        team_changes = diff_snapshots(cur_teams, prev_teams, "team") if prev_teams else []
-        if player_changes:
-            write_changelog(player_changes, date_str, "player")
-        if fantasy_changes:
-            write_changelog(fantasy_changes, date_str, "fantasy")
-        if team_changes:
-            write_changelog(team_changes, date_str, "team")
+            prev_teams = _latest_snapshot("teams", before_date=date_str)
+            cur_teams = snapshot_teams(gc, date_str)
 
-        rank_movers = [c for c in fantasy_changes if c.get("adjusted")]
+            player_changes = diff_snapshots(cur_players, prev_players, "player") if prev_players else []
+            fantasy_changes = diff_fantasy(cur_fantasy, prev_fantasy) if prev_fantasy else []
+            team_changes = diff_snapshots(cur_teams, prev_teams, "team") if prev_teams else []
+            if player_changes:
+                write_changelog(player_changes, date_str, "player")
+            if fantasy_changes:
+                write_changelog(fantasy_changes, date_str, "fantasy")
+            if team_changes:
+                write_changelog(team_changes, date_str, "team")
 
-        adj_count = len([c for c in player_changes if "Adj" in c.get("metric", "")])
-        proj_count = len([c for c in player_changes if c.get("type") == "metric_change" and "Adj" not in c.get("metric", "")])
-        logger.info(
-            "Projection snapshot: %d players, %d fantasy, %d teams | %d adj tweaks, %d projection shifts, %d rank changes, %d team changes",
-            len(cur_players), len(cur_fantasy), len(cur_teams),
-            adj_count, proj_count, len(rank_movers), len(team_changes),
-        )
-    except Exception as e:
-        logger.warning("Projection snapshot failed (non-fatal): %s", e)
+            rank_movers = [c for c in fantasy_changes if c.get("adjusted")]
+
+            adj_count = len([c for c in player_changes if "Adj" in c.get("metric", "")])
+            proj_count = len([c for c in player_changes if c.get("type") == "metric_change" and "Adj" not in c.get("metric", "")])
+            logger.info(
+                "Projection snapshot: %d players, %d fantasy, %d teams | %d adj tweaks, %d projection shifts, %d rank changes, %d team changes",
+                len(cur_players), len(cur_fantasy), len(cur_teams),
+                adj_count, proj_count, len(rank_movers), len(team_changes),
+            )
+        except Exception as e:
+            logger.warning("Projection snapshot failed (non-fatal): %s", e)
 
     write_status("Step 5", "running", "Updating depth charts")
     logger.info("Step 5: Updating depth charts...")
@@ -547,6 +693,13 @@ def run(
 
         if prev_dc:
             dc_changes = diff_depth_charts(cur_dc, prev_dc)
+            if in_season:
+                # IR/PUP/NFI/SUS are roster status in-season, not depth:
+                # drop within-bucket shuffles, keep crossings as status events.
+                from collectors.depth_chart_collector import split_reserve_changes
+                dc_changes, dc_status_changes = split_reserve_changes(dc_changes)
+                if dc_status_changes:
+                    logger.info("Depth chart reserve-list crossings: %d", len(dc_status_changes))
             promos = [c for c in dc_changes if c["type"] == "promoted"]
             demos = [c for c in dc_changes if c["type"] == "demoted"]
             adds = [c for c in dc_changes if c["type"] == "added"]
@@ -560,6 +713,23 @@ def run(
             logger.info("First depth chart snapshot — no changes to compare.")
     except Exception as e:
         logger.warning("Depth chart update failed (non-fatal): %s", e)
+
+    # ------------------------------------------------------------------
+    # In-season steps (season.phase == in_season). Each is non-fatal and
+    # entirely skipped in the offseason so that path is unchanged.
+    # ------------------------------------------------------------------
+    roster_events: list[dict] | None = None
+    injury_changes: list[dict] | None = None
+    audit_alerts: list[dict] | None = None
+    if in_season:
+        roster_events, injury_changes, audit_alerts = run_in_season_steps(
+            date_str=date_str,
+            season_ctx=season_ctx,
+            news_items=all_news,
+            dc_status_changes=dc_status_changes,
+            logger=logger,
+            run="am",
+        )
 
     yt_section: dict = {}
     if include_yt_section and yt_transcripts:
@@ -606,6 +776,10 @@ def run(
         projection_movers=rank_movers,
         yt_section=yt_section,
         fp_section=fp_section,
+        roster_events=roster_events,
+        injury_changes=injury_changes,
+        audit_alerts=audit_alerts,
+        season_meta=season_ctx.to_dict() if in_season else None,
     )
     json_path, html_path = save_report(report)
 

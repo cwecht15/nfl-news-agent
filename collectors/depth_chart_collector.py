@@ -272,6 +272,84 @@ def diff_depth_charts(current: dict, previous: dict) -> list[dict]:
     return changes
 
 
+# OurLads renders the reserve lists as pseudo-positions. In-season these
+# are roster *status* buckets, not depth-chart slots — see
+# split_reserve_changes(). Offseason callers never touch this.
+RESERVE_BUCKETS = {"IR", "PUP", "NFI", "SUS"}
+
+
+def _bucket(pos: str | None) -> str | None:
+    p = (pos or "").strip().upper()
+    return p if p in RESERVE_BUCKETS else None
+
+
+def split_reserve_changes(changes: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Separate reserve-bucket movement from real depth-chart movement.
+
+    Returns ``(depth_changes, status_changes)``:
+
+    * promoted / demoted *within* a bucket (e.g. "#2 -> #1 on IR") are dropped
+      — meaningless noise once 200+ players sit on IR.
+    * position_change into or out of a bucket becomes a ``status_change``
+      record (``old_status`` / ``new_status`` are the bucket names or
+      ``"Active"``), as does ``added`` straight into a bucket and ``removed``
+      from one.
+    * everything else passes through unchanged.
+
+    ``diff_depth_charts`` itself is untouched, so offseason output is
+    byte-identical; run_daily only calls this in-season.
+    """
+    depth: list[dict] = []
+    status: list[dict] = []
+    for c in changes:
+        t = c.get("type")
+        if t in ("promoted", "demoted"):
+            if _bucket(c.get("pos")):
+                continue
+            depth.append(c)
+            continue
+        if t == "position_change":
+            old_b, new_b = _bucket(c.get("old_pos")), _bucket(c.get("new_pos"))
+            if old_b or new_b:
+                old_s, new_s = old_b or "Active", new_b or "Active"
+                status.append({
+                    "type": "status_change",
+                    "name": c.get("name"),
+                    "team": c.get("team"),
+                    "pos": c.get("new_pos") if not new_b else c.get("old_pos"),
+                    "generic_pos": c.get("generic_pos"),
+                    "old_status": old_s,
+                    "new_status": new_s,
+                    "depth": c.get("depth"),
+                    "message": f"{c.get('name')} ({c.get('team')}) {old_s} -> {new_s}",
+                })
+                continue
+            depth.append(c)
+            continue
+        if t == "added" and _bucket(c.get("pos")):
+            b = _bucket(c.get("pos"))
+            status.append({
+                "type": "status_change",
+                "name": c.get("name"), "team": c.get("team"),
+                "pos": c.get("pos"), "generic_pos": c.get("generic_pos"),
+                "old_status": None, "new_status": b, "depth": c.get("depth"),
+                "message": f"{c.get('name')} ({c.get('team')}) listed on {b}",
+            })
+            continue
+        if t == "removed" and _bucket(c.get("pos")):
+            b = _bucket(c.get("pos"))
+            status.append({
+                "type": "status_change",
+                "name": c.get("name"), "team": c.get("team"),
+                "pos": c.get("pos"), "generic_pos": c.get("generic_pos"),
+                "old_status": b, "new_status": None, "depth": c.get("depth"),
+                "message": f"{c.get('name')} ({c.get('team')}) no longer listed on {b}",
+            })
+            continue
+        depth.append(c)
+    return depth, status
+
+
 _NAME_SUFFIXES = {"jr", "jr.", "sr", "sr.", "ii", "iii", "iv", "v"}
 
 

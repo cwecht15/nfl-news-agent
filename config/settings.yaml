@@ -192,3 +192,60 @@ storage:
 logging:
   level: INFO
   # Log file is auto-named by date in data/logs/
+
+# ---------------------------------------------------------------------------
+# Season phase — the in-season / offseason switch.
+#
+# `offseason` runs the pipeline exactly as it always has (preseason sheet
+# snapshot, six report sections). `in_season` adds the weekly-sheet
+# snapshots, roster events/state, injury report tracker, projection audit
+# and the afternoon run. Nothing offseason is removed — flip this back to
+# `offseason` next spring.
+# ---------------------------------------------------------------------------
+season:
+  phase: in_season            # offseason | in_season
+  year: 2026
+  # The secondary projections sheet is only the "working copy" on Tuesday
+  # (next week's projections start there while MNF finishes). Once the main
+  # sheet flips to the next week the main sheet wins every tie.
+  secondary_weekdays: [Tue]
+
+projections:
+  # Documents the constants hardcoded in scripts/snapshot_projections.py.
+  # Not read by code — the offseason snapshotter is intentionally untouched.
+  offseason:
+    spreadsheet_id: "1bQtJKplmdOAEmKA1zCdSe8TeVFdOqO3fd-vUgtP1dH0"
+    player_sheet: PreSeas_Working_Plyr_Proj
+    fantasy_sheet: Preseason_Projections
+    team_sheet: Working_Tm_Proj
+  # Weekly in-season sheets (identical layouts). Read by
+  # processing/weekly_projections.py when season.phase == in_season.
+  in_season:
+    sheets:
+      primary: "1zry9ZCAOoevHN9-EnVpGt7YzHmq8MuUZA_AjXjJO250"
+      secondary: "1UE8y1akwZ6-LUim5Lph3OXTwLwCLVmuCS5Ma1omaA5U"
+    game_sheet: Working_Game_Proj        # C1 season, C2 week, header row 4
+    player_sheet: Working_Player_Proj    # 32 team blocks; header row where G=="ID"
+    output_sheet: Player_Projections     # PPR + POS Rank
+    kicker_sheet: Working_Kicker_Proj    # header row 2
+    schedule_sheet: Schedule
+    positions: [QB, RB, WR, TE, K]
+
+roster:
+  # nflverse daily roster CSV — GSIS-keyed baseline for roster status.
+  nflverse_url: "https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_{year}.csv"
+  ir_min_games: 4               # games a player must miss after an IR placement
+  max_elevations: 3             # standard practice-squad elevations per season
+  confirm_window_days: 3        # news-only events older than this become "unconfirmed" alerts
+  apply_reported_events: true   # let a fresh insider report drive status until official
+
+injury_report:
+  enabled: true
+  # Precedence order. Team sites are official and show the full Wed/Thu/Fri
+  # grid; RotoWire is a league-wide JSON cross-check; NFL.com is the fallback.
+  sources: [team_sites, rotowire, nflcom]
+  team_site_workers: 8
+
+projection_audit:
+  enabled: true
+  positions: [QB, RB, WR, TE, K]

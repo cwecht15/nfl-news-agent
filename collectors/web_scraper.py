@@ -964,6 +964,22 @@ def scrape_transactions_category_pages(
                         full_text=summary,
                         teams=teams,
                         category="transaction",
+                        # Structured columns kept for the in-season roster
+                        # event ledger (processing/roster_events.py). The
+                        # title/summary strings above are unchanged so every
+                        # regex consumer keeps working.
+                        extra={
+                            "kind": "nfl_transaction",
+                            "tx_type": transaction_text,
+                            "nfl_category": category,
+                            "player": name_text,
+                            "from_team": from_teams[0] if from_teams else "",
+                            "to_team": to_teams[0] if to_teams else "",
+                            "from_text": "" if from_text == "--" else from_text,
+                            "to_text": "" if to_text == "--" else to_text,
+                            "position": position_text,
+                            "tx_date": pub_date.date().isoformat(),
+                        },
                     ))
 
         logger.info("Found %d transactions.", len(items))

@@ -18,7 +18,9 @@ from collectors.depth_chart_collector import (
     get_depth_chart_dates,
     load_depth_chart_by_date,
     load_latest_depth_charts,
+    split_reserve_changes,
 )
+from processing.season import is_in_season
 from reports.report_builder import load_report
 
 
@@ -78,9 +80,14 @@ with tab_changes:
         st.stop()
 
     changes = diff_depth_charts(new_dc, old_dc)
+    status_changes: list[dict] = []
+    if is_in_season():
+        # In-season the IR/PUP/NFI/SUS buckets are roster status, not depth:
+        # drop "promoted within IR" noise and show bucket crossings separately.
+        changes, status_changes = split_reserve_changes(changes)
     annotate_depth_changes(changes, _news_items_for_date(compare_to))
 
-    if not changes:
+    if not changes and not status_changes:
         st.success("No depth chart changes between these dates.")
         st.stop()
 
@@ -185,6 +192,24 @@ with tab_changes:
         st.subheader(f"Position Changes ({len(pos_changes)})")
         pos_data = [{"Player": c["name"], "Team": c["team"], "Old Pos": c["old_pos"], "New Pos": c["new_pos"]} for c in pos_changes]
         st.dataframe(pos_data, use_container_width=True, hide_index=True)
+
+    if status_changes:
+        st.subheader(f"Reserve-List Status Changes ({len(status_changes)})")
+        st.caption("In-season view: IR / PUP / NFI / SUS crossings from the OurLads scrape. "
+                   "Within-bucket shuffles are hidden.")
+        status_rows = []
+        for c in status_changes:
+            if team_filter and c.get("team", "") not in team_filter:
+                continue
+            status_rows.append({
+                "Player": c["name"],
+                "Team": c.get("team", ""),
+                "Position": c.get("pos", ""),
+                "From": c.get("old_status") or "not listed",
+                "To": c.get("new_status") or "not listed",
+            })
+        if status_rows:
+            st.dataframe(status_rows, use_container_width=True, hide_index=True)
 
 
 # ─── Tab 2: Browse ───

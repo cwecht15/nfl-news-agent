@@ -82,6 +82,11 @@ HTML_TEMPLATE = Template(
 </head>
 <body>
     <h1>NFL Daily Report - {{ date }}</h1>
+    {% if season_meta and season_meta.get('week') %}
+    <div class="generated" style="margin-bottom:16px;">
+        Week {{ season_meta.week }}{% if season_meta.get('day_role') %} &middot; {{ season_meta.day_role }}{% endif %}{% if season_meta.get('active_sheet') %} &middot; working sheet: {{ season_meta.active_sheet }}{% endif %}{% if pm_updated_at %} &middot; evening update {{ pm_updated_at }}{% endif %}
+    </div>
+    {% endif %}
 
     {% for section_key, section in sections.items() %}
     <div class="section">
@@ -245,9 +250,12 @@ HTML_TEMPLATE = Template(
 
 SECTION_TITLES = {
     "transactions": "Transactions & Signings",
+    "roster_moves": "Roster Moves",
     "injuries": "Injury Reports",
+    "injury_report_changes": "Injury Report Changes",
     "depth_chart_movement": "Depth Chart Movement",
     "projection_movers": "Today's Projection Movers",
+    "projection_audit": "Projection Audit",
     "league_wide": "League-Wide Notes",
     "fantasypoints": "FantasyPoints Player Notes",
 }
@@ -258,9 +266,12 @@ SECTION_TITLES = {
 # keys — they render at the tail rather than disappearing).
 SECTION_ORDER = [
     "transactions",
+    "roster_moves",            # in-season only
     "injuries",
+    "injury_report_changes",   # in-season only
     "depth_chart_movement",
     "projection_movers",
+    "projection_audit",        # in-season only
     "league_wide",
     "fantasypoints",
 ]
@@ -272,7 +283,40 @@ DEPTH_CHART_TYPE_LABELS = {
     "removed": "Removed",
     "team_change": "Team changes",
     "position_change": "Position changes",
+    # Emitted only in-season by depth_chart_collector.split_reserve_changes
+    "status_change": "Status changes",
 }
+
+# In-season roster event grouping (processing/roster_events.py event_type
+# -> section label). Order = render order.
+ROSTER_EVENT_LABELS = {
+    "ir_placed": "Placed on IR",
+    "ir_designated_return": "Designated to return",
+    "ir_activated": "Activated from IR",
+    "pup_placed": "Placed on PUP",
+    "pup_activated": "Activated from PUP",
+    "nfi_placed": "Placed on NFI",
+    "nfi_activated": "Activated from NFI",
+    "suspended": "Suspended",
+    "reinstated": "Reinstated",
+    "exempt": "Exempt list",
+    "ps_elevated": "Practice squad elevations",
+    "ps_promoted": "Signed to active roster",
+    "ps_signed": "Signed to practice squad",
+    "ps_released": "Released from practice squad",
+    "claimed": "Claimed off waivers",
+    "traded": "Trades",
+    "signed": "Signings",
+    "waived": "Waived",
+    "released": "Released",
+    "injury_settlement": "Injury settlements",
+    "retired": "Retired",
+    "team_change": "Team changes",
+    "status_change": "Other status changes",
+}
+
+AUDIT_SEVERITY_ORDER = ["error", "warning", "info"]
+AUDIT_SEVERITY_LABELS = {"error": "Fix before publishing", "warning": "Check", "info": "FYI"}
 
 
 def _sort_by_published(items: list[Any]) -> list[Any]:
@@ -482,6 +526,112 @@ def _build_depth_chart_section(changes: list[dict]) -> dict[str, Any]:
     return {"summary": summary, "count": len(changes)}
 
 
+def _build_roster_moves_section(events: list[dict]) -> dict[str, Any]:
+    """Render in-season roster events grouped by event type, then team.
+
+    Reported-only events (insider tweets not yet confirmed by NFL.com /
+    nflverse) are tagged so the reader knows to double-check.
+    """
+    if not events:
+        return {"summary": "No roster moves recorded today.", "count": 0}
+
+    by_type: dict[str, list[dict]] = {}
+    for ev in events:
+        by_type.setdefault(str(ev.get("event_type") or "status_change"), []).append(ev)
+
+    parts: list[str] = []
+    ordered_types = list(ROSTER_EVENT_LABELS) + [t for t in by_type if t not in ROSTER_EVENT_LABELS]
+    for etype in ordered_types:
+        bucket = by_type.get(etype)
+        if not bucket:
+            continue
+        parts.append(f"**{ROSTER_EVENT_LABELS.get(etype, etype.replace('_', ' ').title())}**")
+        for ev in sorted(bucket, key=lambda e: (str(e.get("team") or ""), str(e.get("name") or ""))):
+            name = ev.get("name") or "?"
+            team = ev.get("team") or ""
+            pos = ev.get("pos") or ""
+            meta = " / ".join(p for p in [team, pos] if p)
+            detail = str(ev.get("detail") or "").strip()
+            extras: list[str] = []
+            if ev.get("from_team") and ev.get("to_team") and ev["from_team"] != ev["to_team"]:
+                extras.append(f"{ev['from_team']} -> {ev['to_team']}")
+            if ev.get("earliest_return_week"):
+                extras.append(f"eligible Wk {ev['earliest_return_week']}")
+            if ev.get("elevations_used") is not None and etype == "ps_elevated":
+                extras.append(f"elevation {ev['elevations_used']}/3")
+            if str(ev.get("confidence") or "") == "reported":
+                extras.append("reported, unconfirmed")
+            tail = f" - {'; '.join(extras)}" if extras else ""
+            src = str(ev.get("source") or "").replace("news:", "")
+            src_part = f" _({src})_" if src else ""
+            line = f"- **{name}**"
+            if meta:
+                line += f" ({meta})"
+            if detail and detail.lower() != etype.replace("_", " "):
+                line += f": {detail}"
+            parts.append(line + tail + src_part)
+        parts.append("")
+
+    return {"summary": "\n".join(parts).strip(), "count": len(events)}
+
+
+_INJURY_CHANGE_ORDER = [
+    "designation_set", "designation_changed", "practice_downgrade",
+    "new_listing", "practice_upgrade", "cleared",
+]
+
+
+def _build_injury_changes_section(changes: list[dict]) -> dict[str, Any]:
+    """Render day-over-day injury report changes grouped by team."""
+    if not changes:
+        return {"summary": "No injury report changes today.", "count": 0}
+
+    by_team: dict[str, list[dict]] = {}
+    for c in changes:
+        by_team.setdefault(str(c.get("team") or "?"), []).append(c)
+
+    def _rank(c: dict) -> int:
+        t = str(c.get("type") or "")
+        return _INJURY_CHANGE_ORDER.index(t) if t in _INJURY_CHANGE_ORDER else len(_INJURY_CHANGE_ORDER)
+
+    parts: list[str] = []
+    for team in sorted(by_team):
+        parts.append(f"### {team}")
+        for c in sorted(by_team[team], key=lambda x: (_rank(x), str(x.get("name") or ""))):
+            msg = str(c.get("message") or "").strip()
+            if not msg:
+                name = c.get("name") or "?"
+                msg = f"{name}: {c.get('old') or '-'} -> {c.get('new') or '-'}"
+            t = str(c.get("type") or "")
+            if t in ("designation_set", "designation_changed") and str(c.get("new") or "").upper() in ("OUT", "D"):
+                msg = f"**{msg}**"
+            parts.append(f"- {msg}")
+        parts.append("")
+    return {"summary": "\n".join(parts).strip(), "count": len(changes)}
+
+
+def _build_audit_section(alerts: list[dict]) -> dict[str, Any]:
+    """Render projection-audit alerts grouped by severity."""
+    if not alerts:
+        return {"summary": "Projection audit: no issues found.", "count": 0}
+
+    by_sev: dict[str, list[dict]] = {}
+    for a in alerts:
+        by_sev.setdefault(str(a.get("severity") or "info"), []).append(a)
+
+    parts: list[str] = []
+    for sev in AUDIT_SEVERITY_ORDER + [s for s in by_sev if s not in AUDIT_SEVERITY_ORDER]:
+        bucket = by_sev.get(sev)
+        if not bucket:
+            continue
+        parts.append(f"**{AUDIT_SEVERITY_LABELS.get(sev, sev.title())}** ({len(bucket)})")
+        for a in sorted(bucket, key=lambda x: (str(x.get("team") or ""), str(x.get("player") or ""))):
+            msg = str(a.get("message") or "").strip() or f"{a.get('player')}: {a.get('type')}"
+            parts.append(f"- {msg}")
+        parts.append("")
+    return {"summary": "\n".join(parts).strip(), "count": len(alerts)}
+
+
 def _parse_rank_int(rank_str: Any) -> Optional[int]:
     """Parse the numeric tail of a position-rank string (e.g. 'RB12' -> 12)."""
     if rank_str is None:
@@ -551,8 +701,16 @@ def build_report(
     projection_movers: Optional[list[dict]] = None,
     yt_section: Optional[dict[str, Any]] = None,
     fp_section: Optional[dict[str, Any]] = None,
+    roster_events: Optional[list[dict]] = None,
+    injury_changes: Optional[list[dict]] = None,
+    audit_alerts: Optional[list[dict]] = None,
+    season_meta: Optional[dict[str, Any]] = None,
 ) -> DailyReport:
     """Build a DailyReport from summarized data.
+
+    roster_events / injury_changes / audit_alerts / season_meta are the
+    in-season additions (see processing.season). They default to None and
+    add nothing when None, so offseason reports are unchanged.
 
     yt_section is the optional output of `processing.yt_section.build_yt_section`,
     attached only on local runs invoked with `--include-yt-section`.
@@ -574,6 +732,12 @@ def build_report(
         sections["projection_movers"] = _build_projection_movers_section(projection_movers)
     if fp_section:
         sections["fantasypoints"] = fp_section
+    if roster_events is not None:
+        sections["roster_moves"] = _build_roster_moves_section(roster_events)
+    if injury_changes is not None:
+        sections["injury_report_changes"] = _build_injury_changes_section(injury_changes)
+    if audit_alerts is not None:
+        sections["projection_audit"] = _build_audit_section(audit_alerts)
 
     section_sources = _build_section_sources(news_items)
     normalized_sections: dict[str, dict[str, Any]] = {}
@@ -604,6 +768,10 @@ def build_report(
         depth_chart_changes=depth_chart_changes or [],
         projection_movers=projection_movers or [],
         yt_section=yt_section or {},
+        roster_events=roster_events or [],
+        injury_changes=injury_changes or [],
+        audit_alerts=audit_alerts or [],
+        season_meta=season_meta or {},
     )
 
     return report
@@ -628,6 +796,8 @@ def save_report(report: DailyReport):
         collection_stats=report.collection_stats,
         llm_usage=report.llm_usage,
         yt_section=report.yt_section,
+        season_meta=report.season_meta,
+        pm_updated_at=report.pm_updated_at,
     )
     html_path.write_text(html, encoding="utf-8")
     logger.info("Saved HTML report: %s", html_path)

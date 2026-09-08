@@ -180,6 +180,17 @@ def push_overrides_to_repo(
     return push_file_to_repo(OVERRIDES_FILE_PATH, msg, success_label="dismissals")
 
 
+AUDIT_DISMISSALS_FILE_PATH = "data/projections/audit_dismissals.json"
+
+
+def push_audit_dismissals_to_repo(
+    commit_message: str | None = None,
+) -> tuple[bool, str]:
+    """Commit the in-season projection-audit dismissals to origin/master."""
+    msg = commit_message or "Sync projection audit dismissals from cloud dashboard [skip ci]"
+    return push_file_to_repo(AUDIT_DISMISSALS_FILE_PATH, msg, success_label="audit dismissals")
+
+
 # -----------------------------------------------------------------------
 # Debounced auto-push for the flag store.
 #

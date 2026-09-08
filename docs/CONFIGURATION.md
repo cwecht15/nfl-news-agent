@@ -23,6 +23,11 @@ clears the cache after editing.
 | `transcription` | `whisper_model` (`small`), `delete_audio_after`, `whisper_max_duration_seconds` (1800 gate) |
 | `storage` | `reports_to_keep` (90), `raw_data_to_keep` (7) |
 | `dashboard`, `schedule`, `logging` | port/host, run time/timezone, log level |
+| `season` | **The in-season switch.** `phase` (`offseason` / `in_season`), `year`, `secondary_weekdays` (`[Tue]` — the only day the secondary weekly sheet is the working copy). `offseason` runs the historical pipeline unchanged. |
+| `projections` | `offseason` documents the preseason-sheet constants (not read by code); `in_season` holds both weekly spreadsheet ids (`sheets.primary` / `sheets.secondary`), tab names (`game_sheet`, `player_sheet`, `output_sheet`, `kicker_sheet`, `schedule_sheet`) and `positions` |
+| `roster` | `nflverse_url`, `ir_min_games` (4), `max_elevations` (3), `confirm_window_days` (3 — news-only events older than this become "unconfirmed" audit alerts), `apply_reported_events` |
+| `injury_report` | `enabled`, `sources` (precedence: `team_sites`, `rotowire`, `nflcom`), `team_site_workers` |
+| `projection_audit` | `enabled`, `positions` |
 
 ### `sources.yaml` — feeds & sources (no code changes needed to edit)
 
@@ -37,11 +42,13 @@ clears the cache after editing.
 
 ### `teams.yaml` — the 32 teams
 
-Each team: `abbr`, `name`, `conference`, `division`, and `youtube_channels`
+Each team: `abbr`, `name`, `conference`, `division`, `site_domain` (the club's
+official site, e.g. `patriots.com` — the in-season injury tracker reads
+`https://www.<site_domain>/team/injury-report/`), and `youtube_channels`
 (list of `{id, handle, scan_streams?, keyword_filter?}`). Accessed via
-`get_teams()`, `get_teams_by_abbr()`. Team-abbreviation mapping between news and
-projection styles (ARI↔ARZ, BAL↔BLT, CLE↔CLV, HOU↔HST, LAR↔LA) is handled in the
-reconciler/snapshot code, not here.
+`get_teams()`, `get_teams_by_abbr()`. Team-abbreviation dialects (news ARI/BAL/
+CLE/HOU/LAR vs projection ARZ/BLT/CLV/HST/LA, plus OurLads `ARZ`, nflverse `LA`,
+NFL.com `AZ`) are normalized in `processing/team_abbr.py`.
 
 ## Secrets & environment (`.env`, `secrets/`)
 
@@ -88,6 +95,15 @@ data/
   youtube_seen.json        (processed video IDs — dedup across runs)
   flagged_findings.json    (visitor flags, both modes; pushed back to repo)
   sheet_recon_dismissals.json  (dismissed depth-chart-manager discrepancies)
+  --- in-season only (season.phase: in_season) ---
+  schedule/<year>.json                   (cached Schedule tab: games, byes)
+  weekly_projections/<season>/wk<NN>/<primary|secondary>/<date>/
+                                         players/games/output/kickers/meta.json
+  weekly_projections/<season>/active.json, weekly_projections/changelog.csv
+  roster/nflverse/<date>.json, roster/events.jsonl, roster/state.json
+  injuries/<season>/wk<NN>.json          (accumulated weekly injury report)
+  audit/<date>-<am|pm>.json              (projection audit results)
+  projections/audit_dismissals.json      (week-scoped dismissed audit alerts)
   notebooklm_pushed.json   (transcripts already pushed to NotebookLM)
 ```
 

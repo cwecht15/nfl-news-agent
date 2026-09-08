@@ -20,10 +20,17 @@ class NewsItem:
     author: str = ""
     category: str = ""       # "transaction", "injury", "press_conference", "news"
     ai_summary: str = ""     # Filled in by summarizer
+    # Optional structured payload (e.g. NFL.com transaction columns:
+    # tx_type / nfl_category / from_team / to_team / position / tx_date).
+    # Omitted from to_dict() when empty so raw JSON for every other source
+    # is unchanged; from_dict() tolerates its absence.
+    extra: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         d = asdict(self)
         d["published"] = self.published.isoformat()
+        if not d.get("extra"):
+            d.pop("extra", None)
         return d
 
     @classmethod
@@ -72,6 +79,14 @@ class DailyReport:
     depth_chart_changes: list[dict] = field(default_factory=list)
     projection_movers: list[dict] = field(default_factory=list)
     yt_section: dict = field(default_factory=dict)
+    # In-season only (season.phase == in_season). All default to empty so
+    # offseason reports — and reports written before these fields existed —
+    # load and serialize unchanged.
+    roster_events: list[dict] = field(default_factory=list)
+    injury_changes: list[dict] = field(default_factory=list)
+    audit_alerts: list[dict] = field(default_factory=list)
+    season_meta: dict = field(default_factory=dict)
+    pm_updated_at: str = ""   # set by scripts/run_afternoon.py when it refreshes the report
 
     def to_json(self, path: str):
         with open(path, "w", encoding="utf-8") as f:

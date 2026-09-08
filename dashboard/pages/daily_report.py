@@ -144,6 +144,10 @@ TITLES = {
     "depth_chart_movement": "Depth Chart Movement",
     "projection_movers": "Today's Projection Movers",
     "league_wide": "League-Wide Notes",
+    # In-season sections (season.phase == in_season)
+    "roster_moves": "Roster Moves",
+    "injury_report_changes": "Injury Report Changes",
+    "projection_audit": "Projection Audit",
     # Legacy key kept so older reports on disk still render with the
     # right title rather than as "Analysis".
     "analysis": "Analysis & What to Watch",

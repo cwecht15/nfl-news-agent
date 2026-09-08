@@ -55,6 +55,7 @@ _nav_lines = [
     "- **Digest** — Weekly rollup reports",
     "- **Flagged** — Items you've flagged across reports",
     "- **Depth Chart Manager** — Reconcile the master 2026 Depth Chart against agent data",
+    "- **In Season** — Week overview, roster state, injury report, projection audit",
 ]
 if _running_locally():
     _nav_lines.append("- **Config** — Edit sources.yaml, settings.yaml")

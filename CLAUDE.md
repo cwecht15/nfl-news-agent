@@ -42,6 +42,23 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\depth_chart_collec
 
 # Check transaction reconciliation
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\transaction_reconciler.py
+
+# --- In-season only (config/settings.yaml -> season.phase: in_season) ---
+# Weekly projection sheets: dry run (season/week/counts/active sheet) or real snapshot
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\snapshot_weekly_projections.py --dry-run --sheet both
+# nflverse roster snapshot + diff vs previous
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\nflverse_roster_collector.py
+# Injury report tracker (team sites -> RotoWire -> NFL.com), merges into data/injuries/<season>/wkNN.json
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\injury_report_collector.py
+# Rebuild roster state from the event ledger; classify a headline
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.roster_events --rebuild
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.roster_events --classify "Bills placed RB Ray Davis on injured reserve"
+# Projection audit ("right guys projected?") against the active weekly sheet
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.projection_audit
+# Afternoon update (transactions + nflverse + OurLads + injuries + audit, report updated in place; no LLM)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py
+# Season context (phase, week, working sheet)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.season
 ```
 
 ## Environment
@@ -61,6 +78,58 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\transaction_reconcile
 5. **Scrape depth charts** — OurLads, all 32 teams, all positions; tracks promotions / demotions / adds / removes / team changes / position changes. Same prior-day comparison logic as projections.
 6. **Build report** — JSON + HTML with: Transactions (position-tagged), Injuries, Depth Chart Movement, Today's Projection Movers, Team Notes (per-team bulleted with `[N]` citations), League-Wide Notes (cross-team items only). When invoked with `--include-yt-section` (local only), `processing.yt_section.build_yt_section` reads `data/raw/<date>/youtube.json` and appends a YouTube subsection (press-conf summary + per-team transcript bullets).
 7. **Cleanup** — Old data pruning per `storage.{reports_to_keep, raw_data_to_keep}` in settings.yaml.
+
+## In-season mode (season.phase switch)
+
+`config/settings.yaml → season.phase` is the switch: `offseason` runs the pipeline exactly as
+described above (preseason sheet snapshot, six sections); `in_season` adds the pieces below.
+**Nothing offseason is removed** — flip back to `offseason` next spring. All in-season code is
+additive and gated on `processing.season.is_in_season()`; `tests/test_offseason_parity.py` pins
+the offseason path.
+
+- **Week + working sheet:** `processing/season.py` reads each weekly sheet's `Working_Game_Proj!C2`
+  (Current Week). The **secondary** sheet (`projections.in_season.sheets.secondary`) is the working
+  copy **only on Tuesday** (`season.secondary_weekdays`) while MNF finishes; the active sheet is the
+  one showing the higher week, tie → main/primary. Schedule (games, byes, opponents, IR return
+  math) is cached from the primary sheet's `Schedule` tab into `data/schedule/<year>.json`.
+- **Weekly snapshots (Step 4 in-season):** `processing/weekly_projections.py` parses
+  `Working_Player_Proj` (32 team blocks, each with its own header row where `G=="ID"`; Status
+  col Active/PS/IR; the `#` col is a global row number, so a per-team `depth` is derived), `Working_Game_Proj`, `Player_Projections` (PPR + POS Rank) and
+  `Working_Kicker_Proj` into `data/weekly_projections/<season>/wk<NN>/<sheet>/<date>/` +
+  `active.json` pointer and its own `changelog.csv`. Separate tree on purpose: `data/projections/`
+  and the Projections page stay preseason-only. Reuses `_build_player_col_map` (now takes
+  `col_start`/`col_end`; defaults unchanged) and `diff_snapshots`/`diff_fantasy`.
+- **Roster events + state (Step 5b):** `collectors/nflverse_roster_collector.py` (GSIS-keyed daily
+  baseline, `data/roster/nflverse/<date>.json`) + `processing/roster_events.py` merge four sources
+  into `data/roster/events.jsonl` and `data/roster/state.json` — NFL.com transactions (now carry
+  structured fields in `NewsItem.extra`; official), nflverse status flips, OurLads reserve-bucket
+  crossings (`depth_chart_collector.split_reserve_changes` — IR/PUP/NFI/SUS are status in-season,
+  not positions, so within-IR "promotions" are dropped), and insider tweets/news via a
+  precision-first regex classifier (`confidence: reported` until confirmed). State tracks
+  IR date → `earliest_return_week` (4 games, byes skipped) and practice-squad `elevations_used`
+  (max 3). NFL.com's feed has no elevation / IR-activation rows — those come from nflverse flips
+  and news.
+- **Injury report tracker (Step 5c):** `collectors/injury_report_collector.py` — team sites
+  (`https://www.<site_domain>/team/injury-report/`, `site_domain` per team in `config/teams.yaml`;
+  official, full Wed/Thu/Fri grid + game status, both clubs per page) → RotoWire league-wide JSON
+  (`/football/tables/practice-report.php`) → NFL.com `/injuries/` fallback. Accumulates the week
+  in `data/injuries/<season>/wk<NN>.json`, diffs day-over-day into the "Injury Report Changes"
+  section (new listing, practice up/downgrade, designation, cleared). The offseason blob
+  `scrape_injuries` in `web_scraper.py` is untouched.
+- **Projection audit (Step 5d):** `processing/projection_audit.py` cross-checks the active sheet
+  against roster state / nflverse / injuries / OurLads / schedule: `status_conflict` (projected
+  but on IR/PS), `sheet_status_stale`, `wrong_team`, `missing_active`, `out_but_projected`,
+  `elevated_not_projected`, `elevation_limit`, `opp_mismatch`, `bye_projected`,
+  `ir_return_window`, `unconfirmed_report`, `stale_secondary`. Output `data/audit/<date>-<run>.json`;
+  week-scoped dismissal keys in `data/projections/audit_dismissals.json` (cloud: "Save dismissals
+  to repo" via `_repo_sync.push_audit_dismissals_to_repo`).
+- **Report + dashboard:** three phase-gated sections (`roster_moves`, `injury_report_changes`,
+  `projection_audit`), `DailyReport.season_meta` / `pm_updated_at`, and the **In Season** page
+  (Week / Roster State / Injury Report / Projection Audit).
+- **Afternoon run:** `scripts/run_afternoon.py` (cloud cron `.github/workflows/in_season_pm.yml`,
+  22:00 UTC, shares the `daily-pipeline` concurrency group; skips itself in the offseason) —
+  transactions + nflverse + OurLads + injuries + audit, then updates `data/reports/<date>.json`
+  **in place** (no LLM). `run_in_season_steps` in `run_daily.py` is shared by both runs.
 
 ## YouTube — separate tool
 
@@ -125,7 +194,8 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 | Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
 | Team View | Per-team historical drilldown |
 | Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections |
-| Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser |
+| Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser. In-season, reserve-list (IR/PUP/NFI/SUS) crossings are shown separately and within-bucket shuffles hidden. |
+| In Season | Week overview (games/byes/working sheet), roster state + event feed, weekly injury report grid, projection audit with dismissals. Banner only in the offseason. |
 | Transcripts | Raw press-conference transcripts with bulk-ZIP download, NotebookLM push, backfill |
 | Trends | Historical patterns & cost tracking |
 | Digest | Weekly rollup reports |
@@ -136,6 +206,7 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 
 - Windows Task Scheduler: `NFL_News_Agent_Daily` at 6:00 AM (news pipeline)
 - Windows Task Scheduler: `NFL_News_Agent_YT_Backfill` at 5:30 AM (YouTube catch-up; runs first so transcripts are on disk before the news task). Captions-only by default for fast unattended runs; pushes new YouTube files to master via `git push`.
+- GitHub Actions: `.github/workflows/in_season_pm.yml` cron 22:00 UTC (in-season only; reads `season.phase` first and exits when offseason). Runs `scripts/run_afternoon.py` and commits `data/roster data/injuries data/audit data/weekly_projections data/schedule data/reports data/depth_charts data/raw data/logs`. `daily.yml` force-adds the same new dirs.
 - GitHub Actions: `.github/workflows/podcasts.yml` cron 11:00 UTC (1h after the daily pipeline). Runs `scripts/collect_podcasts.py` on CI — RSS-only, no Whisper/yt-dlp, so it needs no local machine and no API keys — then force-adds only `data/raw/<date>/podcast.json` + `data/podcast_seen.json` and pushes to master (`[skip ci]`, rebase-retry). `workflow_dispatch` allows a manual run with an optional `lookback_hours`. (Unlike YouTube, which can't run on CI, so it stays a local scheduled task.)
 - Twitter: collected inside the **cloud** daily pipeline (`daily.yml`, 10:00 UTC) — `run_daily.py` gates it to CI-only (`GITHUB_ACTIONS`) so the local task doesn't also pull/bill. `.github/workflows/twitter.yml` is `workflow_dispatch`-only (manual backfill), NOT a scheduled cron. Needs the `TWITTERAPI_IO_KEY` repo secret.
 - `StartWhenAvailable: true` — catches up on missed runs
@@ -152,6 +223,13 @@ data/
   projections/changelog.csv
   projections/transaction_overrides.json
   depth_charts/YYYY-MM-DD.json
+  schedule/<year>.json                  in-season: cached Schedule tab
+  weekly_projections/<season>/wk<NN>/<primary|secondary>/<date>/{players,games,output,kickers,meta}.json
+  weekly_projections/<season>/active.json, weekly_projections/changelog.csv
+  roster/nflverse/<date>.json, roster/events.jsonl, roster/state.json
+  injuries/<season>/wk<NN>.json
+  audit/<date>-<am|pm>.json
+  projections/audit_dismissals.json
   transcripts/
   logs/YYYY-MM-DD.log
   pipeline_status.json     written during runs for dashboard progress
