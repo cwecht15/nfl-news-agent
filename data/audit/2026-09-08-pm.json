@@ -4,149 +4,61 @@
   "season": 2026,
   "week": 1,
   "sheet": "primary",
-  "generated_at": "2026-09-08T16:26:29+00:00",
+  "generated_at": "2026-09-08T23:59:38+00:00",
   "inputs": {
     "snapshot_date": "2026-09-08",
     "nflverse_date": "2026-09-08",
-    "injury_week_updated": "2026-09-08T16:26:29+00:00",
-    "roster_state_updated": "2026-09-08T16:26:26+00:00"
+    "injury_week_updated": "2026-09-08T23:59:37+00:00",
+    "roster_state_updated": "2026-09-08T23:59:34+00:00"
   },
   "alerts": [
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0039498|1",
-      "severity": "warning",
-      "player": "Harrison Mevis",
-      "gsis_id": "00-0039498",
-      "pos": "K",
-      "team": "LA",
+      "type": "status_conflict",
+      "key": "status_conflict|00-0040509|1",
+      "severity": "error",
+      "player": "Ben Yurosek",
+      "gsis_id": "00-0040509",
+      "pos": "TE",
+      "team": "MIN",
       "sheet": "primary",
       "week": 1,
-      "message": "Harrison Mevis (K, LA) is on the active roster - OurLads PK #1 but has no row on the sheet",
+      "message": "Ben Yurosek (TE, MIN) is projected Active (0.3 PPR) but roster status is IR (since 2026-09-08); eligible Wk 5",
       "evidence": {
-        "ourlads_depth": 1,
-        "ourlads_pos": "PK",
-        "nflverse_status": "ACT",
-        "status_abbr": "A01"
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.3,
+        "slot": 3,
+        "earliest_return_week": 5
       }
     },
     {
-      "type": "team_block_incomplete",
-      "key": "team_block_incomplete|PHI|1",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "PHI",
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040734|1|OUT",
+      "severity": "error",
+      "player": "TreVeyon Henderson",
+      "gsis_id": "00-0040734",
+      "pos": "RB",
+      "team": "NE",
       "sheet": "primary",
       "week": 1,
-      "message": "PHI has only 5 player rows on the sheet - block looks unfinished (per-player missing checks skipped for PHI)",
+      "message": "TreVeyon Henderson (RB, NE) is OUT (Ankle) but projected for 8.9 PPR",
       "evidence": {
-        "rows": 5,
-        "min_rows": 8
-      }
-    },
-    {
-      "type": "team_block_incomplete",
-      "key": "team_block_incomplete|PIT|1",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 1,
-      "message": "PIT has only 6 player rows on the sheet - block looks unfinished (per-player missing checks skipped for PIT)",
-      "evidence": {
-        "rows": 6,
-        "min_rows": 8
-      }
-    },
-    {
-      "type": "team_block_incomplete",
-      "key": "team_block_incomplete|SEA|1",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 1,
-      "message": "SEA has only 5 player rows on the sheet - block looks unfinished (per-player missing checks skipped for SEA)",
-      "evidence": {
-        "rows": 5,
-        "min_rows": 8
-      }
-    },
-    {
-      "type": "team_block_incomplete",
-      "key": "team_block_incomplete|SF|1",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 1,
-      "message": "SF has only 4 player rows on the sheet - block looks unfinished (per-player missing checks skipped for SF)",
-      "evidence": {
-        "rows": 4,
-        "min_rows": 8
-      }
-    },
-    {
-      "type": "team_block_incomplete",
-      "key": "team_block_incomplete|TB|1",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "TB",
-      "sheet": "primary",
-      "week": 1,
-      "message": "TB has only 3 player rows on the sheet - block looks unfinished (per-player missing checks skipped for TB)",
-      "evidence": {
-        "rows": 3,
-        "min_rows": 8
-      }
-    },
-    {
-      "type": "team_block_incomplete",
-      "key": "team_block_incomplete|TEN|1",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 1,
-      "message": "TEN has only 4 player rows on the sheet - block looks unfinished (per-player missing checks skipped for TEN)",
-      "evidence": {
-        "rows": 4,
-        "min_rows": 8
-      }
-    },
-    {
-      "type": "team_block_incomplete",
-      "key": "team_block_incomplete|WAS|1",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 1,
-      "message": "WAS has only 7 player rows on the sheet - block looks unfinished (per-player missing checks skipped for WAS)",
-      "evidence": {
-        "rows": 7,
-        "min_rows": 8
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-09-06": "DNP",
+          "2026-09-07": "DNP",
+          "2026-09-08": "DNP"
+        },
+        "ppr": 8.9
       }
     }
   ],
   "dismissed": [],
   "errors": [],
   "counts": {
-    "missing_active": 1,
-    "team_block_incomplete": 7
+    "status_conflict": 1,
+    "out_but_projected": 1
   }
 }
