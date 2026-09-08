@@ -17,6 +17,10 @@ on:
         description: "Report date to update (YYYY-MM-DD, default today)"
         required: false
         default: ""
+      backfill_from:
+        description: "One-shot: seed the roster ledger from data/raw since this date (YYYY-MM-DD)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -81,7 +85,9 @@ jobs:
           mkdir -p data/logs
           DATE_ARG=""
           if [ -n "${{ github.event.inputs.date }}" ]; then DATE_ARG="--date ${{ github.event.inputs.date }}"; fi
-          python scripts/run_afternoon.py $DATE_ARG 2>&1 | tee "data/logs/$(date -u +%F)-afternoon.log"
+          BACKFILL_ARG=""
+          if [ -n "${{ github.event.inputs.backfill_from }}" ]; then BACKFILL_ARG="--backfill-from ${{ github.event.inputs.backfill_from }}"; fi
+          python scripts/run_afternoon.py $DATE_ARG $BACKFILL_ARG 2>&1 | tee "data/logs/$(date -u +%F)-afternoon.log"
 
       - name: Commit output back to repo
         if: steps.phase.outputs.in_season == 'true'

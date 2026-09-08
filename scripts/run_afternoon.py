@@ -174,7 +174,8 @@ def _merge_by_keys(existing: list[dict], new: list[dict], keys: tuple[str, ...])
     return out
 
 
-def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_transactions: bool = False) -> int:
+def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_transactions: bool = False,
+           backfill_from: str | None = None) -> int:
     date_str = date_override or datetime.now().strftime("%Y-%m-%d")
     setup_logging(date_str)
     logger = logging.getLogger("afternoon")
@@ -190,6 +191,17 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
     logger.info("=" * 60)
 
     try:
+        if backfill_from:
+            # One-shot: seed the roster ledger from the raw NFL.com transaction
+            # files already on disk (IR dates -> earliest return weeks).
+            write_status("PM 0", "running", f"Backfilling roster events from {backfill_from}")
+            try:
+                from processing.roster_events import backfill_nflcom_events
+                n = backfill_nflcom_events(backfill_from, date_str)
+                logger.info("Roster ledger backfill from %s: %d events appended", backfill_from, n)
+            except Exception as e:  # noqa: BLE001
+                logger.warning("Roster backfill failed (non-fatal): %s", e)
+
         news_items: list = []
         if not skip_transactions:
             write_status("PM 1", "running", "Collecting NFL.com transactions")
@@ -230,9 +242,11 @@ if __name__ == "__main__":
     ap.add_argument("--date", default=None, help="YYYY-MM-DD (default: today)")
     ap.add_argument("--skip-ourlads", action="store_true")
     ap.add_argument("--skip-transactions", action="store_true")
+    ap.add_argument("--backfill-from", default=None, metavar="YYYY-MM-DD",
+                    help="one-shot: seed the roster ledger from data/raw/<date>/web.json since this date")
     args = ap.parse_args()
     try:
-        sys.exit(run_pm(args.date, args.skip_ourlads, args.skip_transactions))
+        sys.exit(run_pm(args.date, args.skip_ourlads, args.skip_transactions, args.backfill_from))
     except Exception:
         clear_status()
         raise
