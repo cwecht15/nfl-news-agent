@@ -85,8 +85,14 @@ def _page(path: str, title: str, icon: str, *, default: bool = False):
     return st.Page(path, title=title, icon=icon, url_path=stem, default=default)
 
 
-def build_navigation():
-    """Build the grouped sidebar and return the selected page (call ``.run()``)."""
+def build_navigation(hidden: bool = False):
+    """Build the grouped sidebar and return the selected page (call ``.run()``).
+
+    ``hidden`` keeps the sidebar menu off-screen (login screen). The call must
+    still happen on every run — including the one that stops at the password
+    form — because Streamlit keeps listing the ``pages/`` directory in the
+    sidebar until ``st.navigation`` has executed.
+    """
     in_season = season_mod.is_in_season()
     local = running_locally()
 
@@ -135,4 +141,6 @@ def build_navigation():
         "Projections & Depth": projections,
         "Tools": tools,
     }
-    return st.navigation(sections, expanded=True)
+    return st.navigation(
+        sections, position="hidden" if hidden else "sidebar", expanded=True,
+    )

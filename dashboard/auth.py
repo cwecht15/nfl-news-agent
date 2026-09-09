@@ -13,16 +13,24 @@ allowed — Streamlit Cloud deploys MUST set the secret to enforce auth.
 import streamlit as st
 
 
-def require_password() -> None:
+def _expected_password() -> str | None:
     try:
         expected = st.secrets["dashboard_password"]
     except (KeyError, FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
-        return
+        return None
+    return expected or None
 
-    if not expected:
-        return
 
-    if st.session_state.get("authenticated"):
+def is_authenticated() -> bool:
+    """True when no password is configured or this session has entered it."""
+    if _expected_password() is None:
+        return True
+    return bool(st.session_state.get("authenticated"))
+
+
+def require_password() -> None:
+    expected = _expected_password()
+    if expected is None or st.session_state.get("authenticated"):
         return
 
     st.title("🏈 NFL News Agent")

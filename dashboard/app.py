@@ -32,10 +32,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-from dashboard.auth import require_password
-
-require_password()
-
+from dashboard.auth import is_authenticated, require_password
 from dashboard.nav import build_navigation
 
-build_navigation().run()
+# st.navigation must run before anything can st.stop() the script: until it
+# has executed, Streamlit lists the pages/ directory in the sidebar (the old
+# alphabetical menu). So build the nav first — hidden while the login form
+# is showing — then gate, then run the selected page.
+page = build_navigation(hidden=not is_authenticated())
+require_password()
+page.run()
