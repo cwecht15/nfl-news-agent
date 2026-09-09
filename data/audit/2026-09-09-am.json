@@ -1,0 +1,97 @@
+{
+  "date": "2026-09-09",
+  "run": "am",
+  "season": 2026,
+  "week": 1,
+  "sheet": "primary",
+  "generated_at": "2026-09-09T14:23:29+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-09",
+    "nflverse_date": "2026-09-09",
+    "injury_week_updated": "2026-09-09T14:23:29+00:00",
+    "roster_state_updated": "2026-09-09T14:23:26+00:00"
+  },
+  "alerts": [
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0040509|1",
+      "severity": "error",
+      "player": "Ben Yurosek",
+      "gsis_id": "00-0040509",
+      "pos": "TE",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Ben Yurosek (TE, MIN) is projected Active (0.3 PPR) but roster status is IR (since 2026-09-08); eligible Wk 5",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.3,
+        "slot": 3,
+        "earliest_return_week": 5
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039652|1",
+      "severity": "warning",
+      "player": "Jabari Small",
+      "gsis_id": "00-0039652",
+      "pos": "RB",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Jabari Small (RB, DET) sheet Status is PS but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038643|1",
+      "severity": "warning",
+      "player": "Brayden Willis",
+      "gsis_id": "00-0038643",
+      "pos": "TE",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Brayden Willis (TE, SF) sheet Status is PS but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.2
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0035535|1",
+      "severity": "info",
+      "player": "Darius Slayton",
+      "gsis_id": "00-0035535",
+      "pos": "WR",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Darius Slayton (WR, NYG) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "status_conflict": 1,
+    "sheet_status_stale": 2,
+    "missing_active": 1
+  }
+}
