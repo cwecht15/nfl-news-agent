@@ -9,7 +9,7 @@ source has all of it, and none of them is both fast and official:
   never post standard elevations, IR activations or designated-to-return.
 * **nflverse** (``collectors/nflverse_roster_collector``) is a GSIS-keyed
   daily baseline; day-over-day status flips reveal elevations/activations,
-  but it lags official moves by up to a day and can't say *why* a player
+  but it lags official moves by a day or more and can't say *why* a player
   went DEV -> ACT -> DEV (elevation vs. promotion + release).
 * **OurLads** reserve buckets (``depth_chart_collector.split_reserve_changes``)
   are a slow but independent confirmation of IR/PUP/NFI/SUS.
@@ -1261,7 +1261,38 @@ _STATUS_EFFECT: dict[str, Optional[str]] = {
     "team_change": None, "status_change": None,
 }
 _RESERVE_PLACEMENTS = {"ir_placed": "IR", "pup_placed": "PUP", "nfi_placed": "NFI"}
-_OFFICIAL_GRACE_DAYS = 1
+# How many days an official (NFL.com) move older than the nflverse baseline
+# may still override it, provided the baseline still shows the pre-move
+# state (see _baseline_predates). nflverse's roster file lagged a vested-
+# veteran termination by 2+ days on 2026-09-09; the old one-day grace let
+# that release fall through and the audit flagged the player as "active but
+# not on the sheet". Overridable via settings roster.official_override_days.
+_OFFICIAL_OVERRIDE_DAYS = 7
+
+
+def _baseline_predates(rec: dict, ev: dict, target: Optional[str]) -> bool:
+    """True when the nflverse baseline still shows the state *before* ``ev``,
+    i.e. the official move hasn't reached nflverse yet and must be replayed.
+
+    * Join events (signed / claimed / ps_signed / ...): the baseline is
+      post-event only when it already shows ``target`` on the destination
+      team.
+    * Everything else: post-event when the status already matches, or when
+      the baseline has the player on a *different* team — a later move
+      nflverse saw but the ledger didn't (e.g. released, then signed
+      elsewhere with no NFL.com row in our window).
+    """
+    if target is None:
+        return False
+    status = rec.get("status")
+    if ev.get("event_type") in _JOIN_EVENTS:
+        dest = ev.get("to_team") or ev.get("team") or ""
+        return not (status == target and (not dest or rec.get("team") == dest))
+    if status == target:
+        return False
+    ev_team = ev.get("team") or ""
+    rec_team = rec.get("team") or ""
+    return not (ev_team and rec_team and ev_team != rec_team)
 
 
 def _new_player(key: str, gsis: Optional[str], name: str, name_key: str, team: str, pos: str) -> dict:
@@ -1295,8 +1326,10 @@ def build_state(
     * Events dated before the baseline snapshot are *history only*: they
       fill ``ir_date`` / ``earliest_return_week`` when the baseline already
       shows the player on that list, and always feed the elevation counters
-      and ``last_event``. Official events get a one-day grace (nflverse lags
-      NFL.com by up to a day).
+      and ``last_event``. Exception: an official event from the last
+      ``roster.official_override_days`` (default 7) still applies when the
+      baseline still shows the pre-move state — nflverse lags NFL.com by
+      days, not hours (see :func:`_baseline_predates`).
     * Reported events change status only when ``roster.apply_reported_events``
       is on; unconfirmed ones are listed under the player's ``pending``.
     """
@@ -1304,6 +1337,7 @@ def build_state(
     roster_cfg = settings.get("roster", {}) if isinstance(settings, dict) else {}
     min_games = int(roster_cfg.get("ir_min_games", 4))
     apply_reported = bool(roster_cfg.get("apply_reported_events", True))
+    override_days = int(roster_cfg.get("official_override_days", _OFFICIAL_OVERRIDE_DAYS))
     season = get_season_year(settings)
     as_of = as_of or date.today().isoformat()
     baseline_date = baseline_date or as_of
@@ -1345,18 +1379,25 @@ def build_state(
         if not rec.get("pos") and ev.get("pos"):
             rec["pos"] = ev["pos"]
 
+        target = _STATUS_EFFECT.get(etype)
+
         # Events older than the nflverse baseline are history for players the
         # baseline covers; a name-only player has no baseline to protect.
-        grace = _OFFICIAL_GRACE_DAYS if ev.get("source_kind") == "official" else 0
+        # An official move from the last `override_days` still applies when
+        # the baseline hasn't caught up with it (nflverse lags NFL.com).
         try:
-            history_only = (rec.get("gsis_id") is not None
-                            and date.fromisoformat(ev_date) + timedelta(days=grace) < date.fromisoformat(baseline_date))
+            ev_d = date.fromisoformat(ev_date)
+            base_d = date.fromisoformat(baseline_date)
+            history_only = rec.get("gsis_id") is not None and ev_d < base_d
+            if (history_only and ev.get("source_kind") == "official"
+                    and (base_d - ev_d).days <= override_days
+                    and _baseline_predates(rec, ev, target)):
+                history_only = False
         except ValueError:
             history_only = False
         reported_unconfirmed = conf == "reported" and not ev.get("confirmed_by")
         can_apply = not history_only and (apply_reported or not reported_unconfirmed)
 
-        target = _STATUS_EFFECT.get(etype)
         noop = target is not None and target == rec["status"] and not history_only
 
         # --- elevation counters (season-long, independent of baseline) ---

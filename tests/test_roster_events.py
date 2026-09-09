@@ -421,12 +421,50 @@ def test_build_state_history_only_fills_ir_date():
     p = state["players"]["00-2"]
     assert p["ir_date"] == "2026-09-02"          # resolved by name to the GSIS record
     assert p["status_source"] == "nflverse"      # history-only: baseline status untouched
-    # a pre-baseline "released" must NOT override the baseline
+    # a pre-baseline "released" outside the override window must NOT
+    # override the baseline (13 days old: nflverse has long caught up)
     rel = _ev("Ray Davis", "released", "2026-09-01", source="nflcom_transactions",
               kind="official", conf="official", gsis_id="00-1")
     state2 = re_.build_state([rel], roster, _sched(), settings=SETTINGS,
                              baseline_date="2026-09-14", as_of="2026-09-14")
     assert state2["players"]["00-1"]["status"] == "ACT"
+
+
+def test_build_state_recent_official_move_overrides_stale_baseline():
+    """nflverse lags NFL.com by days: Darius Slayton was terminated 2026-09-07
+    and the 09-09 nflverse file still had him ACT on NYG, so the audit called
+    him 'active but not on the sheet'. A recent official move applies when
+    the baseline still shows the pre-move state."""
+    roster = _roster()   # Ray Davis: ACT / BUF in the baseline
+    rel = _ev("Ray Davis", "released", "2026-09-12", source="nflcom_transactions",
+              kind="official", conf="official", gsis_id="00-1", team="BUF")
+    state = re_.build_state([rel], roster, _sched(), settings=SETTINGS,
+                            baseline_date="2026-09-14", as_of="2026-09-14")
+    p = state["players"]["00-1"]
+    assert p["status"] == "FA" and p["status_source"] == "official"
+    assert p["status_since"] == "2026-09-12"
+
+    # ...but not when the baseline already moved past it: released by BUF,
+    # then nflverse shows him ACT on another team (a signing the ledger
+    # never saw) -> the release is history.
+    moved = {k: dict(v) for k, v in roster.items()}
+    moved["00-1"]["team"] = "MIA"
+    state2 = re_.build_state([rel], moved, _sched(), settings=SETTINGS,
+                             baseline_date="2026-09-14", as_of="2026-09-14")
+    assert state2["players"]["00-1"]["status"] == "ACT"
+    assert state2["players"]["00-1"]["team"] == "MIA"
+
+    # a reported (news-only) cut gets no such override
+    tweet = _ev("Ray Davis", "released", "2026-09-12", gsis_id="00-1", team="BUF")
+    state3 = re_.build_state([tweet], roster, _sched(), settings=SETTINGS,
+                             baseline_date="2026-09-14", as_of="2026-09-14")
+    assert state3["players"]["00-1"]["status"] == "ACT"
+
+    # window is configurable
+    tight = {"season": SETTINGS["season"], "roster": dict(SETTINGS["roster"], official_override_days=1)}
+    state4 = re_.build_state([rel], roster, _sched(), settings=tight,
+                             baseline_date="2026-09-14", as_of="2026-09-14")
+    assert state4["players"]["00-1"]["status"] == "ACT"
 
 
 def test_build_state_elevation_counters():

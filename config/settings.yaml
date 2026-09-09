@@ -238,6 +238,11 @@ roster:
   max_elevations: 3             # standard practice-squad elevations per season
   confirm_window_days: 3        # news-only events older than this become "unconfirmed" alerts
   apply_reported_events: true   # let a fresh insider report drive status until official
+  # An official NFL.com move up to this many days older than the nflverse
+  # baseline still overrides it when nflverse hasn't caught up (still shows
+  # the pre-move status on the same team). nflverse lagged a Sept 7
+  # termination by 2+ days; the old 1-day grace let it fall through.
+  official_override_days: 7
 
 injury_report:
   enabled: true

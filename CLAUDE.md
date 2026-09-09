@@ -112,7 +112,10 @@ the offseason path.
   precision-first regex classifier (`confidence: reported` until confirmed). State tracks
   IR date → `earliest_return_week` (4 games, byes skipped) and practice-squad `elevations_used`
   (max 3). NFL.com's feed has no elevation / IR-activation rows — those come from nflverse flips
-  and news.
+  and news. **nflverse lags NFL.com by days, not hours** (a Sept 7 termination was still ACT on
+  Sept 9; injury-settlement releases stayed IR for 4–6 days): an official event older than the
+  baseline still applies within `roster.official_override_days` (7) when the baseline still shows
+  the pre-move state on the same team (`_baseline_predates`); older than that it is history only.
 - **Injury report tracker (Step 5c):** `collectors/injury_report_collector.py` — team sites
   (`https://www.<site_domain>/team/injury-report/`, `site_domain` per team in `config/teams.yaml`;
   official, full Wed/Thu/Fri grid + game status, both clubs per page) → RotoWire league-wide JSON
