@@ -13,8 +13,15 @@ st.set_page_config(page_title="Weekly Digest", page_icon="🏈", layout="wide")
 from dashboard.auth import require_password
 require_password()
 
+from dashboard.helpers import bootstrap_secrets
+
+# Bridge st.secrets -> os.environ before importing pipeline modules that
+# read OPENAI_API_KEY at call time (same as the YouTube / Podcast / Twitter
+# report pages). Without this, "Generate digest" on Streamlit Cloud only
+# worked if the visitor had opened one of those pages first.
+bootstrap_secrets()
+
 from config_loader import get_data_dir
-from dashboard.helpers import render_sources
 from scripts.run_digest import run_digest
 
 st.header("Weekly Digest")

@@ -64,14 +64,16 @@ flowables and linkifies `[N]` citations against a `source_url_map`.
 ## Dashboard
 
 Streamlit multi-page app, entry point **`dashboard/app.py`**
-(`streamlit run dashboard/app.py`, default port 8502). Every page calls
-`require_password()` ([`auth.py`](../dashboard/auth.py)) right after
-`st.set_page_config` — the cloud deploy sets `dashboard_password` in Streamlit
-secrets; local dev is passwordless. When running locally, `app.py` also renders a
-**Run Pipeline** sidebar that launches `scripts/run_daily.py` as a subprocess
-(with a catch-up lookback expander), reads `data/pipeline_status.json` to detect
-an already-running pipeline, and streams the 7-step progress. A cloud-safe PDF
-export widget is always available.
+(`streamlit run dashboard/app.py`, default port 8502). The entrypoint calls
+`require_password()` ([`auth.py`](../dashboard/auth.py)) before `st.navigation`
+runs the selected page (each page still calls it as a no-op safeguard) — the
+cloud deploy sets `dashboard_password` in Streamlit secrets; local dev is
+passwordless. When running locally, the **Home** page renders a **Run
+Pipeline** sidebar (`dashboard/pipeline_runner.py`) that launches
+`scripts/run_daily.py` as a subprocess (with a catch-up lookback expander),
+reads `data/pipeline_status.json` to detect an already-running pipeline, and
+streams step progress. A cloud-safe PDF export widget sits at the bottom of
+Home.
 
 ### Shared modules
 
@@ -91,20 +93,43 @@ export widget is always available.
   token (threads can't read `st.secrets`). Best-effort; cron + manual button are
   fallbacks.
 
+### Navigation (`dashboard/nav.py`, `dashboard/app.py`)
+
+`app.py` is a thin router: `st.set_page_config` → `require_password()` →
+`build_navigation().run()`. `nav.py` builds a grouped `st.navigation` sidebar
+(This Week / Sources / Projections & Depth / Tools) and decides visibility:
+the in-season pages only when `season.phase == in_season`, Transcripts + Config
+only locally (`running_locally()`), Depth Chart Manager only in the offseason,
+FantasyPoints only when a non-empty `fantasypoints.json` exists in the last 14
+days. Streamlit ignores the `pages/` directory once `st.navigation` runs, so a
+page only exists if `nav.py` lists it. `url_path`s equal the filename stems.
+
+`dashboard/pipeline_runner.py` holds the local "Run Pipeline" sidebar controls,
+live step progress (including the in-season 5b/5c/5e/5d sub-steps) and the PDF
+export; only the Home page renders them. `dashboard/in_season_data.py` holds the
+file loaders shared by Home and the four in-season pages.
+
 ### Pages (`dashboard/pages/`)
 
 | Page | Purpose |
 |------|---------|
-| `daily_report.py` | The daily briefing: date picker, search (paragraph filtering on long summaries), source alerts, all sections rendered flaggable with `[N]` linkification, Team Notes, optional YouTube subsection. |
+| `home.py` | Default page. In-season week hub: week / day role / working sheet metrics, today's report stamp (AM run + evening update), counts with `st.page_link`s to Roster State / Injury Report / Inactives / Projection Audit, this week's games + byes. Offseason: info line + PDF export. |
+| `daily_report.py` | The daily briefing: date picker, caption (week · day role · AM/evening run times), search (paragraph filtering on long summaries), source alerts, all sections rendered flaggable with `[N]` linkification (0-item sections open collapsed), Team Notes, optional YouTube subsection. Projection Alerts (transaction reconciler) render only in the offseason. |
+| `injury_report.py` | In-season. Weekly practice grid + game status per listed player from `data/injuries/<season>/wkNN.json`, source-conflicts expander. |
+| `inactives.py` | In-season. Game-day inactives from `data/inactives/<season>/wkNN.json`, skill-position filter. |
+| `roster_state.py` | In-season. `data/roster/state.json` player table (status, IR date, eligible week, elevations used) + recent `events.jsonl` feed. |
+| `projection_audit.py` | In-season. Latest `data/audit/` run: severity/type filters, per-alert Dismiss + note, Dismissed/Restore list, cloud "Save dismissals to repo". |
 | `team_view.py` | Per-team drilldown across a 1–30 day window: team highlight per day plus matching raw news items. |
-| `projections.py` | 7 tabs — Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections — over `data/projections/` snapshots + `changelog.csv`. |
-| `depth_charts.py` | Changes tab (diff two dates, annotated with news, filter by team/position) + Browse tab (latest snapshot by team/position). |
-| `depth_chart_manager.py` | Read-only reconciliation of the hand-maintained depth-chart Google Sheet vs agent data (team/status mismatches, untracked transactions) with per-item dismissal. 1h cached. Local + cloud (needs `gcp_service_account` secret). |
-| `fantasypoints.py` | Searchable archive of FantasyPoints articles, verbatim paragraphs, no LLM. Dedupes articles by URL slug. |
+| `projections.py` | 7 tabs — Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections — over the phase-aware source in `dashboard/projection_data.py`. Transactions tab is paused in-season (the reconciler reads the frozen preseason snapshot; Projection Audit covers it). Tab bodies are `_render_*()` functions so an empty state returns instead of `st.stop()`. |
+| `depth_charts.py` | Changes tab (diff two dates, annotated with news, filter by team/position; in-season reserve-list crossings shown separately) + Browse tab (snapshot by team/position). Changes body is `_render_changes()` so its early exits no longer blank Browse. |
+| `depth_chart_manager.py` | Offseason only in the sidebar. Read-only reconciliation of the hand-maintained depth-chart Google Sheet vs agent data (team/status mismatches, untracked transactions) with per-item dismissal. 1h cached. Needs `gcp_service_account` secret on cloud. |
+| `fantasypoints.py` | Shown only while the collector produces articles. Searchable archive of FantasyPoints articles, verbatim paragraphs, no LLM. Dedupes articles by URL slug. |
 | `yt_report.py` | Date-range → on-demand `build_yt_section` summary of pushed transcripts (press-conf + per-team). Per-team `[N]` citations link to the source video and the press block lists its videos. Two-layer cache: `@st.cache_data` over a durable disk cache (`processing/yt_cache.py`) so a generated range reloads instantly/free even after a redeploy. Flaggable. |
+| `podcast_report.py` | Date-range → episode checkbox table → on-demand summary of podcast episodes (Episode Highlights + per-team). Cached (`processing/podcast_cache.py`). |
+| `twitter_report.py` | Date-range → raw tweet list (no LLM) + on-demand AI summary with LLM team attribution and same-story clustering. Cached (`processing/twitter_cache.py`). |
 | `transcripts.py` | Browse raw transcripts, bulk-ZIP download, push to NotebookLM, run backfill (local only). |
 | `trends.py` | Historical charts: collection volume, transactions, injuries, league-wide, top teams, top flaggers, and daily LLM cost. |
-| `digest.py` | Generate (LLM) and browse multi-day rollup reports (`digest_*.json`). |
+| `digest.py` | Generate (LLM) and browse multi-day rollup reports (`digest_*.json`). Calls `bootstrap_secrets()` so Generate works on cloud. |
 | `flagged.py` | Browse/edit/delete flags (Handbook + Daily), export both PDFs, manual "Save to repo". |
 | `config.py` | Edit `sources.yaml` / `settings.yaml` / `teams.yaml` in-browser with YAML validation, timestamped backups, and cache clearing. Local only. |
 

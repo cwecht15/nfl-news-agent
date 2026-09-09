@@ -57,10 +57,10 @@ tab_changes, tab_browse = st.tabs(["Changes", "Browse"])
 
 # ─── Tab 1: Changes ───
 
-with tab_changes:
+def _render_changes() -> None:
     if len(dates) < 2:
         st.info("Need at least 2 depth chart snapshots to show changes. The next pipeline run will capture a new one.")
-        st.stop()
+        return
 
     col_from, col_to = st.columns(2)
     with col_from:
@@ -70,14 +70,14 @@ with tab_changes:
 
     if compare_from >= compare_to:
         st.warning("Select a 'From' date earlier than the 'To' date.")
-        st.stop()
+        return
 
     old_dc = load_depth_chart_by_date(compare_from)
     new_dc = load_depth_chart_by_date(compare_to)
 
     if not old_dc or not new_dc:
         st.error("Could not load snapshots for the selected dates.")
-        st.stop()
+        return
 
     changes = diff_depth_charts(new_dc, old_dc)
     status_changes: list[dict] = []
@@ -89,7 +89,7 @@ with tab_changes:
 
     if not changes and not status_changes:
         st.success("No depth chart changes between these dates.")
-        st.stop()
+        return
 
     # Filters
     filter_col1, filter_col2 = st.columns(2)
@@ -210,6 +210,10 @@ with tab_changes:
             })
         if status_rows:
             st.dataframe(status_rows, use_container_width=True, hide_index=True)
+
+
+with tab_changes:
+    _render_changes()
 
 
 # ─── Tab 2: Browse ───

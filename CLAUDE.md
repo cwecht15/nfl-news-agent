@@ -128,7 +128,7 @@ the offseason path.
   Identity via ESPN `playerId` → nflverse `espn_id`; unknown players fall back to the athlete
   record (cached in `data/inactives/espn_athletes.json`). Week file
   `data/inactives/<season>/wk<NN>.json`; report section **Game-Day Inactives** (skill positions
-  bolded); audit alert `inactive_but_projected`; In Season page "Inactives" tab.
+  bolded); audit alert `inactive_but_projected`; dashboard **Inactives** page.
   `.github/workflows/inactives.yml` runs `scripts/run_afternoon.py --inactives-only` right after
   each inactives window (Thu/Sun/Mon evenings, Sun midday/afternoon, plus Wed/Fri/Sat crons that
   no-op without games).
@@ -149,8 +149,8 @@ the offseason path.
   elevations/returns → everything else; schedule restatements and betting chatter are excluded.
 - **Report + dashboard:** four phase-gated sections (`roster_moves`, `injury_report_changes`,
   `game_day_inactives`, `projection_audit`), `DailyReport.season_meta` / `inactives` /
-  `pm_updated_at`, and the **In Season** page (Week / Roster State / Injury Report / Inactives /
-  Projection Audit).
+  `pm_updated_at`, and the in-season dashboard pages (Home week hub / Roster State / Injury
+  Report / Inactives / Projection Audit — shared loaders in `dashboard/in_season_data.py`).
 - **Afternoon run:** `scripts/run_afternoon.py` (cloud cron `.github/workflows/in_season_pm.yml`,
   22:00 UTC, shares the `daily-pipeline` concurrency group; skips itself in the offseason) —
   transactions + nflverse + OurLads + injuries + audit, then updates `data/reports/<date>.json`
@@ -211,21 +211,38 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 
 ## Dashboard Pages
 
-| Page | Purpose |
-|------|---------|
-| Daily Report | Six sections + Team Notes with clickable `[N]` citations; search, transaction alerts. YouTube subsection appears only on locally-generated reports (`run_daily.py --include-yt-section`). |
-| YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
-| Podcast Report | Date-range picker → checkbox episode table → on-demand LLM summary of pushed podcast episodes (Episode Highlights + per-team bullets). Transcript-tag-first, show-notes fallback. Cached. |
-| Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
-| Team View | Per-team historical drilldown |
-| Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections. Phase-aware via `dashboard/projection_data.py`: preseason snapshots in the offseason, the weekly sheet snapshots in-season (players+kickers / Player_Projections output as "fantasy" / game rows as "teams"; Weekly Summary = this NFL week's first vs latest snapshot). |
-| Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser. In-season, reserve-list (IR/PUP/NFI/SUS) crossings are shown separately and within-bucket shuffles hidden. |
-| In Season | Week overview (games/byes/working sheet), roster state + event feed, weekly injury report grid, projection audit with dismissals. Banner only in the offseason. |
-| Transcripts | Raw press-conference transcripts with bulk-ZIP download, NotebookLM push, backfill |
-| Trends | Historical patterns & cost tracking |
-| Digest | Weekly rollup reports |
-| Flagged | Items you've flagged across reports |
-| Config | Edit sources.yaml, settings.yaml |
+Sidebar is built by `dashboard/nav.py` with `st.navigation` (grouped, phase-aware); `dashboard/app.py`
+is a thin router (page config → password gate → nav). Streamlit ignores the `pages/` directory once
+`st.navigation` runs, so a page only exists if `nav.py` lists it. Hide rules: the four in-season
+pages appear only when `season.phase == in_season`; Transcripts + Config only locally; Depth Chart
+Manager only in the offseason (its in-season work is deferred, see `docs/depth_chart_manager_in_season.md`);
+FantasyPoints only when a non-empty `data/raw/<date>/fantasypoints.json` exists in the last 14 days.
+`url_path`s match the filename stems so old bookmarks keep working.
+
+| Section | Page | Purpose |
+|---------|------|---------|
+| This Week | Home | In-season week hub: week / day role / working sheet, today's AM + evening run times, counts (roster moves, injury changes, inactives, audit alerts) linking to their pages, this week's games + byes. Offseason: info line + PDF export. Local pipeline runner lives in this page's sidebar (`dashboard/pipeline_runner.py`). |
+| This Week | Daily Report | Report sections + Team Notes with clickable `[N]` citations; search, flagging. Caption shows week / day role / AM + evening run times; sections with 0 items open collapsed. Projection Alerts (transaction reconciler) only in the offseason. YouTube subsection appears only on locally-generated reports (`run_daily.py --include-yt-section`). |
+| This Week | Injury Report *(in-season)* | Weekly practice grid (Wed/Thu/Fri) + game status per listed player, source conflicts. |
+| This Week | Inactives *(in-season)* | Game-day inactives from ESPN per-game rosters, skill-position filter. |
+| This Week | Roster State *(in-season)* | IR/PUP/NFI/SUS/PS standing per player (return eligibility, elevations used) + recent roster-event feed. |
+| This Week | Projection Audit *(in-season)* | Latest audit alerts with severity/type filters, per-alert dismiss + note, restore; cloud "Save dismissals to repo". |
+| Sources | Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
+| Sources | YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
+| Sources | Podcast Report | Date-range picker → checkbox episode table → on-demand LLM summary of pushed podcast episodes (Episode Highlights + per-team bullets). Transcript-tag-first, show-notes fallback. Cached. |
+| Projections & Depth | Projections | 7 tabs: Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections. Phase-aware via `dashboard/projection_data.py`: preseason snapshots in the offseason, the weekly sheet snapshots in-season (players+kickers / Player_Projections output as "fantasy" / game rows as "teams"; Weekly Summary = this NFL week's first vs latest snapshot). Transactions tab is paused in-season (points to Projection Audit). |
+| Projections & Depth | Depth Charts | Changes (promotions/demotions/position-changes/etc.) and team browser. In-season, reserve-list (IR/PUP/NFI/SUS) crossings are shown separately and within-bucket shuffles hidden. |
+| Projections & Depth | Team View | Per-team historical drilldown |
+| Tools | Flagged | Items you've flagged across reports |
+| Tools | Trends | Historical patterns & cost tracking |
+| Tools | Digest | Weekly rollup reports (manual generate; no scheduled producer) |
+| Tools | Transcripts *(local)* | Raw press-conference transcripts with bulk-ZIP download, NotebookLM push, backfill |
+| Tools | Config *(local)* | Edit sources.yaml, settings.yaml |
+| Tools | Depth Chart Manager *(offseason)* | Reconcile the master Depth Chart sheet against agent data |
+| Tools | FantasyPoints *(when data exists)* | Searchable archive of FP articles |
+
+Tab bodies on Projections and Depth Charts are wrapped in `_render_*()` functions so an empty state
+`return`s instead of `st.stop()` (which used to blank every later tab).
 
 ## Scheduling
 

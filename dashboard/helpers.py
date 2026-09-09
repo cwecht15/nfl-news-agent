@@ -68,11 +68,11 @@ def stop_if_not_local(page_name: str = "This page") -> None:
     st.title(page_name)
     st.info(
         f"**{page_name}** is only available when running the dashboard "
-        "locally. The public site at "
+        "locally, because it edits files on disk or runs local tools "
+        "(yt-dlp, git, NotebookLM). The public site at "
         "[nfl-news-agent.streamlit.app](https://nfl-news-agent.streamlit.app/) "
-        "renders the **Daily Report** and **YouTube Report** tabs from data "
-        "the local tool publishes — it can't run YouTube collection or push "
-        "back to the repo itself.\n\n"
+        "serves every other page from data the pipelines commit to the "
+        "repo.\n\n"
         "Run `Launch_Dashboard.bat` on the project machine to use this page."
     )
     st.stop()

@@ -177,8 +177,9 @@ def _generate_cached(start_iso, end_iso, team_filter, selected_ids) -> dict:
 available_dirs = _list_dated_dirs()
 if not available_dirs:
     st.warning(
-        "No podcast episodes available yet. Run "
-        "`python scripts/collect_podcasts.py` locally and push the resulting "
+        "No podcast episodes available yet. The `podcasts.yml` workflow "
+        "collects them daily at 11:00 UTC; for a manual pull run "
+        "`python scripts/collect_podcasts.py` and push the resulting "
         "`data/raw/<date>/podcast.json` files."
     )
     st.stop()

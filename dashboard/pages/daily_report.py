@@ -27,7 +27,8 @@ from dashboard.flagging import (
     FLAG_MODE_VALUES,
     render_flaggable,
 )
-from reports.report_builder import list_available_reports, load_report
+from processing.season import is_in_season
+from reports.report_builder import SECTION_TITLES, list_available_reports, load_report
 from dashboard.citations import build_citation_linker
 
 ALL_TEAMS = sorted(get_teams_by_abbr().keys())
@@ -86,13 +87,21 @@ except Exception as e:
     st.error(f"Failed to load report: {e}")
     st.stop()
 
+_meta = report.season_meta or {}
+_caption_bits = []
+if _meta.get("week"):
+    _caption_bits.append(f"Week {_meta['week']}")
+if _meta.get("weekday") and _meta.get("day_role"):
+    _caption_bits.append(f"{_meta['weekday']} · {_meta['day_role']}")
+_caption_bits.append(f"AM run {to_et_display(report.generated_at)}")
+if getattr(report, "pm_updated_at", ""):
+    _caption_bits.append(f"evening update {to_et_display(report.pm_updated_at)}")
 if report.team_highlights:
-    _meta = report.season_meta or {}
-    _wk = f"Week {_meta.get('week')} · " if _meta.get("week") else ""
-    st.caption(
-        f"{_wk}{len(report.sections)} sections above, **{len(report.team_highlights)} team notes** below "
+    _caption_bits.append(
+        f"{len(report.sections)} sections above, **{len(report.team_highlights)} team notes** below "
         "— [jump to Team Notes](#team-notes)"
     )
+st.caption(" · ".join(_caption_bits))
 
 # Search box + flag-mode selector (+ name field, only when handbook mode)
 search_col, flag_col = st.columns([3, 2])
@@ -145,22 +154,10 @@ if report.alerts:
         else:
             st.warning(full_message)
 
-# Section titles
-TITLES = {
-    "transactions": "Transactions & Signings",
-    "injuries": "Injury Reports",
-    "depth_chart_movement": "Depth Chart Movement",
-    "projection_movers": "Today's Projection Movers",
-    "league_wide": "League-Wide Notes",
-    # In-season sections (season.phase == in_season)
-    "roster_moves": "Roster Moves",
-    "injury_report_changes": "Injury Report Changes",
-    "game_day_inactives": "Game-Day Inactives",
-    "projection_audit": "Projection Audit",
-    # Legacy key kept so older reports on disk still render with the
-    # right title rather than as "Analysis".
-    "analysis": "Analysis & What to Watch",
-}
+# Section titles — shared with the report builder so the dashboard and the
+# HTML/JSON report never drift. The legacy key keeps older reports on disk
+# rendering with the right title rather than as "Analysis".
+TITLES = {**SECTION_TITLES, "analysis": "Analysis & What to Watch"}
 
 # Legacy keys whose content has moved elsewhere — skip in render.
 SKIP_SECTIONS = {"press_conferences"}
@@ -184,8 +181,11 @@ for key, section_data in report.sections.items():
 
     count = section_data.get("count", "")
     badge = f" ({count} items)" if count else ""
+    # A section that explicitly reports 0 items (Game-Day Inactives on
+    # non-game days) opens collapsed instead of as an empty open panel.
+    expanded = section_data.get("count") is None or bool(count)
 
-    with st.expander(f"{title}{badge}", expanded=True):
+    with st.expander(f"{title}{badge}", expanded=expanded):
         display_summary = _filter_paragraphs(summary, search_query) if search_query else summary
 
         numbered_sources = section_data.get("numbered_sources")
@@ -381,11 +381,14 @@ if report.llm_usage:
     if usage.get("tracking_note"):
         st.caption(usage["tracking_note"])
 
-# Transaction reconciliation
+# Transaction reconciliation — offseason only. The reconciler reads the
+# preseason snapshot in data/projections/, which stops updating once the
+# weekly sheets take over; in-season the Projection Audit's status_conflict
+# / wrong_team alerts cover the same ground against the live sheet.
 try:
     from scripts.transaction_reconciler import reconcile, add_override
 
-    txn_alerts = reconcile()
+    txn_alerts = [] if is_in_season() else reconcile()
     if txn_alerts:
         st.subheader(f"Projection Alerts ({len(txn_alerts)})")
         st.caption("Transactions not yet reflected in your projections. Dismiss if intentionally not projecting.")

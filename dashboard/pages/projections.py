@@ -465,9 +465,23 @@ with tab_weekly:
 
 # ─── Tab 4: Transaction Reconciliation ───
 
-with tab_txn:
+def _render_transactions() -> None:
     st.subheader("Transaction Reconciliation")
     st.caption("Cross-references recent transactions with your projections. Only QB, RB, WR, TE, K, FB.")
+
+    if SRC.mode == "in_season":
+        # The reconciler reads the preseason snapshot in data/projections/,
+        # which stops updating once the weekly sheets take over. In-season
+        # the Projection Audit's status_conflict / wrong_team alerts check
+        # the same thing against the live weekly sheet.
+        st.info(
+            "In-season, roster mismatches are covered by the **Projection Audit** "
+            "(status_conflict / wrong_team alerts against the live weekly sheet). "
+            "This reconciler only reads the preseason snapshot and is paused "
+            "until the offseason."
+        )
+        st.page_link("pages/projection_audit.py", label="Open Projection Audit", icon="✅")
+        return
 
     try:
         from scripts.transaction_reconciler import (
@@ -578,15 +592,19 @@ with tab_txn:
         st.error(f"Transaction reconciliation error: {e}")
 
 
+with tab_txn:
+    _render_transactions()
+
+
 # ─── Tab 5: Player Lookup ───
 
-with tab_lookup:
+def _render_player_lookup() -> None:
     lookup_date = st.selectbox("Snapshot date", dates, index=0, key="lookup_date")
     snapshot = _load_snapshot(lookup_date, "players")
 
     if not snapshot:
         st.warning("No player snapshot for this date.")
-        st.stop()
+        return
 
     query = st.text_input("Search by player name, team, or slot", placeholder="e.g. Bijan, KC QB1, Chase")
 
@@ -666,13 +684,17 @@ with tab_lookup:
                 st.caption(f"Showing first 10 of {len(matches)} matches.")
 
 
+with tab_lookup:
+    _render_player_lookup()
+
+
 # ─── Tab 5: Player History ───
 
-with tab_history:
+def _render_player_history() -> None:
     hist_snapshot = _load_snapshot(dates[0], "players") if dates else {}
     if not hist_snapshot:
         st.warning("No snapshots available.")
-        st.stop()
+        return
 
     hist_query = st.text_input("Player name", placeholder="e.g. Bijan Robinson", key="hist_query")
 
@@ -864,15 +886,19 @@ with tab_history:
                     st.line_chart(chart_df)
 
 
+with tab_history:
+    _render_player_history()
+
+
 # ─── Tab 4: Team Projections ───
 
-with tab_teams:
+def _render_team_projections() -> None:
     team_date = st.selectbox("Snapshot date", dates, index=0, key="team_date")
     team_snapshot = _load_snapshot(team_date, "teams")
 
     if not team_snapshot:
         st.warning("No team snapshot for this date.")
-        st.stop()
+        return
 
     team_list = sorted(team_snapshot.keys())
     selected_team = st.selectbox("Select team", team_list)
@@ -971,3 +997,9 @@ with tab_teams:
                     for m in selected_team_metrics
                 }, index=[d for d, _ in team_history])
                 st.line_chart(chart_df)
+
+
+with tab_teams:
+    _render_team_projections()
+
+
