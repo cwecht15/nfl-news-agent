@@ -101,15 +101,18 @@ Home.
 the in-season pages only when `season.phase == in_season`, Transcripts + Config
 only locally (`running_locally()`), Depth Chart Manager only in the offseason,
 FantasyPoints only when a non-empty `fantasypoints.json` exists in the last 14
-days. Streamlit ignores the `pages/` directory once `st.navigation` runs, so a
-page only exists if `nav.py` lists it. `url_path`s equal the filename stems.
+days. Page scripts live in `dashboard/views/`, deliberately not `pages/`: with
+a `pages/` directory a deep link runs the page script directly without
+executing `app.py`, so `st.navigation` never registers and the old alphabetical
+menu appears. A page only exists if `nav.py` lists it. `url_path`s equal the
+filename stems.
 
 `dashboard/pipeline_runner.py` holds the local "Run Pipeline" sidebar controls,
 live step progress (including the in-season 5b/5c/5e/5d sub-steps) and the PDF
 export; only the Home page renders them. `dashboard/in_season_data.py` holds the
 file loaders shared by Home and the four in-season pages.
 
-### Pages (`dashboard/pages/`)
+### Pages (`dashboard/views/`)
 
 | Page | Purpose |
 |------|---------|

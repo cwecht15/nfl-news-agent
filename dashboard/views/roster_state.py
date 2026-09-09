@@ -48,7 +48,7 @@ for gid, p in players.items():
         "Status": p.get("status", ""), "Since": p.get("status_since", "") or "",
         "Source": p.get("status_source", "") or "",
         "IR date": p.get("ir_date", "") or "",
-        "Eligible Wk": p.get("earliest_return_week", "") or "",
+        "Eligible Wk": str(p.get("earliest_return_week") or ""),
         "Designated": (p.get("designated_return_date") or "")[:10],
         "Elev used": p.get("elevations_used", 0),
         "Pending": len(p.get("pending") or []),

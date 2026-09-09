@@ -480,7 +480,7 @@ def _render_transactions() -> None:
             "This reconciler only reads the preseason snapshot and is paused "
             "until the offseason."
         )
-        st.page_link("pages/projection_audit.py", label="Open Projection Audit", icon="✅")
+        st.page_link("views/projection_audit.py", label="Open Projection Audit", icon="✅")
         return
 
     try:

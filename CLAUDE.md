@@ -163,7 +163,7 @@ YouTube collection is decoupled from the news pipeline because yt-dlp doesn't wo
 - **`scripts/collect_youtube.py`** runs locally; calls `collect_youtube` for the chosen date, writes `data/raw/<date>/youtube.json`, `data/transcripts/<date>/*.txt`, and updates `data/youtube_seen.json`.
 - **Local daily report** (`run_daily.py --include-yt-section`) reuses the saved file via `_load_existing_transcripts` and calls `processing.yt_section.build_yt_section` to attach press-conf + per-team subsections to that day's report.
 - **Cloud daily report** (GHA cron, no flag) ignores transcripts entirely. Transactions / Injuries / Depth Chart / Projections / Team Notes / League-Wide only.
-- **Cloud `YouTube Report` dashboard tab** (`dashboard/pages/yt_report.py`) takes a date range, reads matching `youtube.json` files in repo, and calls the same `build_yt_section` on demand. The user pushes transcripts; visitors trigger summarization with one click each. Per-team bullets linkify their `[N]` citations to the source video and the press-conference block lists its source videos (`build_citation_linker` in `dashboard/citations.py`, shared with the Daily Report). Two cache layers: `@st.cache_data` (in-memory) over a durable disk cache (`processing/yt_cache.py` → `data/yt_reports/<key>.json`, keyed by date-range + selected video IDs) so a previously generated range reloads instantly and spends no tokens even after a Streamlit redeploy. Cache files are gitignored and never committed.
+- **Cloud `YouTube Report` dashboard tab** (`dashboard/views/yt_report.py`) takes a date range, reads matching `youtube.json` files in repo, and calls the same `build_yt_section` on demand. The user pushes transcripts; visitors trigger summarization with one click each. Per-team bullets linkify their `[N]` citations to the source video and the press-conference block lists its source videos (`build_citation_linker` in `dashboard/citations.py`, shared with the Daily Report). Two cache layers: `@st.cache_data` (in-memory) over a durable disk cache (`processing/yt_cache.py` → `data/yt_reports/<key>.json`, keyed by date-range + selected video IDs) so a previously generated range reloads instantly and spends no tokens even after a Streamlit redeploy. Cache files are gitignored and never committed.
 
 ## Podcasts — separate tool
 
@@ -171,7 +171,7 @@ Podcast collection mirrors the YouTube tool but reads RSS instead of YouTube, an
 
 - **Feeds:** `config/sources.yaml` under `podcasts:` — `{name, team (abbr or "NFL"), feed_url, itunes_id}`. Resolved from the iTunes Search API via `scripts/resolve_podcast_feeds.py` (re-run after editing the curated name→team list inside it). Loaded by `config_loader.get_podcast_feeds()`.
 - **`scripts/collect_podcasts.py`** runs locally (or CI); `collect_podcasts` fetches all feeds in parallel, writes `data/raw/<date>/podcast.json` + `data/transcripts/<date>/pod_*.txt`, and dedups by episode GUID via `data/podcast_seen.json`. Episodes are stored as `models.Transcript` (GUID in `video_id`, show title in `channel_name`, `method` = `transcript`|`shownotes`).
-- **`Podcast Report` dashboard tab** (`dashboard/pages/podcast_report.py`) mirrors the YouTube tab: date range → checkbox episode table (sort/filter in pandas to dodge the data_editor sort bug; all episodes checked by default) → on-demand `build_yt_section` (reused — episodes are Transcript lists) rendered as **Episode Highlights** + **Per-Team Notes** with `[N]` citations. Disk cache `processing/podcast_cache.py` → `data/podcast_reports/<key>.json` (gitignored).
+- **`Podcast Report` dashboard tab** (`dashboard/views/podcast_report.py`) mirrors the YouTube tab: date range → checkbox episode table (sort/filter in pandas to dodge the data_editor sort bug; all episodes checked by default) → on-demand `build_yt_section` (reused — episodes are Transcript lists) rendered as **Episode Highlights** + **Per-Team Notes** with `[N]` citations. Disk cache `processing/podcast_cache.py` → `data/podcast_reports/<key>.json` (gitignored).
 
 ## Twitter — cloud-collected source + on-demand report
 
@@ -179,7 +179,7 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 
 - **Collection is cloud-only.** `run_daily.py` collects tweets ONLY when `GITHUB_ACTIONS` is set (`collect_twitter_on_ci`), so the local scheduled task and the cloud run don't both pull and bill. `collectors/twitter_collector.py` maps each tweet to a `NewsItem` (`source_type="twitter"`, dedup via `data/twitter_seen.json`); they flow through quality-filter → dedup → Team Notes / League-Wide like RSS. Standalone `scripts/collect_twitter.py` + `.github/workflows/twitter.yml` (`workflow_dispatch`-only) are for manual backfill.
 - **Fluff scrub:** Twitter-scoped promo/holiday regexes in `content_filter.drop_patterns_by_source_type.twitter` (`quality_filter`); an un-teamed tweet only reaches League-Wide if it carries a news signal or names a known player (`summarizer._league_wide_eligible` / `_TWITTER_LEAGUE_SIGNAL`).
-- **`Twitter Report` dashboard tab** (`dashboard/pages/twitter_report.py` + `processing/twitter_section.py`): on-demand LLM report that (1) LLM-attributes each tweet to a team even with no team named (correcting keyword false positives), (2) clusters same-story tweets into one bullet with multi-`[N]` citations to the tweet **account** (`summarizer._citation_source`), and (3) offers a pop-open raw tweet list. Disk cache `processing/twitter_cache.py` → `data/twitter_reports/<key>.json` (gitignored).
+- **`Twitter Report` dashboard tab** (`dashboard/views/twitter_report.py` + `processing/twitter_section.py`): on-demand LLM report that (1) LLM-attributes each tweet to a team even with no team named (correcting keyword false positives), (2) clusters same-story tweets into one bullet with multi-`[N]` citations to the tweet **account** (`summarizer._citation_source`), and (3) offers a pop-open raw tweet list. Disk cache `processing/twitter_cache.py` → `data/twitter_reports/<key>.json` (gitignored).
 
 ## Google Sheets
 
@@ -212,8 +212,10 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 ## Dashboard Pages
 
 Sidebar is built by `dashboard/nav.py` with `st.navigation` (grouped, phase-aware); `dashboard/app.py`
-is a thin router (page config → password gate → nav). Streamlit ignores the `pages/` directory once
-`st.navigation` runs, so a page only exists if `nav.py` lists it. Hide rules: the four in-season
+is a thin router (nav → password gate → run). Page scripts live in `dashboard/views/` — deliberately
+not `pages/`: with a `pages/` directory, a deep link like `/roster_state` runs that script directly
+without executing `app.py`, so `st.navigation` never registers and Streamlit shows its old alphabetical
+menu. A page only exists if `nav.py` lists it. Hide rules: the four in-season
 pages appear only when `season.phase == in_season`; Transcripts + Config only locally; Depth Chart
 Manager only in the offseason (its in-season work is deferred, see `docs/depth_chart_manager_in_season.md`);
 FantasyPoints only when a non-empty `data/raw/<date>/fantasypoints.json` exists in the last 14 days.

@@ -2,7 +2,7 @@
 
 `dashboard/app.py` calls `require_password()` before `st.navigation` runs
 the selected page, so every page is gated by the entrypoint. The pages in
-`dashboard/pages/` still call it right after `st.set_page_config()` as a
+`dashboard/views/` still call it right after `st.set_page_config()` as a
 belt-and-braces measure (it is a no-op once the session is authenticated).
 
 The gate reads `dashboard_password` from `st.secrets`. If no password is

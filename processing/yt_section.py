@@ -3,7 +3,7 @@
 Used by:
 - `scripts/run_daily.py` when invoked with `--include-yt-section`, to attach
   a YT block to the locally-generated daily report.
-- `dashboard/pages/yt_report.py` for on-demand date-range reports rendered
+- `dashboard/views/yt_report.py` for on-demand date-range reports rendered
   directly in the dashboard.
 
 The section has two subsections:

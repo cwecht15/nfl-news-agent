@@ -1,6 +1,6 @@
 """Build the AI Twitter Report section.
 
-Powers `dashboard/pages/twitter_report.py` (on-demand, date-range reports).
+Powers `dashboard/views/twitter_report.py` (on-demand, date-range reports).
 
 Tweets arrive as `models.NewsItem` (source_type="twitter"). Unlike the news
 pipeline's keyword team detection, this:

@@ -54,7 +54,7 @@ from collectors._transcription import (
 logger = logging.getLogger(__name__)
 
 # Backwards-compatible re-exports so existing callers
-# (dashboard/pages/transcripts.py, scripts/backfill_youtube.py) keep working.
+# (dashboard/views/transcripts.py, scripts/backfill_youtube.py) keep working.
 _parse_subtitle_file = parse_subtitle_file
 
 

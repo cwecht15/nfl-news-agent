@@ -14,9 +14,13 @@ sidebar instead:
   docs/depth_chart_manager_in_season.md); FantasyPoints (only while the
   collector is actually producing articles).
 
-Once ``st.navigation`` runs, Streamlit ignores the ``pages/`` directory, so
-only pages listed here are routable. ``url_path`` values match the old
-filename stems so bookmarks keep working.
+The page scripts live in ``dashboard/views/`` — deliberately NOT ``pages/``.
+With a ``pages/`` directory present, a deep link such as ``/roster_state``
+runs that script directly (Streamlit's directory-based multipage mode)
+without ever executing ``app.py``, so ``st.navigation`` never registers and
+the old alphabetical menu sticks. Without ``pages/``, every URL goes through
+``app.py``. Only pages listed here are routable; ``url_path`` values match
+the filename stems so bookmarks keep working.
 """
 
 from __future__ import annotations
@@ -32,25 +36,25 @@ from processing import season as season_mod
 # Script paths are relative to the entrypoint (dashboard/app.py). They are
 # also what ``st.page_link`` accepts, so pages can link to each other by
 # these same strings.
-HOME = "pages/home.py"
-DAILY_REPORT = "pages/daily_report.py"
-INJURY_REPORT = "pages/injury_report.py"
-INACTIVES = "pages/inactives.py"
-ROSTER_STATE = "pages/roster_state.py"
-PROJECTION_AUDIT = "pages/projection_audit.py"
-TWITTER_REPORT = "pages/twitter_report.py"
-YT_REPORT = "pages/yt_report.py"
-PODCAST_REPORT = "pages/podcast_report.py"
-PROJECTIONS = "pages/projections.py"
-DEPTH_CHARTS = "pages/depth_charts.py"
-TEAM_VIEW = "pages/team_view.py"
-FLAGGED = "pages/flagged.py"
-TRENDS = "pages/trends.py"
-DIGEST = "pages/digest.py"
-TRANSCRIPTS = "pages/transcripts.py"
-CONFIG = "pages/config.py"
-DEPTH_CHART_MANAGER = "pages/depth_chart_manager.py"
-FANTASYPOINTS = "pages/fantasypoints.py"
+HOME = "views/home.py"
+DAILY_REPORT = "views/daily_report.py"
+INJURY_REPORT = "views/injury_report.py"
+INACTIVES = "views/inactives.py"
+ROSTER_STATE = "views/roster_state.py"
+PROJECTION_AUDIT = "views/projection_audit.py"
+TWITTER_REPORT = "views/twitter_report.py"
+YT_REPORT = "views/yt_report.py"
+PODCAST_REPORT = "views/podcast_report.py"
+PROJECTIONS = "views/projections.py"
+DEPTH_CHARTS = "views/depth_charts.py"
+TEAM_VIEW = "views/team_view.py"
+FLAGGED = "views/flagged.py"
+TRENDS = "views/trends.py"
+DIGEST = "views/digest.py"
+TRANSCRIPTS = "views/transcripts.py"
+CONFIG = "views/config.py"
+DEPTH_CHART_MANAGER = "views/depth_chart_manager.py"
+FANTASYPOINTS = "views/fantasypoints.py"
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -90,8 +94,7 @@ def build_navigation(hidden: bool = False):
 
     ``hidden`` keeps the sidebar menu off-screen (login screen). The call must
     still happen on every run — including the one that stops at the password
-    form — because Streamlit keeps listing the ``pages/`` directory in the
-    sidebar until ``st.navigation`` has executed.
+    form — so the requested URL resolves to a page.
     """
     in_season = season_mod.is_in_season()
     local = running_locally()

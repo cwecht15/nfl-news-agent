@@ -4,7 +4,7 @@ Compares the user's hand-maintained "2026 Depth Chart" Google Sheet
 against the agent's view of the world (latest OurLads scrape +
 last N days of NFL.com transactions) and surfaces discrepancies.
 
-The Streamlit page in dashboard/pages/depth_chart_manager.py wraps
+The Streamlit page in dashboard/views/depth_chart_manager.py wraps
 these functions and renders the results. Logic is kept pure here so
 the tool can also be smoke-tested from the CLI:
 

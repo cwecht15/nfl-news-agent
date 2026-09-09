@@ -59,7 +59,7 @@ def compute_inactives_mismatches(
 ```
 
 Fold the result into `reconcile()` and add a fourth `st.tabs(...)` entry
-in `dashboard/pages/depth_chart_manager.py`. Reuse the same dismissal
+in `dashboard/views/depth_chart_manager.py`. Reuse the same dismissal
 flow.
 
 ### 4. Expand `DEACTIVATING_TX_TYPES`
@@ -105,7 +105,7 @@ fourth informational tab.
 | File | Change |
 |---|---|
 | `processing/sheet_reconciliation.py` | Expand `DEACTIVATING_TX_TYPES`; add `compute_inactives_mismatches`; extend `reconcile()` return dict |
-| `dashboard/pages/depth_chart_manager.py` | Add 4th tab; load inactives data; new metric |
+| `dashboard/views/depth_chart_manager.py` | Add 4th tab; load inactives data; new metric |
 | `collectors/inactives_collector.py` | **New** — weekly inactives scraper |
 | `scripts/run_daily.py` | Wire inactives collector into game-day runs only |
 | `config/settings.yaml` | Schedule for inactives collection |
