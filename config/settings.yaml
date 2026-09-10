@@ -1,6 +1,9 @@
 # NFL News Agent — Settings
 # Runtime configuration. API keys go in .env (not here).
 
+# Documentation only — NOT read by code. Describes deploy/crontab.example and
+# the GitHub Actions crons. Run dates come from processing.season.today_et,
+# which hardcodes America/New_York on purpose (see its docstring).
 schedule:
   run_time: "06:00"
   timezone: "America/New_York"

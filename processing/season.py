@@ -44,6 +44,13 @@ PHASE_IN_SEASON = "in_season"
 
 SCHEDULE_MAX_AGE_DAYS = 7
 
+try:  # pragma: no cover — depends on the host tz database
+    from zoneinfo import ZoneInfo
+
+    ET_ZONE: Any = ZoneInfo("America/New_York")
+except Exception:  # noqa: BLE001 — no tz database; see today_et's docstring
+    ET_ZONE = timezone(timedelta(hours=-5), name="ET")
+
 
 # ---------------------------------------------------------------------------
 # Settings accessors
@@ -93,13 +100,49 @@ def _as_date(value: Any) -> date:
     return date.fromisoformat(str(value)[:10])
 
 
+def today_et(now: Optional[datetime] = None) -> str:
+    """Today's date in America/New_York as ``YYYY-MM-DD``.
+
+    **Why Eastern and not the machine clock.** Every cron in this repo is
+    written with Eastern intent — ``inactives.yml``'s ``50 23 * * 3`` means
+    19:50 ET, right after the Wednesday opener's inactives post. But GitHub
+    Actions delays scheduled runs by hours, and the runner clock is UTC. On
+    2026-09-09 that Wednesday cron actually started at 01:31 UTC on 09-10, so
+    ``datetime.now()`` said "Sept 10" and the run filed a brand-new report for
+    a day that had not happened yet instead of updating Sept 9's.
+
+    **Why the no-tz-database fallback is -5 and not -4.** With no tz database
+    the offset is wrong half the season either way, but the two errors are not
+    symmetric. Guessing EST during EDT yields *yesterday*, which merges into an
+    existing report and is visible in ``pm_updated_at``. Guessing EDT during
+    EST yields *tomorrow*, which invents a report for a day that has not
+    happened — the exact failure this function exists to prevent. Prefer the
+    recoverable direction. ``tzdata`` is pinned in requirements.txt so the
+    fallback should be unreachable on any pip-installed environment.
+
+    **Why the workflows deliberately do NOT set ``TZ=America/New_York``.** That
+    would fix the date in one line per workflow, but it would also shift the
+    naive ``datetime.now()`` stamps that ``write_status`` writes
+    (``scripts/run_daily.py``). ``dashboard.helpers.to_et_display`` reads those
+    back assuming naive means UTC and adds 4-5 hours, so the dashboard would
+    render live pipeline status hours in the future. Fix the date explicitly
+    here; leave the timestamps alone.
+
+    ``now`` is injectable for tests. A naive ``now`` is treated as UTC.
+    """
+    now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    return now.astimezone(ET_ZONE).date().isoformat()
+
+
 def weekday_name(d: Any) -> str:
     return WEEKDAYS[_as_date(d).weekday()]
 
 
 def read_secondary_today(d: Any = None, settings: Optional[dict] = None) -> bool:
     """True when the secondary projections sheet should be read today."""
-    d = _as_date(d) if d is not None else date.today()
+    d = _as_date(d if d is not None else today_et())
     return weekday_name(d) in secondary_weekdays(settings)
 
 
@@ -291,7 +334,7 @@ def earliest_return_week(schedule: list[dict], team: str, placed_date: Any,
 def week_from_date(schedule: list[dict], d: Any = None) -> Optional[int]:
     """NFL week containing ``d``: a week runs from the Tuesday before its
     first game through the following Monday."""
-    d = _as_date(d) if d is not None else date.today()
+    d = _as_date(d if d is not None else today_et())
     if not schedule:
         return None
     first_game: dict[int, date] = {}
@@ -394,7 +437,7 @@ def get_season_context(
     settings = _settings(settings)
     phase = get_phase(settings)
     season = get_season_year(settings)
-    d = _as_date(today) if today is not None else date.today()
+    d = _as_date(today if today is not None else today_et())
     wd = weekday_name(d)
     read_secondary = read_secondary_today(d, settings)
 

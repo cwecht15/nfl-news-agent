@@ -1,6 +1,6 @@
 """processing.season — phase switch, week resolution, schedule helpers."""
 
-from datetime import date
+from datetime import date, datetime, timezone
 
 import pytest
 
@@ -121,3 +121,38 @@ def test_parse_schedule_rows_layout():
     assert len(games) == 1
     g = games[0]
     assert g["away"] == "NE" and g["home"] == "SEA" and g["venue"] == "Lumen Field"
+
+
+# ---------------------------------------------------------------------------
+# today_et — the run date follows the NFL's Eastern day, not the runner clock
+# ---------------------------------------------------------------------------
+
+
+def test_today_et_uses_eastern_not_utc():
+    """The 2026-09-09 incident: a 19:50 ET cron that GitHub delayed to 01:31 UTC."""
+    assert season.today_et(datetime(2026, 9, 10, 1, 31, tzinfo=timezone.utc)) == "2026-09-09"
+    # Same UTC day, well inside it -> unchanged
+    assert season.today_et(datetime(2026, 9, 10, 16, 0, tzinfo=timezone.utc)) == "2026-09-10"
+    # EST half of the season (UTC-5), so the boundary moves an hour later
+    assert season.today_et(datetime(2026, 12, 15, 2, 0, tzinfo=timezone.utc)) == "2026-12-14"
+    assert season.today_et(datetime(2026, 12, 15, 6, 0, tzinfo=timezone.utc)) == "2026-12-15"
+
+
+def test_today_et_treats_naive_input_as_utc():
+    assert season.today_et(datetime(2026, 9, 10, 1, 31)) == "2026-09-09"
+
+
+def test_get_season_context_defaults_to_eastern_today(monkeypatch):
+    """Proves get_season_context's fallback is actually wired to today_et."""
+    monkeypatch.setattr(season, "today_et", lambda now=None: "2026-09-09")
+    ctx = season.get_season_context(settings=OFFSEASON, schedule=[])
+    assert ctx.today == "2026-09-09"
+    assert ctx.weekday == "Wed"
+
+
+def test_read_secondary_today_defaults_to_eastern(monkeypatch):
+    """Monday night in ET must not read the Tuesday secondary sheet."""
+    monkeypatch.setattr(season, "today_et", lambda now=None: "2026-09-08")  # Tue
+    assert season.read_secondary_today(settings=IN_SEASON) is True
+    monkeypatch.setattr(season, "today_et", lambda now=None: "2026-09-07")  # Mon
+    assert season.read_secondary_today(settings=IN_SEASON) is False

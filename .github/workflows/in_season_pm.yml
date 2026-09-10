@@ -87,7 +87,7 @@ jobs:
           if [ -n "${{ github.event.inputs.date }}" ]; then DATE_ARG="--date ${{ github.event.inputs.date }}"; fi
           BACKFILL_ARG=""
           if [ -n "${{ github.event.inputs.backfill_from }}" ]; then BACKFILL_ARG="--backfill-from ${{ github.event.inputs.backfill_from }}"; fi
-          python scripts/run_afternoon.py $DATE_ARG $BACKFILL_ARG 2>&1 | tee "data/logs/$(date -u +%F)-afternoon.log"
+          python scripts/run_afternoon.py $DATE_ARG $BACKFILL_ARG 2>&1 | tee "data/logs/$(TZ=America/New_York date +%F)-afternoon.log"
 
       - name: Commit output back to repo
         if: steps.phase.outputs.in_season == 'true'

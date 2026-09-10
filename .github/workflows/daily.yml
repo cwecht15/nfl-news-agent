@@ -86,7 +86,7 @@ jobs:
       - name: Run daily pipeline
         run: |
           mkdir -p data/logs
-          python scripts/run_daily.py 2>&1 | tee "data/logs/$(date -u +%F)-actions.log"
+          python scripts/run_daily.py 2>&1 | tee "data/logs/$(TZ=America/New_York date +%F)-actions.log"
 
       - name: Commit pipeline output back to repo
         run: |

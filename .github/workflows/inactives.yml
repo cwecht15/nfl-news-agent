@@ -84,7 +84,7 @@ jobs:
         if: steps.phase.outputs.in_season == 'true'
         run: |
           mkdir -p data/logs
-          python scripts/run_afternoon.py --inactives-only 2>&1 | tee -a "data/logs/$(date -u +%F)-inactives.log"
+          python scripts/run_afternoon.py --inactives-only 2>&1 | tee -a "data/logs/$(TZ=America/New_York date +%F)-inactives.log"
 
       - name: Commit output back to repo
         if: steps.phase.outputs.in_season == 'true'

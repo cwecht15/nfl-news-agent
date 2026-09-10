@@ -58,7 +58,7 @@ from models import NewsItem, Transcript
 from processing.cross_day_filter import filter_recent_duplicates
 from processing.deduplicator import deduplicate, flatten_groups
 from processing.quality_filter import filter_news_items, reclassify_injury_items
-from processing.season import get_season_context
+from processing.season import get_season_context, today_et
 from processing.source_health import get_health_alerts, record_source_result
 from processing.fp_section import build_fp_section
 from processing.summarizer import run_summarization
@@ -353,9 +353,11 @@ def run(
             so the public daily report stays YouTube-free.
         date_override: When set (YYYY-MM-DD), stamp the run with this
             date instead of "today". Useful for re-generating yesterday's
-            report after a logic change.
+            report after a logic change. The default is *Eastern* today
+            (``processing.season.today_et``), not the runner's clock — CI
+            runs on UTC and GitHub delays scheduled workflows by hours.
     """
-    date_str = date_override or datetime.now().strftime("%Y-%m-%d")
+    date_str = date_override or today_et()
     setup_logging(date_str)
     logger = logging.getLogger("orchestrator")
 
