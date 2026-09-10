@@ -5,12 +5,14 @@ name: In-season afternoon update
 # the day's report in place. No LLM calls. Exits immediately (and commits
 # nothing) while config/settings.yaml has season.phase: offseason.
 #
-# 22:00 UTC = 18:00 EDT / 17:00 EST — after the ~4 PM ET practice reports
-# and Saturday's elevation announcements.
+# 21:34 UTC = 17:34 EDT / 16:34 EST — after the ~4 PM ET practice reports
+# and Saturday's elevation announcements. The odd minute is deliberate:
+# GitHub fires top-of-the-hour crons late (this one has run ~2h behind),
+# and :00 is the most oversubscribed slot there is.
 
 on:
   schedule:
-    - cron: "0 22 * * *"
+    - cron: "34 21 * * *"
   workflow_dispatch:
     inputs:
       date:

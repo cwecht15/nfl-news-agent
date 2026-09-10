@@ -155,7 +155,7 @@ the offseason path.
   `pm_updated_at`, and the in-season dashboard pages (Home week hub / Roster State / Injury
   Report / Inactives / Projection Audit — shared loaders in `dashboard/in_season_data.py`).
 - **Afternoon run:** `scripts/run_afternoon.py` (cloud cron `.github/workflows/in_season_pm.yml`,
-  22:00 UTC, shares the `daily-pipeline` concurrency group; skips itself in the offseason) —
+  21:34 UTC, shares the `daily-pipeline` concurrency group; skips itself in the offseason) —
   transactions + nflverse + OurLads + injuries + audit, then updates `data/reports/<date>.json`
   **in place** (no LLM). `run_in_season_steps` in `run_daily.py` is shared by both runs.
 
@@ -252,10 +252,12 @@ Tab bodies on Projections and Depth Charts are wrapped in `_render_*()` function
 ## Scheduling
 
 - Windows Task Scheduler: `NFL_News_Agent_Daily` at 6:00 AM (news pipeline)
-- Windows Task Scheduler: `NFL_News_Agent_YT_Backfill` at 5:30 AM (YouTube catch-up; runs first so transcripts are on disk before the news task). Captions-only by default for fast unattended runs; pushes new YouTube files to master via `git push`.
-- GitHub Actions: `.github/workflows/in_season_pm.yml` cron 22:00 UTC (in-season only; reads `season.phase` first and exits when offseason). Runs `scripts/run_afternoon.py` and commits `data/roster data/injuries data/audit data/weekly_projections data/schedule data/reports data/depth_charts data/raw data/logs`. `daily.yml` force-adds the same new dirs.
-- GitHub Actions: `.github/workflows/podcasts.yml` cron 11:00 UTC (1h after the daily pipeline). Runs `scripts/collect_podcasts.py` on CI — RSS-only, no Whisper/yt-dlp, so it needs no local machine and no API keys — then force-adds only `data/raw/<date>/podcast.json` + `data/podcast_seen.json` and pushes to master (`[skip ci]`, rebase-retry). `workflow_dispatch` allows a manual run with an optional `lookback_hours`. (Unlike YouTube, which can't run on CI, so it stays a local scheduled task.)
-- Twitter: collected inside the **cloud** daily pipeline (`daily.yml`, 10:00 UTC) — `run_daily.py` gates it to CI-only (`GITHUB_ACTIONS`) so the local task doesn't also pull/bill. `.github/workflows/twitter.yml` is `workflow_dispatch`-only (manual backfill), NOT a scheduled cron. Needs the `TWITTERAPI_IO_KEY` repo secret.
+- Windows Task Scheduler: `NFL_News_Agent_YT_Backfill` at 5:30 AM (YouTube catch-up; runs first so transcripts are on disk before the news task). Captions-only by default for fast unattended runs; pushes new YouTube files to master via `git push`. **It then dispatches the cloud daily pipeline** (`gh workflow run daily.yml`) — this is the pipeline's *primary* trigger, because GitHub fires this repo's crons 3-5 hours late (median 242 min) while a dispatch starts in seconds. Runs unconditionally, since the cloud report ignores transcripts and a backfill failure must not also cost the day's report.
+- GitHub Actions: `.github/workflows/in_season_pm.yml` cron 21:34 UTC (in-season only; reads `season.phase` first and exits when offseason). Runs `scripts/run_afternoon.py` and commits `data/roster data/injuries data/audit data/weekly_projections data/schedule data/reports data/depth_charts data/raw data/logs`. `daily.yml` force-adds the same new dirs.
+- GitHub Actions: `.github/workflows/podcasts.yml` cron 11:26 UTC (after the daily pipeline). Runs `scripts/collect_podcasts.py` on CI — RSS-only, no Whisper/yt-dlp, so it needs no local machine and no API keys — then force-adds only `data/raw/<date>/podcast.json` + `data/podcast_seen.json` and pushes to master (`[skip ci]`, rebase-retry). `workflow_dispatch` allows a manual run with an optional `lookback_hours`. (Unlike YouTube, which can't run on CI, so it stays a local scheduled task.)
+- Twitter: collected inside the **cloud** daily pipeline (`daily.yml`) — `run_daily.py` gates it to CI-only (`GITHUB_ACTIONS`) so the local task doesn't also pull/bill. `.github/workflows/twitter.yml` is `workflow_dispatch`-only (manual backfill), NOT a scheduled cron. Needs the `TWITTERAPI_IO_KEY` repo secret.
+- `daily.yml` cron is **10:41 UTC and a fallback only** — it covers days the local machine is off. Its first step skips the whole run when today's Eastern-dated report already exists, so the cron never re-spends ~$0.46 of tokens overwriting what the 5:30 AM dispatch built. A manual `workflow_dispatch` is never skipped.
+- All crons sit on odd minutes on purpose. Top-of-the-hour is the most oversubscribed slot GitHub has, and every :00 cron in this repo was running hours behind.
 - `StartWhenAvailable: true` — catches up on missed runs
 - `InteractiveToken` logon — must be logged in (screen lock OK)
 - Dashboard has a manual run button with live step-by-step progress

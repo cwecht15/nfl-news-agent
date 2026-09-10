@@ -6,9 +6,11 @@ name: Daily podcast collection
 
 on:
   schedule:
-    # 11:00 UTC — an hour after the daily news pipeline (10:00) to avoid
-    # racing it on the push to master.
-    - cron: "0 11 * * *"
+    # 11:26 UTC — comfortably after the daily news pipeline so the two never
+    # race on the push to master. The odd minute is deliberate: GitHub fires
+    # top-of-the-hour crons hours late (this one has run a median 230 min
+    # behind), and :00 is the most oversubscribed slot there is.
+    - cron: "26 11 * * *"
   workflow_dispatch:
     inputs:
       lookback_hours:
