@@ -17,8 +17,10 @@ first to avoid colliding with the cloud GHA cron at 10 UTC.
 import argparse
 import logging
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -151,6 +153,79 @@ def _recover_autostash_conflict(logger: logging.Logger) -> bool:
     return True
 
 
+_UNTRACKED_COLLISION = "The following untracked working tree files would be overwritten by"
+
+
+def _parse_untracked_collision(output: str) -> list[str]:
+    """Repo-relative paths git named in an untracked-collision abort, if any.
+
+    Git lists them indented between the banner and "Please move or remove
+    them". Detection matches the banner prefix rather than the whole sentence
+    because the verb varies: a merge says "overwritten by merge", the rebase
+    path can say "overwritten by checkout".
+    """
+    idx = output.find(_UNTRACKED_COLLISION)
+    if idx < 0:
+        return []
+    paths: list[str] = []
+    for line in output[idx:].splitlines()[1:]:
+        if not line[:1].isspace():
+            break
+        cleaned = line.strip()
+        if cleaned:
+            paths.append(cleaned)
+    return paths
+
+
+def _recover_untracked_collision(output: str, logger: logging.Logger) -> bool:
+    """Move aside untracked files blocking a pull, so it can be retried once.
+
+    On 2026-09-09 the cloud run force-added a brand-new
+    ``data/inactives/espn_athletes.json``. This machine had generated its own
+    untracked copy — ``.gitignore`` ignores ``data/inactives/`` locally while
+    CI ``git add -f``s it — so the next morning's pull aborted outright and the
+    backfill sat on 107 uncommitted transcripts. Every new in-season data file
+    the cloud starts tracking can do this again, so it is handled rather than
+    merely reported.
+
+    These files are pipeline-generated, so origin's copy wins. The local copy is
+    *moved*, never deleted, into a temp directory whose absolute path is logged.
+    Returns False when there is nothing of this kind to recover, which leaves
+    the caller's existing error handling exactly as it was.
+    """
+    paths = _parse_untracked_collision(output)
+    if not paths:
+        return False
+
+    root = PROJECT_ROOT.resolve()
+    safe: list[Path] = []
+    for rel in paths:
+        target = (root / rel).resolve()
+        if not target.is_relative_to(root):
+            logger.error("Refusing to move %s — it resolves outside the repo.", rel)
+            continue
+        if target.exists():
+            safe.append(target)
+    if not safe:
+        return False
+
+    backup = Path(tempfile.mkdtemp(prefix="nfl-pull-collision-"))
+    logger.warning(
+        "Pull blocked by untracked file(s) the cloud now tracks: %s. Taking "
+        "origin's copy; the local version is moved to %s.",
+        ", ".join(str(p.relative_to(root)) for p in safe), backup,
+    )
+    for target in safe:
+        dest = backup / target.relative_to(root)
+        try:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(target), str(dest))
+        except OSError as e:
+            logger.error("Could not move %s aside: %s", target, e)
+            return False
+    return True
+
+
 def push_to_github(today_str: str, logger: logging.Logger) -> bool:
     """Stage YouTube paths only, commit if changed, push to origin master.
 
@@ -172,15 +247,25 @@ def push_to_github(today_str: str, logger: logging.Logger) -> bool:
     # days that left data/depth_charts/ or data/raw/<other-date>/ files
     # modified) doesn't make rebase abort with "cannot pull with rebase:
     # You have unstaged changes." Git auto-stashes, rebases, then pops.
-    pull = run_git(
-        ["git", "pull", "--rebase", "--autostash", "origin", "master"], logger,
-    )
+    pull_cmd = ["git", "pull", "--rebase", "--autostash", "origin", "master"]
+    pull = run_git(pull_cmd, logger)
     if pull.returncode != 0:
-        logger.error(
-            "git pull --rebase failed:\nstdout: %s\nstderr: %s",
-            pull.stdout, pull.stderr,
-        )
-        return False
+        # An untracked file the cloud has started tracking aborts the pull
+        # before --autostash gets a chance. Move it aside and retry once.
+        if not _recover_untracked_collision(pull.stdout + pull.stderr, logger):
+            logger.error(
+                "git pull --rebase failed:\nstdout: %s\nstderr: %s",
+                pull.stdout, pull.stderr,
+            )
+            return False
+        pull = run_git(pull_cmd, logger)
+        if pull.returncode != 0:
+            logger.error(
+                "git pull --rebase still failed after moving collided files "
+                "aside:\nstdout: %s\nstderr: %s",
+                pull.stdout, pull.stderr,
+            )
+            return False
 
     if not _recover_autostash_conflict(logger):
         return False
