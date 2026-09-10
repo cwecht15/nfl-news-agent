@@ -85,3 +85,55 @@ def test_run_pm_is_noop_in_offseason(monkeypatch):
                         lambda today=None: SeasonContext("offseason", 2026, None, None, {}, "2026-09-08", "Tue", False))
     monkeypatch.setattr(run_afternoon, "setup_logging", lambda d: None)
     assert run_afternoon.run_pm("2026-09-08") == 0
+
+
+def test_update_report_skips_skeleton_for_inactives_only(tmp_path, monkeypatch):
+    """A game-day poll is an update, not a producer.
+
+    On 2026-09-10 the delayed Wednesday inactives cron authored a whole phantom
+    report for a day that had not happened. It must decline instead.
+    """
+    monkeypatch.setattr(report_builder, "get_data_dir", lambda sub: tmp_path)
+    import logging
+    out = run_afternoon._update_report(
+        "2026-09-09", _ctx(), None, None, [], logging.getLogger("t"),
+        inactives={}, create_missing=False,
+    )
+    assert out is None
+    assert not (tmp_path / "2026-09-09.json").exists()
+    assert not (tmp_path / "2026-09-09.html").exists()
+
+
+def test_update_report_skeleton_omits_sections_for_none_sentinels(tmp_path, monkeypatch):
+    """None means "this run didn't look", not "we looked and found nothing"."""
+    monkeypatch.setattr(report_builder, "get_data_dir", lambda sub: tmp_path)
+    import logging
+    alerts = [{"type": "status_conflict", "key": "k1", "severity": "error",
+               "player": "A B", "team": "BUF", "message": "A B projected but on IR"}]
+    run_afternoon._update_report(
+        "2026-09-09", _ctx(), None, None, alerts, logging.getLogger("t"), inactives={},
+    )
+    data = json.loads((tmp_path / "2026-09-09.json").read_text(encoding="utf-8"))
+    assert "roster_moves" not in data["sections"]
+    assert "injury_report_changes" not in data["sections"]
+    assert "projection_audit" in data["sections"]
+    assert "game_day_inactives" in data["sections"]
+    # The whole point: never assert emptiness we did not verify.
+    blob = json.dumps(data)
+    assert "No roster moves recorded today" not in blob
+    assert "No injury report changes today" not in blob
+
+
+def test_run_pm_defaults_to_eastern_date(monkeypatch):
+    """run_pm's default date comes from today_et, not the runner's clock."""
+    seen = {}
+
+    def fake_ctx(today=None):
+        seen["today"] = today
+        return SeasonContext("offseason", 2026, None, None, {}, today, "Wed", False)
+
+    monkeypatch.setattr(run_afternoon, "today_et", lambda now=None: "2026-09-09")
+    monkeypatch.setattr(run_afternoon, "get_season_context", fake_ctx)
+    monkeypatch.setattr(run_afternoon, "setup_logging", lambda d: None)
+    assert run_afternoon.run_pm() == 0
+    assert seen["today"] == "2026-09-09"

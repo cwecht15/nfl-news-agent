@@ -13,7 +13,9 @@ updates the day's report in place:
 6. re-read the active weekly projections sheet (no changelog rows)
 7. load data/reports/<date>.json, replace the three in-season sections,
    stamp ``pm_updated_at`` and save (JSON + HTML). If the morning run never
-   produced a report, a skeleton one is written so the sections still show.
+   produced a report, the full afternoon run writes a skeleton so the sections
+   still show; ``--inactives-only`` does not — a game-day poll is an update,
+   not a producer, and the inactives are already saved under data/inactives/.
 
 Exits 0 immediately when ``season.phase`` is ``offseason``.
 
@@ -34,7 +36,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from config_loader import get_data_dir, get_settings, get_teams_by_abbr
 from models import DailyReport
-from processing.season import get_season_context, load_schedule
+from processing.season import get_season_context, load_schedule, today_et
 from reports.report_builder import (
     _build_audit_section,
     _build_inactives_section,
@@ -111,16 +113,36 @@ def _refresh_active_sheet(date_str: str, ctx, logger: logging.Logger):
 
 
 def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_alerts, logger: logging.Logger,
-                   inactives: dict | None = None):
+                   inactives: dict | None = None, create_missing: bool = True):
+    """Fold this run's in-season results into ``data/reports/<date>.json``.
+
+    ``None`` for any of ``roster_events`` / ``injury_changes`` / ``audit_alerts``
+    / ``inactives`` means "this run did not look at that, leave it alone" — an
+    empty list means "we looked and found nothing". Both branches honour that
+    distinction, so a section is only ever written when the run actually has
+    something to say about it.
+
+    ``create_missing=False`` refuses to author a report that does not exist yet.
+    Game-day inactives polls pass it: an inactives poll is an update, not a
+    producer, and on 2026-09-10 one authored a whole phantom report.
+    """
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
     try:
         report = load_report(date_str)
     except FileNotFoundError:
+        if not create_missing:
+            logger.warning(
+                "No report for %s and this is an inactives-only run — not writing a "
+                "skeleton. The inactives themselves are saved under data/inactives/. "
+                "Run scripts/run_daily.py --date %s to produce the morning report.",
+                date_str, date_str,
+            )
+            return None
         logger.warning("No morning report for %s — writing a skeleton with the in-season sections", date_str)
         report = build_report(
             date_str=date_str, sections={}, team_highlights={}, news_items=[],
-            roster_events=roster_events or [], injury_changes=injury_changes or [],
-            audit_alerts=audit_alerts or [], season_meta=ctx.to_dict(), inactives=inactives,
+            roster_events=roster_events, injury_changes=injury_changes,
+            audit_alerts=audit_alerts, season_meta=ctx.to_dict(), inactives=inactives,
         )
         report.pm_updated_at = stamp
         save_report(report)
@@ -181,7 +203,7 @@ def _merge_by_keys(existing: list[dict], new: list[dict], keys: tuple[str, ...])
 
 def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_transactions: bool = False,
            backfill_from: str | None = None, inactives_only: bool = False) -> int:
-    date_str = date_override or datetime.now().strftime("%Y-%m-%d")
+    date_str = date_override or today_et()
     setup_logging(date_str)
     logger = logging.getLogger("afternoon")
 
@@ -205,7 +227,8 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
                 logger=logger, run="gameday", skip={"roster", "injuries"},
             )
             write_status("PM 4", "running", "Updating daily report")
-            _update_report(date_str, ctx, None, None, audit_alerts, logger, inactives=inactives_week)
+            _update_report(date_str, ctx, None, None, audit_alerts, logger,
+                           inactives=inactives_week, create_missing=False)
             logger.info("Game-day inactives run complete.")
             return 0
 
