@@ -1,15 +1,3 @@
-2026-09-10 01:34:53,957 [INFO] afternoon: ============================================================
-2026-09-10 01:34:53,957 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-09-10 (week 1, Thu)
-2026-09-10 01:34:53,957 [INFO] afternoon: ============================================================
-2026-09-10 01:34:53,957 [INFO] afternoon: Step 5e: Checking game-day inactives...
-2026-09-10 01:34:54,887 [INFO] collectors.inactives_collector: Inactives week 1: 1 games polled, 2 teams published, 2 changed
-2026-09-10 01:34:54,890 [INFO] afternoon: Inactives: week 1, 1 games polled, 2 teams published, 2 newly published/changed
-2026-09-10 01:34:54,890 [INFO] afternoon: Step 5d: Auditing weekly projections...
-2026-09-10 01:34:55,744 [INFO] afternoon: Projection audit: 1 open alerts (error=1), 0 dismissed
-2026-09-10 01:34:55,744 [WARNING] afternoon: No morning report for 2026-09-10 — writing a skeleton with the in-season sections
-2026-09-10 01:34:55,745 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-10.json
-2026-09-10 01:34:55,746 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-10.html
-2026-09-10 01:34:55,746 [INFO] afternoon: Game-day inactives run complete.
 2026-09-10 14:01:15,725 [INFO] orchestrator: ============================================================
 2026-09-10 14:01:15,725 [INFO] orchestrator: NFL News Agent - Daily Run: 2026-09-10
 2026-09-10 14:01:15,726 [INFO] orchestrator: ============================================================
@@ -95,6 +83,7 @@
 2026-09-10 14:06:41,392 [INFO] processing.deduplicator: Loading embedding model 'all-MiniLM-L6-v2' for deduplication...
 2026-09-10 14:06:41,393 [INFO] sentence_transformers.base.model: No device provided, using cpu
 2026-09-10 14:06:41,654 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 2026-09-10 14:06:41,654 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 2026-09-10 14:06:41,689 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/modules.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2Fmodules.json=&etag=%22952a9b81c0bfd99800fabf352f69c7ccd46c5e43%22 "HTTP/1.1 200 OK"
 2026-09-10 14:06:41,764 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
@@ -111,6 +100,7 @@
 2026-09-10 14:06:42,319 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
 2026-09-10 14:06:42,396 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
 2026-09-10 14:06:42,430 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2Fconfig.json=&etag=%2272b987fd805cfa2b58c4c8c952b274a11bfd5a00%22 "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 3672.21it/s]
 2026-09-10 14:06:42,643 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
 2026-09-10 14:06:42,722 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
 2026-09-10 14:06:42,799 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
@@ -129,10 +119,12 @@
 2026-09-10 14:06:43,615 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/1_Pooling%2Fconfig.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2F1_Pooling%2Fconfig.json=&etag=%22d1514c3162bbe87b343f565fadc62e6c06f04f03%22 "HTTP/1.1 200 OK"
 2026-09-10 14:06:43,696 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/2_Normalize/config.json "HTTP/1.1 404 Not Found"
 2026-09-10 14:06:43,774 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
+Batches:   0%|          | 0/24 [00:00<?, ?it/s]Batches:   4%|▍         | 1/24 [00:00<00:05,  3.98it/s]Batches:   8%|▊         | 2/24 [00:00<00:03,  5.55it/s]Batches:  12%|█▎        | 3/24 [00:00<00:03,  6.69it/s]Batches:  17%|█▋        | 4/24 [00:00<00:02,  7.66it/s]Batches:  25%|██▌       | 6/24 [00:00<00:01,  9.02it/s]Batches:  29%|██▉       | 7/24 [00:00<00:01,  9.26it/s]Batches:  38%|███▊      | 9/24 [00:01<00:01, 10.05it/s]Batches:  46%|████▌     | 11/24 [00:01<00:01, 10.54it/s]Batches:  54%|█████▍    | 13/24 [00:01<00:00, 11.04it/s]Batches:  62%|██████▎   | 15/24 [00:01<00:00, 11.61it/s]Batches:  71%|███████   | 17/24 [00:01<00:00, 12.25it/s]Batches:  79%|███████▉  | 19/24 [00:01<00:00, 12.60it/s]Batches:  88%|████████▊ | 21/24 [00:01<00:00, 13.13it/s]Batches:  96%|█████████▌| 23/24 [00:02<00:00, 13.59it/s]Batches: 100%|██████████| 24/24 [00:02<00:00, 11.11it/s]
 2026-09-10 14:06:45,941 [INFO] processing.deduplicator: Using embedding-based deduplication (all-MiniLM-L6-v2).
 2026-09-10 14:06:46,276 [INFO] processing.deduplicator: Deduplicated 754 items into 564 story groups.
 2026-09-10 14:06:46,278 [INFO] orchestrator: Deduplicated: 754 items -> 564 unique stories
 2026-09-10 14:06:46,278 [INFO] orchestrator: Step 2b: Filtering cross-day duplicates...
+Batches:   0%|          | 0/61 [00:00<?, ?it/s]Batches:   2%|▏         | 1/61 [00:00<00:15,  3.83it/s]Batches:   3%|▎         | 2/61 [00:00<00:14,  4.02it/s]Batches:   5%|▍         | 3/61 [00:00<00:11,  5.22it/s]Batches:   7%|▋         | 4/61 [00:00<00:09,  6.19it/s]Batches:   8%|▊         | 5/61 [00:00<00:08,  6.68it/s]Batches:  10%|▉         | 6/61 [00:00<00:07,  7.33it/s]Batches:  11%|█▏        | 7/61 [00:01<00:06,  7.89it/s]Batches:  15%|█▍        | 9/61 [00:01<00:05,  8.95it/s]Batches:  16%|█▋        | 10/61 [00:01<00:05,  9.06it/s]Batches:  18%|█▊        | 11/61 [00:01<00:05,  9.19it/s]Batches:  21%|██▏       | 13/61 [00:01<00:05,  9.51it/s]Batches:  25%|██▍       | 15/61 [00:01<00:04,  9.95it/s]Batches:  28%|██▊       | 17/61 [00:02<00:04, 10.16it/s]Batches:  31%|███       | 19/61 [00:02<00:04, 10.45it/s]Batches:  34%|███▍      | 21/61 [00:02<00:03, 10.52it/s]Batches:  38%|███▊      | 23/61 [00:02<00:03, 10.70it/s]Batches:  41%|████      | 25/61 [00:02<00:03, 10.89it/s]Batches:  44%|████▍     | 27/61 [00:02<00:03, 11.13it/s]Batches:  48%|████▊     | 29/61 [00:03<00:02, 11.46it/s]Batches:  51%|█████     | 31/61 [00:03<00:02, 11.41it/s]Batches:  54%|█████▍    | 33/61 [00:03<00:02, 11.63it/s]Batches:  57%|█████▋    | 35/61 [00:03<00:02, 11.76it/s]Batches:  61%|██████    | 37/61 [00:03<00:01, 12.07it/s]Batches:  64%|██████▍   | 39/61 [00:03<00:01, 12.52it/s]Batches:  67%|██████▋   | 41/61 [00:04<00:01, 12.50it/s]Batches:  70%|███████   | 43/61 [00:04<00:01, 12.80it/s]Batches:  74%|███████▍  | 45/61 [00:04<00:01, 12.75it/s]Batches:  77%|███████▋  | 47/61 [00:04<00:01, 12.86it/s]Batches:  80%|████████  | 49/61 [00:04<00:00, 13.19it/s]Batches:  84%|████████▎ | 51/61 [00:04<00:00, 13.32it/s]Batches:  87%|████████▋ | 53/61 [00:04<00:00, 13.59it/s]Batches:  90%|█████████ | 55/61 [00:05<00:00, 13.98it/s]Batches:  93%|█████████▎| 57/61 [00:05<00:00, 14.24it/s]Batches:  97%|█████████▋| 59/61 [00:05<00:00, 15.07it/s]Batches: 100%|██████████| 61/61 [00:05<00:00, 11.24it/s]
 2026-09-10 14:06:52,537 [INFO] processing.cross_day_filter: Cross-day filter: 564 -> 390 items (174 suppressed, lookback=2 days, threshold=0.82).
 2026-09-10 14:06:52,537 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Bucs Nation Reacts Survey: 2026 Regular Season Wins
 2026-09-10 14:06:52,537 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Erick All isn’t thinking about his injury history ahead of his regular-season return

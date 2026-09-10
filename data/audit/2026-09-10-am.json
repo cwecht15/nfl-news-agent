@@ -1,0 +1,78 @@
+{
+  "date": "2026-09-10",
+  "run": "am",
+  "season": 2026,
+  "week": 1,
+  "sheet": "primary",
+  "generated_at": "2026-09-10T14:17:51+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-09",
+    "nflverse_date": "2026-09-10",
+    "injury_week_updated": "2026-09-10T14:17:50+00:00",
+    "roster_state_updated": "2026-09-10T14:17:43+00:00"
+  },
+  "alerts": [
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0040509|1",
+      "severity": "error",
+      "player": "Ben Yurosek",
+      "gsis_id": "00-0040509",
+      "pos": "TE",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Ben Yurosek (TE, MIN) is projected Active (0.3 PPR) but roster status is IR (since 2026-09-10); eligible Wk 5",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.3,
+        "slot": 3,
+        "earliest_return_week": 5
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040568|1",
+      "severity": "warning",
+      "player": "Lan Larison",
+      "gsis_id": "00-0040568",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Lan Larison (RB, NE) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.4
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037745|1",
+      "severity": "warning",
+      "player": "Velus Jones Jr.",
+      "gsis_id": "00-0037745",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.3
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "status_conflict": 1,
+    "sheet_status_stale": 2
+  }
+}
