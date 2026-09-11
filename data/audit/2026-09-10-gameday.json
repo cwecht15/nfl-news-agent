@@ -4,14 +4,31 @@
   "season": 2026,
   "week": 1,
   "sheet": "primary",
-  "generated_at": "2026-09-10T01:34:55+00:00",
+  "generated_at": "2026-09-11T01:33:53+00:00",
   "inputs": {
-    "snapshot_date": "2026-09-09",
-    "nflverse_date": "2026-09-09",
-    "injury_week_updated": "2026-09-09T23:58:52+00:00",
-    "roster_state_updated": "2026-09-09T23:58:50+00:00"
+    "snapshot_date": "2026-09-10",
+    "nflverse_date": "2026-09-10",
+    "injury_week_updated": "2026-09-10T23:25:18+00:00",
+    "roster_state_updated": "2026-09-10T23:25:14+00:00"
   },
   "alerts": [
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0037557|1",
+      "severity": "error",
+      "player": "Ronnie Rivers",
+      "gsis_id": "00-0037557",
+      "pos": "RB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Ronnie Rivers (RB, LA) is INACTIVE for SF VS LAR (postgame) but projected for 0.3 PPR",
+      "evidence": {
+        "game": "SF VS LAR",
+        "phase": "postgame",
+        "ppr": 0.3
+      }
+    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040509|1",
@@ -22,20 +39,114 @@
       "team": "MIN",
       "sheet": "primary",
       "week": 1,
-      "message": "Ben Yurosek (TE, MIN) is projected Active (0.3 PPR) but roster status is IR (since 2026-09-08); eligible Wk 5",
+      "message": "Ben Yurosek (TE, MIN) is projected Active (0.3 PPR) but roster status is IR (since 2026-09-10); eligible Wk 5",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.3,
         "slot": 3,
         "earliest_return_week": 5
+      }
+    },
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0040177|1",
+      "severity": "error",
+      "player": "Jordan James",
+      "gsis_id": "00-0040177",
+      "pos": "RB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Jordan James (RB, SF) is INACTIVE for SF VS LAR (postgame) but projected for 0.4 PPR",
+      "evidence": {
+        "game": "SF VS LAR",
+        "phase": "postgame",
+        "ppr": 0.4
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035544|1",
+      "severity": "warning",
+      "player": "Tom Kennedy",
+      "gsis_id": "00-0035544",
+      "pos": "WR",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Tom Kennedy (WR, DET) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.6
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040568|1",
+      "severity": "warning",
+      "player": "Lan Larison",
+      "gsis_id": "00-0040568",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Lan Larison (RB, NE) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.4
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037745|1",
+      "severity": "warning",
+      "player": "Velus Jones Jr.",
+      "gsis_id": "00-0037745",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.3
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039373|1",
+      "severity": "info",
+      "player": "Audric Estimé",
+      "gsis_id": "00-0039373",
+      "pos": "RB",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Audric Estimé (RB, NO) did not practice on the latest report (injury); projected 1.1 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-09": "DNP",
+          "2026-09-10": "DNP"
+        },
+        "injury": "",
+        "ppr": 1.1
       }
     }
   ],
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 1
+    "inactive_but_projected": 2,
+    "status_conflict": 1,
+    "sheet_status_stale": 3,
+    "dnp_but_projected": 1
   }
 }
