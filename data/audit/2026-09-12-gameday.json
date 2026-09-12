@@ -1,0 +1,248 @@
+{
+  "date": "2026-09-12",
+  "run": "gameday",
+  "season": 2026,
+  "week": 1,
+  "sheet": "primary",
+  "generated_at": "2026-09-12T22:02:07+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-12",
+    "nflverse_date": "2026-09-12",
+    "injury_week_updated": "2026-09-12T12:57:29+00:00",
+    "roster_state_updated": "2026-09-12T12:57:26+00:00"
+  },
+  "alerts": [
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0037563|1",
+      "severity": "error",
+      "player": "Malik Davis",
+      "gsis_id": "00-0037563",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Malik Davis (RB, DAL) is projected Active but roster status is IR (since 2026-09-12); eligible Wk 5",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0,
+        "slot": 2,
+        "earliest_return_week": 5
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040568|1",
+      "severity": "warning",
+      "player": "Lan Larison",
+      "gsis_id": "00-0040568",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Lan Larison (RB, NE) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.4
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036875|1|rush_att",
+      "severity": "warning",
+      "player": "Rhamondre Stevenson",
+      "gsis_id": "00-0036875",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Rhamondre Stevenson (RB, NE) Rush Att: we project 11.7, the market implies 16.5 (also Rush+Rec Yds) (odds pulled 2026-09-12 08:21-04:00)",
+      "evidence": {
+        "stat": "rush_att",
+        "stats": [
+          "rush_att",
+          "rush_rec_yds"
+        ],
+        "ours": 11.7,
+        "market_mean": 16.52307848,
+        "delta": 4.823078478,
+        "pct": 0.4122289297,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040734|1|rush_yds",
+      "severity": "warning",
+      "player": "TreVeyon Henderson",
+      "gsis_id": "00-0040734",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 1,
+      "message": "TreVeyon Henderson (RB, NE) Rush Yds: we project 41.7, the market implies 26.5 (also Rush Att) (odds pulled 2026-09-12 08:21-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_att",
+          "rush_yds"
+        ],
+        "ours": 41.7,
+        "market_mean": 26.52841615,
+        "delta": -15.17158385,
+        "pct": -0.3638269508,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041032|1|rec_yds",
+      "severity": "warning",
+      "player": "Kenyon Sadiq",
+      "gsis_id": "00-0041032",
+      "pos": "TE",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Kenyon Sadiq (TE, NYJ) Rec Yds: we project 7.9, the market implies 20.4 (odds pulled 2026-09-12 08:21-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 7.9,
+        "market_mean": 20.39451008,
+        "delta": 12.49451008,
+        "pct": 1.581583554,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037745|1",
+      "severity": "warning",
+      "player": "Velus Jones Jr.",
+      "gsis_id": "00-0037745",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.3
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0034807|1",
+      "severity": "warning",
+      "player": "Ogbo Okoronkwo",
+      "gsis_id": "00-0034807",
+      "pos": "DL",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Ogbo Okoronkwo (DL, SF) was elevated from the practice squad (2026-09-10) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-09-10"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036900|1",
+      "severity": "info",
+      "player": "Ja'Marr Chase",
+      "gsis_id": "00-0036900",
+      "pos": "WR",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Ja'Marr Chase (WR, CIN) did not practice on the latest report (NIR - Rest / Knee); projected 20.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-09": "FP",
+          "2026-09-10": "FP",
+          "2026-09-11": "DNP"
+        },
+        "injury": "NIR - Rest / Knee",
+        "ppr": 20.2
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038547|1",
+      "severity": "info",
+      "player": "Luke Schoonmaker",
+      "gsis_id": "00-0038547",
+      "pos": "TE",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Luke Schoonmaker (TE, DAL) did not practice on the latest report (injury); projected 1.6 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-10": "DNP",
+          "2026-09-11": "DNP"
+        },
+        "injury": "",
+        "ppr": 1.6
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038488|1",
+      "severity": "info",
+      "player": "Brady Russell",
+      "gsis_id": "00-0038488",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Brady Russell (RB, SEA) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0034854|1",
+      "severity": "info",
+      "player": "KhaDarel Hodge",
+      "gsis_id": "00-0034854",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 1,
+      "message": "KhaDarel Hodge (WR, SF) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "P07"
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "status_conflict": 1,
+    "sheet_status_stale": 2,
+    "market_proj_gap": 3,
+    "elevated_not_projected": 1,
+    "dnp_but_projected": 2,
+    "missing_active": 2
+  }
+}

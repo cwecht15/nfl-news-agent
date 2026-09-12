@@ -488,3 +488,46 @@
 2026-09-12 12:57:33,073 [INFO] orchestrator: HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-12.html
 2026-09-12 12:57:33,073 [INFO] orchestrator: Stats: 272 news items, 32 team highlights
 2026-09-12 12:57:33,073 [INFO] orchestrator: ============================================================
+2026-09-12 22:01:49,067 [INFO] afternoon: ============================================================
+2026-09-12 22:01:49,068 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-09-12 (week 1, Sat)
+2026-09-12 22:01:49,068 [INFO] afternoon: ============================================================
+2026-09-12 22:01:49,068 [INFO] afternoon: Step 2c: Reading market lines...
+2026-09-12 22:01:50,702 [WARNING] collectors.odds_collector: Sheets read rate-limited, retrying in 5s
+2026-09-12 22:01:55,797 [WARNING] collectors.odds_collector: Sheets read rate-limited, retrying in 10s
+2026-09-12 22:02:05,895 [ERROR] collectors.odds_collector: Odds collection failed
+Traceback (most recent call last):
+  File "/home/runner/work/nfl-news-agent/nfl-news-agent/collectors/odds_collector.py", line 794, in collect_odds
+    status = read_pull_status(gc, season, settings, now=now_dt.astimezone(ET_ZONE))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/nfl-news-agent/nfl-news-agent/collectors/odds_collector.py", line 319, in read_pull_status
+    values = _with_retry(ws.get_all_values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/nfl-news-agent/nfl-news-agent/collectors/odds_collector.py", line 303, in _with_retry
+    return fn()
+           ^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/gspread/worksheet.py", line 486, in get_all_values
+    return self.get_values(
+           ^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/gspread/worksheet.py", line 463, in get_values
+    return self.get(
+           ^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/gspread/worksheet.py", line 958, in get
+    response = self.client.values_get(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/gspread/http_client.py", line 236, in values_get
+    r = self.request("get", url, params=params)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/gspread/http_client.py", line 128, in request
+    raise APIError(response)
+gspread.exceptions.APIError: APIError: [429]: Quota exceeded for quota metric 'Read requests' and limit 'Read requests per minute per user' of service 'sheets.googleapis.com' for consumer 'project_number:504863493135'.
+2026-09-12 22:02:05,898 [INFO] afternoon: Market lines: week 1, 0 games, 0 player-stats, 0 changes (none); odds pulled unknown
+2026-09-12 22:02:05,899 [WARNING] afternoon: Odds source error: APIError: [429]: Quota exceeded for quota metric 'Read requests' and limit 'Read requests per minute per user' of service 'sheets.googleapis.com' for consumer 'project_number:504863493135'.
+2026-09-12 22:02:05,899 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-09-12 22:02:06,351 [INFO] collectors.inactives_collector: Inactives week 1: 0 games polled, 0 teams published, 0 changed
+2026-09-12 22:02:06,353 [INFO] afternoon: Inactives: week 1, 0 games polled, 0 teams published, 0 newly published/changed
+2026-09-12 22:02:06,394 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-09-12 22:02:07,337 [INFO] afternoon: Projection audit: 11 open alerts (error=1, info=4, warning=6), 0 dismissed
+2026-09-12 22:02:07,355 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-12.json
+2026-09-12 22:02:07,357 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-12.html
+2026-09-12 22:02:07,358 [INFO] afternoon: Report 2026-09-12 updated in place (pm_updated_at=2026-09-12T22:02:07+00:00)
+2026-09-12 22:02:07,358 [INFO] afternoon: Game-day inactives run complete.
