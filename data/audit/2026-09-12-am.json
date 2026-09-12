@@ -1,0 +1,293 @@
+{
+  "date": "2026-09-12",
+  "run": "am",
+  "season": 2026,
+  "week": 1,
+  "sheet": "primary",
+  "generated_at": "2026-09-12T12:32:24+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-12",
+    "nflverse_date": "2026-09-12",
+    "injury_week_updated": "2026-09-12T12:32:23+00:00",
+    "roster_state_updated": "2026-09-12T12:32:19+00:00"
+  },
+  "alerts": [
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0037563|1",
+      "severity": "error",
+      "player": "Malik Davis",
+      "gsis_id": "00-0037563",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Malik Davis (RB, DAL) is projected Active but roster status is IR (since 2026-09-12); eligible Wk 5",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0,
+        "slot": 2,
+        "earliest_return_week": 5
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0041041|1|OUT",
+      "severity": "error",
+      "player": "Oscar Delp",
+      "gsis_id": "00-0041041",
+      "pos": "TE",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Oscar Delp (TE, NO) is OUT (Hamstring) but projected for 0.9 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hamstring",
+        "practice": {
+          "2026-09-09": "DNP",
+          "2026-09-10": "DNP",
+          "2026-09-11": "DNP"
+        },
+        "ppr": 0.9
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0033375|1|OUT",
+      "severity": "error",
+      "player": "Tim Patrick",
+      "gsis_id": "00-0033375",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Tim Patrick (WR, NYJ) is OUT (Groin) but projected for 0.4 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Groin",
+        "practice": {
+          "2026-09-09": "DNP",
+          "2026-09-10": "DNP",
+          "2026-09-11": "DNP"
+        },
+        "ppr": 0.4
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040568|1",
+      "severity": "warning",
+      "player": "Lan Larison",
+      "gsis_id": "00-0040568",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Lan Larison (RB, NE) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.4
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0034161|1",
+      "severity": "warning",
+      "player": "Daniel Carlson",
+      "gsis_id": "00-0034161",
+      "pos": "K",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Daniel Carlson (K, NO) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037745|1",
+      "severity": "warning",
+      "player": "Velus Jones Jr.",
+      "gsis_id": "00-0037745",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.3
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0034807|1",
+      "severity": "warning",
+      "player": "Ogbo Okoronkwo",
+      "gsis_id": "00-0034807",
+      "pos": "DL",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Ogbo Okoronkwo (DL, SF) was elevated from the practice squad (2026-09-10) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-09-10"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036900|1",
+      "severity": "info",
+      "player": "Ja'Marr Chase",
+      "gsis_id": "00-0036900",
+      "pos": "WR",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Ja'Marr Chase (WR, CIN) did not practice on the latest report (NIR - Rest / Knee); projected 20.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-09": "FP",
+          "2026-09-10": "FP",
+          "2026-09-11": "DNP"
+        },
+        "injury": "NIR - Rest / Knee",
+        "ppr": 20.2
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038547|1",
+      "severity": "info",
+      "player": "Luke Schoonmaker",
+      "gsis_id": "00-0038547",
+      "pos": "TE",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Luke Schoonmaker (TE, DAL) did not practice on the latest report (injury); projected 1.6 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-10": "DNP",
+          "2026-09-11": "DNP"
+        },
+        "injury": "",
+        "ppr": 1.6
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0037304|1",
+      "severity": "info",
+      "player": "Connor Heyward",
+      "gsis_id": "00-0037304",
+      "pos": "RB",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Connor Heyward (RB, LV) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0041081|1",
+      "severity": "info",
+      "player": "Max Bredeson",
+      "gsis_id": "00-0041081",
+      "pos": "RB",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Max Bredeson (RB, MIN) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0041398|1",
+      "severity": "info",
+      "player": "Riley Nowakowski",
+      "gsis_id": "00-0041398",
+      "pos": "TE",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Riley Nowakowski (TE, PIT) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038488|1",
+      "severity": "info",
+      "player": "Brady Russell",
+      "gsis_id": "00-0038488",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Brady Russell (RB, SEA) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0034854|1",
+      "severity": "info",
+      "player": "KhaDarel Hodge",
+      "gsis_id": "00-0034854",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 1,
+      "message": "KhaDarel Hodge (WR, SF) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "P07"
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "status_conflict": 1,
+    "out_but_projected": 2,
+    "sheet_status_stale": 2,
+    "missing_active": 6,
+    "elevated_not_projected": 1,
+    "dnp_but_projected": 2
+  }
+}
