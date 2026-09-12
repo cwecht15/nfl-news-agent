@@ -257,6 +257,7 @@ SECTION_TITLES = {
     "depth_chart_movement": "Depth Chart Movement",
     "projection_movers": "Today's Projection Movers",
     "projection_audit": "Projection Audit",
+    "line_movement": "Line Movement",
     "league_wide": "League-Wide Notes",
     "fantasypoints": "FantasyPoints Player Notes",
 }
@@ -273,6 +274,7 @@ SECTION_ORDER = [
     "game_day_inactives",      # in-season only, game days
     "depth_chart_movement",
     "projection_movers",
+    "line_movement",           # in-season only
     "projection_audit",        # in-season only
     "league_wide",
     "fantasypoints",
@@ -733,6 +735,33 @@ def _build_projection_movers_section(movers: list[dict]) -> dict[str, Any]:
     return {"summary": summary, "count": len(movers)}
 
 
+def _trim_odds_payload(odds: Optional[dict[str, Any]]) -> dict[str, Any]:
+    """Keep the report-sized slice of the odds week file.
+
+    The full payload carries ~1,200 player-stat entries plus a per-game price
+    series; reports are retained for 90 days (`storage.reports_to_keep`), so
+    only the pull metadata, each game's current/opening line and the typed
+    changes are stored. The complete file stays at data/odds/<season>/wkNN.json
+    and is what the dashboard reads.
+    """
+    if not odds:
+        return {}
+    games = {}
+    for key, g in (odds.get("games") or {}).items():
+        games[key] = {k: g.get(k) for k in
+                      ("away", "home", "kickoff_et", "opened", "current",
+                       "sharp", "sheet", "implied")}
+    return {
+        "season": odds.get("season"),
+        "week": odds.get("week"),
+        "updated_at": odds.get("updated_at"),
+        "pull": odds.get("pull") or {},
+        "games": games,
+        "changes": list(odds.get("changes") or []),
+        "prop_count": len(odds.get("props") or {}),
+    }
+
+
 def _ordered_sections(sections: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
     """Reorder section dict according to SECTION_ORDER, with unknown keys at the tail."""
     ordered: dict[str, dict[str, Any]] = {}
@@ -761,6 +790,8 @@ def build_report(
     audit_alerts: Optional[list[dict]] = None,
     season_meta: Optional[dict[str, Any]] = None,
     inactives: Optional[dict[str, Any]] = None,
+    line_movement: Optional[dict[str, Any]] = None,
+    odds: Optional[dict[str, Any]] = None,
 ) -> DailyReport:
     """Build a DailyReport from summarized data.
 
@@ -774,6 +805,11 @@ def build_report(
     fp_section is the optional output of
     `processing.fp_section.build_fp_section`, rendered as a regular section
     via the standard summary+sources renderer.
+
+    line_movement is the optional output of
+    `processing.odds_section.build_odds_section` (same shape as fp_section);
+    odds is the raw `data/odds/<season>/wkNN.json` payload, trimmed before it
+    is stored on the report.
     """
     source_counts: dict[str, int] = {}
     for item in news_items:
@@ -796,6 +832,8 @@ def build_report(
         sections["projection_audit"] = _build_audit_section(audit_alerts)
     if inactives is not None:
         sections["game_day_inactives"] = _build_inactives_section(inactives)
+    if line_movement:
+        sections["line_movement"] = line_movement
 
     section_sources = _build_section_sources(news_items)
     normalized_sections: dict[str, dict[str, Any]] = {}
@@ -831,6 +869,7 @@ def build_report(
         audit_alerts=audit_alerts or [],
         season_meta=season_meta or {},
         inactives=inactives or {},
+        odds=_trim_odds_payload(odds),
     )
 
     return report

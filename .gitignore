@@ -12,12 +12,24 @@ data/reports/
 data/logs/
 data/projections/
 data/depth_charts/
+# In-season data (CI force-adds these; local runs keep them out of git)
+data/schedule/
+data/weekly_projections/
+data/roster/
+data/injuries/
+data/inactives/
+data/audit/
+data/odds/
 data/yt_reports/
 data/podcast_reports/
 data/twitter_reports/
 data/pipeline_status.json
 data/flagged_findings.json
 data/notebooklm_pushed.json
+data/notebooklm_notebook_cache.json
+data/notebooklm_pending.json
+config/notebooklm_notebooks.json
+notebooklm_pusher/mcp_server.log
 *.mp3
 *.m4a
 *.wav
@@ -39,6 +51,7 @@ whisper_models/
 .vscode/
 .idea/
 .claude/
+.mcp.json
 *.swp
 *.swo
 

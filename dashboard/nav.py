@@ -5,8 +5,8 @@ can't hide or group anything. This module builds the grouped, phase-aware
 sidebar instead:
 
 * **This Week** — Daily Report, plus the in-season working pages
-  (Injury Report, Inactives, Roster State, Projection Audit) that only
-  exist when ``season.phase == in_season``.
+  (Injury Report, Inactives, Roster State, Projection Audit, Line Movement)
+  that only exist when ``season.phase == in_season``.
 * **Sources** — the on-demand LLM report tabs (Twitter / YouTube / Podcast).
 * **Projections & Depth** — Projections, Depth Charts, Team View.
 * **Tools** — Flagged, Trends, Digest; Transcripts + Config (local only);
@@ -42,6 +42,7 @@ INJURY_REPORT = "views/injury_report.py"
 INACTIVES = "views/inactives.py"
 ROSTER_STATE = "views/roster_state.py"
 PROJECTION_AUDIT = "views/projection_audit.py"
+LINE_MOVEMENT = "views/line_movement.py"
 TWITTER_REPORT = "views/twitter_report.py"
 YT_REPORT = "views/yt_report.py"
 PODCAST_REPORT = "views/podcast_report.py"
@@ -109,6 +110,7 @@ def build_navigation(hidden: bool = False):
             _page(INACTIVES, "Inactives", "🚫"),
             _page(ROSTER_STATE, "Roster State", "🔁"),
             _page(PROJECTION_AUDIT, "Projection Audit", "✅"),
+            _page(LINE_MOVEMENT, "Line Movement", "📉"),
         ]
 
     sources = [

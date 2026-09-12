@@ -28,6 +28,7 @@ clears the cache after editing.
 | `roster` | `nflverse_url`, `ir_min_games` (4), `max_elevations` (3), `confirm_window_days` (3 — news-only events older than this become "unconfirmed" audit alerts), `apply_reported_events` |
 | `injury_report` | `enabled`, `sources` (precedence: `team_sites`, `rotowire`, `nflcom`), `team_site_workers` |
 | `projection_audit` | `enabled`, `positions` |
+| `odds` | Read-only view of the `NFL Odds` project's sheets. `odds_sheet_id` + `game_lines_tab` + `status_tab`/`status_row` (the sportsbook row), `history_sheet_id` + `history_tab_prefix`; `max_pull_age_hours` (past this the lines label themselves stale and the audit's market alerts go quiet), `min_books`, `thresholds` (`spread`/`total`/`moneyline` plus a per-stat `props` map and `market_only_min`), and `report` (`max_games`/`max_props`/`llm_lede`). No API key — nothing here calls a betting API. |
 | `inactives` | `enabled` — game-day inactives from ESPN game rosters (pipeline step 5e + `.github/workflows/inactives.yml`) |
 
 ### `sources.yaml` — feeds & sources (no code changes needed to edit)

@@ -1546,10 +1546,57 @@ def _in_season_game_lines() -> Optional[dict[str, str]]:
             when = " ".join(x for x in (game.get("day", ""), g.get("date", ""), game.get("time", "")) if x).strip()
             verb = "hosts" if g["home_away"] == "Home" else "visits"
             lines[abbr] = f"Week {ctx.week}: {abbr} {verb} {opp}" + (f" on {when}" if when else "")
+        _append_market_context(lines, ctx)
         return lines
     except Exception as e:  # noqa: BLE001 — context is a bonus, never a blocker
         logger.warning("In-season game context unavailable: %s", e)
         return None
+
+
+def _append_market_context(lines: dict[str, str], ctx) -> None:
+    """Add this week's market line to each team's one-line game context.
+
+    Reads the file `collectors.odds_collector` wrote earlier in the run, never
+    the sheet — so the prompt never depends on step ordering or a live Sheets
+    call, and a failed odds read simply leaves the schedule-only text in place.
+
+    Produces e.g. "... — LAR -3.5, total 48 (opened 49, down 1)". Only a line
+    that actually MOVED gets the parenthetical; a static line is context the
+    prompt is told not to restate.
+    """
+    try:
+        from collectors.odds_collector import load_week_file, game_line_for_team
+
+        week_data = load_week_file(ctx.season, ctx.week)
+        if not week_data or (week_data.get("pull") or {}).get("stale_reason"):
+            return
+        for abbr in list(lines):
+            g = game_line_for_team(week_data, abbr)
+            if not g:
+                continue
+            cur, opened = g.get("current") or {}, g.get("opened") or {}
+            sp, tot = cur.get("spread_home"), cur.get("total")
+            if sp is None and tot is None:
+                continue
+            bits = []
+            if sp is not None:
+                # Always the HOME team's signed spread, the same convention the
+                # Line Movement bullets use, so the "opened" value needs no
+                # second team name to disambiguate it.
+                bits.append(f"{g['home']} {sp:+g}")
+                osp = opened.get("spread_home")
+                if osp is not None and abs(sp - osp) >= 0.5:
+                    bits[-1] += f" (opened {osp:+g})"
+            if tot is not None:
+                bits.append(f"total {tot:g}")
+                otot = opened.get("total")
+                if otot is not None and abs(tot - otot) >= 1.0:
+                    d = "down" if tot < otot else "up"
+                    bits[-1] += f" ({d} {abs(tot - otot):g} from {otot:g})"
+            if bits:
+                lines[abbr] += " — " + ", ".join(bits)
+    except Exception as e:  # noqa: BLE001 — market context is a bonus, never a blocker
+        logger.warning("Market context unavailable for Team Notes: %s", e)
 
 
 def _game_line(game_lines: Optional[dict[str, str]], team: str) -> Optional[str]:
@@ -1576,7 +1623,7 @@ Today's item:
 Game context: {game_line}. The reader sets THIS WEEK's fantasy/DFS projections.
 
 Real news = a usage or role signal at a skill position (snap/target/carry/red-zone share, a committee split, a pecking-order change, a new starter), an injury-driven role change (who absorbs the work), a game-plan or matchup detail for this game (pace, pass rate, personnel, weather, a plan to feature or limit someone), a practice-squad elevation or a return from IR/PUP that changes a role, a coaching decision — and the item must name a {team} player, coach, or executive and say something specific about them.
-NOT real news = the schedule or opponent restated, generic previews or predictions with no new information, betting-odds chatter, historical trivia, podcast promos, paywalled excerpts that only describe what the article will cover, non-committal coach quotes ("we'll see", "day-to-day") with no role implication, items where the only {team}-related "subject" is the journalist or outlet, items where you would have to write "the excerpt does not specify any {team} player / decision / detail."
+NOT real news = the schedule or opponent restated, generic previews or predictions with no new information, general betting chatter or a line simply quoted, historical trivia, podcast promos, paywalled excerpts that only describe what the article will cover, non-committal coach quotes ("we'll see", "day-to-day") with no role implication, items where the only {team}-related "subject" is the journalist or outlet, items where you would have to write "the excerpt does not specify any {team} player / decision / detail."
 
 If noteworthy: write 1-2 sentences covering what happened and what it means for this week's role/usage, and end with the citation [1].
 If NOT noteworthy: respond with exactly "SKIP" and nothing else. When in doubt, SKIP — a missing team note is far better than a bullet that admits it has no {team} content.
@@ -1651,10 +1698,10 @@ Rules:
 - Lead each bullet with the most-specific named subject (player, coach, or executive). For genuinely team-level points (game plan, pace), lead with the topic in bold.
 - Every bullet must end with at least one [N] citation pointing to the input item(s) that source it.
 - Do NOT restate transactions (signings, releases, trades, contract terms) or injury-status updates (questionable/doubtful/out, practice participation) — those have their own report sections. Mention one ONLY to add the role/usage angle those sections would not (e.g. "with X out, Y becomes the early-down back").
-- Do NOT write a bullet that merely restates the schedule, opponent, kickoff time, spread, or a generic preview — that is context, not a development.
+- Do NOT write a bullet that merely restates the schedule, opponent, kickoff time, spread, total, or a generic preview — that is context, not a development. The ONE exception: when the game context above reports that the line or total MOVED, you may use that move as evidence for a game-script or role claim ("the total is down 3 since Tuesday, pointing to a run-heavier script"). Cite the move, never just the number.
 - Surface NON-OBVIOUS developments; do NOT re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1").
 - NEVER invent a player's first name, jersey number, position, stat, or injury. If the source gives only a last name (e.g. "Jennings"), use ONLY the last name (e.g. "**Jennings (RB)**"). A wrong first name is worse than omitting it. Same for coaches and execs.
-- Skip pure trivia, betting chatter, power rankings, and filler.
+- Skip pure trivia, power rankings, filler, and betting talk generally (picks, best bets, prop plays) — a significant line or total move used as evidence for usage or game script is the only market content that belongs here.
 - DROP any item whose {team}-relevant content boils down to "the excerpt does not specify any {team} player / decision / detail" or where the only named subject is the journalist or outlet. Never write a bullet about the absence of information.
 - Use only the information in today's items. If a detail is missing for an otherwise-substantive bullet, say it is not specified.
 - Keep the entire response under 280 words. This is a ceiling, not a target — prefer a few high-signal bullets over many thin ones.

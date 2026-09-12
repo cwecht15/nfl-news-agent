@@ -32,6 +32,13 @@ openai:
       # wider 12-item pools, 1600 left some teams a single cut-off bullet
       # (reasoning ate the budget); 3200 gives output room to breathe.
       max_output_tokens: 3200
+    # Line Movement lede — a short "what moved and what the news says" pass
+    # over the deterministic mover list. Small on purpose: the section is
+    # fully rendered without it, so this only adds the connective tissue.
+    line_movement:
+      model: null
+      reasoning_effort: "low"
+      max_output_tokens: 900
 
 ollama:
   model: "gemma3:4b"
@@ -257,9 +264,76 @@ injury_report:
 projection_audit:
   enabled: true
   positions: [QB, RB, WR, TE, K]
+  # Market cross-checks (need the `odds` block below). Every verdict here is
+  # one the NFL Odds project already computed against calibrated bands, so
+  # there is no second set of thresholds to tune.
+  market:
+    enabled: true
+    # Market_Check flags worth an alert. AMBER fires on ~100 player-stats a
+    # week — informational, not actionable — so only RED is surfaced.
+    gap_flags: [RED]
+    max_gap_alerts: 25
+    # Nearly every active skill player carries an anytime-TD price, so a bare
+    # TD quote proves nothing. Require a real rate before flagging a player as
+    # "quoted but not projected"; a yardage or reception line has no floor
+    # because having one at all means the market expects volume.
+    market_only_min:
+      anytime_td: 0.20
+      rush_tds: 0.20
+      rec_tds: 0.20
+      pass_tds: 0.50
 
 inactives:
   # Game-day inactives from ESPN's per-game rosters (active flag before
   # kickoff, didNotPlay after). Polled by the pipeline steps and by the
   # game-day cron in .github/workflows/inactives.yml.
   enabled: true
+
+odds:
+  # Read-only view of the NFL Odds project (Projects/NFL Odds), which pulls The
+  # Odds API and prices it against these same weekly sheets. The news agent
+  # never calls a betting API — no key, no credits. The same fp-data service
+  # account already reads both books.
+  enabled: true
+  odds_sheet_id: "1VOziAer_tNTlcvsHsmvY1M04-y0dx_D2lXhAYNkdw2w"
+  game_lines_tab: SB_GameLines
+  status_tab: Pull_Status
+  status_row: 3                 # sportsbook row (Kalshi/Polymarket = 2, projections = 4)
+  history_sheet_id: "16dHZfn082zszTW1dJY3d_OKnkgaBdMUC0om1FFOLlMc"
+  history_tab_prefix: ""        # tab per season-week: 2026_W01
+  # Past this the lines are labelled stale in the report and stop firing audit
+  # alerts. The odds repo pulls Tue 9a / Thu 4p / Sat 9p / Sun 11:45a+7:30p /
+  # Mon 7:30p ET, so a Wed or Fri report legitimately sees a ~24h-old pull.
+  max_pull_age_hours: 30
+  min_books: 2                  # fewer books quoting -> THIN, never a change
+  thresholds:                   # movement worth a bullet
+    spread: 0.5
+    total: 1.0
+    moneyline: 15               # American-odds cents
+    props:
+      pass_yds: 8
+      pass_att: 1.5
+      completions: 1.0
+      pass_tds: 0.15
+      ints: 0.1
+      rush_att: 1.5
+      rush_yds: 6
+      rush_tds: 0.06
+      receptions: 0.5
+      rec_yds: 6
+      rec_tds: 0.05
+      rush_rec_yds: 8
+      anytime_td: 0.10   # expected-TD rate (lambda), not a probability
+    # Floor for a "quoted but not projected" bullet. Nearly every active skill
+    # player carries an anytime-TD price, so a bare low TD quote proves nothing;
+    # a yardage or reception line has no floor because having one at all means
+    # the market expects volume.
+    market_only_min:
+      anytime_td: 0.20
+      rush_tds: 0.20
+      rec_tds: 0.20
+      pass_tds: 0.50
+  report:
+    max_games: 16
+    max_props: 15
+    llm_lede: true              # one small call; false = deterministic only

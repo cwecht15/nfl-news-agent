@@ -172,3 +172,36 @@ use a paid RSS bridge.
 | `fantasypoints_collector` | FantasyPoints v2 API | `fantasypoints.json` | API auth headers |
 | `youtube_collector` | 32 team YouTube channels | `youtube.json` + `transcripts/` | residential IP |
 | `depth_chart_collector` | OurLads | `depth_charts/<date>.json` | none |
+
+## Market lines — `odds_collector.py` *(in-season)*
+
+The one collector that reads **Google Sheets, not the web**, and the one that
+adds no external API cost at all. The sibling `NFL Odds` project
+(`Projects/NFL Odds`) pulls The Odds API on a 500-credit/month key and prices
+every market against the same weekly projection sheets this repo snapshots;
+this collector reads what it publishes.
+
+- **`collect_odds(date_str=None, week=None, season=None, settings=None, gc=None,
+  now=None, write=True) -> dict`** — three gspread reads (each with 429 backoff,
+  since the local task, CI and a Streamlit visitor share one project quota):
+  `SB_GameLines`, the "NFL Market History" workbook's `<season>_W<ww>` tab, and
+  `Pull_Status` row 3. Folds them into `data/odds/<season>/wkNN.json` and
+  returns `{date, season, week, file, games, props, changes, pull, errors}`.
+  Never raises.
+- **`read_game_lines` / `read_prop_history` / `read_pull_status`** — the three
+  reads, split out so tests can monkeypatch them. Columns are looked up **by
+  header name**, not index: the odds repo appends columns.
+- **`collapse_prop_history(rows, min_books=2)`** — per-pull rows to
+  `{"<gsis>|<stat>": {opened, previous, current, ours, flag, ...}}`. `previous`
+  is resolved **per key**, because a `--merge` pull logs only the markets it
+  refreshed; globally it would look like every other prop vanished.
+- **`merge_into_week(...) -> (data, changes)`** — day-over-day diff producing
+  typed records (`spread_move`, `total_move`, `ml_move`, `prop_move`,
+  `prop_new`, `sheet_drift`, `market_only`) with a prebuilt `message`, the
+  same contract `injury_report_collector.diff_week` uses.
+- Teams are stored **news-style**; `SB_GameLines` is proj-style and the history
+  tab carries both, so `to_news(x, "proj")` runs at the boundary.
+- Consumed by `processing/odds_section.py` (report section), the Team Notes
+  prompt, `processing/projection_audit.check_market`, and the Line Movement
+  dashboard page — all of which read the **file**, never the sheet.
+

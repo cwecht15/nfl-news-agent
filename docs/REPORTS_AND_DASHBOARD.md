@@ -116,12 +116,13 @@ file loaders shared by Home and the four in-season pages.
 
 | Page | Purpose |
 |------|---------|
-| `home.py` | Default page. In-season week hub: week / day role / working sheet metrics, today's report stamp (AM run + evening update), counts with `st.page_link`s to Roster State / Injury Report / Inactives / Projection Audit, this week's games + byes. Offseason: info line + PDF export. |
+| `home.py` | Default page. In-season week hub: week / day role / working sheet metrics, today's report stamp (AM run + evening update), counts with `st.page_link`s to Roster State / Injury Report / Inactives / Projection Audit / Line Movement, this week's games + byes. Offseason: info line + PDF export. |
 | `daily_report.py` | The daily briefing: date picker, caption (week · day role · AM/evening run times), search (paragraph filtering on long summaries), source alerts, all sections rendered flaggable with `[N]` linkification (0-item sections open collapsed), Team Notes, optional YouTube subsection. Projection Alerts (transaction reconciler) render only in the offseason. |
 | `injury_report.py` | In-season. Weekly practice grid + game status per listed player from `data/injuries/<season>/wkNN.json`, source-conflicts expander. |
 | `inactives.py` | In-season. Game-day inactives from `data/inactives/<season>/wkNN.json`, skill-position filter. |
 | `roster_state.py` | In-season. `data/roster/state.json` player table (status, IR date, eligible week, elevations used) + recent `events.jsonl` feed. |
 | `projection_audit.py` | In-season. Latest `data/audit/` run: severity/type filters, per-alert Dismiss + note, Dismissed/Restore list, cloud "Save dismissals to repo". |
+| `line_movement.py` | In-season. `data/odds/<season>/wkNN.json`: game lines with arrows vs the opening line, the sharp book and the projection sheet's own line; prop movers filtered by team / position / stat; the AMBER / RED / MKT-ONLY divergence list; and the raw typed changes the report section is built from. Reads the file only — a rerun never spends a Sheets read. |
 | `team_view.py` | Per-team drilldown across a 1–30 day window: team highlight per day plus matching raw news items. |
 | `projections.py` | 7 tabs — Today's Changes, Fantasy Rankings, Weekly Summary, Transactions, Player Lookup, Player History, Team Projections — over the phase-aware source in `dashboard/projection_data.py`. Transactions tab is paused in-season (the reconciler reads the frozen preseason snapshot; Projection Audit covers it). Tab bodies are `_render_*()` functions so an empty state returns instead of `st.stop()`. |
 | `depth_charts.py` | Changes tab (diff two dates, annotated with news, filter by team/position; in-season reserve-list crossings shown separately) + Browse tab (snapshot by team/position). Changes body is `_render_changes()` so its early exits no longer blank Browse. |

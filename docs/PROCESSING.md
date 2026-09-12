@@ -134,7 +134,7 @@ string rather than overspending. Rate limits retry up to 3× with 60s backoff.
 `run_summarization(deduped_news)` is the entry point the orchestrator calls; it
 returns `{sections, team_highlights, llm_usage}`.
 
-## Section builders — `fp_section.py`, `yt_section.py`
+## Section builders — `fp_section.py`, `yt_section.py`, `odds_section.py`
 
 These build optional report sections on top of the summarizer:
 
@@ -149,6 +149,30 @@ These build optional report sections on top of the summarizer:
   `pre_filtered=True` skips the press-relevance gate (caller curated the list).
   Used by both `run_daily.py --include-yt-section` and the dashboard's YouTube
   Report tab.
+
+### `odds_section.build_odds_section(...)` — Line Movement
+
+Turns the typed changes in `data/odds/<season>/wkNN.json` into the report
+section, in two layers:
+
+1. **Deterministic pairing**, which carries the section. Game-level moves match
+   on the team tag; player moves require the player actually named in a story's
+   title/body (a team tag alone would attach every club story to every one of
+   its props). Structured same-day evidence is joined too — the player's own
+   injury/roster/inactive rows first, then **teammates**, because a backup's
+   rushing line moves when the starter is ruled out. Same-position teammates
+   rank ahead of the rest; a backup QB being inactive says nothing about a
+   running back's line.
+2. **An optional LLM lede** — one small call (`openai.sections.line_movement`,
+   ~$0.0015) over the paired list, told to say a move is unexplained rather
+   than invent a cause. The afternoon run passes `use_llm=False`; failure is
+   caught and the section renders exactly as it would have without it.
+
+Correlated stats collapse per player (Rush Att / Rush Yds / Rush+Rec Yds move
+together and would otherwise be three near-identical bullets repeating the same
+paired news). Output shape matches `fp_section` — `{"summary",
+"numbered_sources", "sources", "count"}` — so the `[N]` linkifier and the HTML
+footer work unchanged.
 
 ## Source health — `source_health.py`
 

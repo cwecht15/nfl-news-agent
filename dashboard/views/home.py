@@ -86,18 +86,22 @@ def _render_week_hub() -> None:
         audit_errors = sum(1 for a in audit_alerts if a.get("severity") == "error")
         audit_warnings = sum(1 for a in audit_alerts if a.get("severity") == "warning")
 
-        m1, m2, m3, m4 = st.columns(4)
+        line_moves = len((getattr(report, "odds", None) or {}).get("changes") or [])
+
+        m1, m2, m3, m4, m5 = st.columns(5)
         m1.metric("Roster moves", len(report.roster_events or []))
         m2.metric("Injury report changes", len(report.injury_changes or []))
         m3.metric("Inactives", inactives_count)
         m4.metric("Audit alerts", len(audit_alerts), delta=f"{audit_errors} errors · {audit_warnings} warnings", delta_color="off")
+        m5.metric("Line moves", line_moves)
 
-        l1, l2, l3, l4, l5 = st.columns(5)
+        l1, l2, l3, l4, l5, l6 = st.columns(6)
         l1.page_link(nav.DAILY_REPORT, label="Daily Report", icon="📰")
         l2.page_link(nav.ROSTER_STATE, label="Roster State", icon="🔁")
         l3.page_link(nav.INJURY_REPORT, label="Injury Report", icon="🩹")
         l4.page_link(nav.INACTIVES, label="Inactives", icon="🚫")
         l5.page_link(nav.PROJECTION_AUDIT, label="Projection Audit", icon="✅")
+        l6.page_link(nav.LINE_MOVEMENT, label="Line Movement", icon="📉")
 
     audit_latest = latest_audit()
     if audit_latest:

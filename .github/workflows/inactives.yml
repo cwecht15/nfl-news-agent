@@ -91,7 +91,7 @@ jobs:
         run: |
           git config user.name "nfl-news-agent-bot"
           git config user.email "nfl-news-agent-bot@users.noreply.github.com"
-          for path in data/inactives data/audit data/reports data/logs; do
+          for path in data/inactives data/audit data/odds data/reports data/logs; do
             if [ -e "$path" ]; then git add -f "$path"; fi
           done
           if git diff --staged --quiet; then

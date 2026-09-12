@@ -24,10 +24,12 @@ PROJECT_ROOT = Path(__file__).parent.parent
 STATUS_FILE = PROJECT_ROOT / "data" / "pipeline_status.json"
 
 # Markers written by scripts/run_daily.py via write_status(). The in-season
-# sub-steps (5b/5c/5e/5d) sit between Step 5 and Step 6 in run order.
+# sub-steps (5b/5c/5e/5d) sit between Step 5 and Step 6 in run order; market
+# lines (2c) run before summarization so Team Notes can use them.
 _STEPS = [
     ("Step 1", "Collecting from all sources"),
     ("Step 2", "Deduplicating stories"),
+    ("Step 2c", "Reading market lines"),
     ("Step 3", "Summarizing"),
     ("Step 4", "Snapshotting projections"),
     ("Step 5", "Updating depth charts"),
@@ -35,6 +37,7 @@ _STEPS = [
     ("Step 5c", "Collecting injury reports"),
     ("Step 5e", "Checking game-day inactives"),
     ("Step 5d", "Auditing weekly projections"),
+    ("Step 6c", "Building Line Movement section"),
     ("Step 6", "Building daily report"),
     ("Step 7", "Cleaning up old data"),
 ]

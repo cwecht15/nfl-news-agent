@@ -188,7 +188,8 @@ def load_inputs(ctx, date_str: str, settings: Optional[dict] = None) -> dict:
     settings = settings or get_settings()
     inputs: dict[str, Any] = {
         "snapshot": None, "state": None, "nflverse": None, "nflverse_date": None,
-        "injuries": None, "ourlads": None, "schedule": [], "inactives": {}, "errors": [],
+        "injuries": None, "ourlads": None, "schedule": [], "inactives": {},
+        "odds": None, "errors": [],
     }
     try:
         from processing.weekly_projections import load_active_snapshot
@@ -226,6 +227,11 @@ def load_inputs(ctx, date_str: str, settings: Optional[dict] = None) -> dict:
         inputs["inactives"] = inactive_players_for_week(ctx.season, ctx.week) if ctx.week else {}
     except Exception as e:  # noqa: BLE001
         inputs["errors"].append(f"inactives: {e}")
+    try:
+        from collectors.odds_collector import load_week_file as load_odds_week
+        inputs["odds"] = load_odds_week(ctx.season, ctx.week) if ctx.week else None
+    except Exception as e:  # noqa: BLE001
+        inputs["errors"].append(f"odds: {e}")
     return inputs
 
 
@@ -584,6 +590,154 @@ def check_unconfirmed(state: Optional[dict], date_str: str, window_days: int, we
     return alerts
 
 
+def check_market(rows: dict[str, dict], output: dict, odds: Optional[dict],
+                 week: int, sheet: str, cfg: Optional[dict] = None) -> list[dict]:
+    """Cross-check the sheet against the betting market.
+
+    Everything here is a verdict the NFL Odds project already computed against
+    calibrated bands — ``FP Flag`` for the game line and ``flag``
+    (AMBER / RED / MKT-ONLY / THIN) per player-stat — so this does not invent a
+    second set of thresholds.
+
+    Nothing fires when the pull is stale: a line from the wrong week, or one
+    that predates the last two days of news, would produce a wall of alerts
+    about a market that has simply not been re-read.
+    """
+    alerts: list[dict] = []
+    if not odds:
+        return alerts
+    cfg = cfg or {}
+    if not cfg.get("enabled", True):
+        return alerts
+    pull = odds.get("pull") or {}
+    if pull.get("stale_reason"):
+        return alerts
+
+    pulled = pull.get("pulled_at") or ""
+    as_of = f" (odds pulled {pulled.replace('T', ' ')})" if pulled else ""
+
+    # 1. The sheet's own spread / total has drifted from the market.
+    for key, g in (odds.get("games") or {}).items():
+        sh = g.get("sheet") or {}
+        flag = str(sh.get("fp_flag") or "")
+        if not flag:
+            continue
+        team_proj = to_proj(str(g.get("home") or ""), "news")
+        alerts.append(_alert(
+            "sheet_line_stale", SEVERITY_WARNING, team=team_proj, sheet=sheet, week=week,
+            key_tail=key,
+            message=f"{key}: the sheet has {sh.get('spread_home')} / {sh.get('ou')}, "
+                    f"the market {g.get('current', {}).get('spread_home')} / "
+                    f"{g.get('current', {}).get('total')} ({flag}){as_of}",
+            evidence={"game": key, "fp_flag": flag,
+                      "sheet_spread": sh.get("spread_home"), "sheet_ou": sh.get("ou"),
+                      "market_spread": (g.get("current") or {}).get("spread_home"),
+                      "market_total": (g.get("current") or {}).get("total"),
+                      "spread_delta": sh.get("fp_spread_delta"),
+                      "total_delta": sh.get("fp_total_delta")},
+        ))
+
+    # 2/3. Per-player verdicts. The market quotes a player across several
+    # correlated stats (Rush Att / Rush Yds / Rush+Rec Yds all move together),
+    # so these collapse to ONE alert per player naming the worst stat.
+    gap_flags = {str(f).upper() for f in (cfg.get("gap_flags") or ["RED"])}
+    max_gaps = int(cfg.get("max_gap_alerts", 25))
+    # A player with only an anytime-TD price is quoted for nearly every active
+    # skill player. One carrying a yardage or reception line has real expected
+    # volume — that is the version worth an alert.
+    min_mkt = {k: float(v) for k, v in (cfg.get("market_only_min") or {}).items()}
+
+    gap_by_player: dict[str, dict] = {}
+    only_by_player: dict[str, dict] = {}
+
+    for p in (odds.get("props") or {}).values():
+        if p.get("thin"):
+            continue
+        flag = str(p.get("flag") or "").upper()
+        gid = str(p.get("gsis_id") or "")
+        pos = str(p.get("pos") or "")
+        stat = str(p.get("stat") or "")
+        mkt = (p.get("current") or {}).get("mkt_mu")
+        ours = p.get("ours")
+        on_sheet = gid in rows
+
+        if flag == "MKT-ONLY":
+            # MKT-ONLY covers "no projection for this stat", which includes a
+            # player projected 0. Only a player with NO row at all is news —
+            # the rest is the sheet legitimately zeroing a stat.
+            if on_sheet or pos not in ("QB", "RB", "WR", "TE"):
+                continue
+            if mkt is None or float(mkt) < min_mkt.get(stat, 0.0):
+                continue
+            best = only_by_player.get(gid)
+            # Prefer a volume stat over a TD rate when both are quoted.
+            rank = 0 if stat in ("anytime_td", "rush_tds", "rec_tds", "pass_tds") else 1
+            if not best or rank > best["rank"]:
+                only_by_player[gid] = {"p": p, "stat": stat, "mkt": mkt, "rank": rank}
+        elif flag in gap_flags and on_sheet and ours:
+            pct = abs(float(p.get("pct") or 0))
+            best = gap_by_player.get(gid)
+            if not best or pct > best["pct"]:
+                gap_by_player[gid] = {"p": p, "stat": stat, "mkt": mkt, "ours": ours,
+                                      "pct": pct, "stats": (best or {}).get("stats", set())}
+            gap_by_player[gid]["stats"] = (best or {}).get("stats", set()) | {stat}
+
+    gaps = []
+    for gid, g in gap_by_player.items():
+        p = g["p"]
+        name = p.get("player") or gid
+        pos, team_proj = str(p.get("pos") or ""), to_proj(str(p.get("team") or ""), "news")
+        others = sorted(g["stats"] - {g["stat"]})
+        also = f" (also {', '.join(_stat_label(x) for x in others)})" if others else ""
+        gaps.append((g["pct"], _alert(
+            "market_proj_gap", SEVERITY_WARNING, player=name,
+            gsis_id=gid if gid.startswith("00-") else None, pos=pos,
+            team=team_proj, sheet=sheet, week=week, key_tail=g["stat"],
+            message=f"{name} ({pos}, {team_proj}) {_stat_label(g['stat'])}: "
+                    f"we project {_fmt_mkt(g['stat'], g['ours'])}, the market implies "
+                    f"{_fmt_mkt(g['stat'], g['mkt'])}{also}{as_of}",
+            evidence={"stat": g["stat"], "stats": sorted(g["stats"]), "ours": g["ours"],
+                      "market_mean": g["mkt"], "delta": p.get("delta"),
+                      "pct": p.get("pct"), "flag": p.get("flag")},
+        )))
+
+    onlys = []
+    for gid, o in only_by_player.items():
+        p = o["p"]
+        name = p.get("player") or gid
+        pos, team_proj = str(p.get("pos") or ""), to_proj(str(p.get("team") or ""), "news")
+        onlys.append((float(o["mkt"] or 0), _alert(
+            "market_only_player", SEVERITY_INFO, player=name,
+            gsis_id=gid if gid.startswith("00-") else None, pos=pos,
+            team=team_proj, sheet=sheet, week=week, key_tail=o["stat"],
+            message=f"{name} ({pos}, {team_proj}) is quoted by the market "
+                    f"({_stat_label(o['stat'])} {_fmt_mkt(o['stat'], o['mkt'])}) "
+                    f"but has no row on the sheet{as_of}",
+            evidence={"stat": o["stat"], "market_mean": o["mkt"], "flag": p.get("flag"),
+                      "n_books": (p.get("current") or {}).get("n_books")},
+        )))
+
+    gaps.sort(key=lambda t: -t[0])
+    onlys.sort(key=lambda t: -t[0])
+    alerts.extend(a for _m, a in gaps[:max_gaps])
+    alerts.extend(a for _m, a in onlys[:max_gaps])
+    return alerts
+
+
+def _fmt_mkt(stat: str, v) -> str:
+    """Sheet-readable number: TD rates to 2 dp, everything else to 1."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return str(v)
+    return f"{f:.2f}" if stat in ("anytime_td", "rush_tds", "rec_tds", "pass_tds", "ints") else f"{f:.1f}"
+
+
+def _stat_label(stat: str) -> str:
+    from collectors.odds_collector import STAT_LABEL
+    return STAT_LABEL.get(stat, stat)
+
+
 def check_stale_secondary(ctx, week: int, sheet: str) -> list[dict]:
     if not getattr(ctx, "read_secondary", False):
         return []
@@ -640,6 +794,8 @@ def run_audit(ctx, date_str: Optional[str] = None, run: str = "am",
         alerts += check_schedule(snapshot, rows, output, schedule, week, sheet)
         alerts += check_ir_returns(rows, inputs.get("state"), week, sheet)
         alerts += check_unconfirmed(inputs.get("state"), date_str, window_days, week, sheet)
+        alerts += check_market(rows, output, inputs.get("odds"), week, sheet,
+                               cfg=(cfg.get("market") or {}))
         alerts += check_stale_secondary(ctx, week, sheet)
     else:
         errors.append("no active weekly snapshot - sheet checks skipped")

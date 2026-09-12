@@ -208,6 +208,66 @@ def _load_existing_tweets(date_str: str, logger: logging.Logger) -> list[NewsIte
     return [NewsItem.from_dict(d) for d in raw if isinstance(d, dict)]
 
 
+def _inactive_rows(season_ctx, inactives_week: dict | None) -> dict:
+    """{(team, name_key): row} for this week's declared inactives, or {}.
+
+    The Line Movement pairing wants the flat lookup, not the nested week
+    file; ``inactive_players_for_week`` already builds it from disk.
+    """
+    if not inactives_week or not season_ctx.week:
+        return {}
+    try:
+        from collectors.inactives_collector import inactive_players_for_week
+
+        return inactive_players_for_week(season_ctx.season, season_ctx.week) or {}
+    except Exception:  # noqa: BLE001 - pairing context is never a blocker
+        return {}
+
+
+def run_odds_step(
+    date_str: str,
+    season_ctx,
+    logger: logging.Logger,
+    week: int | None = None,
+) -> dict | None:
+    """Read the market lines the NFL Odds project publishes (in-season only).
+
+    Kept out of ``run_in_season_steps`` on purpose: it has to run BEFORE
+    summarization so Team Notes can see this week's line, while the other
+    in-season steps run after the depth-chart diff. Returns the week payload
+    (``data/odds/<season>/wkNN.json``) or None — non-fatal either way, and the
+    file on disk stays the single source of truth for the summarizer, the
+    audit and the dashboard.
+    """
+    if not get_settings().get("odds", {}).get("enabled", True):
+        return None
+    write_status("Step 2c", "running", "Reading market lines")
+    logger.info("Step 2c: Reading market lines...")
+    try:
+        from collectors.odds_collector import collect_odds
+
+        res = collect_odds(date_str, week=week or season_ctx.week,
+                           season=season_ctx.season) or {}
+        pull = res.get("pull") or {}
+        by_type: dict[str, int] = {}
+        for c in res.get("changes") or []:
+            by_type[c.get("type", "?")] = by_type.get(c.get("type", "?"), 0) + 1
+        logger.info(
+            "Market lines: week %s, %d games, %d player-stats, %d changes (%s); odds pulled %s%s",
+            res.get("week"), res.get("games", 0), res.get("props", 0),
+            len(res.get("changes") or []),
+            ", ".join(f"{k}={v}" for k, v in sorted(by_type.items())) or "none",
+            pull.get("pulled_at") or "unknown",
+            f" [{pull['stale_reason']}]" if pull.get("stale_reason") else "",
+        )
+        for err in (res.get("errors") or [])[:5]:
+            logger.warning("Odds source error: %s", err)
+        return res.get("data")
+    except Exception as e:
+        logger.warning("Market lines step failed (non-fatal): %s", e)
+        return None
+
+
 def run_in_season_steps(
     date_str: str,
     season_ctx,
@@ -572,6 +632,13 @@ def run(
             before, len(deduped_news), before - len(deduped_news),
         )
 
+    # Market lines run before summarization so the Team Notes prompt can carry
+    # this week's spread/total. The file it writes is re-read by the audit and
+    # the dashboard, so nothing else has to be threaded through.
+    odds_week: dict | None = None
+    if in_season:
+        odds_week = run_odds_step(date_str, season_ctx, logger)
+
     write_status("Step 3", "running", f"Summarizing with {_summary_provider_label(summary_provider)}")
     logger.info(
         "Step 3: Summarizing with %s...",
@@ -795,6 +862,26 @@ def run(
             logger.error("FantasyPoints section build failed (non-fatal): %s", e)
             fp_section = None
 
+    odds_section: dict | None = None
+    if odds_week:
+        write_status("Step 6c", "running", "Building Line Movement section")
+        logger.info("Step 6c: Building Line Movement section...")
+        try:
+            from processing.odds_section import build_odds_section
+
+            odds_section = build_odds_section(
+                odds_week,
+                deduped_news,
+                injury_changes=injury_changes,
+                roster_events=roster_events,
+                inactives=_inactive_rows(season_ctx, inactives_week),
+                usage_tracker=summary_result.get("llm_usage"),
+                date_label=date_str,
+            )
+        except Exception as e:
+            logger.error("Line Movement section build failed (non-fatal): %s", e)
+            odds_section = None
+
     write_status("Step 6", "running", "Building daily report")
     logger.info("Step 6: Building daily report...")
     report = build_report(
@@ -813,6 +900,8 @@ def run(
         audit_alerts=audit_alerts,
         season_meta=season_ctx.to_dict() if in_season else None,
         inactives=inactives_week,
+        line_movement=odds_section,
+        odds=odds_week,
     )
     json_path, html_path = save_report(report)
 

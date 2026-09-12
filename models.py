@@ -87,6 +87,11 @@ class DailyReport:
     audit_alerts: list[dict] = field(default_factory=list)
     season_meta: dict = field(default_factory=dict)
     inactives: dict = field(default_factory=dict)      # this week's game-day inactives (in-season)
+    # Market lines + prop movement read from the NFL Odds project's sheets.
+    # Trimmed by the report builder: pull meta, per-game current lines and the
+    # typed changes only — the full prop table is ~1.2k rows a pull and reports
+    # are kept for 90 days.
+    odds: dict = field(default_factory=dict)
     pm_updated_at: str = ""   # set by scripts/run_afternoon.py when it refreshes the report
 
     def to_json(self, path: str):

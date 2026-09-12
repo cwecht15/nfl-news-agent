@@ -104,3 +104,11 @@ def inactives_weeks(season: int) -> list[int]:
 
 def inactives_week(season: int, week: int):
     return load_json(get_data_dir("inactives") / str(season) / f"wk{week:02d}.json")
+
+
+def odds_weeks(season: int) -> list[int]:
+    return _week_files("odds", season)
+
+
+def odds_week(season: int, week: int):
+    return load_json(get_data_dir("odds") / str(season) / f"wk{week:02d}.json")

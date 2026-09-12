@@ -42,11 +42,15 @@ from reports.report_builder import (
     _build_inactives_section,
     _build_injury_changes_section,
     _build_roster_moves_section,
+    _trim_odds_payload,
     build_report,
     load_report,
     save_report,
 )
-from scripts.run_daily import clear_status, run_in_season_steps, setup_logging, write_status
+from scripts.run_daily import (
+    _inactive_rows, clear_status, run_in_season_steps, run_odds_step, setup_logging,
+    write_status,
+)
 
 
 def _collect_pm_transactions(date_str: str, logger: logging.Logger, lookback_hours: int = 36) -> list:
@@ -112,15 +116,41 @@ def _refresh_active_sheet(date_str: str, ctx, logger: logging.Logger):
     return ctx
 
 
+def _odds_section(odds_week: dict | None, ctx, inactives_week: dict | None,
+                  logger: logging.Logger, injury_changes: list | None = None,
+                  roster_events: list | None = None) -> dict | None:
+    """Line Movement section for the afternoon run — deterministic, no LLM.
+
+    The PM run makes no model calls by design, so the paired-news lede is
+    skipped and the section renders from the movers alone.
+    """
+    if not odds_week:
+        return None
+    try:
+        from processing.odds_section import build_odds_section
+
+        return build_odds_section(
+            odds_week, [],
+            injury_changes=injury_changes,
+            roster_events=roster_events,
+            inactives=_inactive_rows(ctx, inactives_week),
+            use_llm=False,
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Line Movement section failed (non-fatal): %s", e)
+        return None
+
+
 def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_alerts, logger: logging.Logger,
-                   inactives: dict | None = None, create_missing: bool = True):
+                   inactives: dict | None = None, create_missing: bool = True,
+                   line_movement: dict | None = None, odds: dict | None = None):
     """Fold this run's in-season results into ``data/reports/<date>.json``.
 
     ``None`` for any of ``roster_events`` / ``injury_changes`` / ``audit_alerts``
-    / ``inactives`` means "this run did not look at that, leave it alone" — an
-    empty list means "we looked and found nothing". Both branches honour that
-    distinction, so a section is only ever written when the run actually has
-    something to say about it.
+    / ``inactives`` / ``line_movement`` means "this run did not look at that,
+    leave it alone" — an empty list means "we looked and found nothing". Both
+    branches honour that distinction, so a section is only ever written when
+    the run actually has something to say about it.
 
     ``create_missing=False`` refuses to author a report that does not exist yet.
     Game-day inactives polls pass it: an inactives poll is an update, not a
@@ -143,6 +173,7 @@ def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_aler
             date_str=date_str, sections={}, team_highlights={}, news_items=[],
             roster_events=roster_events, injury_changes=injury_changes,
             audit_alerts=audit_alerts, season_meta=ctx.to_dict(), inactives=inactives,
+            line_movement=line_movement, odds=odds,
         )
         report.pm_updated_at = stamp
         save_report(report)
@@ -163,6 +194,14 @@ def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_aler
     if inactives is not None:
         sections["game_day_inactives"] = _with_sources(_build_inactives_section(inactives), sections.get("game_day_inactives"))
         report.inactives = inactives
+    if line_movement is not None:
+        # Latest wins: the lines themselves are a snapshot, not an accumulation.
+        sections["line_movement"] = _with_sources(line_movement, sections.get("line_movement"))
+    if odds is not None:
+        # Gated on the odds, not the section: `_odds_section` swallows a render
+        # failure and returns None, and leaving the previous run's lines on a
+        # report stamped with a fresh pm_updated_at would be a silent lie.
+        report.odds = _trim_odds_payload(odds)
 
     from reports.report_builder import _ordered_sections
     report.sections = _ordered_sections(sections)
@@ -222,13 +261,17 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
         if inactives_only:
             # Game-day cron: poll ESPN for inactives near kickoff, re-run the
             # audit against the current sheet snapshot, refresh the report.
+            # Lines move hardest on game day, so the inactives poll reads them too.
+            odds_week = run_odds_step(date_str, ctx, logger)
             _, _, audit_alerts, inactives_week = run_in_season_steps(
                 date_str=date_str, season_ctx=ctx, news_items=[], dc_status_changes=[],
                 logger=logger, run="gameday", skip={"roster", "injuries"},
             )
             write_status("PM 4", "running", "Updating daily report")
             _update_report(date_str, ctx, None, None, audit_alerts, logger,
-                           inactives=inactives_week, create_missing=False)
+                           inactives=inactives_week, create_missing=False,
+                           line_movement=_odds_section(odds_week, ctx, inactives_week, logger),
+                           odds=odds_week)
             logger.info("Game-day inactives run complete.")
             return 0
 
@@ -265,6 +308,8 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
         except Exception as e:  # noqa: BLE001
             logger.warning("Weekly sheet refresh failed (non-fatal): %s", e)
 
+        odds_week = run_odds_step(date_str, ctx, logger)
+
         roster_events, injury_changes, audit_alerts, inactives_week = run_in_season_steps(
             date_str=date_str, season_ctx=ctx, news_items=news_items,
             dc_status_changes=dc_status, logger=logger, run="pm",
@@ -272,7 +317,11 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
 
         write_status("PM 4", "running", "Updating daily report")
         _update_report(date_str, ctx, roster_events, injury_changes, audit_alerts, logger,
-                       inactives=inactives_week)
+                       inactives=inactives_week,
+                       line_movement=_odds_section(odds_week, ctx, inactives_week, logger,
+                                                   injury_changes=injury_changes,
+                                                   roster_events=roster_events),
+                       odds=odds_week)
         logger.info("Afternoon run complete.")
     finally:
         clear_status()
