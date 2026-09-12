@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 1,
   "sheet": "primary",
-  "generated_at": "2026-09-12T12:32:24+00:00",
+  "generated_at": "2026-09-12T12:57:29+00:00",
   "inputs": {
     "snapshot_date": "2026-09-12",
     "nflverse_date": "2026-09-12",
-    "injury_week_updated": "2026-09-12T12:32:23+00:00",
-    "roster_state_updated": "2026-09-12T12:32:19+00:00"
+    "injury_week_updated": "2026-09-12T12:57:29+00:00",
+    "roster_state_updated": "2026-09-12T12:57:26+00:00"
   },
   "alerts": [
     {
@@ -33,50 +33,6 @@
       }
     },
     {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0041041|1|OUT",
-      "severity": "error",
-      "player": "Oscar Delp",
-      "gsis_id": "00-0041041",
-      "pos": "TE",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 1,
-      "message": "Oscar Delp (TE, NO) is OUT (Hamstring) but projected for 0.9 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Hamstring",
-        "practice": {
-          "2026-09-09": "DNP",
-          "2026-09-10": "DNP",
-          "2026-09-11": "DNP"
-        },
-        "ppr": 0.9
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0033375|1|OUT",
-      "severity": "error",
-      "player": "Tim Patrick",
-      "gsis_id": "00-0033375",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 1,
-      "message": "Tim Patrick (WR, NYJ) is OUT (Groin) but projected for 0.4 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Groin",
-        "practice": {
-          "2026-09-09": "DNP",
-          "2026-09-10": "DNP",
-          "2026-09-11": "DNP"
-        },
-        "ppr": 0.4
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040568|1",
       "severity": "warning",
@@ -95,21 +51,74 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0034161|1",
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036875|1|rush_att",
       "severity": "warning",
-      "player": "Daniel Carlson",
-      "gsis_id": "00-0034161",
-      "pos": "K",
-      "team": "NO",
+      "player": "Rhamondre Stevenson",
+      "gsis_id": "00-0036875",
+      "pos": "RB",
+      "team": "NE",
       "sheet": "primary",
       "week": 1,
-      "message": "Daniel Carlson (K, NO) is on the active roster but has no row on the sheet",
+      "message": "Rhamondre Stevenson (RB, NE) Rush Att: we project 11.7, the market implies 16.5 (also Rush+Rec Yds) (odds pulled 2026-09-12 08:21-04:00)",
       "evidence": {
-        "ourlads_depth": null,
-        "ourlads_pos": "",
-        "nflverse_status": "ACT",
-        "status_abbr": "A01"
+        "stat": "rush_att",
+        "stats": [
+          "rush_att",
+          "rush_rec_yds"
+        ],
+        "ours": 11.7,
+        "market_mean": 16.52307848,
+        "delta": 4.823078478,
+        "pct": 0.4122289297,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040734|1|rush_yds",
+      "severity": "warning",
+      "player": "TreVeyon Henderson",
+      "gsis_id": "00-0040734",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 1,
+      "message": "TreVeyon Henderson (RB, NE) Rush Yds: we project 41.7, the market implies 26.5 (also Rush Att) (odds pulled 2026-09-12 08:21-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_att",
+          "rush_yds"
+        ],
+        "ours": 41.7,
+        "market_mean": 26.52841615,
+        "delta": -15.17158385,
+        "pct": -0.3638269508,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041032|1|rec_yds",
+      "severity": "warning",
+      "player": "Kenyon Sadiq",
+      "gsis_id": "00-0041032",
+      "pos": "TE",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 1,
+      "message": "Kenyon Sadiq (TE, NYJ) Rec Yds: we project 7.9, the market implies 20.4 (odds pulled 2026-09-12 08:21-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 7.9,
+        "market_mean": 20.39451008,
+        "delta": 12.49451008,
+        "pct": 1.581583554,
+        "flag": "RED"
       }
     },
     {
@@ -191,60 +200,6 @@
     },
     {
       "type": "missing_active",
-      "key": "missing_active|00-0037304|1",
-      "severity": "info",
-      "player": "Connor Heyward",
-      "gsis_id": "00-0037304",
-      "pos": "RB",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 1,
-      "message": "Connor Heyward (RB, LV) is on the active roster but has no row on the sheet",
-      "evidence": {
-        "ourlads_depth": null,
-        "ourlads_pos": "",
-        "nflverse_status": "ACT",
-        "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0041081|1",
-      "severity": "info",
-      "player": "Max Bredeson",
-      "gsis_id": "00-0041081",
-      "pos": "RB",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 1,
-      "message": "Max Bredeson (RB, MIN) is on the active roster but has no row on the sheet",
-      "evidence": {
-        "ourlads_depth": null,
-        "ourlads_pos": "",
-        "nflverse_status": "ACT",
-        "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0041398|1",
-      "severity": "info",
-      "player": "Riley Nowakowski",
-      "gsis_id": "00-0041398",
-      "pos": "TE",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 1,
-      "message": "Riley Nowakowski (TE, PIT) is on the active roster but has no row on the sheet",
-      "evidence": {
-        "ourlads_depth": null,
-        "ourlads_pos": "",
-        "nflverse_status": "ACT",
-        "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "missing_active",
       "key": "missing_active|00-0038488|1",
       "severity": "info",
       "player": "Brady Russell",
@@ -284,10 +239,10 @@
   "errors": [],
   "counts": {
     "status_conflict": 1,
-    "out_but_projected": 2,
     "sheet_status_stale": 2,
-    "missing_active": 6,
+    "market_proj_gap": 3,
     "elevated_not_projected": 1,
-    "dnp_but_projected": 2
+    "dnp_but_projected": 2,
+    "missing_active": 2
   }
 }
