@@ -191,14 +191,51 @@ def _timeout(settings: Optional[dict]) -> int:
     return int(_settings(settings).get("collection", {}).get("request_timeout", DEFAULT_TIMEOUT))
 
 
+# Some club pages render a second, narrow-screen copy of the report whose
+# player cell carries the position ("Shelby Harris, DT") and which has no
+# Position column at all. Left alone that produces a second record per player
+# under its own name_key ("shelby harris,"), so the week file shows everyone
+# twice. Split the position back out before the key is computed — only when
+# the tail is a real position token, so "Ricard, Jr." survives intact.
+POSITION_TOKENS = {
+    "QB", "RB", "FB", "HB", "WR", "TE",
+    "OL", "OT", "OG", "G", "C", "T", "LT", "RT", "LG", "RG", "T/G", "G/C",
+    "DL", "DT", "DE", "NT", "EDGE",
+    "LB", "OLB", "ILB", "MLB",
+    "DB", "CB", "S", "SS", "FS", "SAF", "NB",
+    "K", "PK", "P", "LS", "ATH",
+}
+
+
+def split_trailing_pos(name: str) -> tuple[str, str]:
+    """``"Shelby Harris, DT"`` -> ``("Shelby Harris", "DT")``.
+
+    Returns the name unchanged (and an empty position) when the trailing
+    token isn't a recognized position.
+    """
+    head, sep, tail = (name or "").rpartition(",")
+    if not sep:
+        return name, ""
+    head, tail = head.strip(), tail.strip().upper()
+    if head and tail in POSITION_TOKENS:
+        return head, tail
+    return name, ""
+
+
 def _make_row(team: str, name: str, pos: str, injury: str, practice: dict[str, str],
               game_status: str, source: str) -> dict:
     name = " ".join((name or "").split())
+    pos = (pos or "").strip()
+    base, tail_pos = split_trailing_pos(name)
+    if tail_pos:
+        # Strip it either way so the key matches the wide table's row; an
+        # explicit Position column still wins over the suffix.
+        name, pos = base, pos or tail_pos
     return {
         "team": team,
         "name": name,
         "name_key": _normalize_name(name),
-        "pos": (pos or "").strip(),
+        "pos": pos,
         "injury": (injury or "").strip(),
         "practice": {d: c for d, c in practice.items() if c},
         "game_status": game_status or "",

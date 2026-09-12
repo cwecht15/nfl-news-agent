@@ -631,3 +631,42 @@ def test_collect_injury_report_week_from_nflcom_when_no_schedule(injuries_dir, m
     assert result["sources_used"] == {"nflcom": 11}
     data = irc.load_week_file(2026, 1)
     assert data["teams"]["NE"]["opp"] is None        # no schedule -> no opp
+
+
+# ---------------------------------------------------------------------------
+# Position glued onto the name (narrow-screen club tables)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("name,expected", [
+    ("Shelby Harris, DT", ("Shelby Harris", "DT")),
+    ("Bryan Hudson, OL", ("Bryan Hudson", "OL")),
+    ("Andrew Thomas, T", ("Andrew Thomas", "T")),
+    ("Patrik Ricard, fb", ("Patrik Ricard", "FB")),
+    # Not a position -> left alone, so real names keep their comma.
+    ("Ricard, Jr.", ("Ricard, Jr.", "")),
+    ("Harris, Shelby", ("Harris, Shelby", "")),
+    ("Malik Nabers", ("Malik Nabers", "")),
+    (", DT", (", DT", "")),
+])
+def test_split_trailing_pos(name, expected):
+    assert irc.split_trailing_pos(name) == expected
+
+
+def test_make_row_splits_pos_from_name_so_keys_match():
+    """The same club page can render a player twice — once with a Position
+    column, once as "Name, POS" — and both must land on one name_key."""
+    wide = irc._make_row("NYG", "Shelby Harris", "DL", "Achilles", {}, "", "team_site")
+    narrow = irc._make_row("NYG", "Shelby Harris, DT", "", "Achilles", {}, "", "team_site")
+    assert narrow["name"] == "Shelby Harris"
+    assert narrow["pos"] == "DT"
+    assert narrow["name_key"] == wide["name_key"] == "shelby harris"
+
+
+def test_make_row_keeps_explicit_pos_over_name_suffix():
+    """An explicit Position column wins, but the name is cleaned regardless so
+    the key still matches."""
+    row = irc._make_row("NYG", "Shelby Harris, DT", "DL", "", {}, "", "team_site")
+    assert row["pos"] == "DL"
+    assert row["name"] == "Shelby Harris"
+    assert row["name_key"] == "shelby harris"
