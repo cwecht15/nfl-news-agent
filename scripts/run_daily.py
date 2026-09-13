@@ -268,6 +268,22 @@ def run_odds_step(
         return None
 
 
+def _week_elevations(season_ctx, logger: logging.Logger) -> list[dict] | None:
+    """This week's practice-squad elevations for the report section.
+
+    Read from the ledger rather than from the run's new events: elevations
+    land the day before a game, so Sunday's report has to show Saturday's
+    batch even though nothing new arrived that morning.
+    """
+    try:
+        from processing.roster_events import elevations_for_week
+
+        return elevations_for_week(season_ctx.week)
+    except Exception as e:
+        logger.warning("Elevations section skipped (non-fatal): %s", e)
+        return None
+
+
 def run_in_season_steps(
     date_str: str,
     season_ctx,
@@ -277,13 +293,16 @@ def run_in_season_steps(
     run: str = "am",
     skip: set[str] | None = None,
 ) -> tuple[list[dict] | None, list[dict] | None, list[dict] | None, dict | None]:
-    """Roster events/state → injury report → game-day inactives → projection audit.
+    """Elevations → roster events/state → injury report → game-day inactives
+    → projection audit.
 
     Shared by the morning pipeline and scripts/run_afternoon.py. Each step
     is independent and non-fatal: a failure logs and yields None for that
     section (the report simply omits it). ``skip`` names steps to leave out
-    (``{"roster", "injuries", "inactives", "audit"}``) — the game-day
-    inactives cron runs only inactives + audit. Returns
+    (``{"elevations", "roster", "injuries", "inactives", "audit"}``) — the
+    game-day cron runs elevations + inactives + audit, skipping the nflverse
+    fetch but still merging elevations into the ledger, since an elevation
+    that lands after kickoff is worthless. Returns
     ``(roster_events, injury_changes, audit_alerts, inactives_week)``.
     """
     skip = skip or set()
@@ -291,6 +310,27 @@ def run_in_season_steps(
     injury_changes: list[dict] | None = None
     audit_alerts: list[dict] | None = None
     inactives_week: dict | None = None
+
+    # --- 5f: practice-squad elevations ------------------------------------
+    # Runs before 5b so the elevations ride into the same ledger write. One
+    # HTTP request, no Sheets read, no LLM — cheap enough for the game-day
+    # cron, which is the run that has to beat kickoff.
+    espn_elevations: list[dict] = []
+    if "elevations" not in skip:
+        try:
+            from collectors.espn_transactions_collector import collect_elevations
+
+            espn_elevations = collect_elevations(date_str)
+            if espn_elevations:
+                logger.info(
+                    "Step 5f: %d practice-squad elevations from ESPN (%s)",
+                    len(espn_elevations),
+                    ", ".join(sorted({e["team"] for e in espn_elevations})),
+                )
+            else:
+                logger.info("Step 5f: no practice-squad elevations in the window.")
+        except Exception as e:
+            logger.warning("Elevation step failed (non-fatal): %s", e)
 
     # --- 5b: roster events + state ---------------------------------------
     if "roster" not in skip:
@@ -318,6 +358,7 @@ def run_in_season_steps(
                 dc_status_changes=dc_status_changes or [],
                 nflverse_players=cur_nfv,
                 prev_nflverse=prev_nfv,
+                espn_elevations=espn_elevations,
             )
             roster_events = list(result.get("new_events") or [])
             counts = result.get("counts") or {}
@@ -329,6 +370,18 @@ def run_in_season_steps(
             )
         except Exception as e:
             logger.warning("Roster step failed (non-fatal): %s", e)
+    elif espn_elevations:
+        # Game-day mode skips the nflverse fetch, but an elevation still has to
+        # reach the ledger before kickoff. Replay it against the snapshot
+        # already on disk: no network beyond the ESPN call above.
+        try:
+            from processing.roster_events import run_roster_step
+
+            result = run_roster_step(date_str, espn_elevations=espn_elevations)
+            roster_events = list(result.get("new_events") or [])
+            logger.info("Elevations merged into the ledger: %d new events", len(roster_events))
+        except Exception as e:
+            logger.warning("Elevation ledger merge failed (non-fatal): %s", e)
 
     # --- 5c: injury report tracker ---------------------------------------
     if "injuries" not in skip and get_settings().get("injury_report", {}).get("enabled", True):
@@ -896,6 +949,7 @@ def run(
         yt_section=yt_section,
         fp_section=fp_section,
         roster_events=roster_events,
+        elevations=_week_elevations(season_ctx, logger) if in_season else None,
         injury_changes=injury_changes,
         audit_alerts=audit_alerts,
         season_meta=season_ctx.to_dict() if in_season else None,

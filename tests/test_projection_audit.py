@@ -256,3 +256,27 @@ def test_missing_active_rules(isolated_dismissals):
     assert "Backup Qb" not in missing                 # QB2 never projected
     assert "Reggie Gilliam" not in missing            # fullback never projected
     assert missing.get("James Cook") == "warning"
+
+
+def test_elevated_not_projected_is_scoped_to_projected_positions(isolated_dismissals):
+    """A normal Saturday elevates ~45 players league-wide, mostly DB/LB/OL.
+    Unscoped, the handful that matter — a kicker, a backup QB — are buried."""
+    state = _state()
+    state["players"]["00-0020"] = {
+        "gsis_id": "00-0020", "name": "Doneiko Slaughter", "name_key": "doneiko slaughter",
+        "team": "BUF", "pos": "DB", "status": "PS", "elevations_used": 1,
+        "elevation_dates": ["2026-09-12"], "pending": [],
+    }
+    state["by_name"]["doneiko slaughter"] = "00-0020"
+
+    positions = {"QB", "RB", "WR", "TE", "K"}
+    alerts = pa.check_elevations({}, state, _schedule(), 1, "primary", 3, positions=positions)
+    flagged = [a["player"] for a in alerts if a["type"] == "elevated_not_projected"]
+    assert "Frank Gore Jr." in flagged
+    assert "Doneiko Slaughter" not in flagged
+
+    # Unscoped keeps the old behaviour, and the cap check is never scoped:
+    # it is a roster fact about a player already being tracked.
+    alerts = pa.check_elevations({}, state, _schedule(), 1, "primary", 3)
+    assert "Doneiko Slaughter" in [a["player"] for a in alerts if a["type"] == "elevated_not_projected"]
+    assert [a["player"] for a in alerts if a["type"] == "elevation_limit"] == ["Cash Jones"]

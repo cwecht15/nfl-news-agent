@@ -56,6 +56,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from config_loader import get_data_dir, get_settings, get_teams
 from collectors.nflverse_roster_collector import (
+    NFLVERSE_STATUS_LABELS,
     diff_nflverse,
     latest_nflverse_snapshot,
     name_key as _name_key,
@@ -940,11 +941,51 @@ def normalize_ourlads(status_changes: list[dict], date_str: str, schedule: Optio
     return out
 
 
+def normalize_espn_elevations(elevations: list[dict], date_str: str,
+                              schedule: Optional[list[dict]] = None) -> list[dict]:
+    """``espn_transactions_collector.collect_elevations`` rows -> events.
+
+    ESPN names the move outright ("Elevated LB Bralen Trice ... from the
+    practice squad"), so unlike the nflverse DEV->ACT flip there is nothing to
+    infer and these are ``confirmed`` on arrival — which is what lets
+    ``elevations_used`` (and therefore the 3-per-season cap) advance.
+
+    Each row's own ``date`` is used, not ``date_str``: ESPN's feed is a rolling
+    window, so a Saturday run legitimately re-reads Wednesday's rows, and the
+    ledger's near-duplicate rule collapses them.
+    """
+    out: list[dict] = []
+    for e in elevations or []:
+        name = (e.get("name") or "").strip()
+        if not name:
+            continue
+        out.append(make_event(
+            date_str=e.get("date") or date_str,
+            name=name,
+            event_type="ps_elevated",
+            source="espn_transactions",
+            source_kind="espn",
+            confidence="confirmed",
+            team=to_news(e.get("team") or ""),
+            pos=e.get("pos") or "",
+            detail=(e.get("detail") or "")[:200],
+            schedule=schedule,
+        ))
+    return out
+
+
 _NFLVERSE_PLACED = {"IR": "ir_placed", "PUP": "pup_placed", "NFI": "nfi_placed", "SUS": "suspended",
                     "EXE": "exempt", "RET": "retired"}
 _NFLVERSE_ACTIVATED = {"IR": "ir_activated", "PUP": "pup_activated", "NFI": "nfi_activated",
                        "SUS": "reinstated", "EXE": "reinstated"}
 _ELEVATION_ROUNDTRIP_DAYS = 7
+
+# A player whose ``status`` is ACT while the description abbr is still a
+# practice-squad code has been elevated, not signed to the 53 — the abbr is
+# the contract, the status is where he lines up on Sunday. ``status_label``
+# resolves ACT from the status alone and drops the abbr, so the fingerprint
+# is read straight off the transition here.
+_PS_ABBRS = frozenset(a for a, lab in NFLVERSE_STATUS_LABELS.items() if lab == "PS")
 
 
 def _label(status: Optional[str], abbr: Optional[str], given: Optional[str]) -> Optional[str]:
@@ -963,12 +1004,17 @@ def normalize_nflverse(
 ) -> list[dict]:
     """nflverse day-over-day transitions -> events.
 
-    ``DEV -> ACT`` is emitted as ``ps_promoted`` with confidence *reported*
-    (a standard elevation looks identical in the file until it reverts).
-    When the reverse ``ACT -> DEV`` flip arrives within 7 days, the earlier
-    ``ps_promoted`` in ``existing_events`` is relabeled ``ps_elevated`` in
-    place (the caller persists it via :func:`save_events`) and no
-    ``ps_signed`` is emitted for the reversion.
+    ``DEV -> ACT`` while the abbr stays a practice-squad code (``P0x``) is a
+    standard elevation and is emitted as ``ps_elevated`` / *confirmed*. Only
+    when the abbr also moves to an active code is it a real promotion, which
+    stays ``ps_promoted`` / *reported* — nflverse lags, and a promotion is
+    worth a second source.
+
+    When the reverse ``ACT -> DEV`` flip arrives within 7 days, an earlier
+    ``ps_promoted`` in ``existing_events`` is still relabeled ``ps_elevated``
+    in place (the caller persists it via :func:`save_events`) and no
+    ``ps_signed`` is emitted for the reversion — the backstop for anything
+    the abbr fingerprint and ESPN both miss.
     """
     out: list[dict] = []
     existing = existing_events if existing_events is not None else []
@@ -1005,7 +1051,12 @@ def normalize_nflverse(
         elif new_lab == "ACT" and old_lab in _NFLVERSE_ACTIVATED:
             etype = _NFLVERSE_ACTIVATED[old_lab]
         elif new_lab == "ACT" and old_lab == "PS":
-            etype, confidence = "ps_promoted", "reported"
+            if str(t.get("new_abbr") or "").strip().upper() in _PS_ABBRS:
+                # Still on a practice-squad contract — an elevation, and
+                # unambiguous enough to stand on its own.
+                etype, confidence = "ps_elevated", "confirmed"
+            else:
+                etype, confidence = "ps_promoted", "reported"
         elif new_lab == "ACT" and old_lab in ("FA", None, "UNKNOWN"):
             etype = "signed"
         elif new_lab == "PS" and old_lab == "ACT":
@@ -1168,7 +1219,11 @@ def _family(etype: str) -> str:
 
 def _is_confirming(ev: dict) -> bool:
     kind = ev.get("source_kind")
-    if kind in ("official", "ourlads"):
+    # ESPN's feed names the transaction in words, so it confirms an insider
+    # report the same way an official row does. Without it a reported
+    # elevation could never be confirmed at all: the nflverse event covering
+    # the same move is family "join" (ps_promoted), not "elevated".
+    if kind in ("official", "ourlads", "espn"):
         return True
     return kind == "nflverse" and ev.get("confidence") != "reported"
 
@@ -1349,6 +1404,12 @@ def build_state(
                           to_news(p.get("team") or ""), p.get("pos", ""))
         rec["status"] = p.get("label") or status_label(p.get("status", ""), p.get("status_abbr", ""))
         rec["status_abbr"] = p.get("status_abbr", "")
+        if rec["status"] == "ACT" and rec["status_abbr"].upper() in _PS_ABBRS:
+            # nflverse flips an elevated player's status to ACT while the
+            # contract abbr stays P0x. He is active for one game, not signed
+            # to the 53 — and calling him ACT would hide him from the
+            # elevation cap check, which only looks at practice-squad players.
+            rec["status"] = "PS"
         rec["status_source"] = "nflverse"
         rec["status_since"] = baseline_date
         players[gsis] = rec
@@ -1505,6 +1566,72 @@ def _status_counts(state: dict) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+def reconcile_promotions(events: list[dict]) -> int:
+    """Relabel a guessed ``ps_promoted`` once a real elevation turns up.
+
+    nflverse's DEV->ACT flip alone can't tell an elevation from a promotion,
+    and the guess it makes sets the player's status to ACT — i.e. the state
+    claims he was signed to the 53. When a confirmed ``ps_elevated`` for the
+    same player lands within the round-trip window, the guess loses: the
+    elevation is the fact, and the player is still on the practice squad.
+
+    Mutates ``events`` in place and returns how many were relabeled.
+    """
+    confirmed: dict[str, list[str]] = {}
+    for ev in events:
+        if ev.get("event_type") == "ps_elevated" and ev.get("confidence") != "reported":
+            confirmed.setdefault(ev.get("name_key") or "", []).append(str(ev.get("date") or ""))
+    if not confirmed:
+        return 0
+    fixed = 0
+    for ev in events:
+        if ev.get("event_type") != "ps_promoted" or ev.get("confidence") != "reported":
+            continue
+        dates = confirmed.get(ev.get("name_key") or "")
+        if not dates:
+            continue
+        if any(_near(d, str(ev.get("date") or ""), _ELEVATION_ROUNDTRIP_DAYS) for d in dates):
+            ev["event_type"] = "ps_elevated"
+            ev["confidence"] = "confirmed"
+            ev["relabeled_from"] = "ps_promoted"
+            ev["detail"] = (ev.get("detail") or "") + "; confirmed as a standard elevation"
+            fixed += 1
+    return fixed
+
+
+def elevations_for_week(week: Optional[int], events: Optional[list[dict]] = None,
+                        season: Optional[int] = None) -> list[dict]:
+    """Every ``ps_elevated`` event for one NFL week, one row per player.
+
+    Week-scoped rather than run-scoped on purpose: elevations land at 4 PM ET
+    the day *before* a game, so Sunday morning's report has to still show
+    Saturday's batch even though it is a day old in the ledger.
+
+    ESPN, an insider tweet and the nflverse flip can all describe the same
+    elevation, so rows are collapsed per player, keeping the most trustworthy
+    one (and its position / detail).
+    """
+    evs = events if events is not None else load_events()
+    season = season if season is not None else get_season_year()
+    best: dict[tuple[str, str], dict] = {}
+    for ev in evs:
+        if ev.get("event_type") != "ps_elevated":
+            continue
+        if week is not None and ev.get("week") != week:
+            continue
+        if ev.get("season") not in (None, season):
+            continue
+        key = (ev.get("name_key") or "", ev.get("team") or "")
+        cur = best.get(key)
+        if cur is None or _CONFIDENCE_RANK.get(str(ev.get("confidence")), 0) > \
+                _CONFIDENCE_RANK.get(str(cur.get("confidence")), 0):
+            best[key] = ev
+        elif not cur.get("pos") and ev.get("pos"):
+            cur["pos"] = ev["pos"]
+    return sorted(best.values(), key=lambda e: (str(e.get("date") or ""), str(e.get("team") or ""),
+                                                str(e.get("name") or "")), reverse=True)
+
+
 def run_roster_step(
     date_str: str,
     news_items: Optional[list[dict]] = None,
@@ -1513,9 +1640,11 @@ def run_roster_step(
     prev_nflverse: Optional[dict[str, dict]] = None,
     settings: Optional[dict] = None,
     schedule: Optional[list[dict]] = None,
+    espn_elevations: Optional[list[dict]] = None,
 ) -> dict:
-    """One pipeline step: nflverse diff → NFL.com → news → OurLads events,
-    append to the ledger, confirm reported events, rebuild + save state.
+    """One pipeline step: nflverse diff → NFL.com → news → OurLads → ESPN
+    elevations, append to the ledger, confirm reported events, rebuild +
+    save state.
 
     Returns ``{"new_events": [...], "state": state, "counts": {...}}``;
     ``new_events`` are enriched with ``earliest_return_week`` /
@@ -1563,10 +1692,18 @@ def run_roster_step(
         ol = normalize_ourlads(dc_status_changes, date_str, schedule=schedule)
         counts["ourlads_events"] = len(ol)
         new.extend(ol)
+    if espn_elevations:
+        ee = normalize_espn_elevations(espn_elevations, date_str, schedule=schedule)
+        counts["espn_elevations"] = len(ee)
+        new.extend(ee)
 
     accepted = merge_new_events(existing, new)
     events = existing + accepted
     events = confirm_reported(events, window_days=int(roster_cfg.get("confirm_window_days", 3)))
+    relabeled = reconcile_promotions(events)
+    if relabeled:
+        counts["promotions_relabeled"] = relabeled
+        logger.info("Roster ledger: %d guessed promotions relabeled as elevations", relabeled)
     counts["appended"] = len(accepted)
     counts["ledger"] = len(events)
     counts["confirmed_new"] = sum(1 for e in accepted if e.get("confirmed_by"))
@@ -1690,11 +1827,17 @@ def main(argv: Optional[list[str]] = None) -> int:
         events = load_events()
         settings = get_settings()
         events = confirm_reported(events, window_days=int(settings.get("roster", {}).get("confirm_window_days", 3)))
+        relabeled = reconcile_promotions(events)
         save_events(events)
         schedule = load_schedule(settings=settings)
         state = build_state(events, players, schedule, settings=settings, baseline_date=nfl_date, as_of=as_of)
         path = save_state(state)
         print(f"State rebuilt from {len(events)} events over nflverse {nfl_date} -> {path}")
+        if relabeled:
+            print(f"Relabeled {relabeled} guessed promotions as standard elevations")
+        elev = [p for p in state["players"].values() if p.get("elevations_used")]
+        print(f"Players with a used elevation: {len(elev)}"
+              f" ({sum(p['elevations_used'] for p in elev)} total this season)")
         print("Status counts:", json.dumps(_status_counts(state)))
         ir = [p for p in state["players"].values() if p["status"] == "IR" and p.get("earliest_return_week")]
         ir.sort(key=lambda p: (p.get("ir_date") or "", p["name"]))

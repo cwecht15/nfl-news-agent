@@ -19,6 +19,7 @@ require_password()
 
 from collectors.odds_collector import STAT_LABEL
 from dashboard import in_season_data as isd
+from dashboard.helpers import to_et_display
 
 st.header("Line Movement")
 isd.require_in_season()
@@ -44,7 +45,7 @@ else:
     st.caption(
         f"Odds pulled {pull.get('pulled_at') or 'unknown'}"
         + (f" ({age:g}h ago)" if age is not None else "")
-        + f" · updated {data.get('updated_at', '')}"
+        + f" · updated {to_et_display(data.get('updated_at'))}"
     )
 
 games = data.get("games") or {}

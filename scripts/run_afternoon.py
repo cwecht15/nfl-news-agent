@@ -184,6 +184,17 @@ def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_aler
         merged = _merge_events(report.roster_events, roster_events)
         sections["roster_moves"] = _with_sources(_build_roster_moves_section(merged), sections.get("roster_moves"))
         report.roster_events = merged
+        # Rebuilt from the ledger, not from `merged`: the section covers the
+        # whole week, so an evening run must not drop this morning's rows.
+        try:
+            from processing.roster_events import elevations_for_week
+            from reports.report_builder import _build_elevations_section
+
+            sections["practice_squad_elevations"] = _with_sources(
+                _build_elevations_section(elevations_for_week(ctx.week)),
+                sections.get("practice_squad_elevations"))
+        except Exception as e:
+            logger.warning("Elevations section skipped (non-fatal): %s", e)
     if injury_changes is not None:
         merged_inj = _merge_by_keys(report.injury_changes, injury_changes, ("team", "name", "type", "new"))
         sections["injury_report_changes"] = _with_sources(_build_injury_changes_section(merged_inj), sections.get("injury_report_changes"))
@@ -263,12 +274,15 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
             # audit against the current sheet snapshot, refresh the report.
             # Lines move hardest on game day, so the inactives poll reads them too.
             odds_week = run_odds_step(date_str, ctx, logger)
-            _, _, audit_alerts, inactives_week = run_in_season_steps(
+            roster_events, _, audit_alerts, inactives_week = run_in_season_steps(
                 date_str=date_str, season_ctx=ctx, news_items=[], dc_status_changes=[],
                 logger=logger, run="gameday", skip={"roster", "injuries"},
             )
             write_status("PM 4", "running", "Updating daily report")
-            _update_report(date_str, ctx, None, None, audit_alerts, logger,
+            # roster_events is the elevation batch here (the nflverse fetch is
+            # skipped): the Saturday 4 PM ET deadline lands inside this window,
+            # and an elevation the report misses is a player who plays tomorrow.
+            _update_report(date_str, ctx, roster_events, None, audit_alerts, logger,
                            inactives=inactives_week, create_missing=False,
                            line_movement=_odds_section(odds_week, ctx, inactives_week, logger),
                            odds=odds_week)

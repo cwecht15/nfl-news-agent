@@ -15,6 +15,7 @@ require_password()
 
 from collectors.injury_report_collector import split_trailing_pos
 from dashboard import in_season_data as isd
+from dashboard.helpers import to_et_display
 
 # Sources spell the same position several ways (SAF/S/FS, OT/T, DE/EDGE), so the
 # filter works on a group rather than the raw label, which stays in the table.
@@ -59,7 +60,7 @@ if not weeks:
 wk = st.selectbox("Week", weeks, index=0, key="ir_week")
 data = isd.injury_week(ctx.season, wk) or {}
 st.caption(
-    f"Updated {data.get('updated_at', '')} · sources "
+    f"Updated {to_et_display(data.get('updated_at'))} · sources "
     f"{', '.join(f'{k}={v}' for k, v in sorted((data.get('sources_used') or {}).items()))}"
 )
 teams = data.get("teams") or {}

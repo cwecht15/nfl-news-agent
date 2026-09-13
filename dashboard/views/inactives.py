@@ -14,6 +14,7 @@ from dashboard.auth import require_password
 require_password()
 
 from dashboard import in_season_data as isd
+from dashboard.helpers import to_et_display
 
 st.header("Game-Day Inactives")
 isd.require_in_season()
@@ -28,7 +29,7 @@ if not inact_weeks:
 
 iw = st.selectbox("Week", inact_weeks, index=0, key="inact_week")
 idata = isd.inactives_week(ctx.season, iw) or {}
-st.caption(f"Updated {idata.get('updated_at', '')}")
+st.caption(f"Updated {to_et_display(idata.get('updated_at'))}")
 skill = {"QB", "RB", "FB", "WR", "TE", "K"}
 only_skill = st.checkbox("Skill positions only", value=True, key="inact_skill")
 rows = []

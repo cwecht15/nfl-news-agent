@@ -475,7 +475,15 @@ def check_inactives(rows: dict[str, dict], output: dict, inactives: Optional[dic
 
 
 def check_elevations(rows: dict[str, dict], state: Optional[dict], schedule: list[dict], week: int,
-                     sheet: str, max_elev: int) -> list[dict]:
+                     sheet: str, max_elev: int, positions: Optional[set[str]] = None) -> list[dict]:
+    """Elevated players the sheet doesn't carry, and players out of elevations.
+
+    ``elevated_not_projected`` is scoped to the projected positions: a normal
+    Saturday elevates ~45 players league-wide and most are DB/LB/OL, who were
+    never going to have a row. Unscoped it buries the handful that matter — a
+    kicker or a backup QB elevated the day before kickoff. ``elevation_limit``
+    stays league-wide: it is a roster fact about a player already tracked.
+    """
     alerts: list[dict] = []
     if not state:
         return alerts
@@ -488,7 +496,8 @@ def check_elevations(rows: dict[str, dict], state: Optional[dict], schedule: lis
         nk = p.get("name_key") or _name_key(name)
         team_proj = to_proj(str(p.get("team") or ""), "news")
         on_sheet = gid in sheet_ids or nk in sheet_name_keys
-        if dates and not on_sheet:
+        projected_pos = not positions or str(p.get("pos") or "").upper() in positions
+        if dates and not on_sheet and projected_pos:
             alerts.append(_alert(
                 "elevated_not_projected", SEVERITY_WARNING, player=name, gsis_id=gid if gid.startswith("00-") else None,
                 pos=str(p.get("pos") or ""), team=team_proj, sheet=sheet, week=week,
@@ -790,7 +799,8 @@ def run_audit(ctx, date_str: Optional[str] = None, run: str = "am",
                                        state=inputs.get("state"))
         alerts += check_injuries(rows, output, inputs.get("injuries"), week, sheet)
         alerts += check_inactives(rows, output, inputs.get("inactives"), week, sheet)
-        alerts += check_elevations(rows, inputs.get("state"), schedule, week, sheet, max_elev)
+        alerts += check_elevations(rows, inputs.get("state"), schedule, week, sheet, max_elev,
+                                   positions=positions)
         alerts += check_schedule(snapshot, rows, output, schedule, week, sheet)
         alerts += check_ir_returns(rows, inputs.get("state"), week, sheet)
         alerts += check_unconfirmed(inputs.get("state"), date_str, window_days, week, sheet)

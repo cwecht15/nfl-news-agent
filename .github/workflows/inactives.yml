@@ -91,14 +91,14 @@ jobs:
         run: |
           git config user.name "nfl-news-agent-bot"
           git config user.email "nfl-news-agent-bot@users.noreply.github.com"
-          for path in data/inactives data/audit data/odds data/reports data/logs; do
+          for path in data/inactives data/audit data/odds data/roster data/reports data/logs; do
             if [ -e "$path" ]; then git add -f "$path"; fi
           done
           if git diff --staged --quiet; then
             echo "No data changes to commit."
             exit 0
           fi
-          git commit -m "Game-day inactives $(date -u +%F) [skip ci]"
+          git commit -m "Game-day inactives + elevations $(date -u +%F) [skip ci]"
           for attempt in 1 2 3; do
             if git push origin HEAD:master; then exit 0; fi
             git fetch origin master

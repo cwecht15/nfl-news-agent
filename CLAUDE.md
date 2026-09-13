@@ -59,6 +59,8 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.projection_audi
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py
 # Game-day mode: ESPN inactives + audit + report refresh only (what .github/workflows/inactives.yml runs)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --inactives-only
+# Practice-squad elevations from ESPN's transaction feed (no key; the only source that carries them)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\espn_transactions_collector.py
 # Poll inactives directly (--all polls every game of the week; --season/--week/--event for debugging)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\inactives_collector.py --all
 # Market lines + prop movement (reads the NFL Odds project's sheets; no betting API)
@@ -118,6 +120,25 @@ the offseason path.
   Sept 9; injury-settlement releases stayed IR for 4–6 days): an official event older than the
   baseline still applies within `roster.official_override_days` (7) when the baseline still shows
   the pre-move state on the same team (`_baseline_predates`); older than that it is history only.
+- **Practice-squad elevations (Step 5f):** `collectors/espn_transactions_collector.py` — standard
+  elevations are due **4:00 PM ET the day before a game** (Sat for Sunday, Wed for Thursday, Sun for
+  Monday) and an elevated player is active for that game, so they have to be known the same night.
+  NFL.com publishes them in **none** of its six transaction categories; nflverse shows the flip a day
+  late and can't tell an elevation from a promotion until the player reverts. ESPN's
+  `site.api.espn.com/.../nfl/transactions` names them in words the same afternoon ("Elevated LB Bralen
+  Trice and TE Nick Muse from the practice squad"), so it is the primary detector, at
+  `confidence: confirmed` — which is what advances `elevations_used` and makes the 3-per-season cap
+  enforceable. Parsing: the clause is matched with a regex, never by splitting sentences (names carry
+  periods — "C.J. Donaldson", "Velus Jones Jr."); positions are sometimes doubled ("LB LB"); a
+  description bundles unrelated moves and only the elevation clause is read. ESPN dates rows by day
+  (all stamp 07:00Z) and sometimes by *game* day, so rows are filtered by
+  `roster.elevations.lookback_days`, never by "is this today", and the ledger's near-duplicate rule
+  absorbs the repeats. Second detector: nflverse `status == ACT` while `status_description_abbr` is
+  still a P-code is an elevation, not a promotion — `build_state` reads that fingerprint off the
+  baseline too, so an elevated player stays `PS` instead of looking signed to the 53.
+  `reconcile_promotions` relabels an older guessed `ps_promoted` once a confirmed elevation for the
+  same player lands. `elevated_not_projected` is scoped to `projections.in_season.positions`: a normal
+  Saturday elevates ~45 players league-wide and most are DB/LB/OL who were never going to have a row.
 - **Injury report tracker (Step 5c):** `collectors/injury_report_collector.py` — team sites
   (`https://www.<site_domain>/team/injury-report/`, `site_domain` per team in `config/teams.yaml`;
   official, full Wed/Thu/Fri grid + game status, both clubs per page) → RotoWire league-wide JSON
@@ -176,7 +197,8 @@ the offseason path.
   excluded. When the odds week file is fresh, the game line is appended to that context
   ("— LAR -3.5, total 48 (down 1 from 49)") and the prompt permits a *significant move* as
   evidence for a game-script or role claim — never a restatement of the number itself.
-- **Report + dashboard:** five phase-gated sections (`roster_moves`, `injury_report_changes`,
+- **Report + dashboard:** six phase-gated sections (`roster_moves`, `practice_squad_elevations`
+  — week-scoped, so Saturday's batch is still on Sunday morning's report — `injury_report_changes`,
   `game_day_inactives`, `line_movement`, `projection_audit`), `DailyReport.season_meta` / `inactives` / `odds` /
   `pm_updated_at`, and the in-season dashboard pages (Home week hub / Roster State / Injury
   Report / Inactives / Projection Audit / Line Movement — shared loaders in `dashboard/in_season_data.py`).
@@ -289,6 +311,11 @@ Tab bodies on Projections and Depth Charts are wrapped in `_render_*()` function
 ## Scheduling
 
 - Windows Task Scheduler: `NFL_News_Agent_Daily` at 6:00 AM (news pipeline)
+- Windows Task Scheduler: `NFL_News_Agent_Elevations` Saturdays at 4:15 PM — dispatches `inactives.yml`
+  (`scripts/run_elevations.bat`; register with `setup_scheduler.py create-elevations`). Elevations are
+  declared at 4:00 PM ET and must be known that night; `inactives.yml`'s own Sat 20:05/23:50 UTC crons
+  plus the daily 21:34 UTC PM run are the fallbacks, but GitHub fires this repo's crons a median 242
+  minutes late, so the local dispatch is what makes the deadline deterministic.
 - Windows Task Scheduler: `NFL_News_Agent_YT_Backfill` at 5:30 AM (YouTube catch-up; runs first so transcripts are on disk before the news task). Captions-only by default for fast unattended runs; pushes new YouTube files to master via `git push`. **It then dispatches the cloud daily pipeline** (`gh workflow run daily.yml`) — this is the pipeline's *primary* trigger, because GitHub fires this repo's crons 3-5 hours late (median 242 min) while a dispatch starts in seconds. Runs unconditionally, since the cloud report ignores transcripts and a backfill failure must not also cost the day's report.
 - GitHub Actions: `.github/workflows/in_season_pm.yml` cron 21:34 UTC (in-season only; reads `season.phase` first and exits when offseason). Runs `scripts/run_afternoon.py` and commits `data/roster data/injuries data/audit data/weekly_projections data/schedule data/reports data/depth_charts data/raw data/logs`. `daily.yml` force-adds the same new dirs.
 - Odds: **no schedule of its own.** `collectors/odds_collector.py` reads the sheets the

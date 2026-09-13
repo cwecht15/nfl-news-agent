@@ -572,3 +572,145 @@ def test_run_roster_step_end_to_end(tmp_roster, monkeypatch):
                                 nflverse_players=cur, prev_nflverse=prev, settings=SETTINGS, schedule=_sched())
     assert again["counts"]["appended"] == 0
     assert again["counts"]["ledger"] == 5
+
+
+# ---------------------------------------------------------------------------
+# Practice-squad elevations (ESPN feed + the nflverse abbr fingerprint)
+# ---------------------------------------------------------------------------
+
+
+def test_nflverse_ps_abbr_while_active_is_an_elevation():
+    """DEV -> ACT with the contract abbr still P0x is a standard elevation,
+    knowable the same day instead of waiting for the reversion."""
+    prev = _roster()
+    up = _roster()
+    up["00-3"] = _player("00-3", "Carson Steele", "KC", "RB", "ACT", "P01")
+    events = re_.normalize_nflverse(nv.diff_nflverse(up, prev), "2026-09-13",
+                                    existing_events=[], schedule=_sched())
+    assert [e["event_type"] for e in events] == ["ps_elevated"]
+    assert events[0]["confidence"] == "confirmed"
+
+
+def test_nflverse_real_promotion_still_reported():
+    """An active-roster abbr means he was signed to the 53, not elevated."""
+    prev = _roster()
+    up = _roster()
+    up["00-3"] = _player("00-3", "Carson Steele", "KC", "RB", "ACT", "A01")
+    events = re_.normalize_nflverse(nv.diff_nflverse(up, prev), "2026-09-13",
+                                    existing_events=[], schedule=_sched())
+    assert [(e["event_type"], e["confidence"]) for e in events] == [("ps_promoted", "reported")]
+
+
+def test_normalize_espn_elevations():
+    rows = [
+        {"date": "2026-09-12", "team": "BUF", "name": "Frank Gore Jr.", "pos": "RB",
+         "detail": "ESPN: Elevated RB Frank Gore Jr. and WR Greg Dortch"},
+        {"date": "2026-09-12", "team": "BUF", "name": "Greg Dortch", "pos": "WR", "detail": ""},
+        {"date": "", "team": "BUF", "name": "", "pos": "WR", "detail": ""},   # dropped
+    ]
+    events = re_.normalize_espn_elevations(rows, "2026-09-13", schedule=_sched())
+    assert len(events) == 2
+    assert {e["name"] for e in events} == {"Frank Gore Jr.", "Greg Dortch"}
+    assert all(e["event_type"] == "ps_elevated" for e in events)
+    assert all(e["source_kind"] == "espn" and e["confidence"] == "confirmed" for e in events)
+    # The row's own date wins over the run date: ESPN's feed is a rolling window.
+    assert {e["date"] for e in events} == {"2026-09-12"}
+
+
+def test_espn_confirms_a_reported_news_elevation():
+    """Before this source existed a reported elevation could never be
+    confirmed — the nflverse event covering the same move is family "join"."""
+    tweet = _ev("Carson Steele", "ps_elevated", "2026-09-12", team="KC")
+    espn = re_.normalize_espn_elevations(
+        [{"date": "2026-09-12", "team": "KC", "name": "Carson Steele", "pos": "RB"}],
+        "2026-09-12", schedule=_sched())[0]
+    linked = re_.confirm_reported([tweet, espn], window_days=3)
+    assert linked[0]["confirmed_by"] == espn["event_id"]
+    assert linked[0]["confidence"] == "confirmed"
+
+
+def test_espn_elevation_increments_the_used_counter():
+    """`elevation_limit` reads elevations_used, so a confirmed source is what
+    makes the 3-per-season cap enforceable."""
+    espn = re_.normalize_espn_elevations(
+        [{"date": "2026-09-13", "team": "KC", "name": "Carson Steele", "pos": "RB"}],
+        "2026-09-13", schedule=_sched())
+    state = re_.build_state(espn, _roster(), _sched(), settings=SETTINGS,
+                            baseline_date="2026-09-12", as_of="2026-09-13")
+    p = state["players"]["00-3"]
+    assert p["elevations_used"] == 1
+    assert p["elevations_reported"] == 0
+    assert p["status"] == "PS"          # an elevation is not a status change
+
+
+def test_elevations_for_week_scopes_and_dedupes():
+    """One row per player for the whole week: ESPN, a tweet and the nflverse
+    flip all describe the same elevation, and Sunday still needs Saturday's."""
+    tweet = _ev("Carson Steele", "ps_elevated", "2026-09-12", team="KC")
+    espn = re_.normalize_espn_elevations(
+        [{"date": "2026-09-12", "team": "KC", "name": "Carson Steele", "pos": "RB"}],
+        "2026-09-12", schedule=_sched())[0]
+    other = _ev("Ray Davis", "ps_elevated", "2026-09-12", team="BUF", conf="confirmed")
+    next_week = _ev("Ray Davis", "ps_elevated", "2026-09-19", team="BUF", conf="confirmed")
+    ignored = _ev("Ray Davis", "ir_placed", "2026-09-12", team="BUF")
+
+    wk1 = re_.elevations_for_week(1, [tweet, espn, other, next_week, ignored])
+    assert sorted(e["name"] for e in wk1) == ["Carson Steele", "Ray Davis"]
+    steele = next(e for e in wk1 if e["name"] == "Carson Steele")
+    assert steele["source_kind"] == "espn"          # the confirmed row wins
+    assert [e["name"] for e in re_.elevations_for_week(2, [tweet, espn, other, next_week])] == ["Ray Davis"]
+    assert re_.elevations_for_week(9, [tweet, espn]) == []
+
+
+def test_reconcile_promotions_yields_to_a_confirmed_elevation():
+    """nflverse's DEV->ACT guess sets status ACT ("signed to the 53"). A real
+    elevation for the same player overrules it."""
+    guess = _ev("Carson Steele", "ps_promoted", "2026-09-13", source="nflverse",
+                kind="nflverse", team="KC", gsis_id="00-3")
+    espn = re_.normalize_espn_elevations(
+        [{"date": "2026-09-12", "team": "KC", "name": "Carson Steele", "pos": "RB"}],
+        "2026-09-12", schedule=_sched())[0]
+    events = [guess, espn]
+    assert re_.reconcile_promotions(events) == 1
+    assert guess["event_type"] == "ps_elevated"
+    assert guess["relabeled_from"] == "ps_promoted"
+
+    state = re_.build_state(events, _roster(), _sched(), settings=SETTINGS,
+                            baseline_date="2026-09-11", as_of="2026-09-13")
+    p = state["players"]["00-3"]
+    assert p["status"] == "PS"           # not ACT — he was never signed to the 53
+    assert p["elevations_used"] == 1     # both rows describe one elevation
+
+
+def test_reconcile_promotions_leaves_a_real_promotion_alone():
+    promo = _ev("Carson Steele", "ps_promoted", "2026-09-13", source="nflverse",
+                kind="nflverse", team="KC", gsis_id="00-3")
+    unrelated = re_.normalize_espn_elevations(
+        [{"date": "2026-09-12", "team": "BUF", "name": "Ray Davis", "pos": "RB"}],
+        "2026-09-12", schedule=_sched())[0]
+    assert re_.reconcile_promotions([promo, unrelated]) == 0
+    assert promo["event_type"] == "ps_promoted"
+
+    # Same player, but months later — a separate move, not the same one.
+    stale = re_.normalize_espn_elevations(
+        [{"date": "2026-11-20", "team": "KC", "name": "Carson Steele", "pos": "RB"}],
+        "2026-11-20", schedule=_sched())[0]
+    assert re_.reconcile_promotions([promo, stale]) == 0
+
+
+def test_baseline_elevated_player_reads_as_practice_squad():
+    """nflverse flips an elevated player to ACT while the abbr stays P0x.
+    Calling him ACT would hide him from the elevation-cap check, which only
+    looks at practice-squad players."""
+    roster = _roster()
+    roster["00-3"] = _player("00-3", "Carson Steele", "KC", "RB", "ACT", "P01")
+    state = re_.build_state([], roster, _sched(), settings=SETTINGS,
+                            baseline_date="2026-09-13", as_of="2026-09-13")
+    assert state["players"]["00-3"]["status"] == "PS"
+    assert state["players"]["00-3"]["status_abbr"] == "P01"
+
+    # A genuinely active player is untouched.
+    roster["00-3"] = _player("00-3", "Carson Steele", "KC", "RB", "ACT", "A01")
+    state = re_.build_state([], roster, _sched(), settings=SETTINGS,
+                            baseline_date="2026-09-13", as_of="2026-09-13")
+    assert state["players"]["00-3"]["status"] == "ACT"

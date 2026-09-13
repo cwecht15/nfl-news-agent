@@ -1,11 +1,17 @@
 """Setup Windows Task Scheduler entries for this project.
 
-Two tasks are supported:
+Three tasks are supported:
 
-  - NFL_News_Agent_Daily      → scripts/run_daily.bat at 6:00 AM
-  - NFL_News_Agent_YT_Backfill → scripts/auto_backfill_youtube.bat at 5:30 AM
+  - NFL_News_Agent_Daily       → scripts/run_daily.bat at 6:00 AM (daily)
+  - NFL_News_Agent_YT_Backfill → scripts/auto_backfill_youtube.bat at 5:30 AM (daily)
+  - NFL_News_Agent_Elevations  → scripts/run_elevations.bat at 4:15 PM (Saturdays)
 
-Both use StartWhenAvailable so missed runs execute as soon as the PC wakes up.
+The Saturday task exists because practice-squad elevations are declared at
+4:00 PM ET the day before a game and have to be known that night — and
+GitHub fires this repo's crons a median of four hours late, while a
+workflow_dispatch starts in seconds.
+
+All use StartWhenAvailable so missed runs execute as soon as the PC wakes up.
 Must be run with administrator privileges.
 """
 
@@ -17,6 +23,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent
 DAILY_BAT = PROJECT_ROOT / "scripts" / "run_daily.bat"
 YT_BACKFILL_BAT = PROJECT_ROOT / "scripts" / "auto_backfill_youtube.bat"
+ELEVATIONS_BAT = PROJECT_ROOT / "scripts" / "run_elevations.bat"
 
 TASK_XML_TEMPLATE = """\
 <?xml version="1.0" encoding="UTF-16"?>
@@ -28,9 +35,7 @@ TASK_XML_TEMPLATE = """\
     <CalendarTrigger>
       <StartBoundary>2026-01-01T{run_time}:00</StartBoundary>
       <Enabled>true</Enabled>
-      <ScheduleByDay>
-        <DaysInterval>1</DaysInterval>
-      </ScheduleByDay>
+{schedule}
     </CalendarTrigger>
   </Triggers>
   <Principals>
@@ -62,20 +67,38 @@ TASK_XML_TEMPLATE = """\
 """
 
 
+WEEKLY_SCHEDULE_XML = """      <ScheduleByWeek>
+        <DaysOfWeek><{day}/></DaysOfWeek>
+        <WeeksInterval>1</WeeksInterval>
+      </ScheduleByWeek>"""
+
+DAILY_SCHEDULE_XML = """      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>"""
+
+
 def create_task(
     task_name: str = "NFL_News_Agent_Daily",
     run_time: str = "06:00",
     bat_path: Path = DAILY_BAT,
     description: str = "NFL News Agent — daily news collection and report generation",
     exec_time_limit: str = "PT2H",
+    day_of_week: str | None = None,
 ):
-    """Register a daily task in Windows Task Scheduler with missed-run catch-up."""
+    """Register a task in Windows Task Scheduler with missed-run catch-up.
+
+    Daily unless ``day_of_week`` is given (e.g. "Saturday"), in which case it
+    runs weekly on that day.
+    """
+    schedule = (WEEKLY_SCHEDULE_XML.format(day=day_of_week) if day_of_week
+                else DAILY_SCHEDULE_XML)
     xml_content = TASK_XML_TEMPLATE.format(
         run_time=run_time,
         bat_path=str(bat_path),
         working_dir=str(PROJECT_ROOT),
         description=description,
         exec_time_limit=exec_time_limit,
+        schedule=schedule,
     )
 
     with tempfile.NamedTemporaryFile(
@@ -93,7 +116,7 @@ def create_task(
 
     print(f"Creating scheduled task: {task_name}")
     print(f"  Script:   {bat_path}")
-    print(f"  Schedule: Daily at {run_time}")
+    print(f"  Schedule: {day_of_week or 'Daily'} at {run_time}")
     print(f"  Time cap: {exec_time_limit}")
     print(f"  Missed runs: Will execute on next wake/login")
     print()
@@ -161,6 +184,19 @@ if __name__ == "__main__":
                 "(captions-only) + git push to master"
             ),
             exec_time_limit="PT1H",
+        )
+    elif action == "create-elevations":
+        time_arg = sys.argv[2] if len(sys.argv) > 2 else "16:15"
+        create_task(
+            task_name="NFL_News_Agent_Elevations",
+            run_time=time_arg,
+            bat_path=ELEVATIONS_BAT,
+            description=(
+                "NFL News Agent — dispatch the cloud elevation check after the "
+                "4 PM ET practice-squad elevation deadline (Saturdays)"
+            ),
+            exec_time_limit="PT15M",
+            day_of_week="Saturday",
         )
     elif action == "delete":
         name = sys.argv[2] if len(sys.argv) > 2 else "NFL_News_Agent_Daily"

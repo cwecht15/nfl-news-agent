@@ -251,6 +251,7 @@ HTML_TEMPLATE = Template(
 SECTION_TITLES = {
     "transactions": "Transactions & Signings",
     "roster_moves": "Roster Moves",
+    "practice_squad_elevations": "Practice Squad Elevations",
     "injuries": "Injury Reports",
     "injury_report_changes": "Injury Report Changes",
     "game_day_inactives": "Game-Day Inactives",
@@ -269,6 +270,7 @@ SECTION_TITLES = {
 SECTION_ORDER = [
     "transactions",
     "roster_moves",            # in-season only
+    "practice_squad_elevations",  # in-season only, game weeks
     "injuries",
     "injury_report_changes",   # in-season only
     "game_day_inactives",      # in-season only, game days
@@ -530,6 +532,43 @@ def _build_depth_chart_section(changes: list[dict]) -> dict[str, Any]:
     return {"summary": summary, "count": len(changes)}
 
 
+def _build_elevations_section(events: list[dict], max_elevations: int = 3) -> dict[str, Any]:
+    """This week's practice-squad elevations, by team.
+
+    Its own section rather than a line in Roster Moves because the timing is
+    what makes it useful: elevations are declared 4 PM ET the day before a
+    game and an elevated player is active for it, so this is a lineup fact
+    with a deadline, not a transaction log entry.
+
+    Callers pass the week's events (``roster_events.elevations_for_week``)
+    rather than a week number, so this stays a pure renderer — the section
+    covers the whole week, which is what keeps Saturday's batch on Sunday
+    morning's report.
+    """
+    if not events:
+        return {"summary": "No practice-squad elevations recorded this week.", "count": 0}
+
+    by_team: dict[str, list[dict]] = {}
+    for ev in events:
+        by_team.setdefault(str(ev.get("team") or "?"), []).append(ev)
+
+    parts: list[str] = []
+    for team in sorted(by_team):
+        names: list[str] = []
+        for ev in sorted(by_team[team], key=lambda e: str(e.get("name") or "")):
+            pos = ev.get("pos") or ""
+            bit = f"**{ev.get('name') or '?'}**" + (f" ({pos})" if pos else "")
+            used = ev.get("elevations_used")
+            if used:
+                bit += f" - {used}/{ev.get('max_elevations', max_elevations)}"
+            if str(ev.get("confidence") or "") == "reported":
+                bit += " _(reported)_"
+            names.append(bit)
+        day = str(by_team[team][0].get("date") or "")[5:]
+        parts.append(f"- **{team}** ({day}): " + ", ".join(names))
+    return {"summary": "\n".join(parts), "count": len(events)}
+
+
 def _build_roster_moves_section(events: list[dict]) -> dict[str, Any]:
     """Render in-season roster events grouped by event type, then team.
 
@@ -562,7 +601,7 @@ def _build_roster_moves_section(events: list[dict]) -> dict[str, Any]:
             if ev.get("earliest_return_week"):
                 extras.append(f"eligible Wk {ev['earliest_return_week']}")
             if ev.get("elevations_used") is not None and etype == "ps_elevated":
-                extras.append(f"elevation {ev['elevations_used']}/3")
+                extras.append(f"elevation {ev['elevations_used']}/{ev.get('max_elevations', 3)}")
             if str(ev.get("confidence") or "") == "reported":
                 extras.append("reported, unconfirmed")
             tail = f" - {'; '.join(extras)}" if extras else ""
@@ -786,6 +825,7 @@ def build_report(
     yt_section: Optional[dict[str, Any]] = None,
     fp_section: Optional[dict[str, Any]] = None,
     roster_events: Optional[list[dict]] = None,
+    elevations: Optional[list[dict]] = None,
     injury_changes: Optional[list[dict]] = None,
     audit_alerts: Optional[list[dict]] = None,
     season_meta: Optional[dict[str, Any]] = None,
@@ -826,6 +866,11 @@ def build_report(
         sections["fantasypoints"] = fp_section
     if roster_events is not None:
         sections["roster_moves"] = _build_roster_moves_section(roster_events)
+    if elevations is not None:
+        sections["practice_squad_elevations"] = _build_elevations_section(
+            elevations,
+            int((get_settings().get("roster", {}) or {}).get("max_elevations", 3)),
+        )
     if injury_changes is not None:
         sections["injury_report_changes"] = _build_injury_changes_section(injury_changes)
     if audit_alerts is not None:

@@ -14,6 +14,7 @@ from dashboard.auth import require_password
 require_password()
 
 from dashboard import in_season_data as isd
+from dashboard.helpers import to_et_display
 
 st.header("Roster State")
 isd.require_in_season()
@@ -25,7 +26,7 @@ if not state:
 
 players = state.get("players") or {}
 st.caption(
-    f"Updated {state.get('updated_at', '')} · baseline {state.get('baseline', {}).get('source', '')} "
+    f"Updated {to_et_display(state.get('updated_at'))} · baseline {state.get('baseline', {}).get('source', '')} "
     f"{state.get('baseline', {}).get('date', '')} · {len(players)} players"
 )
 all_teams = sorted({p.get("team", "") for p in players.values() if p.get("team")})
