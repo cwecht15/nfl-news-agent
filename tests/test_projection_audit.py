@@ -280,3 +280,41 @@ def test_elevated_not_projected_is_scoped_to_projected_positions(isolated_dismis
     alerts = pa.check_elevations({}, state, _schedule(), 1, "primary", 3)
     assert "Doneiko Slaughter" in [a["player"] for a in alerts if a["type"] == "elevated_not_projected"]
     assert [a["player"] for a in alerts if a["type"] == "elevation_limit"] == ["Cash Jones"]
+
+
+def test_teams_already_played_is_strictly_before_today():
+    sched = _schedule()   # NE@SEA Wed 09-09; BUF@HST and DAL@NYG Sun 09-13
+    # Saturday: only the Wednesday game has been played.
+    assert pa.teams_already_played(sched, 1, "2026-09-12") == {"NE", "SEA"}
+    # Sunday morning, before kickoff: the 09-13 slate is still upcoming.
+    assert pa.teams_already_played(sched, 1, "2026-09-13") == {"NE", "SEA"}
+    # Monday: everything in week 1 is settled.
+    assert pa.teams_already_played(sched, 1, "2026-09-14") == {"NE", "SEA", "BUF", "HST", "DAL", "NYG"}
+    assert pa.teams_already_played([], 1, "2026-09-14") == set()
+    assert pa.teams_already_played(sched, 1, None) == set()
+
+
+def test_status_conflict_needs_projected_points(isolated_dismissals):
+    """A row projected for nothing cannot produce a wrong number — the depth
+    slot alone is not a reason to flag it."""
+    rows = {"00-0002": {"name": "Ray Davis", "pos": "RB", "team": "BUF", "status": "ACTIVE", "depth": 2}}
+    conflicts = lambda out: [a for a in pa.check_sheet_vs_roster(rows, out, _state(), None, 1, "primary")
+                             if a["type"] == "status_conflict"]
+    assert conflicts({"00-0002": {"ppr": 0.0}}) == []          # top-3 slot, zero points
+    assert [a["player"] for a in conflicts({"00-0002": {"ppr": 9.4}})] == ["Ray Davis"]
+
+
+def test_availability_alerts_skip_a_game_already_played(isolated_dismissals):
+    """A Thursday-night player placed on IR on Saturday was projected correctly
+    on Thursday; flagging it afterwards is noise the reader can't act on."""
+    state = _state()
+    state["players"]["00-0002"]["team"] = "NE"        # NE played Wednesday in _schedule()
+    rows = {"00-0002": {"name": "Ray Davis", "pos": "RB", "team": "NE", "status": "ACTIVE", "depth": 2}}
+    output = {"00-0002": {"ppr": 14.9}}
+
+    upcoming = pa.check_sheet_vs_roster(rows, output, state, None, 1, "primary", played=set())
+    assert [a["type"] for a in upcoming if a["type"] == "status_conflict"] == ["status_conflict"]
+
+    settled = pa.check_sheet_vs_roster(rows, output, state, None, 1, "primary",
+                                       played=pa.teams_already_played(_schedule(), 1, "2026-09-12"))
+    assert [a for a in settled if a["type"] == "status_conflict"] == []

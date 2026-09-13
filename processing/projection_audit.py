@@ -162,6 +162,31 @@ def _slot(rec: dict) -> Optional[int]:
         return None
 
 
+def teams_already_played(schedule: list[dict], week: int, today: Optional[str]) -> set[str]:
+    """Teams whose game this week has already been played (proj abbreviations,
+    matching the sheet rows the checks iterate).
+
+    Availability alerts are predictions about a game that hasn't happened yet.
+    Once a team has played, its projection is settled history: a Thursday-night
+    player placed on IR on Saturday was correctly projected on Thursday, and
+    flagging it on Sunday is noise the reader can do nothing about.
+
+    Strictly *before* today, so a team playing later today still counts as
+    upcoming — a Sunday-morning audit must keep flagging the 1 PM slate.
+    """
+    if not schedule or not week or not today:
+        return set()
+    played: set[str] = set()
+    for g in season_mod.games_for_week(schedule, week):
+        gd = str(g.get("date") or "")
+        if gd and gd < today:
+            for side in ("away", "home"):
+                team = str(g.get(side) or "").strip()
+                if team:
+                    played.add(to_proj(team, "proj"))
+    return played
+
+
 def _week_window(schedule: list[dict], week: int) -> tuple[Optional[str], Optional[str]]:
     """ISO (start, end) of an NFL week: Tuesday before the first game → Monday after the last."""
     games = season_mod.games_for_week(schedule, week)
@@ -255,8 +280,10 @@ def _sheet_rows(snapshot: dict, positions: set[str]) -> dict[str, dict]:
 
 
 def check_sheet_vs_roster(rows: dict[str, dict], output: dict, state: Optional[dict],
-                          nflverse: Optional[dict], week: int, sheet: str) -> list[dict]:
+                          nflverse: Optional[dict], week: int, sheet: str,
+                          played: Optional[set[str]] = None) -> list[dict]:
     alerts: list[dict] = []
+    played = played or set()
     nfv = nflverse or {}
     for gid, rec in rows.items():
         name = rec.get("name") or gid
@@ -280,7 +307,11 @@ def check_sheet_vs_roster(rows: dict[str, dict], output: dict, state: Optional[d
             continue
 
         # 1. Projected as active but not on the 53
-        if roster_status in NOT_ON_53 and sheet_status in ("", "ACTIVE") and (ppr > 0 or (slot is not None and slot <= 3)):
+        # A row projected for nothing cannot produce a wrong number, and a team
+        # that has already played is settled history (a Thursday-night player
+        # placed on IR on Saturday was projected correctly on Thursday).
+        if (roster_status in NOT_ON_53 and sheet_status in ("", "ACTIVE")
+                and ppr > 0 and sheet_team not in played):
             sev = SEVERITY_ERROR if roster_status in RESERVE_STATUSES or roster_status == "FA" else SEVERITY_WARNING
             since = (st or {}).get("status_since")
             erw = (st or {}).get("earliest_return_week")
@@ -410,8 +441,10 @@ def check_missing_active(rows: dict[str, dict], nflverse: Optional[dict], ourlad
     return alerts
 
 
-def check_injuries(rows: dict[str, dict], output: dict, injuries: Optional[dict], week: int, sheet: str) -> list[dict]:
+def check_injuries(rows: dict[str, dict], output: dict, injuries: Optional[dict], week: int, sheet: str,
+                   played: Optional[set[str]] = None) -> list[dict]:
     alerts: list[dict] = []
+    played = played or set()
     if not injuries:
         return alerts
     idx: dict[tuple[str, str], dict] = {}
@@ -423,7 +456,7 @@ def check_injuries(rows: dict[str, dict], output: dict, injuries: Optional[dict]
         nk = _name_key(name)
         team_proj = to_proj(str(rec.get("team") or ""), "proj")
         p = idx.get((nk, team_proj))
-        if not p:
+        if not p or team_proj in played:
             continue
         gs = str(p.get("game_status") or "").upper()
         ppr = _ppr((output or {}).get(gid))
@@ -449,9 +482,11 @@ def check_injuries(rows: dict[str, dict], output: dict, injuries: Optional[dict]
     return alerts
 
 
-def check_inactives(rows: dict[str, dict], output: dict, inactives: Optional[dict], week: int, sheet: str) -> list[dict]:
+def check_inactives(rows: dict[str, dict], output: dict, inactives: Optional[dict], week: int, sheet: str,
+                    played: Optional[set[str]] = None) -> list[dict]:
     """Declared game-day inactives that still carry projected points."""
     alerts: list[dict] = []
+    played = played or set()
     if not inactives:
         return alerts
     for gid, rec in rows.items():
@@ -461,9 +496,9 @@ def check_inactives(rows: dict[str, dict], output: dict, inactives: Optional[dic
         if not p:
             continue
         ppr = _ppr((output or {}).get(gid))
-        if ppr <= 0:
-            continue
         team_proj = to_proj(team_news, "news")
+        if ppr <= 0 or team_proj in played:
+            continue
         alerts.append(_alert(
             "inactive_but_projected", SEVERITY_ERROR, player=name, gsis_id=gid, pos=str(rec.get("pos") or ""),
             team=team_proj, sheet=sheet, week=week,
@@ -794,11 +829,14 @@ def run_audit(ctx, date_str: Optional[str] = None, run: str = "am",
         rows = _sheet_rows(snapshot, positions)
         output = snapshot.get("output") or {}
         byes = season_mod.teams_on_bye(schedule, week) if schedule else set()
-        alerts += check_sheet_vs_roster(rows, output, inputs.get("state"), inputs.get("nflverse"), week, sheet)
+        # Availability alerts only make sense for games still to be played.
+        played = teams_already_played(schedule, week, date_str)
+        alerts += check_sheet_vs_roster(rows, output, inputs.get("state"), inputs.get("nflverse"), week, sheet,
+                                        played=played)
         alerts += check_missing_active(rows, inputs.get("nflverse"), inputs.get("ourlads"), positions, week, sheet, byes,
                                        state=inputs.get("state"))
-        alerts += check_injuries(rows, output, inputs.get("injuries"), week, sheet)
-        alerts += check_inactives(rows, output, inputs.get("inactives"), week, sheet)
+        alerts += check_injuries(rows, output, inputs.get("injuries"), week, sheet, played=played)
+        alerts += check_inactives(rows, output, inputs.get("inactives"), week, sheet, played=played)
         alerts += check_elevations(rows, inputs.get("state"), schedule, week, sheet, max_elev,
                                    positions=positions)
         alerts += check_schedule(snapshot, rows, output, schedule, week, sheet)
