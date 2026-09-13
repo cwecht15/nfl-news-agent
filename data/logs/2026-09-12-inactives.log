@@ -41,3 +41,24 @@ gspread.exceptions.APIError: APIError: [429]: Quota exceeded for quota metric 'R
 2026-09-12 22:02:07,357 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-12.html
 2026-09-12 22:02:07,358 [INFO] afternoon: Report 2026-09-12 updated in place (pm_updated_at=2026-09-12T22:02:07+00:00)
 2026-09-12 22:02:07,358 [INFO] afternoon: Game-day inactives run complete.
+2026-09-13 00:29:48,907 [INFO] afternoon: ============================================================
+2026-09-13 00:29:48,908 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-09-12 (week 1, Sat)
+2026-09-13 00:29:48,908 [INFO] afternoon: ============================================================
+2026-09-13 00:29:48,908 [INFO] afternoon: Step 2c: Reading market lines...
+2026-09-13 00:29:59,136 [INFO] afternoon: Market lines: week 1, 14 games, 1298 player-stats, 0 changes (none); odds pulled 2026-09-12T08:17-04:00
+2026-09-13 00:29:59,518 [INFO] collectors.espn_transactions_collector: ESPN elevations: 43 in the last 4 days (43 parsed from 100 rows)
+2026-09-13 00:29:59,519 [INFO] afternoon: Step 5f: 43 practice-squad elevations from ESPN (ARI, ATL, BAL, BUF, CHI, CIN, CLE, DET, GB, HOU, IND, JAX, LAR, LV, MIA, MIN, NE, NO, NYG, NYJ, PHI, PIT, SEA, SF, TB, TEN, WSH)
+2026-09-13 00:29:59,580 [INFO] processing.roster_events: Roster ledger: 1 reported events confirmed
+2026-09-13 00:29:59,580 [INFO] processing.roster_events: Roster ledger: 7 guessed promotions relabeled as elevations
+2026-09-13 00:29:59,629 [INFO] processing.roster_events: Saved roster state: 3218 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-09-13 00:29:59,636 [INFO] processing.roster_events: Roster step 2026-09-12: {"nflverse_transitions": 9, "nflverse_events": 8, "espn_elevations": 43, "promotions_relabeled": 7, "appended": 43, "ledger": 916, "confirmed_new": 0}
+2026-09-13 00:29:59,637 [INFO] afternoon: Elevations merged into the ledger: 43 new events
+2026-09-13 00:29:59,638 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-09-13 00:29:59,758 [INFO] collectors.inactives_collector: Inactives week 1: 0 games polled, 0 teams published, 0 changed
+2026-09-13 00:29:59,760 [INFO] afternoon: Inactives: week 1, 0 games polled, 0 teams published, 0 newly published/changed
+2026-09-13 00:29:59,761 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-09-13 00:30:00,336 [INFO] afternoon: Projection audit: 30 open alerts (error=3, info=3, warning=24), 0 dismissed
+2026-09-13 00:30:00,363 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-12.json
+2026-09-13 00:30:00,365 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-12.html
+2026-09-13 00:30:00,365 [INFO] afternoon: Report 2026-09-12 updated in place (pm_updated_at=2026-09-13T00:30:00+00:00)
+2026-09-13 00:30:00,365 [INFO] afternoon: Game-day inactives run complete.
