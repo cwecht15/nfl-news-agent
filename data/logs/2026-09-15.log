@@ -313,3 +313,87 @@
 2026-09-15 15:33:46,665 [INFO] orchestrator: HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-15.html
 2026-09-15 15:33:46,665 [INFO] orchestrator: Stats: 367 news items, 32 team highlights
 2026-09-15 15:33:46,665 [INFO] orchestrator: ============================================================
+2026-09-15 23:41:23,727 [INFO] afternoon: ============================================================
+2026-09-15 23:41:23,727 [INFO] afternoon: NFL News Agent - Afternoon in-season update: 2026-09-15 (week 2, Tue)
+2026-09-15 23:41:23,727 [INFO] afternoon: ============================================================
+2026-09-15 23:41:23,755 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/9
+2026-09-15 23:41:23,845 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/9
+2026-09-15 23:41:23,930 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/9
+2026-09-15 23:41:24,829 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/9
+2026-09-15 23:41:24,928 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/9
+2026-09-15 23:41:24,991 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/9
+2026-09-15 23:41:25,036 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/8
+2026-09-15 23:41:25,554 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/8
+2026-09-15 23:41:26,092 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/8
+2026-09-15 23:41:26,778 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/8
+2026-09-15 23:41:26,984 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/8
+2026-09-15 23:41:27,456 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/8
+2026-09-15 23:41:27,734 [INFO] collectors.web_scraper: Found 44 transactions.
+2026-09-15 23:41:27,737 [INFO] afternoon: PM transactions: 44 rows -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-09-15/web_pm.json
+2026-09-15 23:41:30,816 [INFO] collectors.depth_chart_collector: Saved 2472 depth chart entries to /home/runner/work/nfl-news-agent/nfl-news-agent/data/depth_charts/2026-09-15.json
+2026-09-15 23:41:30,817 [INFO] afternoon: OurLads PM: 6 reserve-list crossings vs previous snapshot
+2026-09-15 23:42:03,343 [INFO] processing.season: Schedule refreshed: 272 games for 2026
+2026-09-15 23:42:18,548 [INFO] processing.weekly_projections: Saved primary weekly snapshot wk01 (2026-09-15): players=482, games=32, output=482, kickers=32
+2026-09-15 23:42:18,548 [INFO] afternoon: Refreshed primary sheet snapshot (week 1)
+2026-09-15 23:42:18,552 [INFO] afternoon: Step 2c: Reading market lines...
+2026-09-15 23:42:23,817 [INFO] afternoon: Market lines: week 1, 14 games, 1425 player-stats, 0 changes (none); odds pulled 2026-09-15T09:06-04:00 [the last odds pull priced Week 2; the news agent is on Week 1]
+2026-09-15 23:42:23,818 [WARNING] afternoon: Odds source error: the last odds pull priced Week 2; the news agent is on Week 1
+2026-09-15 23:42:23,941 [INFO] collectors.espn_transactions_collector: ESPN elevations: 40 in the last 4 days (47 parsed from 100 rows)
+2026-09-15 23:42:23,942 [INFO] afternoon: Step 5f: 40 practice-squad elevations from ESPN (ARI, ATL, BAL, BUF, CHI, CIN, CLE, DEN, DET, GB, HOU, IND, JAX, KC, LV, MIA, MIN, NO, NYG, NYJ, PHI, PIT, TB, TEN, WSH)
+2026-09-15 23:42:23,942 [INFO] afternoon: Step 5b: Updating roster events/state...
+2026-09-15 23:42:23,984 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
+2026-09-15 23:42:24,157 [INFO] collectors.nflverse_roster_collector: nflverse roster: 2964 rows (938720 bytes)
+2026-09-15 23:42:24,174 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 1 rows without gsis_id skipped, 0 duplicate gsis rows
+2026-09-15 23:42:24,196 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 2963 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-09-15.json
+2026-09-15 23:42:24,223 [INFO] processing.roster_events: Roster ledger: 2 reported events confirmed
+2026-09-15 23:42:24,273 [INFO] processing.roster_events: Saved roster state: 3227 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-09-15 23:42:24,319 [INFO] processing.roster_events: Roster step 2026-09-15: {"nflverse_transitions": 246, "nflverse_events": 61, "nflcom_events": 44, "news_events": 0, "ourlads_events": 6, "espn_elevations": 40, "appended": 33, "ledger": 1092, "confirmed_new": 0}
+2026-09-15 23:42:24,319 [INFO] afternoon: Roster events: 33 new (appended=33, confirmed_new=0, espn_elevations=40, ledger=1092, news_events=0, nflcom_events=44, nflverse_events=61, nflverse_transitions=246, ourlads_events=6, status={'ACT': 1695, 'EXE': 5, 'FA': 416, 'IR': 225, 'NFI': 6, 'PS': 564, 'PUP': 30, 'RET': 23, 'SUS': 5, 'UNKNOWN': 258}); state covers 3227 players
+2026-09-15 23:42:24,319 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-09-15 23:42:24,525 [INFO] collectors.injury_report_collector: ARI injury page shows ['ARI', 'LAC'], expected ARI vs SEA this week — skipped
+2026-09-15 23:42:24,641 [INFO] collectors.injury_report_collector: ATL injury page shows ['ATL', 'PIT'], expected ATL vs CAR this week — skipped
+2026-09-15 23:42:24,770 [INFO] collectors.injury_report_collector: CAR injury page shows ['CAR', 'CHI'], expected CAR vs ATL this week — skipped
+2026-09-15 23:42:24,885 [INFO] collectors.injury_report_collector: CHI injury page shows ['CAR', 'CHI'], expected CHI vs MIN this week — skipped
+2026-09-15 23:42:24,895 [INFO] collectors.injury_report_collector: BUF injury page shows ['BUF', 'HOU'], expected BUF vs DET this week — skipped
+2026-09-15 23:42:24,944 [INFO] collectors.injury_report_collector: CLE injury page shows ['CLE', 'JAX'], expected CLE vs TB this week — skipped
+2026-09-15 23:42:25,021 [INFO] collectors.injury_report_collector: BAL injury page shows ['BAL', 'IND'], expected BAL vs NO this week — skipped
+2026-09-15 23:42:25,086 [INFO] collectors.injury_report_collector: CIN injury page shows ['CIN', 'TB'], expected CIN vs HOU this week — skipped
+2026-09-15 23:42:25,158 [INFO] collectors.injury_report_collector: DAL injury page shows ['DAL', 'NYG'], expected DAL vs WAS this week — skipped
+2026-09-15 23:42:25,333 [INFO] collectors.injury_report_collector: DET injury page shows ['DET', 'NO'], expected DET vs BUF this week — skipped
+2026-09-15 23:42:25,369 [INFO] collectors.injury_report_collector: DEN injury page shows ['DEN', 'KC'], expected DEN vs JAX this week — skipped
+2026-09-15 23:42:25,485 [INFO] collectors.injury_report_collector: IND injury page shows ['BAL', 'IND'], expected IND vs KC this week — skipped
+2026-09-15 23:42:25,597 [INFO] collectors.injury_report_collector: JAX injury page shows ['CLE', 'JAX'], expected JAX vs DEN this week — skipped
+2026-09-15 23:42:25,624 [INFO] collectors.injury_report_collector: KC injury page shows ['DEN', 'KC'], expected KC vs IND this week — skipped
+2026-09-15 23:42:25,708 [INFO] collectors.injury_report_collector: HOU injury page shows ['BUF', 'HOU'], expected HOU vs CIN this week — skipped
+2026-09-15 23:42:25,841 [INFO] collectors.injury_report_collector: LAC injury page shows ['ARI', 'LAC'], expected LAC vs LV this week — skipped
+2026-09-15 23:42:25,845 [INFO] collectors.injury_report_collector: LV injury page shows ['LV', 'MIA'], expected LV vs LAC this week — skipped
+2026-09-15 23:42:25,931 [INFO] collectors.injury_report_collector: MIN injury page shows ['GB', 'MIN'], expected MIN vs CHI this week — skipped
+2026-09-15 23:42:26,141 [INFO] collectors.injury_report_collector: MIA injury page shows ['LV', 'MIA'], expected MIA vs SF this week — skipped
+2026-09-15 23:42:26,178 [INFO] collectors.injury_report_collector: LAR injury page shows ['LAR', 'SF'], expected LAR vs NYG this week — skipped
+2026-09-15 23:42:26,190 [INFO] collectors.injury_report_collector: NE injury page shows ['NE', 'SEA'], expected NE vs PIT this week — skipped
+2026-09-15 23:42:26,309 [INFO] collectors.injury_report_collector: NYG injury page shows ['DAL', 'NYG'], expected NYG vs LAR this week — skipped
+2026-09-15 23:42:26,415 [INFO] collectors.injury_report_collector: NO injury page shows ['DET', 'NO'], expected NO vs BAL this week — skipped
+2026-09-15 23:42:26,505 [INFO] collectors.injury_report_collector: PHI injury page shows ['PHI', 'WAS'], expected PHI vs TEN this week — skipped
+2026-09-15 23:42:26,572 [INFO] collectors.injury_report_collector: NYJ injury page shows ['NYJ', 'TEN'], expected NYJ vs GB this week — skipped
+2026-09-15 23:42:26,596 [INFO] collectors.injury_report_collector: PIT injury page shows ['ATL', 'PIT'], expected PIT vs NE this week — skipped
+2026-09-15 23:42:26,728 [INFO] collectors.injury_report_collector: SF injury page shows ['LAR', 'SF'], expected SF vs MIA this week — skipped
+2026-09-15 23:42:26,825 [INFO] collectors.injury_report_collector: TEN injury page shows ['NYJ', 'TEN'], expected TEN vs PHI this week — skipped
+2026-09-15 23:42:26,855 [INFO] collectors.injury_report_collector: SEA injury page shows ['NE', 'SEA'], expected SEA vs ARI this week — skipped
+2026-09-15 23:42:26,917 [INFO] collectors.injury_report_collector: TB injury page shows ['CIN', 'TB'], expected TB vs CLE this week — skipped
+2026-09-15 23:42:27,002 [INFO] collectors.injury_report_collector: WAS injury page shows ['PHI', 'WAS'], expected WAS vs DAL this week — skipped
+2026-09-15 23:42:27,003 [INFO] collectors.injury_report_collector: Team-site injury reports: 0 with a table, 1 not posted, 31 mismatched, 0 failed; 0 rows
+2026-09-15 23:42:27,410 [INFO] collectors.injury_report_collector: RotoWire practice report: 11 rows
+2026-09-15 23:42:27,586 [INFO] collectors.injury_report_collector: NFL.com injuries: week 1, 182 rows (practice status dated 2026-09-15)
+2026-09-15 23:42:27,587 [INFO] collectors.injury_report_collector: Injury report: 2 source conflicts
+2026-09-15 23:42:27,593 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk02.json (32 teams)
+2026-09-15 23:42:27,593 [INFO] collectors.injury_report_collector: Injury report week 2: 189 players, 9 changes
+2026-09-15 23:42:27,600 [INFO] afternoon: Injury report: week 2, 189 rows (nflcom=182, rotowire=11, team_site=0), 9 changes, 2 conflicts, team sites with a table: 0
+2026-09-15 23:42:27,601 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-09-15 23:42:27,861 [INFO] collectors.inactives_collector: Inactives week 1: 1 games polled, 2 teams published, 2 changed
+2026-09-15 23:42:27,863 [INFO] afternoon: Inactives: week 1, 1 games polled, 2 teams published, 2 newly published/changed
+2026-09-15 23:42:27,864 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-09-15 23:42:28,469 [INFO] afternoon: Projection audit: 19 open alerts (error=1, info=5, warning=13), 0 dismissed
+2026-09-15 23:42:28,510 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-15.json
+2026-09-15 23:42:28,512 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-15.html
+2026-09-15 23:42:28,512 [INFO] afternoon: Report 2026-09-15 updated in place (pm_updated_at=2026-09-15T23:42:28+00:00)
+2026-09-15 23:42:28,513 [INFO] afternoon: Afternoon run complete.
