@@ -1,0 +1,419 @@
+{
+  "date": "2026-09-15",
+  "run": "am",
+  "season": 2026,
+  "week": 2,
+  "sheet": "secondary",
+  "generated_at": "2026-09-15T15:33:43+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-15",
+    "nflverse_date": "2026-09-15",
+    "injury_week_updated": "2026-09-15T15:33:42+00:00",
+    "roster_state_updated": "2026-09-15T15:33:38+00:00"
+  },
+  "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0036212|2|OUT",
+      "severity": "error",
+      "player": "Tua Tagovailoa",
+      "gsis_id": "00-0036212",
+      "pos": "QB",
+      "team": "ATL",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Tua Tagovailoa (QB, ATL) is OUT (Oblique) but projected for 14.0 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Oblique",
+        "practice": {
+          "2026-09-14": "DNP"
+        },
+        "ppr": 14.0
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0037563|2|OUT",
+      "severity": "error",
+      "player": "Malik Davis",
+      "gsis_id": "00-0037563",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Malik Davis (RB, DAL) is OUT (Hip) but projected for 0.1 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hip",
+        "practice": {
+          "2026-09-14": "LP"
+        },
+        "ppr": 0.1
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0035406|2",
+      "severity": "error",
+      "player": "Lil'Jordan Humphrey",
+      "gsis_id": "00-0035406",
+      "pos": "WR",
+      "team": "DEN",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Lil'Jordan Humphrey (WR, DEN) is projected Active (0.1 PPR) but roster status is FA (since 2026-09-15)",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.1,
+        "slot": 6,
+        "earliest_return_week": null
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0039338|2|OUT",
+      "severity": "error",
+      "player": "Brock Bowers",
+      "gsis_id": "00-0039338",
+      "pos": "TE",
+      "team": "LV",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Brock Bowers (TE, LV) is OUT (Knee) but projected for 0.7 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Knee",
+        "practice": {
+          "2026-09-14": "DNP"
+        },
+        "ppr": 0.7
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040734|2|OUT",
+      "severity": "error",
+      "player": "TreVeyon Henderson",
+      "gsis_id": "00-0040734",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "TreVeyon Henderson (RB, NE) is OUT (Ankle) but projected for 8.4 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-09-14": "DNP"
+        },
+        "ppr": 8.4
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0033375|2|OUT",
+      "severity": "error",
+      "player": "Tim Patrick",
+      "gsis_id": "00-0033375",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Tim Patrick (WR, NYJ) is OUT (Groin) but projected for 0.7 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Groin",
+        "practice": {
+          "2026-09-14": "DNP"
+        },
+        "ppr": 0.7
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038933|2|rec_yds",
+      "severity": "warning",
+      "player": "Dalton Kincaid",
+      "gsis_id": "00-0038933",
+      "pos": "TE",
+      "team": "BUF",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Dalton Kincaid (TE, BUF) Rec Yds: we project 44.0, the market implies 58.0 (odds pulled 2026-09-15 09:07-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 44.0,
+        "market_mean": 57.96924222,
+        "delta": 13.96924222,
+        "pct": 0.3174827777,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036997|2|anytime_td",
+      "severity": "warning",
+      "player": "Javonte Williams",
+      "gsis_id": "00-0036997",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Javonte Williams (RB, DAL) Anytime TD rate: we project 0.67, the market implies 0.98 (odds pulled 2026-09-15 09:07-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.67,
+        "market_mean": 0.9760099666,
+        "delta": 0.3060099666,
+        "pct": 0.4567312934,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036158|2|anytime_td",
+      "severity": "warning",
+      "player": "J.K. Dobbins",
+      "gsis_id": "00-0036158",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "J.K. Dobbins (RB, DEN) Anytime TD rate: we project 0.02, the market implies 0.44 (odds pulled 2026-09-15 09:07-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.02,
+        "market_mean": 0.4395271375,
+        "delta": 0.4195271375,
+        "pct": 20.97635688,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036613|2|anytime_td",
+      "severity": "warning",
+      "player": "Jaylen Waddle",
+      "gsis_id": "00-0036613",
+      "pos": "WR",
+      "team": "DEN",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Jaylen Waddle (WR, DEN) Anytime TD rate: we project 0.04, the market implies 0.38 (odds pulled 2026-09-15 09:07-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.04,
+        "market_mean": 0.3810780943,
+        "delta": 0.3410780943,
+        "pct": 8.526952357,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036355|2|rush_yds",
+      "severity": "warning",
+      "player": "Justin Herbert",
+      "gsis_id": "00-0036355",
+      "pos": "QB",
+      "team": "LAC",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Justin Herbert (QB, LAC) Rush Yds: we project 16.2, the market implies 29.3 (odds pulled 2026-09-15 09:07-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_yds"
+        ],
+        "ours": 16.2,
+        "market_mean": 29.26015087,
+        "delta": 13.06015087,
+        "pct": 0.8061821527,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035676|2",
+      "severity": "warning",
+      "player": "A.J. Brown",
+      "gsis_id": "00-0035676",
+      "pos": "WR",
+      "team": "NE",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "A.J. Brown (WR, NE) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038905|2",
+      "severity": "warning",
+      "player": "Blake Grupe",
+      "gsis_id": "00-0038905",
+      "pos": "K",
+      "team": "NYJ",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Blake Grupe (K, NYJ) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "I01"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0035659|2|rec_yds",
+      "severity": "warning",
+      "player": "Terry McLaurin",
+      "gsis_id": "00-0035659",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Terry McLaurin (WR, WAS) Rec Yds: we project 42.0, the market implies 57.2 (odds pulled 2026-09-15 09:07-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 42.0,
+        "market_mean": 57.20796436,
+        "delta": 15.20796436,
+        "pct": 0.3620943896,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|nintendo wii|2|released",
+      "severity": "info",
+      "player": "Nintendo Wii",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 5 days",
+      "evidence": {
+        "event": {
+          "event_id": "dbe683763185fa5b",
+          "event_type": "released",
+          "date": "2026-09-10",
+          "source": "news:SBN Bills (Buffalo Rumblings)"
+        },
+        "days_pending": 5
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038489|2",
+      "severity": "info",
+      "player": "Ben VanSumeren",
+      "gsis_id": "00-0038489",
+      "pos": "RB",
+      "team": "KC",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Ben VanSumeren (RB, KC) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|audric estime|2|ir_placed",
+      "severity": "info",
+      "player": "Audric Estime",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NO",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 3 days",
+      "evidence": {
+        "event": {
+          "event_id": "3c678b83451f2bd8",
+          "event_type": "ir_placed",
+          "date": "2026-09-12",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 3
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038488|2",
+      "severity": "info",
+      "player": "Brady Russell",
+      "gsis_id": "00-0038488",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Brady Russell (RB, SEA) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|xavier thomas|2|suspended",
+      "severity": "info",
+      "player": "Xavier Thomas",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "secondary",
+      "week": 2,
+      "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 4 days",
+      "evidence": {
+        "event": {
+          "event_id": "e9e6dda68a40e203",
+          "event_type": "suspended",
+          "date": "2026-09-11",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 4
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "out_but_projected": 5,
+    "status_conflict": 1,
+    "market_proj_gap": 6,
+    "sheet_status_stale": 1,
+    "missing_active": 3,
+    "unconfirmed_report": 3
+  }
+}
