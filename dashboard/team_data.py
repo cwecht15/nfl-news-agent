@@ -41,6 +41,31 @@ def injury_rows(week_file: Optional[dict], team: str) -> tuple[list[str], list[d
     return [labels[d] for d in days], rows
 
 
+REFRESH_SCHEDULE = ("Refreshed each morning and evening, plus Wed/Thu 5 PM, Fri every 45 min "
+                    "3:45–6:45 PM and Sat 4:30 PM ET, when practice reports and designations post.")
+
+
+def designation_note(week_file: Optional[dict], team: str, today: str) -> str:
+    """Why a team's Game status column is empty, when it is.
+
+    Designations come with a club's final practice report (Fri for Sunday,
+    Sat for Monday, Wed for Thursday) and West Coast clubs post theirs late
+    in the afternoon, so an empty column on that day usually means "not
+    posted yet" rather than "nobody designated"."""
+    t = ((week_file or {}).get("teams") or {}).get(team) or {}
+    days = sorted(t.get("practice_days") or [])
+    players = [p for p in (t.get("players") or {}).values() if not p.get("cleared")]
+    if not days or not players or any(p.get("game_status") for p in players):
+        return ""
+    last = days[-1]
+    if today < last:
+        return f"Game designations come with the {weekday_name(last)} report."
+    if today == last:
+        return ("No game designations yet — they come with today's final report, which this club "
+                "had not posted as of the last refresh.")
+    return ""
+
+
 def inactive_rows(inactives_week: Optional[dict], team: str) -> list[dict]:
     rows = []
     for g in ((inactives_week or {}).get("games") or {}).values():

@@ -31,6 +31,7 @@ from dashboard.helpers import (
     highlight_summary,
     render_numbered_sources,
     render_sources,
+    to_et_display,
 )
 from processing import line_insights as li
 from processing import season as season_mod
@@ -183,11 +184,17 @@ _team_notes(7, first_expanded=True, limit=1)   # the newest report that has note
 # ---------------------------------------------------------------------------
 
 st.subheader("Injury report")
-day_cols, inj = td.injury_rows(isd.injury_week(ctx.season, week), team)
+injury_week = isd.injury_week(ctx.season, week) or {}
+day_cols, inj = td.injury_rows(injury_week, team)
+note = td.designation_note(injury_week, team, today)
+if note:
+    st.info(note)
 if inj:
     st.dataframe(inj, use_container_width=True, hide_index=True)
 else:
     st.caption("Nobody listed yet this week." if game else "On bye — no report.")
+if injury_week.get("updated_at"):
+    st.caption(f"Last updated **{to_et_display(injury_week['updated_at'])}**. {td.REFRESH_SCHEDULE}")
 inactive = td.inactive_rows(isd.inactives_week(ctx.season, week), team)
 if inactive:
     st.markdown("**Game-day inactives**")

@@ -185,3 +185,13 @@ def test_roster_rows_off_the_53_only():
     assert [r["Player"] for r in td.roster_rows(state, "NO")] == ["IR Guy", "PS Guy", "PS Lineman"]
     skill = td.roster_rows(state, "NO", skill_only=True)
     assert [r["Player"] for r in skill] == ["IR Guy", "PS Guy"] and skill[0]["Eligible Wk"] == 5
+
+
+def test_designation_note_explains_an_empty_game_status_column():
+    week = {"teams": {"SEA": {"practice_days": ["2026-09-16", "2026-09-17", "2026-09-18"], "players": {
+        "d": {"name": "Sam Darnold", "pos": "QB", "practice": {"2026-09-18": "DNP"}, "game_status": ""}}}}}
+    assert "Fri report" in td.designation_note(week, "SEA", "2026-09-17")
+    assert "not posted as of the last refresh" in td.designation_note(week, "SEA", "2026-09-18")
+    assert td.designation_note(week, "SEA", "2026-09-19") == ""      # past designation day: nobody designated
+    week["teams"]["SEA"]["players"]["d"]["game_status"] = "OUT"
+    assert td.designation_note(week, "SEA", "2026-09-18") == ""      # posted
