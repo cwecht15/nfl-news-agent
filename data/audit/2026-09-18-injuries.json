@@ -4,11 +4,11 @@
   "season": 2026,
   "week": 2,
   "sheet": "primary",
-  "generated_at": "2026-09-18T21:18:10+00:00",
+  "generated_at": "2026-09-18T22:03:00+00:00",
   "inputs": {
     "snapshot_date": "2026-09-18",
     "nflverse_date": "2026-09-18",
-    "injury_week_updated": "2026-09-18T21:18:09+00:00",
+    "injury_week_updated": "2026-09-18T22:03:00+00:00",
     "roster_state_updated": "2026-09-18T12:08:46+00:00"
   },
   "alerts": [
@@ -54,6 +54,28 @@
           "2026-09-18": "DNP"
         },
         "ppr": 1.3
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0036259|2|OUT",
+      "severity": "error",
+      "player": "Jauan Jennings",
+      "gsis_id": "00-0036259",
+      "pos": "WR",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Jauan Jennings (WR, MIN) is OUT (NIR - Personal) but projected for 5.4 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "NIR - Personal",
+        "practice": {
+          "2026-09-16": "DNP",
+          "2026-09-17": "DNP",
+          "2026-09-18": "DNP"
+        },
+        "ppr": 5.4
       }
     },
     {
@@ -347,27 +369,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036259|2",
-      "severity": "info",
-      "player": "Jauan Jennings",
-      "gsis_id": "00-0036259",
-      "pos": "WR",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 2,
-      "message": "Jauan Jennings (WR, MIN) did not practice on the latest report (Personal); projected 5.4 PPR",
-      "evidence": {
-        "practice": {
-          "2026-09-16": "DNP",
-          "2026-09-17": "DNP",
-          "2026-09-18": "DNP"
-        },
-        "injury": "Personal",
-        "ppr": 5.4
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|audric estime|2|ir_placed",
       "severity": "info",
@@ -413,9 +414,9 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "out_but_projected": 3,
+    "out_but_projected": 4,
     "market_proj_gap": 8,
     "unconfirmed_report": 3,
-    "dnp_but_projected": 4
+    "dnp_but_projected": 3
   }
 }
