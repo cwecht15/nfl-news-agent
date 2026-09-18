@@ -221,6 +221,19 @@ def test_cleared_injury_listing_raises_nothing(isolated_dismissals):
     assert "out_but_projected" not in types and "dnp_but_projected" not in types
 
 
+def test_latest_audit_is_the_last_generated_not_the_last_named(tmp_path, monkeypatch):
+    """Run labels sort am < gameday < injuries < pm, but a Thursday's game-day
+    audit (7:50 PM) or a late injuries refresh can run after the pm one."""
+    monkeypatch.setattr(pa, "get_data_dir", lambda sub: tmp_path)
+    for name, at in (("2026-09-17-pm", "2026-09-17T23:38:00+00:00"),
+                     ("2026-09-17-gameday", "2026-09-17T23:59:00+00:00"),
+                     ("2026-09-16-pm", "2026-09-17T00:10:00+00:00")):
+        (tmp_path / f"{name}.json").write_text(json.dumps({"run": name[11:], "generated_at": at}),
+                                               encoding="utf-8")
+    assert pa.latest_audit()["run"] == "gameday"
+    assert pa.latest_audit(before_date="2026-09-17")["run"] == "pm"
+
+
 def test_missing_inputs_are_soft(isolated_dismissals):
     inputs = _inputs()
     inputs["state"] = None

@@ -913,17 +913,32 @@ def run_audit(ctx, date_str: Optional[str] = None, run: str = "am",
 
 
 def latest_audit(before_date: Optional[str] = None) -> Optional[dict]:
-    """Most recent ``data/audit/*.json`` (pm sorts after am for the same day)."""
+    """Most recent ``data/audit/*.json``.
+
+    Newest date, then the run generated last that day — by the file's own
+    ``generated_at``, not its name: run labels sort alphabetically (am <
+    gameday < injuries < pm), so on a Thursday the 7:50 PM game-day audit
+    lost to the 7:30 PM afternoon one, and a late injuries refresh would too.
+    """
     d = get_data_dir("audit")
     files = sorted(p for p in d.glob("*.json"))
     if before_date:
         files = [p for p in files if p.name[:10] < before_date]
     if not files:
         return None
-    try:
-        return json.loads(files[-1].read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return None
+    newest_day = files[-1].name[:10]
+    best, best_key = None, None
+    for p in files:
+        if p.name[:10] != newest_day:
+            continue
+        try:
+            audit = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        key = (str(audit.get("generated_at") or ""), p.name)
+        if best_key is None or key > best_key:
+            best, best_key = audit, key
+    return best
 
 
 def _main() -> int:
