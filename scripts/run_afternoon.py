@@ -118,16 +118,19 @@ def _refresh_active_sheet(date_str: str, ctx, logger: logging.Logger):
 
 def _odds_section(odds_week: dict | None, ctx, inactives_week: dict | None,
                   logger: logging.Logger, injury_changes: list | None = None,
-                  roster_events: list | None = None) -> dict | None:
+                  roster_events: list | None = None, date_str: str | None = None) -> dict | None:
     """Line Movement section for the afternoon run — deterministic, no LLM.
 
     The PM run makes no model calls by design, so the paired-news lede is
-    skipped and the section renders from the movers alone.
+    skipped and the section renders from the movers alone. It covers the same
+    window as the morning build of this report (every pull since the previous
+    report), so a quiet afternoon keeps the morning's movement instead of
+    replacing it with "no movement".
     """
     if not odds_week:
         return None
     try:
-        from processing.odds_section import build_odds_section
+        from processing.odds_section import build_odds_section, report_window_start
 
         return build_odds_section(
             odds_week, [],
@@ -135,6 +138,8 @@ def _odds_section(odds_week: dict | None, ctx, inactives_week: dict | None,
             roster_events=roster_events,
             inactives=_inactive_rows(ctx, inactives_week),
             use_llm=False,
+            window=True,
+            since=report_window_start(date_str or ctx.today),
         )
     except Exception as e:  # noqa: BLE001
         logger.warning("Line Movement section failed (non-fatal): %s", e)
@@ -284,7 +289,7 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
             # and an elevation the report misses is a player who plays tomorrow.
             _update_report(date_str, ctx, roster_events, None, audit_alerts, logger,
                            inactives=inactives_week, create_missing=False,
-                           line_movement=_odds_section(odds_week, ctx, inactives_week, logger),
+                           line_movement=_odds_section(odds_week, ctx, inactives_week, logger, date_str=date_str),
                            odds=odds_week)
             logger.info("Game-day inactives run complete.")
             return 0
@@ -334,7 +339,8 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
                        inactives=inactives_week,
                        line_movement=_odds_section(odds_week, ctx, inactives_week, logger,
                                                    injury_changes=injury_changes,
-                                                   roster_events=roster_events),
+                                                   roster_events=roster_events,
+                                                   date_str=date_str),
                        odds=odds_week)
         logger.info("Afternoon run complete.")
     finally:

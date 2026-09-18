@@ -184,7 +184,17 @@ the offseason path.
   series is kept here, deduped on content because a re-price reuses the odds' timestamp; and
   `MKT-ONLY` / `FP Flag` are *state*, not movement, so each fires once and then only on change.
   Stale pulls (wrong week, or older than `odds.max_pull_age_hours`) label themselves and suppress
-  the audit's market alerts rather than flooding it.
+  the audit's market alerts rather than flooding it. **Movement belongs to the pull that produced
+  it:** most runs see no new pull, so a run with none keeps the last pull's `changes`, and every
+  new pull is appended to `pull_log` with its `seen_at`. The report section is built with
+  `window=True, since=report_window_start(date)` — every pull first seen after the *previous day's*
+  report — so Thursday 4 PM's moves reach Friday morning's report, and the afternoon rebuild covers
+  the same window (it can only add, never blank the morning's section). The dashboard page leads
+  with **What matters** (`processing/line_insights.py`): implied team totals open → now and the
+  sheet's implied total vs the market's (the sheet line drives every projection in the game), and
+  player lines flagged RED or moving *away* from your projection since open (in units of the
+  stat's movement threshold); teams whose game is over are left out. **Recent pulls** lists
+  `pull_log`, falling back to a state-derived latest-pull diff for files without one.
 - **Projection audit (Step 5d):** `processing/projection_audit.py` cross-checks the active sheet
   against roster state / nflverse / injuries / inactives / OurLads / schedule: `status_conflict`
   (projected but on IR/PS), `sheet_status_stale`, `wrong_team`, `missing_active` (QB only when
@@ -195,7 +205,10 @@ the offseason path.
   `sheet_line_stale` (the sheet's Spread/O-U drifted from the market — it drives every
   player projection in that game), `market_proj_gap` (RED only; correlated stats collapse
   to one alert per player) and `market_only_player` (quoted by the market with **no row**
-  on the sheet — a projected zero is not the same thing). Output `data/audit/<date>-<run>.json`;
+  on the sheet — a projected zero is not the same thing). A practice-squad player marked ACTIVE
+  with an elevation dated inside the week's Tue..Mon window (`elevated_this_week`) raises neither
+  `status_conflict` nor `sheet_status_stale`: the sheet is right for that game and he reverts on
+  his own. Output `data/audit/<date>-<run>.json`;
   week-scoped dismissal keys in `data/projections/audit_dismissals.json` (cloud: "Save dismissals
   to repo" via `_repo_sync.push_audit_dismissals_to_repo`).
 - **Team Notes in-season prompt:** `summarizer._team_note_prompt_multi/_single` return the
@@ -301,7 +314,7 @@ FantasyPoints only when a non-empty `data/raw/<date>/fantasypoints.json` exists 
 | This Week | Inactives *(in-season)* | Game-day inactives from ESPN per-game rosters, skill-position filter. |
 | This Week | Roster State *(in-season)* | IR/PUP/NFI/SUS/PS standing per player (return eligibility, elevations used) + recent roster-event feed. |
 | This Week | Projection Audit *(in-season)* | Latest audit alerts with severity/type filters, per-alert dismiss + note, restore; cloud "Save dismissals to repo". |
-| This Week | Line Movement *(in-season)* | Game lines with movement arrows vs the opening line, sharp reference and your sheet's line; prop movers filterable by team/pos/stat; market-vs-projection flags; today's raw change list. Reads `data/odds/` only — never spends a Sheets read on a rerun. |
+| This Week | Line Movement *(in-season)* | **What matters** first: team implied totals that moved or where your sheet is off the market, and player lines RED or moving away from your projection (played games left out). Then game lines vs open / sharp / your sheet, prop movers (ranked by move ÷ stat threshold), market-vs-projection flags, and **Recent pulls** (each odds pull's changes). Reads `data/odds/` only — never spends a Sheets read on a rerun. |
 | Sources | Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
 | Sources | YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
 | Sources | Podcast Report | Date-range picker → checkbox episode table → on-demand LLM summary of pushed podcast episodes (Episode Highlights + per-team bullets). Transcript-tag-first, show-notes fallback. Cached. |

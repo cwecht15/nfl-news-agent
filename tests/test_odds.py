@@ -171,7 +171,7 @@ def test_spread_and_total_moves_fire_only_past_the_threshold():
     assert "spread_move" in types and "total_move" in types
     spread = next(c for c in changes if c["type"] == "spread_move")
     assert "toward LAR" in spread["message"]
-    assert spread["basis"] == "since last report"
+    assert spread["basis"] == "since the previous pull"
 
 
 def test_moneyline_move_fires_on_cents():
@@ -629,3 +629,74 @@ def test_a_stale_pull_is_not_reported_as_a_quiet_day():
     section = osec.build_odds_section(wd, [], use_llm=False)
     assert "No market movement" not in section["summary"]
     assert "Week 2" in section["summary"]
+
+
+# ---------------------------------------------------------------------------
+# Changes belong to the pull that produced them (2026-09-18: Thursday 4 PM's
+# 128 moves were wiped by the 9:30 PM game-day run, which saw no new pull)
+# ---------------------------------------------------------------------------
+
+
+def test_a_run_with_no_new_pull_keeps_the_last_pulls_changes():
+    first, _ = oc.merge_into_week(None, 2026, 1, [_game(spread=-3.0)], {}, _meta(),
+                                  "2026-09-15T13:00:00+00:00")
+    moved_meta = _meta(pulled_at="2026-09-17T16:03-04:00", props_pull_id="p2")
+    moved, changes = oc.merge_into_week(first, 2026, 1, [_game(spread=-4.5)], {}, moved_meta,
+                                        "2026-09-17T21:40:00+00:00")
+    assert [c["type"] for c in changes] == ["spread_move"]
+    # Game-day run a few hours later: same pull, nothing new to diff
+    quiet, now = oc.merge_into_week(moved, 2026, 1, [_game(spread=-4.5)], {}, moved_meta,
+                                    "2026-09-18T01:35:00+00:00")
+    assert now == []                                                   # this run's own diff is empty ...
+    assert [c["type"] for c in quiet["changes"]] == ["spread_move"]   # ... the pull's moves stay
+    assert quiet["changes_seen_at"] == "2026-09-17T21:40:00+00:00"
+    assert [b["seen_at"] for b in quiet["pull_log"]] == ["2026-09-15T13:00:00+00:00",
+                                                         "2026-09-17T21:40:00+00:00"]
+    # A new pull that moved nothing replaces them (the latest pull really was quiet)
+    third, _ = oc.merge_into_week(quiet, 2026, 1, [_game(spread=-4.5)], {},
+                                  _meta(pulled_at="2026-09-19T21:00-04:00", props_pull_id="p3"),
+                                  "2026-09-20T01:10:00+00:00")
+    assert third["changes"] == [] and len(third["pull_log"]) == 3
+
+
+def _week_with_log(*batches):
+    return {"season": 2026, "week": 2, "games": {}, "props": {},
+            "pull": {"pulled_at": "2026-09-17T16:03-04:00", "stale_reason": ""},
+            "pull_log": [{"pulled_at": at, "seen_at": seen, "changes": chg} for at, seen, chg in batches],
+            "changes": batches[-1][2] if batches else []}
+
+
+def _mv(game, new, ctype="total_move"):
+    return {"type": ctype, "game": game, "team": game.split("@")[1], "player": "", "gsis_id": "",
+            "stat": "", "magnitude": 1.0, "new": new, "message": f"**{game}** total {new}"}
+
+
+def test_changes_since_unions_pulls_after_the_cutoff_latest_record_wins():
+    wk = _week_with_log(
+        ("2026-09-15T09:07-04:00", "2026-09-15T13:40:00+00:00", [_mv("CHI@MIN", 49.0)]),
+        ("2026-09-16T18:50-04:00", "2026-09-16T23:50:00+00:00",
+         [_mv("CHI@MIN", 48.5), _mv("CAR@ATL", 44.0)]),
+        ("2026-09-17T16:03-04:00", "2026-09-17T21:40:00+00:00", [_mv("CHI@MIN", 48.0)]),
+    )
+    got, pulls = osec.changes_since(wk, "2026-09-16T11:32:08.256434+00:00")
+    assert pulls == 2
+    assert sorted((c["game"], c["new"]) for c in got) == [("CAR@ATL", 44.0), ("CHI@MIN", 48.0)]
+    _got, pulls = osec.changes_since(wk, None)
+    assert pulls == 3
+    # legacy file with no pull_log: the stored changes as they are
+    assert osec.changes_since({"changes": [_mv("A@B", 1.0)]}, "2026-09-16T00:00:00+00:00") == (
+        [_mv("A@B", 1.0)], 0)
+
+
+def test_report_window_keeps_yesterday_afternoons_pull_in_this_mornings_report():
+    wk = _week_with_log(
+        ("2026-09-17T16:03-04:00", "2026-09-17T21:40:00+00:00", [_mv("CHI@MIN", 48.0)]),
+    )
+    # Friday's report: the window opens at Thursday's morning report
+    sec = osec.build_odds_section(wk, [], use_llm=False, window=True,
+                                  since="2026-09-17T11:32:08+00:00")
+    assert sec["count"] == 1 and "CHI@MIN" in sec["summary"]
+    # Saturday's report: nothing new since Friday's
+    sec = osec.build_odds_section(wk, [], use_llm=False, window=True,
+                                  since="2026-09-18T11:56:00+00:00")
+    assert sec["count"] == 0 and "No new odds pull since the previous report" in sec["summary"]

@@ -328,6 +328,56 @@ def _select(changes: list[dict], settings: Optional[dict] = None) -> list[dict]:
     return [dict(c) for c in picked]
 
 
+def _parse_ts(value: Any):
+    from datetime import datetime, timezone
+    try:
+        dt = datetime.fromisoformat(str(value))
+    except (TypeError, ValueError):
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def _change_identity(c: dict) -> tuple:
+    return (c.get("type"), c.get("game") or "", c.get("gsis_id") or c.get("player") or "",
+            c.get("stat") or "")
+
+
+def changes_since(week_data: Optional[dict], since: Optional[str]) -> tuple[list[dict], int]:
+    """Movement from every odds pull first seen after ``since`` -> (changes, pulls).
+
+    A later pull's record for the same move replaces an earlier one. With no
+    ``pull_log`` (a week file written before it existed) the stored changes
+    are returned as they are.
+    """
+    week_data = week_data or {}
+    log = week_data.get("pull_log")
+    if log is None:
+        return list(week_data.get("changes") or []), 0
+    cutoff = _parse_ts(since) if since else None
+    batches = [b for b in log if cutoff is None or (_parse_ts(b.get("seen_at")) or cutoff) > cutoff]
+    merged: dict[tuple, dict] = {}
+    for b in batches:                       # oldest first, so the latest record wins
+        for c in b.get("changes") or []:
+            merged[_change_identity(c)] = c
+    return list(merged.values()), len(batches)
+
+
+def report_window_start(date_str: str) -> Optional[str]:
+    """When the previous day's report was generated — the Line Movement window
+    of ``date_str``'s report opens there, so a pull that landed after that
+    morning's run (Thursday 4 PM) is in the next morning's report instead of
+    only in an afternoon refresh nobody re-reads. None when there is no
+    earlier report."""
+    try:
+        from reports.report_builder import list_available_reports, load_report
+        earlier = [d for d in list_available_reports() if d < date_str]
+        if not earlier:
+            return None
+        return getattr(load_report(max(earlier)), "generated_at", None) or None
+    except Exception:  # noqa: BLE001 — a missing window only widens the section
+        return None
+
+
 def _stale_note(pull: dict) -> str:
     reason = (pull or {}).get("stale_reason")
     at = (pull or {}).get("pulled_at")
@@ -350,26 +400,44 @@ def build_odds_section(
     settings: Optional[dict] = None,
     date_label: str = "",
     use_llm: bool = True,
+    since: Optional[str] = None,
+    window: bool = False,
 ) -> Optional[dict[str, Any]]:
     """Render the Line Movement section, or None when there is nothing to show.
 
     ``client=None`` with ``use_llm=True`` resolves a client from config; the
     afternoon run passes ``use_llm=False`` because it makes no LLM calls.
+
+    ``window=True`` reports every pull first seen after ``since`` (see
+    :func:`changes_since`) — what the daily and afternoon runs use, so both
+    builds of one day's report cover the same span and the afternoon rebuild
+    can only add to the morning's. Without it the stored changes are used.
     """
     if not week_data:
         return None
     settings = settings or get_settings()
     games = week_data.get("games") or {}
     pull = week_data.get("pull") or {}
-    changes = list(week_data.get("changes") or [])
+    pulls_in_window = None
+    if window:
+        changes, pulls_in_window = changes_since(week_data, since)
+        if "pull_log" not in week_data:
+            pulls_in_window = None
+    else:
+        changes = list(week_data.get("changes") or [])
     news_items = list(news_items or [])
 
     if not changes:
-        # "No movement" and "we could not read the market" are different
-        # statements; a stale pull must not be reported as a quiet day.
+        # "No movement", "no new pull" and "we could not read the market" are
+        # different statements; a stale pull must not be reported as a quiet day.
         note = _stale_note(pull)
-        summary = note if pull.get("stale_reason") else (
-            "No market movement past the reporting thresholds.\n\n" + note)
+        if pull.get("stale_reason"):
+            summary = note
+        elif pulls_in_window == 0:
+            at = str(pull.get("pulled_at") or "").replace("T", " ")
+            summary = "No new odds pull since the previous report" + (f" (last pull {at})." if at else ".")
+        else:
+            summary = "No market movement past the reporting thresholds.\n\n" + note
         return {"summary": summary, "count": 0, "sources": [], "numbered_sources": []}
 
     picked = _select(changes, settings)

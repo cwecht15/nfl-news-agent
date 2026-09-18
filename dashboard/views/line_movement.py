@@ -20,6 +20,7 @@ require_password()
 from collectors.odds_collector import STAT_LABEL
 from dashboard import in_season_data as isd
 from dashboard.helpers import to_et_display
+from processing import line_insights as li
 
 st.header("Line Movement")
 isd.require_in_season()
@@ -115,12 +116,20 @@ def _render_games() -> None:
         )
 
 
+_PROP_THR = ((_settings.get("odds", {}) or {}).get("thresholds") or {}).get("props") or {}
+
+
 def _prop_rows() -> list[dict]:
     rows = []
     for p in props.values():
         cur, opened = p.get("current") or {}, p.get("opened") or {}
         prev = p.get("previous") or {}
+        d_open = _delta(cur.get("mkt_mu"), opened.get("mkt_mu"))
+        thr = float(_PROP_THR.get(p.get("stat", ""), 0) or 0)
         rows.append({
+            # Move in units of the stat's threshold: ranks a 10-yard passing
+            # move and a one-catch move on the same scale.
+            "_size": abs(d_open or 0) / thr if thr else 0.0,
             "Player": p.get("player", ""),
             "Team": p.get("team", ""),
             "Opp": p.get("opp", ""),
@@ -166,7 +175,7 @@ def _render_movers() -> None:
     only_moved = st.checkbox("Only lines that moved since open", value=True, key="odds_moved")
     if only_moved:
         rows = [r for r in rows if r["Δ vs open"]]
-    rows.sort(key=lambda r: -abs(r["Δ vs open"] or 0))
+    rows.sort(key=lambda r: -r["_size"])
     st.caption(f"{len(rows)} player-stats")
     st.dataframe([{k: v for k, v in r.items() if not k.startswith("_")} for r in rows[:500]],
                  use_container_width=True, hide_index=True)
@@ -196,27 +205,140 @@ def _render_divergence() -> None:
     )
 
 
-def _render_changes() -> None:
-    if not changes:
-        st.info("No movement past the reporting thresholds.")
-        return
-    st.dataframe(
-        [{"Type": c.get("type"), "Team": c.get("team"), "Player": c.get("player"),
-          "Game": c.get("game"), "Basis": c.get("basis"),
-          "Message": (c.get("message") or "").replace("**", "")} for c in changes],
-        use_container_width=True, hide_index=True,
+def _fmt(v, nd=1):
+    if v is None:
+        return ""
+    return f"{v:.{nd}f}" if abs(v) < 1000 else f"{v:,.0f}"
+
+
+def _signed(v, nd=1):
+    if v is None:
+        return ""
+    return f"{v:+.{nd}f}" if round(v, nd) else f"{0:.{nd}f}"
+
+
+def _change_rows(rows: list[dict]) -> list[dict]:
+    return [{"Type": c.get("type"), "Team": c.get("team"), "Player": c.get("player"),
+             "Game": c.get("game"), "Message": (c.get("message") or "").replace("**", "")}
+            for c in rows]
+
+
+def _played_teams() -> set[str]:
+    """News-style abbreviations of teams whose game this week is already over."""
+    if week != ctx.week:
+        return set()
+    from processing.projection_audit import teams_already_played
+    from processing.team_abbr import to_news
+    return {to_news(t, "proj") for t in teams_already_played(_schedule, week, ctx.today)}
+
+
+def _render_what_matters() -> None:
+    played = _played_teams()
+    counts = li.summary_counts(data, _settings, played=played)
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Team totals moved 1+ pt", counts["teams_notable"])
+    c2.metric("Your sheet off market 1+ pt", counts["sheet_off"])
+    c3.metric("Player lines to re-check", counts["players_recheck"],
+              help="RED flags plus lines that moved away from your projection since they opened.")
+
+    st.subheader("Game environment")
+    st.caption(
+        "Implied team total = what the market's spread and total say a team scores. Your sheet's "
+        "spread / O-U drives every player projection in that game, so **Sheet − market** is the "
+        "number to fix; **Move** is how far the market has travelled since the line opened."
     )
-    st.caption("These are the rows the daily report's Line Movement section is built from.")
+    teams = li.team_environment(data, _settings, played=played)
+    notable = [t for t in teams if t["notable"]]
+
+    def _team_row(t: dict) -> dict:
+        return {
+            "Team": t["team"], "Opp": ("vs " if t["home"] else "@ ") + (t["opp"] or ""),
+            "Kickoff (ET)": t["kickoff_et"],
+            "Implied open": _fmt(t["implied_open"]), "Implied now": _fmt(t["implied_now"]),
+            "Move": _signed(t["implied_move"]),
+            "Your sheet": _fmt(t["sheet_implied"]), "Sheet − market": _signed(t["sheet_gap"]),
+            "Spread (home) open → now": f"{_fmt(t['spread_open'])} → {_fmt(t['spread_now'])}",
+            "Total open → now": f"{_fmt(t['total_open'])} → {_fmt(t['total_now'])}",
+        }
+
+    if played:
+        st.caption(f"Already played this week (left out): {', '.join(sorted(played))}.")
+    if notable:
+        st.dataframe([_team_row(t) for t in notable], use_container_width=True, hide_index=True)
+    else:
+        st.success("No team total has moved a point since open, and your sheet is within a point "
+                   "of the market in every game.")
+    with st.expander(f"All {len(teams)} teams"):
+        st.dataframe([_team_row(t) for t in teams], use_container_width=True, hide_index=True)
+
+    st.subheader("Player lines vs your projection")
+    st.caption(
+        "**Away** = since it opened, the market moved further from your number (by at least the "
+        "stat's movement threshold) — the lines worth re-checking. **RED** / **AMBER** are the NFL "
+        "Odds project's calibrated verdicts on the gap itself. A line moving *toward* you confirms "
+        "your projection and is left out unless you ask for it."
+    )
+    o1, o2 = st.columns(2)
+    wider = o1.checkbox("Include AMBER and market-only flags", value=False, key="wm_wider")
+    toward = o2.checkbox("Include lines moving toward you", value=False, key="wm_toward")
+    rows = li.player_watchlist(data, _settings, include_toward=toward, played=played)
+    trends = {"away", "toward"} if toward else {"away"}
+    if not wider:
+        rows = [r for r in rows if r["flag"] == "RED" or r["trend"] in trends]
+    elif not toward:
+        rows = [r for r in rows if r["trend"] != "toward"]
+    table = [{
+        "Player": r["player"], "Pos": r["pos"], "Team": r["team"], "Opp": r["opp"],
+        "Stat": r["stat_label"], "You": r["ours"],
+        "Market open": _fmt(r["market_open"], 2), "Market now": _fmt(r["market_now"], 2),
+        "Gap (mkt − you)": _signed(r["gap_now"], 2),
+        "Trend": {"away": "↗ away from you", "toward": "↘ toward you"}.get(r["trend"], ""),
+        "Flag": r["flag"],
+    } for r in rows]
+    table = _filters(table, "wm")
+    if table:
+        st.dataframe(table[:300], use_container_width=True, hide_index=True)
+    else:
+        st.success("No player line is flagged RED or moving away from your projection.")
+    st.caption("Anytime TD is an expected-TD *rate*, not a probability.")
 
 
-tab_games, tab_movers, tab_div, tab_changes = st.tabs(
-    ["Game lines", "Prop movers", "Market vs projections", "Today's changes"]
+def _render_recent_pulls() -> None:
+    batches = li.pull_batches(data)
+    if batches:
+        for i, b in enumerate(batches):
+            chg = b.get("changes") or []
+            label = (f"Pull {str(b.get('pulled_at') or '?').replace('T', ' ')} · first seen "
+                     f"{to_et_display(b.get('seen_at'))} · {len(chg)} change{'s' if len(chg) != 1 else ''}")
+            with st.expander(label, expanded=(i == 0)):
+                if chg:
+                    st.dataframe(_change_rows(chg), use_container_width=True, hide_index=True)
+                else:
+                    st.write("Nothing moved past the reporting thresholds in this pull.")
+        st.caption("Each odds pull's movement versus the pull before it. The daily report's Line "
+                   "Movement section covers every pull since the previous report.")
+        return
+    # A week file from before pulls were logged: derive the latest pull's moves
+    # from stored state instead of showing nothing.
+    moves = li.latest_pull_moves(data, _settings)
+    at = str(pull.get("pulled_at") or "?").replace("T", " ")
+    if moves:
+        st.markdown(f"**Latest pull ({at})** vs the pull before it — {len(moves)} moves")
+        st.dataframe(_change_rows(moves), use_container_width=True, hide_index=True)
+    else:
+        st.info(f"Nothing moved past the reporting thresholds in the latest pull ({at}).")
+
+
+tab_wm, tab_games, tab_movers, tab_div, tab_pulls = st.tabs(
+    ["What matters", "Game lines", "Prop movers", "Market vs projections", "Recent pulls"]
 )
+with tab_wm:
+    _render_what_matters()
 with tab_games:
     _render_games()
 with tab_movers:
     _render_movers()
 with tab_div:
     _render_divergence()
-with tab_changes:
-    _render_changes()
+with tab_pulls:
+    _render_recent_pulls()

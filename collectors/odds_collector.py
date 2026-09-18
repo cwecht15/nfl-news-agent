@@ -111,6 +111,9 @@ CHANGE_TYPES = (
     "prop_move", "prop_new", "sheet_drift", "market_only",
 )
 
+# Pulls logged per week file (~6 a week; generous for re-prices).
+PULL_LOG_KEEP = 30
+
 
 # ---------------------------------------------------------------------------
 # Storage
@@ -529,7 +532,7 @@ def _diff_game(prev_game: Optional[dict], g: dict, thresholds: dict) -> list[dic
         extra = (f", opened {_fmt_spread(open_sp)}"
                  if open_sp is not None and open_sp not in (old_sp, new_sp) else "")
         changes.append(_change(
-            "spread_move", team=g["home"], game=label, basis="since last report",
+            "spread_move", team=g["home"], game=label, basis="since the previous pull",
             old=old_sp, new=new_sp, magnitude=abs(new_sp - old_sp) / sp_thr,
             message=f"**{label}** {g['home']} {_fmt_spread(new_sp)} "
                     f"(was {_fmt_spread(old_sp)}{extra}) — "
@@ -544,7 +547,7 @@ def _diff_game(prev_game: Optional[dict], g: dict, thresholds: dict) -> list[dic
         extra = (f", opened {_fmt_line(open_t)}"
                  if open_t is not None and open_t not in (old_t, new_t) else "")
         changes.append(_change(
-            "total_move", team=g["home"], game=label, basis="since last report",
+            "total_move", team=g["home"], game=label, basis="since the previous pull",
             old=old_t, new=new_t, magnitude=abs(new_t - old_t) / tot_thr,
             message=f"**{label}** total {_fmt_line(new_t)}, {direction} "
                     f"{abs(new_t - old_t):g} from {_fmt_line(old_t)}{extra}",
@@ -556,7 +559,7 @@ def _diff_game(prev_game: Optional[dict], g: dict, thresholds: dict) -> list[dic
         if old_m is None or new_m is None or abs(new_m - old_m) < ml_thr:
             continue
         changes.append(_change(
-            "ml_move", team=g[side], game=label, basis="since last report",
+            "ml_move", team=g[side], game=label, basis="since the previous pull",
             old=old_m, new=new_m, magnitude=abs(new_m - old_m) / ml_thr,
             message=f"**{g[side]}** moneyline {_fmt_ml(new_m)} (was {_fmt_ml(old_m)})",
         ))
@@ -595,7 +598,7 @@ def _diff_prop(prev_prop: Optional[dict], p: dict, thresholds: dict) -> list[dic
         basis = "since the line opened"
     else:
         old_mu = ((prev_prop.get("current") or {}).get("mkt_mu"))
-        basis = "since last report"
+        basis = "since the previous pull"
         if old_mu is None:
             return []
 
@@ -754,7 +757,25 @@ def merge_into_week(data: Optional[dict], season: int, week: int, games: list[di
                if (_flag_state_prefix(k) == "sheet_drift" and not games)
                or (_flag_state_prefix(k) == "market_only" and not props)}
     data["flags_seen"] = {**carried, **flag_state}
-    data["changes"] = changes
+
+    # Movement belongs to the pull that produced it. The odds repo pulls about
+    # six times a week and this runs three-plus times a day, so most runs see
+    # no new pull — overwriting `changes` with that empty diff erased Thursday
+    # 4 PM's moves by 9:30 PM. A run with no new pull keeps the last pull's
+    # changes; every new pull is logged with when it was first seen, which is
+    # what the report's "since the previous report" window reads.
+    stored = data.get("pull") or {}
+    new_pull = ((meta.get("pulled_at"), meta.get("props_pull_id"))
+                != (stored.get("pulled_at"), stored.get("props_pull_id")))
+    if new_pull or changes:
+        data["changes"] = changes
+        data["changes_seen_at"] = now_iso
+        log = list(data.get("pull_log") or [])
+        log.append({"pulled_at": meta.get("pulled_at"), "props_pull_id": meta.get("props_pull_id"),
+                    "seen_at": now_iso, "changes": changes})
+        data["pull_log"] = log[-PULL_LOG_KEEP:]
+    else:
+        data.setdefault("changes", [])
     data["pull"] = {k: meta.get(k) for k in
                     ("pulled_at", "props_pull_id", "week_reported", "stale_reason", "age_hours")}
     data["updated_at"] = now_iso
@@ -832,7 +853,8 @@ def collect_odds(date_str: Optional[str] = None, week: Optional[int] = None,
                 return result
             prev["pull"] = pull_meta
             prev["updated_at"] = now_iso
-            prev["changes"] = []
+            # The stored changes stay: they describe the last pull that
+            # belonged to this week, and the pull note says the read is stale.
             result["games"] = len(prev.get("games") or {})
             result["props"] = len(prev.get("props") or {})
             result["data"] = prev

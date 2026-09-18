@@ -920,7 +920,7 @@ def run(
         write_status("Step 6c", "running", "Building Line Movement section")
         logger.info("Step 6c: Building Line Movement section...")
         try:
-            from processing.odds_section import build_odds_section
+            from processing.odds_section import build_odds_section, report_window_start
 
             odds_section = build_odds_section(
                 odds_week,
@@ -930,6 +930,8 @@ def run(
                 inactives=_inactive_rows(season_ctx, inactives_week),
                 usage_tracker=summary_result.get("llm_usage"),
                 date_label=date_str,
+                window=True,
+                since=report_window_start(date_str),
             )
         except Exception as e:
             logger.error("Line Movement section build failed (non-fatal): %s", e)
