@@ -1,0 +1,473 @@
+{
+  "date": "2026-09-17",
+  "run": "gameday",
+  "season": 2026,
+  "week": 2,
+  "sheet": "primary",
+  "generated_at": "2026-09-18T01:37:46+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-17",
+    "nflverse_date": "2026-09-17",
+    "injury_week_updated": "2026-09-17T23:41:46+00:00",
+    "roster_state_updated": "2026-09-18T01:37:45+00:00"
+  },
+  "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040734|2|OUT",
+      "severity": "error",
+      "player": "TreVeyon Henderson",
+      "gsis_id": "00-0040734",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 2,
+      "message": "TreVeyon Henderson (RB, NE) is OUT (Ankle) but projected for 7.2 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-09-14": "DNP",
+          "2026-09-15": "DNP",
+          "2026-09-16": "FP",
+          "2026-09-17": "FP"
+        },
+        "ppr": 7.2
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0033375|2|OUT",
+      "severity": "error",
+      "player": "Tim Patrick",
+      "gsis_id": "00-0033375",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Tim Patrick (WR, NYJ) is OUT (Groin) but projected for 0.7 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Groin",
+        "practice": {
+          "2026-09-14": "DNP",
+          "2026-09-15": "DNP"
+        },
+        "ppr": 0.7
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040138|2|receptions",
+      "severity": "warning",
+      "player": "Jaylin Noel",
+      "gsis_id": "00-0040138",
+      "pos": "WR",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Jaylin Noel (WR, HST) Rec: we project 1.5, the market implies 2.7 (odds pulled 2026-09-17 16:03-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "receptions"
+        ],
+        "ours": 1.5,
+        "market_mean": 2.734858599,
+        "delta": 1.234858599,
+        "pct": 0.8232390661,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037664|2|rec_yds",
+      "severity": "warning",
+      "player": "Alec Pierce",
+      "gsis_id": "00-0037664",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Alec Pierce (WR, IND) Rec Yds: we project 35.2, the market implies 51.3 (odds pulled 2026-09-17 16:03-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 35.2,
+        "market_mean": 51.25378894,
+        "delta": 16.05378894,
+        "pct": 0.4560735493,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037838|2|rec_yds",
+      "severity": "warning",
+      "player": "Isaiah Likely",
+      "gsis_id": "00-0037838",
+      "pos": "TE",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Isaiah Likely (TE, NYG) Rec Yds: we project 37.7, the market implies 51.5 (also Rec) (odds pulled 2026-09-17 16:03-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 37.7,
+        "market_mean": 51.48169727,
+        "delta": 13.78169727,
+        "pct": 0.3655622618,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038905|2",
+      "severity": "warning",
+      "player": "Blake Grupe",
+      "gsis_id": "00-0038905",
+      "pos": "K",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Blake Grupe (K, NYJ) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037740|2|receptions",
+      "severity": "warning",
+      "player": "Garrett Wilson",
+      "gsis_id": "00-0037740",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Garrett Wilson (WR, NYJ) Rec: we project 4.6, the market implies 6.0 (odds pulled 2026-09-17 16:03-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "receptions"
+        ],
+        "ours": 4.6,
+        "market_mean": 6.005691872,
+        "delta": 1.405691872,
+        "pct": 0.3055851896,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037834|2|ints",
+      "severity": "warning",
+      "player": "Brock Purdy",
+      "gsis_id": "00-0037834",
+      "pos": "QB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Brock Purdy (QB, SF) INT: we project 1.00, the market implies 0.50 (odds pulled 2026-09-17 16:03-04:00)",
+      "evidence": {
+        "stat": "ints",
+        "stats": [
+          "ints"
+        ],
+        "ours": 1.0,
+        "market_mean": 0.504181081,
+        "delta": -0.495818919,
+        "pct": -0.495818919,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0033280|2|rec_yds",
+      "severity": "warning",
+      "player": "Christian McCaffrey",
+      "gsis_id": "00-0033280",
+      "pos": "RB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Christian McCaffrey (RB, SF) Rec Yds: we project 28.9, the market implies 48.0 (odds pulled 2026-09-17 16:03-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 28.9,
+        "market_mean": 48.00622665,
+        "delta": 19.10622665,
+        "pct": 0.6611151092,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041035|2",
+      "severity": "warning",
+      "player": "De'Zhaun Stribling",
+      "gsis_id": "00-0041035",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 2,
+      "message": "De'Zhaun Stribling (WR, SF) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041052|2|rush_yds",
+      "severity": "warning",
+      "player": "Kaelon Black",
+      "gsis_id": "00-0041052",
+      "pos": "RB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Kaelon Black (RB, SF) Rush Yds: we project 32.9, the market implies 45.2 (odds pulled 2026-09-17 16:03-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_yds"
+        ],
+        "ours": 32.9,
+        "market_mean": 45.16271288,
+        "delta": 12.26271288,
+        "pct": 0.3727268353,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041040|2|rec_yds",
+      "severity": "warning",
+      "player": "Antonio Williams",
+      "gsis_id": "00-0041040",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Antonio Williams (WR, WAS) Rec Yds: we project 11.2, the market implies 32.4 (also Rec) (odds pulled 2026-09-17 16:03-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 11.2,
+        "market_mean": 32.44877694,
+        "delta": 21.24877694,
+        "pct": 1.897212227,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|nintendo wii|2|released",
+      "severity": "info",
+      "player": "Nintendo Wii",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 7 days",
+      "evidence": {
+        "event": {
+          "event_id": "dbe683763185fa5b",
+          "event_type": "released",
+          "date": "2026-09-10",
+          "source": "news:SBN Bills (Buffalo Rumblings)"
+        },
+        "days_pending": 7
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036900|2",
+      "severity": "info",
+      "player": "Ja'Marr Chase",
+      "gsis_id": "00-0036900",
+      "pos": "WR",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Ja'Marr Chase (WR, CIN) did not practice on the latest report (injury); projected 17.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-14": "DNP",
+          "2026-09-15": "DNP"
+        },
+        "injury": "",
+        "ppr": 17.8
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038547|2",
+      "severity": "info",
+      "player": "Luke Schoonmaker",
+      "gsis_id": "00-0038547",
+      "pos": "TE",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Luke Schoonmaker (TE, DAL) did not practice on the latest report (injury); projected 1.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-14": "DNP",
+          "2026-09-15": "DNP"
+        },
+        "injury": "",
+        "ppr": 1.2
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0037120|2",
+      "severity": "info",
+      "player": "Tyler Goodson",
+      "gsis_id": "00-0037120",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Tyler Goodson (RB, DAL) is on the active roster but has no row on the sheet",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "nflverse_status": "ACT",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0034383|2",
+      "severity": "info",
+      "player": "Dalton Schultz",
+      "gsis_id": "00-0034383",
+      "pos": "TE",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Dalton Schultz (TE, HST) did not practice on the latest report (injury); projected 9.7 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-16": "DNP",
+          "2026-09-17": "DNP"
+        },
+        "injury": "",
+        "ppr": 9.7
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036259|2",
+      "severity": "info",
+      "player": "Jauan Jennings",
+      "gsis_id": "00-0036259",
+      "pos": "WR",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Jauan Jennings (WR, MIN) did not practice on the latest report (injury); projected 6.6 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-16": "DNP",
+          "2026-09-17": "DNP"
+        },
+        "injury": "",
+        "ppr": 6.6
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|audric estime|2|ir_placed",
+      "severity": "info",
+      "player": "Audric Estime",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 5 days",
+      "evidence": {
+        "event": {
+          "event_id": "3c678b83451f2bd8",
+          "event_type": "ir_placed",
+          "date": "2026-09-12",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 5
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038558|2",
+      "severity": "info",
+      "player": "Darnell Washington",
+      "gsis_id": "00-0038558",
+      "pos": "TE",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Darnell Washington (TE, PIT) did not practice on the latest report (NIR/Personal); projected 3.6 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-16": "DNP",
+          "2026-09-17": "DNP"
+        },
+        "injury": "NIR/Personal",
+        "ppr": 3.6
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|xavier thomas|2|suspended",
+      "severity": "info",
+      "player": "Xavier Thomas",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 6 days",
+      "evidence": {
+        "event": {
+          "event_id": "e9e6dda68a40e203",
+          "event_type": "suspended",
+          "date": "2026-09-11",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 6
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "out_but_projected": 2,
+    "market_proj_gap": 8,
+    "missing_active": 2,
+    "sheet_status_stale": 1,
+    "unconfirmed_report": 3,
+    "dnp_but_projected": 5
+  }
+}
