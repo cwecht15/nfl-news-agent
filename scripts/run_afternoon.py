@@ -21,6 +21,8 @@ Exits 0 immediately when ``season.phase`` is ``offseason``.
 
 Usage:
     python scripts/run_afternoon.py [--date YYYY-MM-DD] [--skip-ourlads] [--skip-transactions]
+    python scripts/run_afternoon.py --inactives-only   # game-day: ESPN inactives + audit
+    python scripts/run_afternoon.py --injuries-only    # injury report + audit (practice reports, designations)
 """
 
 from __future__ import annotations
@@ -257,7 +259,8 @@ def _merge_by_keys(existing: list[dict], new: list[dict], keys: tuple[str, ...])
 
 
 def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_transactions: bool = False,
-           backfill_from: str | None = None, inactives_only: bool = False) -> int:
+           backfill_from: str | None = None, inactives_only: bool = False,
+           injuries_only: bool = False) -> int:
     date_str = date_override or today_et()
     setup_logging(date_str)
     logger = logging.getLogger("afternoon")
@@ -267,7 +270,8 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
         logger.info("season.phase is offseason — afternoon run has nothing to do.")
         return 0
 
-    mode = "game-day inactives" if inactives_only else "Afternoon in-season update"
+    mode = ("game-day inactives" if inactives_only else
+            "injury report refresh" if injuries_only else "Afternoon in-season update")
     write_status("PM", "running", mode)
     logger.info("=" * 60)
     logger.info("NFL News Agent - %s: %s (week %s, %s)", mode, date_str, ctx.week, ctx.weekday)
@@ -292,6 +296,22 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
                            line_movement=_odds_section(odds_week, ctx, inactives_week, logger, date_str=date_str),
                            odds=odds_week)
             logger.info("Game-day inactives run complete.")
+            return 0
+
+        if injuries_only:
+            # Practice reports and Friday designations post ~3:30-5 PM ET, and the
+            # afternoon cron runs hours late. This re-reads only the injury
+            # sources (team sites, RotoWire, NFL.com - no Sheets, no LLM), re-runs
+            # the audit against the current snapshot (a new OUT is an alert) and
+            # folds the changes into today's report. Dispatched from the local
+            # NFL_News_Agent_Injuries task (scripts/run_injuries.bat).
+            _roster, injury_changes, audit_alerts, _inactives = run_in_season_steps(
+                date_str=date_str, season_ctx=ctx, news_items=[], dc_status_changes=[],
+                logger=logger, run="injuries", skip={"elevations", "roster", "inactives"},
+            )
+            write_status("PM 4", "running", "Updating daily report")
+            _update_report(date_str, ctx, None, injury_changes, audit_alerts, logger, create_missing=False)
+            logger.info("Injury report refresh complete.")
             return 0
 
         if backfill_from:
@@ -357,10 +377,12 @@ if __name__ == "__main__":
                     help="one-shot: seed the roster ledger from data/raw/<date>/web.json since this date")
     ap.add_argument("--inactives-only", action="store_true",
                     help="game-day mode: ESPN inactives + projection audit + report refresh only")
+    ap.add_argument("--injuries-only", action="store_true",
+                    help="injury report + projection audit + report refresh only (practice reports, designations)")
     args = ap.parse_args()
     try:
         sys.exit(run_pm(args.date, args.skip_ourlads, args.skip_transactions, args.backfill_from,
-                        inactives_only=args.inactives_only))
+                        inactives_only=args.inactives_only, injuries_only=args.injuries_only))
     except Exception:
         clear_status()
         raise

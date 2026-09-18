@@ -59,6 +59,10 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.projection_audi
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py
 # Game-day mode: ESPN inactives + audit + report refresh only (what .github/workflows/inactives.yml runs)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --inactives-only
+# Injury refresh: injury report + audit + report refresh only (what .github/workflows/injuries.yml runs)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --injuries-only
+# Register the Wed-Sat afternoon injury dispatch task (admin shell)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\setup_scheduler.py create-injuries
 # Practice-squad elevations from ESPN's transaction feed (no key; the only source that carries them)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\espn_transactions_collector.py
 # Poll inactives directly (--all polls every game of the week; --season/--week/--event for debugging)
@@ -340,6 +344,16 @@ Tab bodies on Projections and Depth Charts are wrapped in `_render_*()` function
   declared at 4:00 PM ET and must be known that night; `inactives.yml`'s own Sat 20:05/23:50 UTC crons
   plus the daily 21:34 UTC PM run are the fallbacks, but GitHub fires this repo's crons a median 242
   minutes late, so the local dispatch is what makes the deadline deterministic.
+- Windows Task Scheduler: `NFL_News_Agent_Injuries` — Wed/Thu 5:00 PM, Fri every 45 min 3:45–6:45 PM,
+  Sat 4:30 PM — dispatches `injuries.yml` (`scripts/run_injuries.bat`; register with
+  `setup_scheduler.py create-injuries`, which builds a multi-trigger task via `INJURY_TRIGGERS`).
+  Clubs post practice reports ~3:30–5 PM ET and Friday's carries the Sunday designations (Saturday's
+  the MNF ones, Wednesday's the TNF ones); the 21:34 UTC PM cron actually starts ~7:15–8 PM ET, so
+  without this the designations reached the dashboard in the evening. `injuries.yml` =
+  `run_afternoon.py --injuries-only` (injury sources + audit, `run="injuries"`, folded into today's
+  report, never a skeleton) with Wed–Sat afternoon crons as fallback. `latest_audit` picks the
+  newest day's audit by its `generated_at`, not its file name (am < gameday < injuries < pm
+  alphabetically).
 - Windows Task Scheduler: `NFL_News_Agent_YT_Backfill` at 5:30 AM (YouTube catch-up; runs first so transcripts are on disk before the news task). Captions-only by default for fast unattended runs; pushes new YouTube files to master via `git push`. **It then dispatches the cloud daily pipeline** (`gh workflow run daily.yml`) — this is the pipeline's *primary* trigger, because GitHub fires this repo's crons 3-5 hours late (median 242 min) while a dispatch starts in seconds. Runs unconditionally, since the cloud report ignores transcripts and a backfill failure must not also cost the day's report.
 - GitHub Actions: `.github/workflows/in_season_pm.yml` cron 21:34 UTC (in-season only; reads `season.phase` first and exits when offseason). Runs `scripts/run_afternoon.py` and commits `data/roster data/injuries data/audit data/weekly_projections data/schedule data/reports data/depth_charts data/raw data/logs`. `daily.yml` force-adds the same new dirs.
 - Odds: **no schedule of its own.** `collectors/odds_collector.py` reads the sheets the

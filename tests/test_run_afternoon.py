@@ -137,3 +137,33 @@ def test_run_pm_defaults_to_eastern_date(monkeypatch):
     monkeypatch.setattr(run_afternoon, "setup_logging", lambda d: None)
     assert run_afternoon.run_pm() == 0
     assert seen["today"] == "2026-09-09"
+
+
+def test_injuries_only_runs_just_the_injury_report_and_audit(monkeypatch):
+    """The Friday designation refresh: injury sources + audit + report, nothing
+    else (no Sheets re-read, no OurLads, no nflverse), and never a skeleton."""
+    calls = {}
+
+    def fake_steps(**kw):
+        calls["steps"] = kw
+        return None, [{"type": "designation_set"}], [{"type": "out_but_projected"}], None
+
+    def fake_update(date_str, ctx, roster_events, injury_changes, audit_alerts, logger, **kw):
+        calls["update"] = (roster_events, injury_changes, audit_alerts, kw)
+
+    monkeypatch.setattr(run_afternoon, "get_season_context", lambda today=None: _ctx())
+    monkeypatch.setattr(run_afternoon, "setup_logging", lambda d: None)
+    monkeypatch.setattr(run_afternoon, "write_status", lambda *a, **k: None)
+    monkeypatch.setattr(run_afternoon, "clear_status", lambda: None)
+    monkeypatch.setattr(run_afternoon, "run_in_season_steps", fake_steps)
+    monkeypatch.setattr(run_afternoon, "_update_report", fake_update)
+    for heavy in ("_refresh_active_sheet", "_rescrape_depth_charts", "_collect_pm_transactions", "run_odds_step"):
+        monkeypatch.setattr(run_afternoon, heavy, lambda *a, **k: (_ for _ in ()).throw(AssertionError(heavy)))
+
+    assert run_afternoon.run_pm("2026-09-18", injuries_only=True) == 0
+    assert calls["steps"]["skip"] == {"elevations", "roster", "inactives"}
+    assert calls["steps"]["run"] == "injuries"
+    roster_events, injury_changes, audit_alerts, kw = calls["update"]
+    assert roster_events is None                      # "did not look" - roster section untouched
+    assert injury_changes and audit_alerts
+    assert kw.get("create_missing") is False

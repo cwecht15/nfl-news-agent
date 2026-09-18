@@ -1,10 +1,13 @@
 """Setup Windows Task Scheduler entries for this project.
 
-Three tasks are supported:
+Four tasks are supported:
 
   - NFL_News_Agent_Daily       → scripts/run_daily.bat at 6:00 AM (daily)
   - NFL_News_Agent_YT_Backfill → scripts/auto_backfill_youtube.bat at 5:30 AM (daily)
   - NFL_News_Agent_Elevations  → scripts/run_elevations.bat at 4:15 PM (Saturdays)
+  - NFL_News_Agent_Injuries    → scripts/run_injuries.bat Wed/Thu 5:00 PM, Fri every
+                                 45 min 3:45-6:45 PM, Sat 4:30 PM (practice reports and
+                                 game designations; dispatches injuries.yml)
 
 The Saturday task exists because practice-squad elevations are declared at
 4:00 PM ET the day before a game and have to be known that night — and
@@ -24,6 +27,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 DAILY_BAT = PROJECT_ROOT / "scripts" / "run_daily.bat"
 YT_BACKFILL_BAT = PROJECT_ROOT / "scripts" / "auto_backfill_youtube.bat"
 ELEVATIONS_BAT = PROJECT_ROOT / "scripts" / "run_elevations.bat"
+INJURIES_BAT = PROJECT_ROOT / "scripts" / "run_injuries.bat"
 
 TASK_XML_TEMPLATE = """\
 <?xml version="1.0" encoding="UTF-16"?>
@@ -32,11 +36,7 @@ TASK_XML_TEMPLATE = """\
     <Description>{description}</Description>
   </RegistrationInfo>
   <Triggers>
-    <CalendarTrigger>
-      <StartBoundary>2026-01-01T{run_time}:00</StartBoundary>
-      <Enabled>true</Enabled>
-{schedule}
-    </CalendarTrigger>
+{triggers}
   </Triggers>
   <Principals>
     <Principal id="Author">
@@ -76,6 +76,39 @@ DAILY_SCHEDULE_XML = """      <ScheduleByDay>
         <DaysInterval>1</DaysInterval>
       </ScheduleByDay>"""
 
+TRIGGER_XML = """    <CalendarTrigger>
+      <StartBoundary>2026-01-01T{run_time}:00</StartBoundary>
+      <Enabled>true</Enabled>{repetition}
+{schedule}
+    </CalendarTrigger>"""
+
+REPETITION_XML = """
+      <Repetition>
+        <Interval>{interval}</Interval>
+        <Duration>{duration}</Duration>
+        <StopAtDurationEnd>false</StopAtDurationEnd>
+      </Repetition>"""
+
+
+def calendar_trigger(run_time: str, day_of_week: str | None = None,
+                     repeat_every: str | None = None, repeat_for: str | None = None) -> str:
+    """One CalendarTrigger: daily, or weekly on ``day_of_week``; optionally
+    repeating every ``repeat_every`` (ISO 8601, e.g. "PT45M") for ``repeat_for``."""
+    schedule = WEEKLY_SCHEDULE_XML.format(day=day_of_week) if day_of_week else DAILY_SCHEDULE_XML
+    repetition = (REPETITION_XML.format(interval=repeat_every, duration=repeat_for)
+                  if repeat_every and repeat_for else "")
+    return TRIGGER_XML.format(run_time=run_time, repetition=repetition, schedule=schedule)
+
+
+# Practice reports post ~3:30-5 PM ET; Friday's carries the Sunday designations
+# (Saturday's the Monday ones, Wednesday's the Thursday ones).
+INJURY_TRIGGERS = [
+    ("17:00", "Wednesday", None, None),
+    ("17:00", "Thursday", None, None),
+    ("15:45", "Friday", "PT45M", "PT3H"),     # 3:45, 4:30, 5:15, 6:00, 6:45
+    ("16:30", "Saturday", None, None),
+]
+
 
 def create_task(
     task_name: str = "NFL_News_Agent_Daily",
@@ -84,22 +117,15 @@ def create_task(
     description: str = "NFL News Agent — daily news collection and report generation",
     exec_time_limit: str = "PT2H",
     day_of_week: str | None = None,
+    triggers: list[tuple[str, str | None, str | None, str | None]] | None = None,
 ):
     """Register a task in Windows Task Scheduler with missed-run catch-up.
 
     Daily unless ``day_of_week`` is given (e.g. "Saturday"), in which case it
-    runs weekly on that day.
+    runs weekly on that day. ``triggers`` — ``(time, day, repeat_every,
+    repeat_for)`` tuples — replaces both with several triggers.
     """
-    schedule = (WEEKLY_SCHEDULE_XML.format(day=day_of_week) if day_of_week
-                else DAILY_SCHEDULE_XML)
-    xml_content = TASK_XML_TEMPLATE.format(
-        run_time=run_time,
-        bat_path=str(bat_path),
-        working_dir=str(PROJECT_ROOT),
-        description=description,
-        exec_time_limit=exec_time_limit,
-        schedule=schedule,
-    )
+    xml_content = task_xml(run_time, bat_path, description, exec_time_limit, day_of_week, triggers)
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".xml", delete=False, encoding="utf-16"
@@ -116,7 +142,11 @@ def create_task(
 
     print(f"Creating scheduled task: {task_name}")
     print(f"  Script:   {bat_path}")
-    print(f"  Schedule: {day_of_week or 'Daily'} at {run_time}")
+    if triggers:
+        for t, day, every, span in triggers:
+            print(f"  Schedule: {day or 'Daily'} at {t}" + (f", every {every} for {span}" if every else ""))
+    else:
+        print(f"  Schedule: {day_of_week or 'Daily'} at {run_time}")
     print(f"  Time cap: {exec_time_limit}")
     print(f"  Missed runs: Will execute on next wake/login")
     print()
@@ -135,6 +165,19 @@ def create_task(
         print(f"Error: {e}")
     finally:
         Path(xml_path).unlink(missing_ok=True)
+
+
+def task_xml(run_time: str, bat_path: Path, description: str, exec_time_limit: str,
+             day_of_week: str | None = None,
+             triggers: list[tuple[str, str | None, str | None, str | None]] | None = None) -> str:
+    trigger_xml = "\n".join(calendar_trigger(*t) for t in (triggers or [(run_time, day_of_week, None, None)]))
+    return TASK_XML_TEMPLATE.format(
+        triggers=trigger_xml,
+        bat_path=str(bat_path),
+        working_dir=str(PROJECT_ROOT),
+        description=description,
+        exec_time_limit=exec_time_limit,
+    )
 
 
 def delete_task(task_name: str = "NFL_News_Agent_Daily"):
@@ -158,6 +201,8 @@ USAGE = (
     "Usage:\n"
     "  python setup_scheduler.py create [HH:MM]              # daily news task (default 06:00)\n"
     "  python setup_scheduler.py create-yt [HH:MM]           # YT auto-backfill task (default 05:30)\n"
+    "  python setup_scheduler.py create-elevations [HH:MM]   # Saturday elevations dispatch (default 16:15)\n"
+    "  python setup_scheduler.py create-injuries             # injury report dispatch, Wed-Sat afternoons\n"
     "  python setup_scheduler.py delete [task-name]          # default: NFL_News_Agent_Daily\n"
     "  python setup_scheduler.py status [task-name]          # default: NFL_News_Agent_Daily\n"
 )
@@ -197,6 +242,17 @@ if __name__ == "__main__":
             ),
             exec_time_limit="PT15M",
             day_of_week="Saturday",
+        )
+    elif action == "create-injuries":
+        create_task(
+            task_name="NFL_News_Agent_Injuries",
+            bat_path=INJURIES_BAT,
+            description=(
+                "NFL News Agent — dispatch the cloud injury report refresh when practice "
+                "reports and game designations post (Wed-Sat afternoons)"
+            ),
+            exec_time_limit="PT15M",
+            triggers=INJURY_TRIGGERS,
         )
     elif action == "delete":
         name = sys.argv[2] if len(sys.argv) > 2 else "NFL_News_Agent_Daily"
