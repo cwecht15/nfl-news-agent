@@ -770,6 +770,56 @@ def test_collect_injury_report_offline(injuries_dir, monkeypatch, teamsite_html,
     assert result2["changes"] == []
 
 
+def test_stale_nflcom_status_is_not_stamped_on_later_days(injuries_dir, monkeypatch):
+    """Dalton Schultz, Week 2: a Wednesday rest-day DNP (RotoWire "DNP-Non
+    Injury"), then off the report. NFL.com kept showing "Did Not Participate",
+    and each later run stamped it onto that day — DNP all week. The Texans'
+    own page, read every run, never listed him."""
+    sched = [{"week": 2, "away": "CIN", "home": "HST", "date": "2026-09-20"}]
+    hou_days = ["2026-09-16", "2026-09-17", "2026-09-18"]
+    # What Thursday's and Friday's runs left behind before the fix
+    path = irc.week_file_path(2026, 2)
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps({"season": 2026, "week": 2, "teams": {"HOU": {
+        "opp": "CIN", "game_date": "2026-09-20", "practice_days": hou_days, "players": {
+            "dalton schultz": {"name": "Dalton Schultz", "pos": "TE", "injury": "",
+                               "practice": {"2026-09-16": "DNP", "2026-09-17": "DNP", "2026-09-18": "DNP"},
+                               "game_status": "", "first_seen": "2026-09-16", "last_seen": "2026-09-18",
+                               "source": "rotowire"}}}}}), encoding="utf-8")
+
+    def fake_team_sites(session, cfg, schedule, week, date_str, workers=None, teams=None):
+        rows = [_row("HOU", "Nico Collins", "team_site", {"2026-09-16": "LP", "2026-09-17": "FP",
+                                                          "2026-09-18": "FP"})]
+        return rows, {"with_table": ["HOU"], "without_table": [], "mismatch": [], "failed": {},
+                      "practice_days": {"HOU": hou_days}}
+
+    rotowire = [{"player": "Dalton Schultz", "team": "HOU", "pos": "TE", "status": "", "injtype": "",
+                 "monday": "-", "tuesday": "-", "wednesday": "DNP-Non Injury", "thursday": "-",
+                 "friday": "-", "saturday": "-", "sunday": "-"}]
+    monkeypatch.setattr(irc, "fetch_all_team_sites", fake_team_sites)
+    monkeypatch.setattr(irc, "fetch_rotowire_report",
+                        lambda s, wd, cfg=None, schedule=None, week=None, date_str=None:
+                        irc.parse_rotowire_rows(rotowire, wd, schedule=schedule, week=week, date_str=date_str))
+    monkeypatch.setattr(irc, "fetch_nflcom_report", lambda s, cfg=None, scrape_dt=None, date_str=None: (
+        2, [_row("HOU", "Dalton Schultz", "nflcom", {"2026-09-18": "DNP"}, pos="TE")]))
+    settings = {"season": {"year": 2026}, "injury_report": {"sources": ["team_sites", "rotowire", "nflcom"]},
+                "collection": {}}
+    irc.collect_injury_report("2026-09-18", settings=settings, schedule=sched, session=object())
+
+    schultz = irc.load_week_file(2026, 2)["teams"]["HOU"]["players"]["dalton schultz"]
+    assert schultz["practice"] == {"2026-09-16": "DNP"}          # Wednesday's rest day only
+    assert schultz["injury"] == "Not injury related (rest)"
+
+
+def test_nflcom_still_fills_in_for_a_club_whose_page_was_not_read(injuries_dir, monkeypatch):
+    sched = [{"week": 2, "away": "CIN", "home": "HST", "date": "2026-09-20"}]
+    monkeypatch.setattr(irc, "fetch_nflcom_report", lambda s, cfg=None, scrape_dt=None, date_str=None: (
+        2, [_row("HOU", "Some Guy", "nflcom", {"2026-09-18": "LP"}, pos="WR")]))
+    settings = {"season": {"year": 2026}, "injury_report": {"sources": ["nflcom"]}, "collection": {}}
+    irc.collect_injury_report("2026-09-18", settings=settings, schedule=sched, session=object())
+    assert irc.load_week_file(2026, 2)["teams"]["HOU"]["players"]["some guy"]["practice"] == {"2026-09-18": "LP"}
+
+
 def test_collect_injury_report_ignores_nflcom_still_on_last_week(injuries_dir, monkeypatch, nflcom_html):
     """The Tuesday of Week 2 NFL.com still titled its page "Week 1"; its rows
     (Week 1's final practice status and designations) must not land in wk02."""

@@ -28,11 +28,14 @@ Three sources (verified live 2026-09-08), in precedence order:
    ``/football/practice-report.php`` (league-wide in one call). Unofficial
    endpoint: fail soft, and never the sole source of truth. Practice grid
    only — its ``status`` is RotoWire's own fantasy tag, not a designation.
-3. **NFL.com /injuries/** — fallback. It only shows the LATEST day's practice
-   status per player, so that status is attributed to the team's most recent
-   practice-report day by Eastern time (a morning run → the previous day).
-   The page keeps the finished week until the new week's first report, so it
-   is ignored whenever its title's week isn't the week being collected.
+3. **NFL.com /injuries/** — fallback. It shows one undated practice status per
+   player — the latest he had, which can be days old (a Wednesday rest-day
+   DNP stays up after he drops off the report). So it only contributes
+   practice codes for clubs whose own page could not be read, attributed to
+   the team's most recent report day by Eastern time (a morning run → the
+   previous day). The page keeps the finished week until the new week's first
+   report, so it is ignored whenever its title's week isn't the week being
+   collected.
 
 Every practice code is held to the team's three report days for the week
 (the club page's own day headers, else :func:`practice_report_days`), and a
@@ -711,7 +714,12 @@ def parse_rotowire_rows(data: list[dict], week_dates: dict[str, str],
             if d:
                 practice[d] = code
         practice = _drop_future(practice, date_str)
-        rows.append(_make_row(team, str(name), entry.get("pos", ""), entry.get("injtype", ""),
+        injury = entry.get("injtype", "")
+        if not injury and any("NON INJURY" in str(entry.get(k, "")).upper() for k in ROTOWIRE_DAY_KEYS):
+            # "DNP-Non Injury" normalizes to a bare DNP; without this a veteran's
+            # rest day reads as an injury (Dalton Schultz, Week 2).
+            injury = "Not injury related (rest)"
+        rows.append(_make_row(team, str(name), entry.get("pos", ""), injury,
                               practice, "", SOURCE_ROTOWIRE))
     return rows
 
@@ -967,7 +975,8 @@ def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
                     schedule: Optional[list[dict]] = None,
                     sources_used: Optional[dict[str, int]] = None,
                     conflicts: Optional[list[dict]] = None,
-                    practice_days: Optional[dict[str, list[str]]] = None) -> tuple[dict, Optional[dict]]:
+                    practice_days: Optional[dict[str, list[str]]] = None,
+                    authoritative_days: Optional[dict[str, list[str]]] = None) -> tuple[dict, Optional[dict]]:
     """Fold today's merged rows into ``data/injuries/<season>/wk<NN>.json``.
 
     Per player: practice dict union (today's value wins for the same date),
@@ -981,6 +990,11 @@ def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
     stored per team; every team is then held to it — see
     :func:`_sanitize_team` — which also repairs a file written before the
     rule existed.
+
+    ``authoritative_days`` ({abbr: dates}) are the days a club's own page
+    covered this run. For those days a listed player's codes are replaced by
+    what the sources report now instead of unioned with earlier runs, so a
+    code no source reports any more drops out.
     """
     prev = load_week_file(season, week)
     cur: dict = copy.deepcopy(prev) if prev else {"season": int(season), "week": int(week), "teams": {}, "conflicts": []}
@@ -1021,6 +1035,12 @@ def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
             }
             players[row["name_key"]] = p
         p.pop("cleared", None)
+        covered = set((authoritative_days or {}).get(abbr) or ())
+        if covered:
+            # The club's own page was read this run: for the days its grid
+            # covers, what the sources report now is the whole record, so a
+            # code nothing reports any more (NFL.com's stale DNP) goes.
+            p["practice"] = {d: c for d, c in p["practice"].items() if d not in covered}
         for d, code in (row.get("practice") or {}).items():
             if code:
                 p["practice"][d] = code
@@ -1282,6 +1302,15 @@ def collect_injury_report(date_str: Optional[str] = None, settings: Optional[dic
         practice_days = team_practice_days(schedule, week, observed_days)
         for source in list(rows_by_source):
             rows_by_source[source] = restrict_to_practice_days(rows_by_source[source], practice_days, source)
+        if observed_days and rows_by_source.get(SOURCE_NFLCOM):
+            # NFL.com shows one undated status per player, and it can be days
+            # old: Dalton Schultz's Wednesday rest-day DNP stayed up after he
+            # dropped off the report, and was stamped onto Thursday and Friday.
+            # Wherever a club's own page was read, its grid is the record;
+            # NFL.com still fills in for clubs whose page could not be read.
+            rows_by_source[SOURCE_NFLCOM] = [
+                {**r, "practice": {}} if r["team"] in observed_days else r
+                for r in rows_by_source[SOURCE_NFLCOM]]
 
         # Unique players per source (a club is on its own page AND its opponent's).
         result["sources_used"] = {s: len({(r["team"], r["name_key"]) for r in rows})
@@ -1294,7 +1323,7 @@ def collect_injury_report(date_str: Optional[str] = None, settings: Optional[dic
 
         cur, prev = merge_into_week(merged, season, week, date_str, schedule=schedule,
                                     sources_used=result["sources_used"], conflicts=conflicts,
-                                    practice_days=practice_days)
+                                    practice_days=practice_days, authoritative_days=observed_days)
         result["file"] = str(week_file_path(season, week))
         result["changes"] = diff_week(prev, cur)
         logger.info("Injury report week %d: %d players, %d changes", week, len(merged), len(result["changes"]))
