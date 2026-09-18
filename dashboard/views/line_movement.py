@@ -17,7 +17,6 @@ st.set_page_config(page_title="Line Movement", page_icon="📉", layout="wide")
 from dashboard.auth import require_password
 require_password()
 
-from collectors.odds_collector import STAT_LABEL
 from dashboard import in_season_data as isd
 from dashboard.helpers import to_et_display
 from processing import line_insights as li
@@ -50,102 +49,110 @@ else:
     )
 
 games = data.get("games") or {}
-props = data.get("props") or {}
-changes = data.get("changes") or []
 
 
-def _delta(new, old):
-    if new is None or old is None:
-        return None
-    return round(new - old, 2)
+NUM = st.column_config.NumberColumn
 
 
-def _arrow(d):
-    if not d:
+def _played_teams() -> set[str]:
+    """News-style abbreviations of teams whose game this week is already over."""
+    if week != ctx.week:
+        return set()
+    from processing.projection_audit import teams_already_played
+    from processing.team_abbr import to_news
+    return {to_news(t, "proj") for t in teams_already_played(_schedule, week, ctx.today)}
+
+
+def _pair(a, b, signed=False):
+    """'-4.5 → -5.5' (or just the value when it never moved)."""
+    fmt = (lambda v: f"{v:+g}") if signed else (lambda v: f"{v:g}")
+    if a is None and b is None:
         return ""
-    return f" {'▲' if d > 0 else '▼'}{abs(d):g}"
+    if a is None or b is None or a == b:
+        return fmt(b if b is not None else a)
+    return f"{fmt(a)} → {fmt(b)}"
 
 
 def _render_games() -> None:
     if not games:
         st.info("No game lines stored for this week yet.")
         return
+    played = _played_teams()
     rows = []
-    for key, g in sorted(games.items(), key=lambda kv: kv[1].get("kickoff_et", "")):
-        cur, opened = g.get("current") or {}, g.get("opened") or {}
-        sharp, sheet = g.get("sharp") or {}, g.get("sheet") or {}
-        implied = g.get("implied") or {}
-        sp_d = _delta(cur.get("spread_home"), opened.get("spread_home"))
-        tot_d = _delta(cur.get("total"), opened.get("total"))
+    for key, g in games.items():
+        home = li.game_card(data, g["home"])
+        away = li.game_card(data, g["away"])
+        if not home:
+            continue
+        sp_move = (home["spread_now"] - home["spread_open"]) if None not in (home["spread_now"], home["spread_open"]) else None
+        tot_move = (home["total_now"] - home["total_open"]) if None not in (home["total_now"], home["total_open"]) else None
         rows.append({
-            "Game": key,
-            "Kickoff (ET)": g.get("kickoff_et", ""),
-            "Spread (home)": f"{cur.get('spread_home')}{_arrow(sp_d)}",
-            "Total": f"{cur.get('total')}{_arrow(tot_d)}",
-            "Home ML": cur.get("home_ml"),
-            "Away ML": cur.get("away_ml"),
-            "Implied home": implied.get("home"),
-            "Implied away": implied.get("away"),
-            "Sharp spread": sharp.get("spread_home"),
-            "Sharp total": sharp.get("total"),
-            "Sheet spread": sheet.get("spread_home"),
-            "Sheet O/U": sheet.get("ou"),
-            "Flag": sheet.get("fp_flag") or "",
-            "Books": cur.get("n_books"),
+            "Game": key, "Kickoff (ET)": g.get("kickoff_et", ""),
+            "_final": g.get("home") in played,
+            "Home spread": _pair(home["spread_open"], home["spread_now"], signed=True),
+            "Spread move": sp_move,
+            "Total": _pair(home["total_open"], home["total_now"]),
+            "Total move": tot_move,
+            "Away implied": _pair(away["implied_open"], away["implied_now"]),
+            "Home implied": _pair(home["implied_open"], home["implied_now"]),
+            "Your sheet": (f"{home['sheet_spread']:+g} / {home['sheet_total']:g}"
+                           if None not in (home["sheet_spread"], home["sheet_total"]) else ""),
+            "Sharp": (f"{home['sharp_spread']:+g} / {home['sharp_total']:g}"
+                      if None not in (home["sharp_spread"], home["sharp_total"]) else ""),
+            "Flag": home["fp_flag"],
+            "_size": max(abs(sp_move or 0), abs(tot_move or 0) / 2),
         })
-    st.dataframe(rows, use_container_width=True, hide_index=True)
+    # Upcoming games first, biggest movers first; a finished game's line is history.
+    rows.sort(key=lambda r: (r["_final"], -r["_size"]))
+    st.dataframe(
+        [{**{k: v for k, v in r.items() if not k.startswith("_")},
+          "Game": r["Game"] + (" (final)" if r["_final"] else "")} for r in rows],
+        use_container_width=True, hide_index=True,
+        column_config={"Spread move": NUM(format="%+.1f", help="Home spread now minus at open"),
+                       "Total move": NUM(format="%+.1f", help="Total now minus at open")},
+    )
     st.caption(
-        "Arrows compare the current consensus with the line as first stored this week. "
-        "**Flag** is the NFL Odds project's own FP-SPREAD / FP-TOTAL verdict: the "
-        "projection sheet's line has drifted from the market."
+        "Open → now for every line; **Home spread** is negative when the home team is favored. "
+        "Implied totals are what the spread and total say each team scores. **Your sheet** and "
+        "**Sharp** (Pinnacle) are spread / total. **Flag** is the NFL Odds project's FP-SPREAD / "
+        "FP-TOTAL verdict that your sheet's line has drifted from the market."
     )
 
-    with st.expander("Price series for one game"):
+    with st.expander("Line history for one game"):
         pick = st.selectbox("Game", sorted(games), key="odds_game_series")
-        hist = (games.get(pick) or {}).get("history") or []
+        card = li.game_card(data, (games.get(pick) or {}).get("home", ""))
         st.dataframe(
-            [{"At": h.get("at"), "Spread (home)": h.get("spread_home"),
-              "Total": h.get("total"), "Home ML": h.get("home_ml"),
-              "Away ML": h.get("away_ml")} for h in hist],
+            [{"Pull": str(h["at"] or "").replace("T", " "), "Home spread": h["spread"],
+              "Total": h["total"], "Home implied": h["implied"], "Away implied": h["opp_implied"],
+              "Home ML": h["ml"]} for h in (card or {}).get("history") or []],
             use_container_width=True, hide_index=True,
         )
-        st.caption(
-            "One row per change in the posted line. The NFL Odds project pulls "
-            "about six times a week, so this series is that cadence, not the "
-            "news agent's."
-        )
+        st.caption("One row per change in the posted line, at the NFL Odds project's pull cadence "
+                   "(about six pulls a week).")
 
 
-_PROP_THR = ((_settings.get("odds", {}) or {}).get("thresholds") or {}).get("props") or {}
+PROP_COLUMNS = {
+    "Your proj": NUM(format="%.1f"), "Book line": NUM(format="%.1f"),
+    "Market open": NUM(format="%.1f"), "Market now": NUM(format="%.1f"),
+    "Move %": NUM(format="%+.0f%%", help="Market now vs where the line opened, in percent — "
+                                         "comparable across stats (a catch and 15 yards read alike)"),
+    "Last pull": NUM(format="%+.1f", help="Change in the most recent pull, in the stat's own units"),
+    "Market vs you %": NUM(format="%+.0f%%", help="Market now vs your projection"),
+}
+
+PROP_CAPTION = (
+    "**Market** = the betting consensus's implied average for the stat — not the posted O/U line, "
+    "which is **Book line**. Anytime TD is shown as the chance of scoring (%). **Move %** and "
+    "**Market vs you %** are relative, so receptions and yards compare on one scale."
+)
 
 
-def _prop_rows() -> list[dict]:
-    rows = []
-    for p in props.values():
-        cur, opened = p.get("current") or {}, p.get("opened") or {}
-        prev = p.get("previous") or {}
-        d_open = _delta(cur.get("mkt_mu"), opened.get("mkt_mu"))
-        thr = float(_PROP_THR.get(p.get("stat", ""), 0) or 0)
-        rows.append({
-            # Move in units of the stat's threshold: ranks a 10-yard passing
-            # move and a one-catch move on the same scale.
-            "_size": abs(d_open or 0) / thr if thr else 0.0,
-            "Player": p.get("player", ""),
-            "Team": p.get("team", ""),
-            "Opp": p.get("opp", ""),
-            "Pos": p.get("pos", ""),
-            "Stat": STAT_LABEL.get(p.get("stat", ""), p.get("stat", "")),
-            "_stat": p.get("stat", ""),
-            "Ours": p.get("ours"),
-            "Line": cur.get("cons_line"),
-            "Market": cur.get("mkt_mu"),
-            "Δ vs open": _delta(cur.get("mkt_mu"), opened.get("mkt_mu")),
-            "Δ last pull": _delta(cur.get("mkt_mu"), prev.get("mkt_mu")),
-            "Flag": p.get("flag") or "",
-            "Books": cur.get("n_books"),
-            "Pulls": p.get("pulls"),
-        })
-    return rows
+def _prop_table_rows(rows: list[dict]) -> list[dict]:
+    return [{"Player": r["player"], "Pos": r["pos"], "Team": r["team"], "Opp": r["opp"],
+             "Stat": r["stat_label"], "Your proj": r["you"], "Book line": r["book_line"],
+             "Market open": r["open"], "Market now": r["now"], "Move %": r["move_pct"],
+             "Last pull": r["last_pull"], "Market vs you %": r["vs_you_pct"], "Flag": r["flag"]}
+            for r in rows]
 
 
 def _filters(rows: list[dict], key: str) -> list[dict]:
@@ -167,34 +174,32 @@ def _filters(rows: list[dict], key: str) -> list[dict]:
 
 
 def _render_movers() -> None:
-    rows = _prop_rows()
+    o1, o2 = st.columns(2)
+    only_moved = o1.checkbox("Only lines that moved past their threshold since open", value=True,
+                             key="odds_moved")
+    thin = o2.checkbox("Include thin markets (1 book)", value=False, key="odds_thin")
+    rows = li.prop_table(data, _settings, played=_played_teams(), only_moved=only_moved,
+                         include_thin=thin)
     if not rows:
-        st.info("No player props stored for this week yet.")
+        st.info("No player line has moved past its threshold since open.")
         return
-    rows = _filters(rows, "movers")
-    only_moved = st.checkbox("Only lines that moved since open", value=True, key="odds_moved")
-    if only_moved:
-        rows = [r for r in rows if r["Δ vs open"]]
-    rows.sort(key=lambda r: -r["_size"])
-    st.caption(f"{len(rows)} player-stats")
-    st.dataframe([{k: v for k, v in r.items() if not k.startswith("_")} for r in rows[:500]],
-                 use_container_width=True, hide_index=True)
-    st.caption(
-        "**Market** is the consensus-implied mean, not the posted line. "
-        "Anytime TD is an expected-TD *rate* (1.20 = 1.2 expected TDs), not a probability."
-    )
+    table = _filters(_prop_table_rows(rows), "movers")
+    st.caption(f"{len(table)} player lines · biggest moves first (relative to each stat's threshold) · "
+               "finished games left out")
+    st.dataframe(table[:500], use_container_width=True, hide_index=True, column_config=PROP_COLUMNS)
+    st.caption(PROP_CAPTION)
 
 
 def _render_divergence() -> None:
-    rows = [r for r in _prop_rows() if r["Flag"] in ("RED", "AMBER", "MKT-ONLY")]
+    order = {"RED": 0, "MKT-ONLY": 1, "AMBER": 2}
+    rows = [r for r in li.prop_table(data, _settings, played=_played_teams(), only_moved=False)
+            if r["flag"] in order]
     if not rows:
         st.info("Nothing flagged: the market agrees with the sheet everywhere it quotes.")
         return
-    rows = _filters(rows, "diverge")
-    order = {"RED": 0, "MKT-ONLY": 1, "AMBER": 2}
-    rows.sort(key=lambda r: (order.get(r["Flag"], 9), -abs((r["Market"] or 0) - (r["Ours"] or 0))))
-    st.dataframe([{k: v for k, v in r.items() if not k.startswith("_")} for r in rows[:500]],
-                 use_container_width=True, hide_index=True)
+    rows.sort(key=lambda r: (order[r["flag"]], -abs(r["vs_you_pct"] or 0)))
+    table = _filters(_prop_table_rows(rows), "diverge")
+    st.dataframe(table[:500], use_container_width=True, hide_index=True, column_config=PROP_COLUMNS)
     st.caption(
         "Flags come from the NFL Odds project's Market_Check, computed against "
         "calibrated per-stat bands. **RED** / **AMBER** = the market's implied mean "
@@ -221,15 +226,6 @@ def _change_rows(rows: list[dict]) -> list[dict]:
     return [{"Type": c.get("type"), "Team": c.get("team"), "Player": c.get("player"),
              "Game": c.get("game"), "Message": (c.get("message") or "").replace("**", "")}
             for c in rows]
-
-
-def _played_teams() -> set[str]:
-    """News-style abbreviations of teams whose game this week is already over."""
-    if week != ctx.week:
-        return set()
-    from processing.projection_audit import teams_already_played
-    from processing.team_abbr import to_news
-    return {to_news(t, "proj") for t in teams_already_played(_schedule, week, ctx.today)}
 
 
 def _render_what_matters() -> None:
@@ -287,20 +283,23 @@ def _render_what_matters() -> None:
         rows = [r for r in rows if r["flag"] == "RED" or r["trend"] in trends]
     elif not toward:
         rows = [r for r in rows if r["trend"] != "toward"]
-    table = [{
-        "Player": r["player"], "Pos": r["pos"], "Team": r["team"], "Opp": r["opp"],
-        "Stat": r["stat_label"], "You": r["ours"],
-        "Market open": _fmt(r["market_open"], 2), "Market now": _fmt(r["market_now"], 2),
-        "Gap (mkt − you)": _signed(r["gap_now"], 2),
-        "Trend": {"away": "↗ away from you", "toward": "↘ toward you"}.get(r["trend"], ""),
-        "Flag": r["flag"],
-    } for r in rows]
+    table = []
+    for r in rows:
+        you, now = li.display_value(r["stat"], r["ours"]), li.display_value(r["stat"], r["market_now"])
+        table.append({
+            "Player": r["player"], "Pos": r["pos"], "Team": r["team"], "Opp": r["opp"],
+            "Stat": li.stat_display_label(r["stat"]), "Your proj": you,
+            "Market open": li.display_value(r["stat"], r["market_open"]), "Market now": now,
+            "Market vs you %": ((now - you) / you * 100.0) if you else None,
+            "Trend": {"away": "↗ away from you", "toward": "↘ toward you"}.get(r["trend"], ""),
+            "Flag": r["flag"],
+        })
     table = _filters(table, "wm")
     if table:
-        st.dataframe(table[:300], use_container_width=True, hide_index=True)
+        st.dataframe(table[:300], use_container_width=True, hide_index=True, column_config=PROP_COLUMNS)
     else:
         st.success("No player line is flagged RED or moving away from your projection.")
-    st.caption("Anytime TD is an expected-TD *rate*, not a probability.")
+    st.caption(PROP_CAPTION)
 
 
 def _render_recent_pulls() -> None:

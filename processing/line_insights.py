@@ -18,10 +18,11 @@ on every rerun. Movement thresholds are the collector's (``odds.thresholds``).
 
 from __future__ import annotations
 
+import math
 from typing import Any, Optional
 
 from collectors.odds_collector import (
-    DEFAULT_THRESHOLDS, STAT_LABEL, _diff_game, _diff_prop, _market_implied,
+    DEFAULT_THRESHOLDS, RATE_STATS, STAT_LABEL, _diff_game, _diff_prop, _market_implied,
 )
 
 # A team total moving a point, or the sheet sitting a point off the market,
@@ -128,6 +129,129 @@ def player_watchlist(week_data: Optional[dict], settings: Optional[dict] = None,
             "score": (abs(gap_now) / thr) if (gap_now is not None and thr) else 0.0,
         })
     rows.sort(key=lambda r: (FLAG_RANK.get(r["flag"], 3), r["trend"] != "away", -r["score"]))
+    return rows
+
+
+def _from_side(spread_home: Optional[float], home: bool) -> Optional[float]:
+    """Home spread -> this team's spread (negative = favored)."""
+    if spread_home is None:
+        return None
+    return spread_home if home else -spread_home
+
+
+def game_card(week_data: Optional[dict], team: str) -> Optional[dict]:
+    """``team``'s game this week, from its own side: spread (negative =
+    favored), total, implied totals for both clubs — open, now, and on your
+    sheet — the sharp book, and one history row per posted-line change."""
+    for key, g in ((week_data or {}).get("games") or {}).items():
+        if team not in (g.get("home"), g.get("away")):
+            continue
+        home = g.get("home") == team
+        side, other = ("home", "away") if home else ("away", "home")
+        cur, opened = g.get("current") or {}, g.get("opened") or {}
+        sheet, sharp = g.get("sheet") or {}, g.get("sharp") or {}
+        imp_now = _market_implied(cur.get("spread_home"), cur.get("total"))
+        imp_open = _market_implied(opened.get("spread_home"), opened.get("total"))
+        imp_sheet = _market_implied(sheet.get("spread_home"), sheet.get("ou"))
+        history = []
+        for h in g.get("history") or []:
+            imp = _market_implied(h.get("spread_home"), h.get("total"))
+            history.append({
+                "at": h.get("at"), "spread": _from_side(h.get("spread_home"), home),
+                "total": h.get("total"), "implied": imp[side], "opp_implied": imp[other],
+                "ml": h.get("home_ml" if home else "away_ml"),
+            })
+        return {
+            "game": key, "team": team, "opp": g.get(other), "home": home,
+            "kickoff_et": g.get("kickoff_et", ""),
+            "spread_open": _from_side(opened.get("spread_home"), home),
+            "spread_now": _from_side(cur.get("spread_home"), home),
+            "total_open": opened.get("total"), "total_now": cur.get("total"),
+            "implied_open": imp_open[side], "implied_now": imp_now[side],
+            "opp_implied_open": imp_open[other], "opp_implied_now": imp_now[other],
+            "ml_now": cur.get("home_ml" if home else "away_ml"),
+            "sheet_spread": _from_side(sheet.get("spread_home"), home), "sheet_total": sheet.get("ou"),
+            "sheet_implied": imp_sheet[side], "fp_flag": sheet.get("fp_flag") or "",
+            "sharp_spread": _from_side(sharp.get("spread_home"), home), "sharp_total": sharp.get("total"),
+            "history": history,
+        }
+    return None
+
+
+STAT_ORDER = {s: i for i, s in enumerate(STAT_LABEL)}
+POS_ORDER = {"QB": 0, "RB": 1, "FB": 2, "WR": 3, "TE": 4, "K": 5}
+
+
+def display_value(stat: str, v: Optional[float]) -> Optional[float]:
+    """A market or projected value the way a person reads it.
+
+    Anytime TD is stored as an expected-TD rate (lambda); shown as the chance
+    of scoring, P = 1 - e^-lambda, in percent — "56%" reads, "0.82" does not.
+    Everything else is the stat's own mean.
+    """
+    if v is None:
+        return None
+    if stat in RATE_STATS:
+        return 100.0 * (1.0 - math.exp(-max(float(v), 0.0)))
+    return float(v)
+
+
+def stat_display_label(stat: str) -> str:
+    return "Anytime TD %" if stat in RATE_STATS else STAT_LABEL.get(stat, stat)
+
+
+def prop_table(week_data: Optional[dict], settings: Optional[dict] = None, *,
+               team: Optional[str] = None, played: Optional[set[str]] = None,
+               only_moved: bool = True, include_thin: bool = False) -> list[dict]:
+    """Player lines, one row per player x stat, in comparable units.
+
+    ``move_pct`` is the move since open relative to the opening value, so a
+    half-catch move (4.5 -> 5.2 receptions, +14%) and a 17-yard move (245 ->
+    228 passing yards, -7%) rank on one scale. ``only_moved`` keeps lines
+    whose raw move reached the stat's movement threshold (``odds.thresholds``),
+    which is what keeps a 0.02 -> 0.04 TD rate from reading as +100%.
+    ``vs_you_pct`` is the market relative to your projection. THIN markets
+    (too few books) are left out unless ``include_thin``.
+
+    Rows sort by ``size`` — the raw move in units of the stat's threshold —
+    not by ``move_pct``: a TD chance going 3% -> 12% is +300% and would bury
+    every yardage line, while in threshold units it ranks with its peers.
+    """
+    thr_all = _thresholds(settings).get("props") or {}
+    played = played or set()
+    rows: list[dict] = []
+    for p in ((week_data or {}).get("props") or {}).values():
+        if team and p.get("team") != team:
+            continue
+        if p.get("team") in played or (p.get("thin") and not include_thin):
+            continue
+        stat = p.get("stat", "")
+        cur = (p.get("current") or {}).get("mkt_mu")
+        if cur is None:
+            continue
+        opened = (p.get("opened") or {}).get("mkt_mu")
+        prev = (p.get("previous") or {}).get("mkt_mu") if p.get("previous") else None
+        thr = float(thr_all.get(stat) or 0)
+        raw_move = (cur - opened) if opened is not None else None
+        moved = bool(raw_move is not None and thr and abs(raw_move) >= thr)
+        if only_moved and not moved:
+            continue
+        now_d, open_d = display_value(stat, cur), display_value(stat, opened)
+        you_d, prev_d = display_value(stat, p.get("ours")), display_value(stat, prev)
+        rows.append({
+            "player": p.get("player", ""), "pos": p.get("pos", ""), "team": p.get("team", ""),
+            "opp": p.get("opp", ""), "gsis_id": p.get("gsis_id", ""), "stat": stat,
+            "stat_label": stat_display_label(stat),
+            "you": you_d, "book_line": (p.get("current") or {}).get("cons_line"),
+            "open": open_d, "now": now_d,
+            "move": (now_d - open_d) if open_d is not None else None,
+            "move_pct": ((now_d - open_d) / open_d * 100.0) if open_d else None,
+            "last_pull": (now_d - prev_d) if prev_d is not None else None,
+            "vs_you_pct": ((now_d - you_d) / you_d * 100.0) if you_d else None,
+            "flag": p.get("flag") or "", "thin": bool(p.get("thin")), "moved": moved,
+            "size": (abs(raw_move) / thr) if (raw_move is not None and thr) else 0.0,
+        })
+    rows.sort(key=lambda r: -r["size"])
     return rows
 
 
