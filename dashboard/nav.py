@@ -4,11 +4,11 @@ Streamlit's automatic ``pages/`` discovery sorts pages alphabetically and
 can't hide or group anything. This module builds the grouped, phase-aware
 sidebar instead:
 
-* **This Week** — Daily Report, plus the in-season working pages
+* **This Week** — Daily Report, Team (everything about one team), plus the in-season working pages
   (Injury Report, Inactives, Roster State, Projection Audit, Line Movement)
   that only exist when ``season.phase == in_season``.
 * **Sources** — the on-demand LLM report tabs (Twitter / YouTube / Podcast).
-* **Projections & Depth** — Projections, Depth Charts, Team View.
+* **Projections & Depth** — Projections, Depth Charts.
 * **Tools** — Flagged, Trends, Digest; Transcripts + Config (local only);
   Depth Chart Manager (offseason only — its in-season work is deferred, see
   docs/depth_chart_manager_in_season.md); FantasyPoints (only while the
@@ -103,6 +103,9 @@ def build_navigation(hidden: bool = False):
     this_week = [
         _page(HOME, "Home", "🏈", default=True),
         _page(DAILY_REPORT, "Daily Report", "📰"),
+        # One page per team: game line, alerts, injuries, projections, player
+        # lines, roster, depth, notes. Still team_view.py, so bookmarks hold.
+        _page(TEAM_VIEW, "Team", "🏟️"),
     ]
     if in_season:
         this_week += [
@@ -122,7 +125,6 @@ def build_navigation(hidden: bool = False):
     projections = [
         _page(PROJECTIONS, "Projections", "📊"),
         _page(DEPTH_CHARTS, "Depth Charts", "📋"),
-        _page(TEAM_VIEW, "Team View", "🏟️"),
     ]
 
     tools = [
