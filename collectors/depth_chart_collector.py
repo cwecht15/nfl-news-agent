@@ -94,19 +94,29 @@ _ANY_MARKER_RE = re.compile(
     rf"(?:{_TAG_UNAMBIGUOUS}|(?:{_TAG_POSITION})\^?)?(?:{_BADGE})?")
 
 
-def clean_tagged_name(name: str, known: set[str] | frozenset[str] = frozenset()) -> str:
-    """'Rome24/1Q Odunze' -> 'Rome Odunze'; clean names come back unchanged.
-
-    ``known`` (lower-cased names from a clean snapshot) settles the all-caps
-    cases the patterns can't: 'SAMC MUSTIPHER' is 'SAM MUSTIPHER' only
-    because that name exists.
-    """
-    if name.lower() in known:
-        return name
+def _resolve_against(name: str, known: set[str] | frozenset[str]) -> str:
+    """Strip a trailing marker from the first name only if what is left is a
+    name ``known`` has: 'SAMC MUSTIPHER' -> 'SAM MUSTIPHER' because that
+    player exists. '' when nothing resolves."""
     head, sep, tail = (name or "").partition(" ")
     for i in range(len(head) - 1, 0, -1):          # longest first name first
         if _ANY_MARKER_RE.fullmatch(head[i:]) and f"{head[:i]}{sep}{tail}".lower() in known:
             return f"{head[:i]}{sep}{tail}"
+    return ""
+
+
+def clean_tagged_name(name: str, known: set[str] | frozenset[str] = frozenset()) -> str:
+    """'Rome24/1Q Odunze' -> 'Rome Odunze'; clean names come back unchanged.
+
+    ``known`` (lower-cased names from a clean snapshot) settles the all-caps
+    cases the patterns can't; see :func:`_resolve_against`.
+    """
+    if name.lower() in known:
+        return name
+    resolved = _resolve_against(name, known)
+    if resolved:
+        return resolved
+    head, sep, tail = (name or "").partition(" ")
     for rx in (_GLUED_TAG_RE, _GLUED_LETTERS_RE):
         m = rx.match(head)
         if m:
@@ -123,17 +133,34 @@ def _looks_tagged(snapshot: dict | None) -> bool:
     return bool(heads) and tagged >= max(10, len(heads) // 20)
 
 
+class _HealedSnapshot(dict):
+    """A legacy snapshot healed without a reference (by a loader). Its digit/
+    slash tags are gone, so :func:`_looks_tagged` can't see it any more, but
+    ambiguous all-caps names may remain for :func:`diff_depth_charts` to
+    settle against the other side."""
+
+
+def _is_legacy(snapshot: dict | None) -> bool:
+    return isinstance(snapshot, _HealedSnapshot) or _looks_tagged(snapshot)
+
+
 def _heal_snapshot(snapshot: dict | None, reference: dict | None = None) -> dict | None:
     """Re-key a legacy tagged snapshot so it diffs and joins against clean
-    ones; ``reference`` is a clean snapshot whose names settle ambiguous
-    cases. Anything else is returned as is."""
-    if not _looks_tagged(snapshot):
+    ones; ``reference`` is the other side of a diff, whose names settle the
+    all-caps cases. A clean snapshot is returned as the same object — its
+    names are never re-keyed.
+
+    Where two entries heal to one name the later wins, as in
+    :func:`scrape_all_teams` (a player on IR can also sit in his position's
+    table; the reserve list comes last).
+    """
+    if not _is_legacy(snapshot):
         return snapshot
-    known = frozenset() if _looks_tagged(reference) else frozenset(reference or {})
-    healed: dict = {}
+    known = frozenset() if reference is None or _is_legacy(reference) else frozenset(reference)
+    healed = _HealedSnapshot()
     for p in snapshot.values():
         name = clean_tagged_name(p.get("name") or "", known)
-        healed.setdefault(name.lower(), {**p, "name": name})
+        healed[name.lower()] = {**p, "name": name}
     return healed
 
 

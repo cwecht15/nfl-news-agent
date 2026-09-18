@@ -108,6 +108,39 @@ def test_diff_against_a_tagged_snapshot_is_not_a_mass_turnover():
     assert status == []            # nobody "left IR" because the name format changed
 
 
+def test_pipeline_path_loader_then_diff_resolves_all_caps(tmp_path, monkeypatch):
+    """run_daily loads the prior snapshot through the loader (which heals
+    without a reference, so the digit/slash tags are already gone) and then
+    diffs; the all-caps reserve-list names must still resolve."""
+    import json
+    monkeypatch.setattr(dcc, "DEPTH_CHART_DIR", tmp_path)
+    (tmp_path / "2026-09-17.json").write_text(json.dumps(_tagged_snapshot()), encoding="utf-8")
+    prev = dcc.load_latest_depth_charts(before_date="2026-09-18")
+    assert "samc mustipher" in prev                 # ambiguous without a reference
+    cur = {f"player{c} last{c}".lower(): _dc(f"Player{c} Last{c}") for c in "ABCDEFGHIJKL"}
+    cur["sam mustipher"] = _dc("SAM MUSTIPHER", pos="IR")
+    cur["rome odunze"] = _dc("Rome Odunze")
+    assert dcc.diff_depth_charts(cur, prev) == []
+
+
+def test_heal_collision_keeps_the_later_entry_like_the_scraper():
+    # A player on IR can also sit in his position's table; the scraper's
+    # dict keeps the later (reserve-list) row, so healing must too.
+    tagged = _tagged_snapshot()
+    tagged["james17/3 conner"] = _dc("James17/3 Conner", team="ARZ", pos="RB", generic="RB")
+    tagged["jamesrb^ conner"] = _dc("JAMESRB^ CONNER", team="ARZ", pos="IR", generic="IR")
+    healed = dcc._heal_snapshot(tagged)
+    assert healed["james conner"]["pos"] == "IR"
+
+
+def test_diff_between_clean_snapshots_is_untouched():
+    prev = {"jc latham": _dc("JC Latham", pos="LT", generic="OL"), "dj moore": _dc("DJ Moore")}
+    cur = {"j latham": _dc("J Latham", pos="LT", generic="OL"), "dj moore": _dc("DJ Moore")}
+    # "JC" -> "J" + "C" would need 'C' to be a glued marker; clean data is never re-keyed
+    types = sorted(c["type"] for c in dcc.diff_depth_charts(cur, prev))
+    assert types == ["added", "removed"]
+
+
 def test_loaders_heal_legacy_files(tmp_path, monkeypatch):
     import json
     monkeypatch.setattr(dcc, "DEPTH_CHART_DIR", tmp_path)
