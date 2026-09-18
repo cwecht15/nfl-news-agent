@@ -202,7 +202,8 @@ def stat_display_label(stat: str) -> str:
 
 def prop_table(week_data: Optional[dict], settings: Optional[dict] = None, *,
                team: Optional[str] = None, played: Optional[set[str]] = None,
-               only_moved: bool = True, include_thin: bool = False) -> list[dict]:
+               only_moved: bool = True, include_thin: bool = False,
+               min_move_pct: Optional[float] = None) -> list[dict]:
     """Player lines, one row per player x stat, in comparable units.
 
     ``move_pct`` is the move since open relative to the opening value, so a
@@ -210,6 +211,10 @@ def prop_table(week_data: Optional[dict], settings: Optional[dict] = None, *,
     228 passing yards, -7%) rank on one scale. ``only_moved`` keeps lines
     whose raw move reached the stat's movement threshold (``odds.thresholds``),
     which is what keeps a 0.02 -> 0.04 TD rate from reading as +100%.
+    ``min_move_pct`` replaces that with a plain percent cut — "moved at least
+    5%" — which is what a person scanning a team means by *moved*: the report
+    thresholds hide a 6-yard (10%) rushing move. Anytime TD also needs a full
+    percentage point, so 2.5% -> 2.6% (+4%) is not a move.
     ``vs_you_pct`` is the market relative to your projection. THIN markets
     (too few books) are left out unless ``include_thin``.
 
@@ -234,9 +239,15 @@ def prop_table(week_data: Optional[dict], settings: Optional[dict] = None, *,
         thr = float(thr_all.get(stat) or 0)
         raw_move = (cur - opened) if opened is not None else None
         moved = bool(raw_move is not None and thr and abs(raw_move) >= thr)
-        if only_moved and not moved:
-            continue
         now_d, open_d = display_value(stat, cur), display_value(stat, opened)
+        move_pct = ((now_d - open_d) / open_d * 100.0) if open_d else None
+        if min_move_pct is not None:
+            moved = (move_pct is not None and abs(move_pct) >= min_move_pct
+                     and (stat not in RATE_STATS or abs(now_d - open_d) >= 1.0))
+            if min_move_pct > 0 and not moved:
+                continue
+        elif only_moved and not moved:
+            continue
         you_d, prev_d = display_value(stat, p.get("ours")), display_value(stat, prev)
         rows.append({
             "player": p.get("player", ""), "pos": p.get("pos", ""), "team": p.get("team", ""),
@@ -245,7 +256,7 @@ def prop_table(week_data: Optional[dict], settings: Optional[dict] = None, *,
             "you": you_d, "book_line": (p.get("current") or {}).get("cons_line"),
             "open": open_d, "now": now_d,
             "move": (now_d - open_d) if open_d is not None else None,
-            "move_pct": ((now_d - open_d) / open_d * 100.0) if open_d else None,
+            "move_pct": move_pct,
             "last_pull": (now_d - prev_d) if prev_d is not None else None,
             "vs_you_pct": ((now_d - you_d) / you_d * 100.0) if you_d else None,
             "flag": p.get("flag") or "", "thin": bool(p.get("thin")), "moved": moved,

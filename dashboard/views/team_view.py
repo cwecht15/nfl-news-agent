@@ -236,8 +236,10 @@ else:
 # ---------------------------------------------------------------------------
 
 st.subheader("Player lines")
-only_moved = st.checkbox("Only lines that moved since open", value=False, key="team_props_moved")
-props = li.prop_table(odds, settings, team=team, only_moved=only_moved)
+MOVE_CHOICES = {"All lines": 0.0, "Moved 5%+": 5.0, "Moved 10%+": 10.0, "Moved 20%+": 20.0}
+show = st.radio("Show", list(MOVE_CHOICES), horizontal=True, key="team_props_moved",
+                help="Move since the line opened, in percent. Anytime TD also needs a full point.")
+props = li.prop_table(odds, settings, team=team, min_move_pct=MOVE_CHOICES[show])
 if props:
     rank = {r["Player"]: i for i, r in enumerate(proj_rows)}   # biggest projections first
     props.sort(key=lambda r: (rank.get(r["player"], 999), li.POS_ORDER.get(r["pos"], 9), r["player"],
@@ -260,8 +262,8 @@ if props:
                "line, which is **Book line**). Anytime TD is shown as the chance of scoring. "
                "Flags are the NFL Odds project's verdicts on market vs your projection.")
 else:
-    st.caption("No player lines stored for this team this week." if not only_moved
-               else "No line has moved past its threshold since open.")
+    st.caption("No player lines stored for this team this week." if not MOVE_CHOICES[show]
+               else f"No line has moved {MOVE_CHOICES[show]:g}% or more since open.")
 
 # ---------------------------------------------------------------------------
 # Roster + depth chart

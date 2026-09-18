@@ -174,14 +174,15 @@ def _filters(rows: list[dict], key: str) -> list[dict]:
 
 
 def _render_movers() -> None:
-    o1, o2 = st.columns(2)
-    only_moved = o1.checkbox("Only lines that moved past their threshold since open", value=True,
-                             key="odds_moved")
+    choices = {"All lines": 0.0, "Moved 5%+": 5.0, "Moved 10%+": 10.0, "Moved 20%+": 20.0}
+    o1, o2 = st.columns([3, 1])
+    show = o1.radio("Show", list(choices), index=1, horizontal=True, key="odds_moved",
+                    help="Move since the line opened, in percent. Anytime TD also needs a full point.")
     thin = o2.checkbox("Include thin markets (1 book)", value=False, key="odds_thin")
-    rows = li.prop_table(data, _settings, played=_played_teams(), only_moved=only_moved,
+    rows = li.prop_table(data, _settings, played=_played_teams(), min_move_pct=choices[show],
                          include_thin=thin)
     if not rows:
-        st.info("No player line has moved past its threshold since open.")
+        st.info(f"No player line has moved {choices[show]:g}% or more since open.")
         return
     table = _filters(_prop_table_rows(rows), "movers")
     st.caption(f"{len(table)} player lines · biggest moves first (relative to each stat's threshold) · "

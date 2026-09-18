@@ -68,6 +68,22 @@ def test_prop_table_filters_team_thin_played_and_unmoved():
     assert "Done" not in {r["player"] for r in li.prop_table(week, SETTINGS, played={"BUF"})}
 
 
+def test_percent_move_filter_keeps_moves_the_report_thresholds_hide():
+    """PIT, Week 2: "only lines that moved" showed one row because the report
+    thresholds (6 rushing yards) hid Dowdle's 44.3 -> 38.4 (-13%)."""
+    td_rate = lambda p: -math.log(1 - p / 100)            # scoring chance % -> rate
+    week = {"props": {
+        "d": _prop("Rico Dowdle", "PIT", "rush_yds", 45.0, 44.3, 38.4),                 # -13%, 5.9 yds
+        "w": _prop("Jaylen Warren", "PIT", "rush_yds", 55.5, 46.6, 48.3),               # +4%
+        "n": _prop("Nowakowski", "PIT", "anytime_td", 0.03, td_rate(2.5), td_rate(4.3)),  # +1.8 pts
+        "t": _prop("Tonyan", "PIT", "anytime_td", 0.03, td_rate(3.0), td_rate(3.2)),      # +7%, 0.2 pts
+    }}
+    assert li.prop_table(week, SETTINGS, team="PIT") == []                      # report thresholds
+    got = {r["player"] for r in li.prop_table(week, SETTINGS, team="PIT", min_move_pct=5.0)}
+    assert got == {"Rico Dowdle", "Nowakowski"}        # Tonyan's +7% is only a fifth of a point
+    assert len(li.prop_table(week, SETTINGS, team="PIT", min_move_pct=0.0)) == 4   # "All lines"
+
+
 # ---------------------------------------------------------------------------
 # Game card: the team's own side of the line
 # ---------------------------------------------------------------------------
