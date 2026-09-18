@@ -14,7 +14,14 @@ from dashboard.auth import require_password
 require_password()
 
 from config_loader import get_teams, get_data_dir
-from dashboard.helpers import highlight_summary, highlight_sources, render_sources
+from dashboard.citations import build_citation_linker
+from dashboard.helpers import (
+    highlight_numbered_sources,
+    highlight_sources,
+    highlight_summary,
+    render_numbered_sources,
+    render_sources,
+)
 from reports.report_builder import list_available_reports, load_report
 from models import NewsItem
 
@@ -49,8 +56,19 @@ for date_str in dates_to_show:
     highlight = report.team_highlights.get(team_abbr)
     if highlight:
         with st.expander(f"{date_str}", expanded=(date_str == dates_to_show[0])):
-            st.markdown(highlight_summary(highlight))
-            render_sources(highlight_sources(highlight))
+            # Same as the Daily Report: [N] links to the article it cites, and the
+            # list underneath is the numbered one those [N] point at.
+            numbered = highlight_numbered_sources(highlight)
+            linkify = build_citation_linker(numbered)
+            summary = highlight_summary(highlight)
+            if linkify:
+                st.markdown(linkify(summary), unsafe_allow_html=True)
+            else:
+                st.markdown(summary)
+            if numbered:
+                render_numbered_sources(numbered)
+            else:
+                render_sources(highlight_sources(highlight))
 
     # Also check raw data for this team
     raw_dir = get_data_dir("raw", date_str)

@@ -140,6 +140,25 @@ def highlight_numbered_sources(highlight) -> list[dict]:
     return []
 
 
+def render_numbered_sources(numbered: list[dict]):
+    """Render the ``[N]``-numbered source list that a note's inline citations point at."""
+    if not numbered:
+        return
+    st.caption("Sources")
+    lines = []
+    for src in numbered:
+        num = src.get("num", "")
+        title_text = src.get("title", "Source")
+        source_name = src.get("source", "")
+        url = src.get("url", "")
+        suffix = f" ({source_name})" if source_name else ""
+        if url:
+            lines.append(f"**[{num}]** [{title_text}]({url}){suffix}")
+        else:
+            lines.append(f"**[{num}]** {title_text}{suffix}")
+    st.markdown("\n\n".join(lines))
+
+
 def render_sources(sources: list[dict]):
     """Render a compact sources list."""
     if not sources:

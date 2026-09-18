@@ -18,6 +18,7 @@ from dashboard.helpers import (
     highlight_summary,
     highlight_sources,
     highlight_numbered_sources,
+    render_numbered_sources,
     render_sources,
     to_et_display,
 )
@@ -268,19 +269,7 @@ if report.team_highlights:
             st.markdown(summary_text)
 
         if team_numbered:
-            st.caption("Sources")
-            lines = []
-            for src in team_numbered:
-                num = src.get("num", "")
-                title_text = src.get("title", "Source")
-                source_name = src.get("source", "")
-                url = src.get("url", "")
-                suffix = f" ({source_name})" if source_name else ""
-                if url:
-                    lines.append(f"**[{num}]** [{title_text}]({url}){suffix}")
-                else:
-                    lines.append(f"**[{num}]** {title_text}{suffix}")
-            st.markdown("\n\n".join(lines))
+            render_numbered_sources(team_numbered)
         else:
             render_sources(team_srcs)
         st.divider()
