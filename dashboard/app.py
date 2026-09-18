@@ -23,6 +23,13 @@ try:
 except ImportError:
     pass
 
+# Streamlit Cloud pulls pushes into this running process and re-runs the
+# scripts, but imported project modules stay cached — drop any whose file
+# changed before anything below imports them (see dashboard/module_refresh.py).
+from dashboard.module_refresh import refresh_changed_modules
+
+refresh_changed_modules()
+
 import streamlit as st
 
 st.set_page_config(
