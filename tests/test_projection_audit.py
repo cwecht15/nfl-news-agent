@@ -190,6 +190,25 @@ def test_dismissal_filters_and_expires_with_week(isolated_dismissals):
     assert pa.load_dismissals() == {}
 
 
+def test_elevated_player_marked_active_is_not_flagged(isolated_dismissals):
+    """Gore Jr. / Dortch, Week 2: elevated for Thursday night, ACTIVE on the
+    sheet, PS on the roster the next morning. Neither a conflict nor stale —
+    unless the only elevation was in an earlier week."""
+    def _alerts_for(elevation_dates, today="2026-09-18"):
+        inputs = _inputs()
+        inputs["snapshot"]["players"]["00-0010"] = {
+            "player_id": "00-0010", "name": "Frank Gore Jr.", "team": "BUF", "pos": "RB", "depth": 3,
+            "status": "Active", "opp": "HST"}
+        inputs["snapshot"]["output"]["00-0010"] = {"name": "Frank Gore Jr.", "pos": "RB", "team": "BUF", "ppr": 1.2}
+        inputs["snapshot"]["meta"]["week"] = 2
+        inputs["state"]["players"]["00-0010"]["elevation_dates"] = elevation_dates
+        res = pa.run_audit(_ctx(week=2, today=today), today, run="test", inputs=inputs, write=False)
+        return {a["type"] for a in res["alerts"] if a["player"] == "Frank Gore Jr."}
+
+    assert _alerts_for(["2026-09-12", "2026-09-18"]) == set()            # elevated in Week 2
+    assert _alerts_for(["2026-09-12"]) & {"status_conflict", "sheet_status_stale"}   # Week 1 only
+
+
 def test_cleared_injury_listing_raises_nothing(isolated_dismissals):
     """A player dropped from the club's report keeps his old status in the
     week file (so the change feed can say he was cleared) — it must not

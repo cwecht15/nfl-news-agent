@@ -204,6 +204,25 @@ def _week_window(schedule: list[dict], week: int) -> tuple[Optional[str], Option
     return start.isoformat(), end.isoformat()
 
 
+def elevated_this_week(state: Optional[dict], schedule: list[dict], week: int) -> set[str]:
+    """gsis ids and name keys of practice-squad players elevated in ``week``.
+
+    Judged on the Tue..Mon week window, as ``check_elevations`` does: the
+    nflverse detector dates an elevation the day it sees the flip, which for a
+    Thursday game is Friday — after the game but still inside the week.
+    """
+    start, end = _week_window(schedule, week)
+    if not start or not end:
+        return set()
+    out: set[str] = set()
+    for gid, p in _state_players(state).items():
+        if any(start <= str(d)[:10] <= end for d in (p.get("elevation_dates") or [])):
+            out.add(gid)
+            if p.get("name_key"):
+                out.add(p["name_key"])
+    return out
+
+
 # ---------------------------------------------------------------------------
 # Input loading (all optional / soft)
 # ---------------------------------------------------------------------------
@@ -281,9 +300,11 @@ def _sheet_rows(snapshot: dict, positions: set[str]) -> dict[str, dict]:
 
 def check_sheet_vs_roster(rows: dict[str, dict], output: dict, state: Optional[dict],
                           nflverse: Optional[dict], week: int, sheet: str,
-                          played: Optional[set[str]] = None) -> list[dict]:
+                          played: Optional[set[str]] = None,
+                          elevated: Optional[set[str]] = None) -> list[dict]:
     alerts: list[dict] = []
     played = played or set()
+    elevated = elevated or set()
     nfv = nflverse or {}
     for gid, rec in rows.items():
         name = rec.get("name") or gid
@@ -306,11 +327,17 @@ def check_sheet_vs_roster(rows: dict[str, dict], output: dict, state: Optional[d
         if not roster_status:
             continue
 
+        # 0. Elevated for this week's game: ACTIVE on the sheet is right, and
+        # he reverts to the practice squad on his own after the game — neither
+        # a conflict nor a stale Status column (Gore Jr. / Dortch, TNF Wk 2).
+        if (roster_status == "PS" and sheet_status in ("", "ACTIVE")
+                and {gid, nk, (st or {}).get("gsis_id")} & elevated):
+            pass
         # 1. Projected as active but not on the 53
         # A row projected for nothing cannot produce a wrong number, and a team
         # that has already played is settled history (a Thursday-night player
         # placed on IR on Saturday was projected correctly on Thursday).
-        if (roster_status in NOT_ON_53 and sheet_status in ("", "ACTIVE")
+        elif (roster_status in NOT_ON_53 and sheet_status in ("", "ACTIVE")
                 and ppr > 0 and sheet_team not in played):
             sev = SEVERITY_ERROR if roster_status in RESERVE_STATUSES or roster_status == "FA" else SEVERITY_WARNING
             since = (st or {}).get("status_since")
@@ -834,7 +861,8 @@ def run_audit(ctx, date_str: Optional[str] = None, run: str = "am",
         # Availability alerts only make sense for games still to be played.
         played = teams_already_played(schedule, week, date_str)
         alerts += check_sheet_vs_roster(rows, output, inputs.get("state"), inputs.get("nflverse"), week, sheet,
-                                        played=played)
+                                        played=played,
+                                        elevated=elevated_this_week(inputs.get("state"), schedule, week))
         alerts += check_missing_active(rows, inputs.get("nflverse"), inputs.get("ourlads"), positions, week, sheet, byes,
                                        state=inputs.get("state"))
         alerts += check_injuries(rows, output, inputs.get("injuries"), week, sheet, played=played)
