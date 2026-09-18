@@ -16,6 +16,7 @@ require_password()
 from collectors.injury_report_collector import split_trailing_pos
 from dashboard import in_season_data as isd
 from dashboard.helpers import to_et_display
+from processing.season import weekday_name
 
 # Sources spell the same position several ways (SAF/S/FS, OT/T, DE/EDGE), so the
 # filter works on a group rather than the raw label, which stays in the table.
@@ -64,20 +65,35 @@ st.caption(
     f"{', '.join(f'{k}={v}' for k, v in sorted((data.get('sources_used') or {}).items()))}"
 )
 teams = data.get("teams") or {}
-practice_dates = sorted({d for t in teams.values() for p in (t.get("players") or {}).values() for d in (p.get("practice") or {})})
+col_team, col_pos, col_cleared = st.columns([2, 1, 1])
+show_cleared = col_cleared.checkbox("Show players dropped from the report", value=False, key="ir_cleared")
+
+
+def _listed(p: dict) -> bool:
+    return show_cleared or not p.get("cleared")
+
+
+practice_dates = sorted({d for t in teams.values() for p in (t.get("players") or {}).values()
+                         if _listed(p) for d in (p.get("practice") or {})})
+# "Wed 09-16" rather than "09-16": a Thursday game's Mon/Tue columns sit
+# next to everyone else's Wed/Thu/Fri, and a bare date hides which is which.
+date_labels = {d: f"{weekday_name(d)} {d[5:]}" for d in practice_dates}
 all_rows = []
 for team, t in sorted(teams.items()):
     for nk, p in (t.get("players") or {}).items():
+        if not _listed(p):
+            continue
         name, pos = _name_and_pos(p)
         row = {"Team": team, "Opp": t.get("opp") or "bye", "Player": name,
                "Pos": pos, "Injury": p.get("injury", "")}
         for d in practice_dates:
-            row[d[5:]] = (p.get("practice") or {}).get(d, "")
+            row[date_labels[d]] = (p.get("practice") or {}).get(d, "")
         row["Game status"] = p.get("game_status", "")
+        if show_cleared:
+            row["Dropped"] = p.get("cleared") or ""
         row["Source"] = p.get("source", "")
         all_rows.append(row)
 
-col_team, col_pos = st.columns([2, 1])
 team_pick = col_team.multiselect("Team", sorted(teams), key="ir_team")
 pos_options = [_SKILL_OPTION]
 pos_options += [g for g in _POS_GROUPS

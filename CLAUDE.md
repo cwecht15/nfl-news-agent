@@ -145,7 +145,17 @@ the offseason path.
   (`/football/tables/practice-report.php`) → NFL.com `/injuries/` fallback. Accumulates the week
   in `data/injuries/<season>/wk<NN>.json`, diffs day-over-day into the "Injury Report Changes"
   section (new listing, practice up/downgrade, designation, cleared). The offseason blob
-  `scrape_injuries` in `web_scraper.py` is untouched.
+  `scrape_injuries` in `web_scraper.py` is untouched. Week-boundary rules (Week 2 was polluted
+  by Week 1 until these existed): **NFL.com keeps the finished week's page through Tuesday**, so
+  its rows are dropped whenever the page's week ≠ the week being collected; every practice code
+  is held to the team's three report days (`team.practice_days` — the club page's own headers,
+  else `practice_report_days`: Sun → Wed/Thu/Fri, Mon → Thu/Fri/Sat, Wed/Thu/Fri games → the
+  three days before), and NFL.com's undated "latest" status goes to the most recent report day;
+  a designation counts only if reported on/after the final report day (`game_status_date`);
+  **RotoWire's `status` is its own fantasy tag, never a designation**; a bye team's page (last
+  week's matchup) is skipped. `merge_into_week` re-applies all of this to the file on every run
+  (`_sanitize_team`), so an old file repairs itself. Cleared players stay in the file for the
+  change feed but are hidden on the dashboard and ignored by the audit.
 - **Game-day inactives (Step 5e):** `collectors/inactives_collector.py` polls ESPN's per-game
   competitor roster (`sports.core.api.espn.com/.../events/<id>/competitions/<id>/competitors/<cid>/roster`)
   for games within 2.5h of kickoff or finished within 30h: `active: false` before kickoff
@@ -256,7 +266,7 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 - **Quality pre-filter:** `processing/quality_filter.py` drops items whose titles match configurable regexes (voting/trivia/uniform-reveal/off-cycle-mock-draft) before dedup. Tuning lives in `config/settings.yaml` under `content_filter:`. Keeps fluff out of every downstream stage including LLM cost.
 - **Transaction dedup:** Requires first+last name match. Team names + transaction verbs stripped to prevent false merges of structurally similar titles.
 - **Dedup group representative:** `pick_primary` in `processing/deduplicator.py` ranks original-reporting outlets (ESPN, Pro Football Talk, CBS Sports, NFL.com, The Athletic, named beat writers, etc.) above aggregator/blog coverage (SBN team blogs, SI team pages, Reddit). When SBN is just commenting on an ESPN scoop, the cited representative is ESPN even if SBN's body is longer. Within a tier, longest summary wins, then earliest published.
-- **Transaction position tagging:** `summarize_transactions` builds a name→position map from the latest depth chart and pre-tags lines as `[TEAM / POS]` so the LLM produces bullets like "Lions signed LB Joe Bachie". Side-tagged positions (LDT, MLB, etc.) are normalized to generic ones (DT, LB).
+- **Transaction position tagging:** `summarize_transactions` pre-tags lines as `[TEAM / POS]` so the LLM produces bullets like "Lions signed LB Joe Bachie". Position (`_transaction_position`) = the feed's own field (NFL.com's is blank) → the latest depth chart (specific: CB, DT; matched on normalized name) → the newest nflverse roster snapshot (group: DB, DL, OL — needed because most signings are street free agents on no club's chart; a duplicate name resolves on the transaction's team or not at all). Side-tagged positions (LDT, MLB, etc.) are normalized to generic ones (DT, LB).
 - **Press conference count:** Reports count of summarized (not collected) transcripts. Low-signal content filtered by keyword scoring.
 - **Team Notes (renamed from Team Highlights):** One bullet per development, bold named subject, ends with `[N]` citation. Single-source teams still pass through an LLM "SKIP" quality gate. Multi-source teams get bulleted output, not a paragraph synthesis. Transactions and injuries are filtered out of per-team pools (covered by their own sections). Bullets are **ordered by fantasy impact**; qualitative role signals ("running with the first team", "in the mix for WR3") are kept (numbers are a bonus, not required), only contentless praise is dropped.
 - **Player-news extractor is tunable + model-upgradeable:** the Team Notes news call is the highest-value extraction step. Its model / reasoning_effort / max_output_tokens are configurable in `settings.yaml` under `openai.sections.team_news` (ships at `gpt-5.4-mini` @ `reasoning_effort: medium`; set `model: "gpt-5.4"` to upgrade ONLY this section). `_call_model`/`_call_openai` accept an OpenAI-only per-call `model` override; `_record_openai_usage` prices off the call's actual model and labels the run `pricing_model: "mixed"` when sections differ, so cost stays correct and the report footer shows "(mixed models)".
@@ -269,6 +279,7 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 - **Projection rank changes:** Only shown for players whose Adj columns actually changed — prevents noise from cascading rank shifts. Records use `rank_old`/`rank_new` (strings like `"RB12"`); the section renderer parses the numeric tail for sorting and arrow direction.
 - **Transaction reconciliation:** OurLads depth charts provide position. Only alerts on QB/RB/WR/TE/K. Dismissals are per-transaction, not per-player.
 - **Depth chart diffs:** Track ALL positions for promotions/demotions/adds/removes/team changes/position changes. The daily report uses `before_date=today` when looking up the prior snapshot so multiple same-day runs don't compare today against itself (zero diff).
+- **OurLads names come from the player link:** since 2026-09-11 each cell also carries a `span.dc-key` (draft `24/1`, `CF25`/`SF25`, acquired-from `U/NYJ` `W/Bal` `T/Den`, position `WR^`) and an injury badge (`O`/`Q`/`IA`/`IR`); `get_text()` glued them onto the first name ("Rome24/1Q Odunze"), breaking every name join. `_cell_name_text` reads the `<a>`. The 09-11..09-17 snapshots are healed on load and in `diff_depth_charts` (`_heal_snapshot`, resolving all-caps reserve-list names against the other snapshot) — never rewritten on disk.
 
 ## Dashboard Pages
 

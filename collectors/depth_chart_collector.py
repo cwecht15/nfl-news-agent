@@ -60,6 +60,83 @@ def _parse_player_name(raw: str) -> str | None:
     return None
 
 
+def _cell_name_text(cell) -> str:
+    """The player's name from a depth-chart cell, without OurLads' markers.
+
+    Since 2026-09-11 each cell is ``<a>Odunze, Rome</a> <span class="dc-key">
+    24/1</span>`` plus an optional injury badge span (O / Q / IA / IR).
+    ``get_text(strip=True)`` glued those onto the first name ("Rome24/1Q
+    Odunze"), which broke every name join against OurLads. The player link
+    holds just the name.
+    """
+    link = cell.find("a", href=re.compile(r"/player/"))
+    if link is not None:
+        return link.get_text(" ", strip=True)
+    for span in cell.find_all("span"):
+        span.decompose()
+    return cell.get_text(" ", strip=True)
+
+
+# Legacy snapshots (2026-09-11 .. 09-17) hold names with those markers glued
+# to the first token: a dc-key (draft "24/1", "CF25"/"SF25", acquired-from
+# "U/NYJ" "W/Bal" "T/Den" "CC/Mia", or a position code "WR^" "S"), then a
+# badge. The vocabulary is what the live pages carried on 2026-09-18.
+_TAG_UNAMBIGUOUS = r"\d\d/\d{1,2}\*?|(?:CF|SF)\d\d\*?|(?:CC|[A-Z])/[A-Za-z]{2,3}"
+_TAG_POSITION = r"QB|RB|FB|WR|TE|OT|OG|C|DE|DT|NT|OLB|ILB|MLB|LB|CB|S|PT|K|LS"
+_BADGE = r"O|Q|D|IA|IR|PUP|NFI|SUS"
+_GLUED_TAG_RE = re.compile(
+    rf"^(?P<first>.+?)(?:{_TAG_UNAMBIGUOUS}|(?:{_TAG_POSITION})\^)(?:{_BADGE})?$")
+# Letter-only markers are only stripped after a lowercase letter: "SamS" is
+# Sam + S, but an all-caps "SAMC" (Sam + C? Samc?) needs a reference name.
+_GLUED_LETTERS_RE = re.compile(
+    rf"^(?P<first>.*[a-z'.])(?:(?:{_TAG_POSITION})(?:{_BADGE})?|(?:{_BADGE}))$")
+_ANY_MARKER_RE = re.compile(
+    rf"(?:{_TAG_UNAMBIGUOUS}|(?:{_TAG_POSITION})\^?)?(?:{_BADGE})?")
+
+
+def clean_tagged_name(name: str, known: set[str] | frozenset[str] = frozenset()) -> str:
+    """'Rome24/1Q Odunze' -> 'Rome Odunze'; clean names come back unchanged.
+
+    ``known`` (lower-cased names from a clean snapshot) settles the all-caps
+    cases the patterns can't: 'SAMC MUSTIPHER' is 'SAM MUSTIPHER' only
+    because that name exists.
+    """
+    if name.lower() in known:
+        return name
+    head, sep, tail = (name or "").partition(" ")
+    for i in range(len(head) - 1, 0, -1):          # longest first name first
+        if _ANY_MARKER_RE.fullmatch(head[i:]) and f"{head[:i]}{sep}{tail}".lower() in known:
+            return f"{head[:i]}{sep}{tail}"
+    for rx in (_GLUED_TAG_RE, _GLUED_LETTERS_RE):
+        m = rx.match(head)
+        if m:
+            return f"{m.group('first')}{sep}{tail}"
+    return name
+
+
+def _looks_tagged(snapshot: dict | None) -> bool:
+    """True for a snapshot scraped while the markers were glued on — judged
+    by the unmistakable digit/slash tags, so a clean one is never touched."""
+    heads = [(p.get("name") or "").partition(" ")[0]
+             for p in (snapshot or {}).values() if isinstance(p, dict)]
+    tagged = sum(1 for h in heads if re.search(r"\d|/", h))
+    return bool(heads) and tagged >= max(10, len(heads) // 20)
+
+
+def _heal_snapshot(snapshot: dict | None, reference: dict | None = None) -> dict | None:
+    """Re-key a legacy tagged snapshot so it diffs and joins against clean
+    ones; ``reference`` is a clean snapshot whose names settle ambiguous
+    cases. Anything else is returned as is."""
+    if not _looks_tagged(snapshot):
+        return snapshot
+    known = frozenset() if _looks_tagged(reference) else frozenset(reference or {})
+    healed: dict = {}
+    for p in snapshot.values():
+        name = clean_tagged_name(p.get("name") or "", known)
+        healed.setdefault(name.lower(), {**p, "name": name})
+    return healed
+
+
 def scrape_team(team_slug: str, delay: float = 2.0) -> list[dict]:
     """Scrape depth chart for a single team.
 
@@ -96,7 +173,7 @@ def scrape_team(team_slug: str, delay: float = 2.0) -> list[dict]:
 
             # Players in cells 2, 4, 6, ... (1-indexed jersey numbers in between)
             for i in range(2, len(cells), 2):
-                name_raw = cells[i].get_text(strip=True)
+                name_raw = _cell_name_text(cells[i])
                 if not name_raw:
                     continue
 
@@ -170,7 +247,7 @@ def load_latest_depth_charts(before_date: str | None = None) -> dict | None:
     if not files:
         return None
     with open(files[0], encoding="utf-8") as f:
-        return json.load(f)
+        return _heal_snapshot(json.load(f))
 
 
 def load_depth_chart_by_date(date_str: str) -> dict | None:
@@ -179,7 +256,7 @@ def load_depth_chart_by_date(date_str: str) -> dict | None:
     if not path.exists():
         return None
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        return _heal_snapshot(json.load(f))
 
 
 def get_depth_chart_dates() -> list[str]:
@@ -197,6 +274,11 @@ def diff_depth_charts(current: dict, previous: dict) -> list[dict]:
 
     Tracks: promotions, demotions, additions, removals, team changes.
     """
+    # A snapshot from the week OurLads' markers were glued onto names is
+    # healed against the other side's names, or every player would read as
+    # removed + added (and every reserve-list player as leaving IR).
+    previous = _heal_snapshot(previous, reference=current) or {}
+    current = _heal_snapshot(current, reference=previous) or {}
     changes = []
 
     for name, cur in current.items():

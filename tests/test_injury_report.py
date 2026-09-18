@@ -233,7 +233,41 @@ def test_fetch_team_site_report_skips_other_matchup(teamsite_html):
     res = irc._fetch_team_site(FakeSession(), team, {}, sched, 2, "2026-09-15")
     assert res["mismatch"] is True
     assert res["rows"] == []
+    assert res["practice_days"] == {}
     assert res["clubs"] == {"NE": True, "SEA": True}
+
+
+def _fake_session(html):
+    class FakeResp:
+        text = html
+
+        def raise_for_status(self):
+            pass
+
+    class FakeSession:
+        def get(self, url, timeout=None, **kw):
+            return FakeResp()
+
+    return FakeSession()
+
+
+def test_fetch_team_site_reports_its_practice_days(teamsite_html):
+    team = {"abbr": "NE", "site_domain": "patriots.com"}
+    res = irc._fetch_team_site(_fake_session(teamsite_html), team, {}, WEEK1_SCHEDULE, 1, "2026-09-08")
+    assert res["mismatch"] is False
+    # Sun/Mon/Tue headers dated back from the Wednesday opener, for both clubs
+    assert res["practice_days"] == {"NE": ["2026-09-06", "2026-09-07", "2026-09-08"],
+                                    "SEA": ["2026-09-06", "2026-09-07", "2026-09-08"]}
+
+
+def test_fetch_team_site_skips_bye_team_page(teamsite_html):
+    """On a bye the club page still shows last week's report. With no game
+    date its headers would be dated against today and land in this week."""
+    sched = [{"week": 5, "away": "KC", "home": "BUF", "date": "2026-10-11"}]   # NE on bye
+    team = {"abbr": "NE", "site_domain": "patriots.com"}
+    res = irc._fetch_team_site(_fake_session(teamsite_html), team, {}, sched, 5, "2026-10-07")
+    assert res["mismatch"] is True
+    assert res["rows"] == [] and res["practice_days"] == {}
 
 
 def test_all_teams_have_site_domain():
@@ -259,9 +293,9 @@ def test_rotowire_parser_maps_weekdays_via_game_date(rotowire_data):
     # Tue..Mon window's 09-13/09-14
     assert barmore["practice"] == {"2026-09-06": "DNP", "2026-09-07": "FP"}
     brown = _by_name(rows, "Ben Brown")
-    assert brown["game_status"] == "OUT"
     assert brown["injury"] == "Knee"
-    assert all(r["game_status"] in irc.GAME_STATUS for r in rows)
+    # RotoWire's "status" is its own fantasy tag, never a club designation
+    assert all(r["game_status"] == "" for r in rows)
 
 
 def test_rotowire_parser_falls_back_to_week_window_without_game():
@@ -271,7 +305,7 @@ def test_rotowire_parser_falls_back_to_week_window_without_game():
     week_dates = irc.week_window_dates(WEEK1_SCHEDULE, 1)
     rows = irc.parse_rotowire_rows(data, week_dates, schedule=WEEK1_SCHEDULE, week=1, date_str="2026-09-11")
     assert rows[0]["practice"] == {"2026-09-09": "LP", "2026-09-10": "FP"}
-    assert rows[0]["game_status"] == "Q"
+    assert rows[0]["game_status"] == ""
 
 
 def test_rotowire_team_dialect():
@@ -389,8 +423,8 @@ def test_merge_sources_keys_on_team_and_name_key():
 
 def test_merge_into_week_accumulates_across_days(injuries_dir):
     day1 = [
-        _row("NE", "Christian Barmore", "team_site", {"2026-09-09": "DNP"}, pos="DT", injury="Knee"),
-        _row("NE", "Ben Brown", "team_site", {"2026-09-09": "DNP"}, pos="C", injury="Knee"),
+        _row("NE", "Christian Barmore", "team_site", {"2026-09-16": "DNP"}, pos="DT", injury="Knee"),
+        _row("NE", "Ben Brown", "team_site", {"2026-09-16": "DNP"}, pos="C", injury="Knee"),
     ]
     cur1, prev1 = irc.merge_into_week(day1, 2026, 2, "2026-09-16", schedule=[
         {"week": 2, "away": "NE", "home": "MIA", "date": "2026-09-20"}])
@@ -404,14 +438,14 @@ def test_merge_into_week_accumulates_across_days(injuries_dir):
     assert p["first_seen"] == "2026-09-16" and p["last_seen"] == "2026-09-16"
 
     day2 = [
-        _row("NE", "Christian Barmore", "team_site", {"2026-09-09": "DNP", "2026-09-10": "LP"},
+        _row("NE", "Christian Barmore", "team_site", {"2026-09-16": "DNP", "2026-09-17": "LP"},
              pos="DT", injury="Knee"),
     ]
     cur2, prev2 = irc.merge_into_week(day2, 2026, 2, "2026-09-17",
                                       sources_used={"team_site": 1}, conflicts=[])
-    assert prev2["teams"]["NE"]["players"]["christian barmore"]["practice"] == {"2026-09-09": "DNP"}
+    assert prev2["teams"]["NE"]["players"]["christian barmore"]["practice"] == {"2026-09-16": "DNP"}
     p = cur2["teams"]["NE"]["players"]["christian barmore"]
-    assert p["practice"] == {"2026-09-09": "DNP", "2026-09-10": "LP"}
+    assert p["practice"] == {"2026-09-16": "DNP", "2026-09-17": "LP"}
     assert p["first_seen"] == "2026-09-16" and p["last_seen"] == "2026-09-17"
     assert "cleared" not in p
     # Ben Brown vanished from a team that WAS reported today -> cleared marker, still in file
@@ -427,15 +461,15 @@ def test_merge_into_week_accumulates_across_days(injuries_dir):
     assert on_disk["teams"]["NE"]["players"]["christian barmore"]["practice"] == p["practice"]
 
     # Day 3: a team not reported at all leaves its players untouched (no cleared)
-    day3 = [_row("SEA", "AJ Barner", "rotowire", {"2026-09-11": "FP"}, pos="TE")]
+    day3 = [_row("SEA", "AJ Barner", "rotowire", {"2026-09-18": "FP"}, pos="TE")]
     cur3, _ = irc.merge_into_week(day3, 2026, 2, "2026-09-18")
     assert "cleared" not in cur3["teams"]["NE"]["players"]["christian barmore"]
     assert cur3["teams"]["SEA"]["players"]["aj barner"]["source"] == "rotowire"
     # ... and a cleared player who reappears loses the marker
-    day4 = [_row("NE", "Ben Brown", "team_site", {"2026-09-11": "LP"}, pos="C")]
+    day4 = [_row("NE", "Ben Brown", "team_site", {"2026-09-18": "LP"}, pos="C")]
     cur4, _ = irc.merge_into_week(day4, 2026, 2, "2026-09-19")
     assert "cleared" not in cur4["teams"]["NE"]["players"]["ben brown"]
-    assert cur4["teams"]["NE"]["players"]["ben brown"]["practice"] == {"2026-09-09": "DNP", "2026-09-11": "LP"}
+    assert cur4["teams"]["NE"]["players"]["ben brown"]["practice"] == {"2026-09-16": "DNP", "2026-09-18": "LP"}
 
 
 def test_merge_into_week_game_status_latest_non_empty_wins(injuries_dir):
@@ -445,6 +479,138 @@ def test_merge_into_week_game_status_latest_non_empty_wins(injuries_dir):
     cur, _ = irc.merge_into_week([_row("KC", "Guy", "team_site", {}, game_status="OUT")], 2026, 3, "2026-09-26")
     assert cur["teams"]["KC"]["players"]["guy"]["game_status"] == "OUT"
     assert cur["teams"]["KC"]["players"]["guy"]["game_status_source"] == "team_site"
+
+
+# ---------------------------------------------------------------------------
+# Practice-report days + designation day
+# ---------------------------------------------------------------------------
+
+WEEK2_SCHEDULE = [
+    {"week": 2, "away": "BUF", "home": "DET", "date": "2026-09-17"},   # Thursday
+    {"week": 2, "away": "PIT", "home": "NE", "date": "2026-09-20"},    # Sunday
+    {"week": 2, "away": "NYG", "home": "LA", "date": "2026-09-21"},    # Monday
+]
+
+
+@pytest.mark.parametrize("game_date,expected", [
+    ("2026-09-20", ["2026-09-16", "2026-09-17", "2026-09-18"]),   # Sun -> Wed/Thu/Fri
+    ("2026-09-21", ["2026-09-17", "2026-09-18", "2026-09-19"]),   # Mon -> Thu/Fri/Sat
+    ("2026-09-17", ["2026-09-14", "2026-09-15", "2026-09-16"]),   # Thu -> Mon/Tue/Wed
+    ("2026-09-09", ["2026-09-06", "2026-09-07", "2026-09-08"]),   # Wed opener -> Sun/Mon/Tue
+    ("2026-12-19", ["2026-12-15", "2026-12-16", "2026-12-17"]),   # Sat -> Tue/Wed/Thu
+])
+def test_practice_report_days(game_date, expected):
+    assert irc.practice_report_days(game_date) == expected
+
+
+def test_team_practice_days_observed_wins_and_byes_absent():
+    days = irc.team_practice_days(WEEK2_SCHEDULE, 2, observed={"NE": ["2026-09-17", "2026-09-18"]})
+    assert days["BUF"] == days["DET"] == ["2026-09-14", "2026-09-15", "2026-09-16"]
+    assert days["PIT"] == ["2026-09-16", "2026-09-17", "2026-09-18"]
+    assert days["NE"] == ["2026-09-17", "2026-09-18"]          # the club page's headers win
+    assert days["LAR"] == ["2026-09-17", "2026-09-18", "2026-09-19"]
+    assert "KC" not in days                                     # no game -> no report days
+    assert irc.team_practice_days([], 2) is None
+
+
+def test_restrict_rotowire_drops_non_report_days_and_bye_teams():
+    days = irc.team_practice_days(WEEK2_SCHEDULE, 2)
+    rows = [
+        _row("NE", "Sunday Guy", "rotowire", {"2026-09-14": "LP", "2026-09-15": "LP", "2026-09-16": "DNP"}),
+        _row("BUF", "Thursday Guy", "rotowire", {"2026-09-14": "LP", "2026-09-15": "FP"}),
+        _row("KC", "Bye Guy", "rotowire", {"2026-09-16": "LP"}),
+    ]
+    out = {r["name"]: r for r in irc.restrict_to_practice_days(rows, days, "rotowire")}
+    assert out["Sunday Guy"]["practice"] == {"2026-09-16": "DNP"}     # no practice Mon/Tue for Sunday
+    assert out["Thursday Guy"]["practice"] == {"2026-09-14": "LP", "2026-09-15": "FP"}
+    assert "Bye Guy" not in out
+
+
+def test_restrict_nflcom_moves_status_to_latest_report_day():
+    days = irc.team_practice_days(WEEK2_SCHEDULE, 2)
+    rows = [
+        _row("NE", "Saturday Stamp", "nflcom", {"2026-09-19": "LP"}),   # Sat evening scrape -> Friday's report
+        _row("NE", "Tuesday Stamp", "nflcom", {"2026-09-15": "DNP"}),   # before Sunday team's first report
+        _row("LAR", "Monday Team", "nflcom", {"2026-09-19": "FP"}),    # Saturday is a MNF report day
+    ]
+    out = {r["name"]: r for r in irc.restrict_to_practice_days(rows, days, "nflcom")}
+    assert out["Saturday Stamp"]["practice"] == {"2026-09-18": "LP"}
+    assert out["Tuesday Stamp"]["practice"] == {}
+    assert out["Monday Team"]["practice"] == {"2026-09-19": "FP"}
+
+
+def test_restrict_is_a_no_op_without_schedule():
+    rows = [_row("NE", "Guy", "nflcom", {"2026-09-15": "DNP"})]
+    assert irc.restrict_to_practice_days(rows, None, "nflcom") == rows
+
+
+def test_merge_into_week_ignores_designation_before_designation_day(injuries_dir):
+    days = irc.team_practice_days(WEEK2_SCHEDULE, 2)
+    cur, _ = irc.merge_into_week([_row("NE", "Guy", "nflcom", {}, game_status="OUT")], 2026, 2, "2026-09-16",
+                                 schedule=WEEK2_SCHEDULE, practice_days=days)
+    assert cur["teams"]["NE"]["players"]["guy"]["game_status"] == ""    # Sunday team, Wednesday run
+    assert cur["teams"]["NE"]["practice_days"] == ["2026-09-16", "2026-09-17", "2026-09-18"]
+    cur, _ = irc.merge_into_week([_row("NE", "Guy", "team_site", {}, game_status="Q")], 2026, 2, "2026-09-18",
+                                 schedule=WEEK2_SCHEDULE, practice_days=days)
+    assert cur["teams"]["NE"]["players"]["guy"]["game_status"] == "Q"   # Friday: designations are out
+    # Thursday game: Wednesday is designation day
+    cur, _ = irc.merge_into_week([_row("BUF", "Bill", "team_site", {}, game_status="D")], 2026, 2, "2026-09-16",
+                                 schedule=WEEK2_SCHEDULE, practice_days=days)
+    assert cur["teams"]["BUF"]["players"]["bill"]["game_status"] == "D"
+
+
+def test_merge_into_week_repairs_a_file_carrying_last_weeks_report(injuries_dir):
+    """The Week 2 file as the Tuesday run left it: NFL.com's Week 1 page
+    folded in (Friday's status dated Mon/Tue, Week 1 designations), plus a
+    RotoWire tag standing in for a designation."""
+    path = irc.week_file_path(2026, 2)
+    path.parent.mkdir(parents=True)
+    stale = {
+        "season": 2026, "week": 2, "teams": {
+            "NE": {"opp": "PIT", "game_date": "2026-09-20", "players": {
+                "treveyon henderson": {"name": "TreVeyon Henderson", "pos": "RB", "injury": "Ankle",
+                                       "practice": {"2026-09-14": "DNP", "2026-09-15": "DNP", "2026-09-16": "FP"},
+                                       "game_status": "OUT", "game_status_source": "nflcom",
+                                       "first_seen": "2026-09-15", "last_seen": "2026-09-16", "source": "team_site"},
+                "tagged guy": {"name": "Tagged Guy", "pos": "WR", "injury": "Knee",
+                               "practice": {"2026-09-16": "LP"}, "game_status": "Q",
+                               "game_status_source": "rotowire",
+                               "first_seen": "2026-09-16", "last_seen": "2026-09-16", "source": "team_site"},
+                "week one only": {"name": "Week One Only", "pos": "TE", "injury": "Hip",
+                                  "practice": {"2026-09-14": "LP", "2026-09-15": "LP"}, "game_status": "OUT",
+                                  "game_status_source": "nflcom", "first_seen": "2026-09-15",
+                                  "last_seen": "2026-09-15", "cleared": "2026-09-16", "source": "nflcom"},
+            }},
+        },
+    }
+    path.write_text(json.dumps(stale), encoding="utf-8")
+    today = [
+        _row("NE", "TreVeyon Henderson", "team_site", {"2026-09-16": "FP", "2026-09-17": "FP"}, pos="RB"),
+        _row("NE", "Tagged Guy", "team_site", {"2026-09-16": "LP", "2026-09-17": "LP"}, pos="WR"),
+    ]
+    # Friday morning — designation day itself, before the clubs have designated
+    cur, prev = irc.merge_into_week(today, 2026, 2, "2026-09-18", schedule=WEEK2_SCHEDULE,
+                                    practice_days=irc.team_practice_days(WEEK2_SCHEDULE, 2))
+    players = cur["teams"]["NE"]["players"]
+    henderson = players["treveyon henderson"]
+    assert henderson["practice"] == {"2026-09-16": "FP", "2026-09-17": "FP"}
+    assert henderson["game_status"] == "" and "game_status_source" not in henderson
+    assert players["tagged guy"]["game_status"] == ""
+    assert "week one only" not in players          # nothing left but a cleared marker
+    # The repair itself is silent in the change feed
+    changes = irc.diff_week(prev, cur)
+    assert not any(c["type"] in ("cleared", "new_listing", "designation_changed") for c in changes)
+
+
+def test_designation_from_designation_day_survives_later_runs(injuries_dir):
+    days = irc.team_practice_days(WEEK2_SCHEDULE, 2)
+    irc.merge_into_week([_row("NE", "Guy", "team_site", {"2026-09-18": "LP"}, game_status="Q")],
+                        2026, 2, "2026-09-18", schedule=WEEK2_SCHEDULE, practice_days=days)
+    # Saturday: the page no longer carries the designation column value
+    cur, _ = irc.merge_into_week([_row("NE", "Guy", "team_site", {"2026-09-18": "LP"})],
+                                 2026, 2, "2026-09-19", schedule=WEEK2_SCHEDULE, practice_days=days)
+    guy = cur["teams"]["NE"]["players"]["guy"]
+    assert guy["game_status"] == "Q" and guy["game_status_date"] == "2026-09-18"
 
 
 def _player(name, pos, practice, game_status="", injury="Knee", cleared=None, source="team_site"):
@@ -602,6 +768,20 @@ def test_collect_injury_report_offline(injuries_dir, monkeypatch, teamsite_html,
     # Second run the same day: nothing new
     result2 = irc.collect_injury_report("2026-09-08", settings=settings, schedule=WEEK1_SCHEDULE, session=object())
     assert result2["changes"] == []
+
+
+def test_collect_injury_report_ignores_nflcom_still_on_last_week(injuries_dir, monkeypatch, nflcom_html):
+    """The Tuesday of Week 2 NFL.com still titled its page "Week 1"; its rows
+    (Week 1's final practice status and designations) must not land in wk02."""
+    monkeypatch.setattr(irc, "fetch_nflcom_report", lambda s, c=None, scrape_dt=None, date_str=None:
+                        irc.parse_nflcom_html(nflcom_html, "2026-09-15"))
+    sched = WEEK1_SCHEDULE + [{"week": 2, "away": "NE", "home": "SEA", "date": "2026-09-20"}]
+    settings = {"season": {"year": 2026}, "injury_report": {"sources": ["nflcom"]}, "collection": {}}
+    result = irc.collect_injury_report("2026-09-15", settings=settings, schedule=sched, session=object())
+    assert result["week"] == 2
+    assert result["nflcom_week_mismatch"] == 1
+    assert result["rows"] == 0 and result["changes"] == []
+    assert irc.load_week_file(2026, 2)["teams"] == {}
 
 
 def test_collect_injury_report_never_raises(injuries_dir, monkeypatch):

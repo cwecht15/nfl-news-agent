@@ -450,6 +450,8 @@ def check_injuries(rows: dict[str, dict], output: dict, injuries: Optional[dict]
     idx: dict[tuple[str, str], dict] = {}
     for team, tdata in (injuries.get("teams") or {}).items():
         for nk, p in (tdata.get("players") or {}).items():
+            if p.get("cleared"):
+                continue  # dropped off the club's report — its old status no longer applies
             idx[(nk, to_proj(team, "news"))] = p
     for gid, rec in rows.items():
         name = rec.get("name") or gid

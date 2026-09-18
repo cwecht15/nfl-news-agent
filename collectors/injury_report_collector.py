@@ -26,10 +26,18 @@ Three sources (verified live 2026-09-08), in precedence order:
    A page with no table means the report is not posted yet — not an error.
 2. **RotoWire** practice report — the XHR JSON behind
    ``/football/practice-report.php`` (league-wide in one call). Unofficial
-   endpoint: fail soft, and never the sole source of truth.
+   endpoint: fail soft, and never the sole source of truth. Practice grid
+   only — its ``status`` is RotoWire's own fantasy tag, not a designation.
 3. **NFL.com /injuries/** — fallback. It only shows the LATEST day's practice
-   status per player, so that status is attributed to a practice day by
-   Eastern time (a morning run → the previous day).
+   status per player, so that status is attributed to the team's most recent
+   practice-report day by Eastern time (a morning run → the previous day).
+   The page keeps the finished week until the new week's first report, so it
+   is ignored whenever its title's week isn't the week being collected.
+
+Every practice code is held to the team's three report days for the week
+(the club page's own day headers, else :func:`practice_report_days`), and a
+game designation is only accepted from the team's final report day on —
+anything earlier is left over from the previous week.
 
 Every source produces the same row shape::
 
@@ -374,6 +382,80 @@ def _drop_future(practice: dict[str, str], max_date: Optional[str]) -> dict[str,
     return {d: c for d, c in practice.items() if d <= max_date}
 
 
+# Games on a short week (Wednesday opener, Thursday night, Black Friday,
+# Christmas) report the three days right before kickoff; everything else
+# skips the day before (Sun -> Wed/Thu/Fri, Mon -> Thu/Fri/Sat, Sat ->
+# Tue/Wed/Thu). Verified against the club pages' own day headers.
+_SHORT_WEEK_GAME_DAYS = {2, 3, 4}   # Wed, Thu, Fri
+
+
+def practice_report_days(game_date: Any) -> list[str]:
+    """The three practice-report dates for a game on ``game_date`` (ISO, ascending).
+
+    Only a fallback: the club page's own day headers (``Wed Thu Fri``) are
+    authoritative and win whenever a team site was read.
+    """
+    gd = _as_date(game_date)
+    offsets = (3, 2, 1) if gd.weekday() in _SHORT_WEEK_GAME_DAYS else (4, 3, 2)
+    return [(gd - timedelta(days=n)).isoformat() for n in offsets]
+
+
+def team_practice_days(schedule: Optional[list[dict]], week: Optional[int],
+                       observed: Optional[dict[str, list[str]]] = None) -> Optional[dict[str, list[str]]]:
+    """{news abbr: [practice-report dates]} for every team with a game in ``week``.
+
+    ``observed`` (dates read off club-page headers) wins over the rule. A team
+    missing from the result has no game this week (bye), so any row for it is
+    left over from an earlier week. ``None`` when the schedule can't say.
+    """
+    if not schedule or not week:
+        return None
+    games = games_for_week(schedule, week)
+    if not games:
+        return None
+    observed = observed or {}
+    out: dict[str, list[str]] = {}
+    for g in games:
+        for side in ("home", "away"):
+            abbr = to_news(g[side], "proj")
+            out[abbr] = sorted(observed.get(abbr) or practice_report_days(g["date"]))
+    return out
+
+
+def restrict_to_practice_days(rows: list[dict], days: Optional[dict[str, list[str]]],
+                              source: str) -> list[dict]:
+    """Drop rows for teams without a game and practice codes on non-report days.
+
+    NFL.com shows one "latest" practice status with no date; it is moved to
+    the team's most recent report day on or before the date it was stamped
+    with (a Saturday-evening scrape of a Sunday team is still Friday's
+    report), and dropped when the team hasn't had a report day yet.
+    """
+    if days is None:
+        return rows
+    out: list[dict] = []
+    dropped_teams: set[str] = set()
+    for row in rows:
+        team_days = days.get(row["team"])
+        if team_days is None:
+            dropped_teams.add(row["team"])
+            continue
+        practice = row.get("practice") or {}
+        if source == SOURCE_NFLCOM:
+            moved: dict[str, str] = {}
+            for d, code in practice.items():
+                earlier = [day for day in team_days if day <= d]
+                if earlier:
+                    moved[max(earlier)] = code
+            practice = moved
+        else:
+            practice = {d: c for d, c in practice.items() if d in team_days}
+        out.append({**row, "practice": practice})
+    if dropped_teams:
+        logger.info("%s: dropped rows for %s — no game this week", source, " ".join(sorted(dropped_teams)))
+    return out
+
+
 # ---------------------------------------------------------------------------
 # Source 1: team sites
 # ---------------------------------------------------------------------------
@@ -400,9 +482,17 @@ def parse_team_site_html(html: str, game_date: Any = None, date_str: Optional[st
 
 def _parse_team_site(html: str, game_date: Any = None, date_str: Optional[str] = None) -> tuple[list[dict], dict[str, bool]]:
     """→ (rows, {club_abbr: has_table})."""
+    rows, clubs, _days = _parse_team_site_days(html, game_date=game_date, date_str=date_str)
+    return rows, clubs
+
+
+def _parse_team_site_days(html: str, game_date: Any = None, date_str: Optional[str] = None
+                          ) -> tuple[list[dict], dict[str, bool], dict[str, list[str]]]:
+    """→ (rows, {club_abbr: has_table}, {club_abbr: dates its day headers map to})."""
     soup = BeautifulSoup(html, "html.parser")
     rows: list[dict] = []
     clubs: dict[str, bool] = {}
+    club_days: dict[str, list[str]] = {}
     for container in soup.select("div.nfl-o-injury-report__container"):
         club_name = _text(container.select_one("span.nfl-o-injury-report__club-name")) or _text(
             container.select_one(".nfl-o-injury-report__title"))
@@ -432,6 +522,8 @@ def _parse_team_site(html: str, game_date: Any = None, date_str: Optional[str] =
         if i_player is None:
             logger.warning("Team-site injury table for %s has unexpected headers %s", abbr, headers)
             continue
+        if game_date:
+            club_days[abbr] = sorted(set(day_dates.values()))
 
         body_rows = table.select("tbody tr") or table.find_all("tr")[1:]
         for tr in body_rows:
@@ -456,7 +548,7 @@ def _parse_team_site(html: str, game_date: Any = None, date_str: Optional[str] =
             practice = _drop_future(practice, date_str)
             rows.append(_make_row(abbr, name, pos, injury, practice,
                                   normalize_game_status(_text(status_cell)), SOURCE_TEAM_SITE))
-    return rows, clubs
+    return rows, clubs, club_days
 
 
 def _fetch_team_site(session: requests.Session, team: dict, settings: Optional[dict] = None,
@@ -475,7 +567,7 @@ def _fetch_team_site(session: requests.Session, team: dict, settings: Optional[d
     resp.raise_for_status()
 
     expected_opp, game_date = _team_game_info(schedule, abbr, week)
-    rows, clubs = _parse_team_site(resp.text, game_date=game_date, date_str=date_str)
+    rows, clubs, club_days = _parse_team_site_days(resp.text, game_date=game_date, date_str=date_str)
     if not clubs and len(resp.text) < 20_000:
         # A real club page is ~250 KB even with no report posted; a tiny body
         # usually means an interstitial / bot wall rather than "not posted".
@@ -487,18 +579,26 @@ def _fetch_team_site(session: requests.Session, team: dict, settings: Optional[d
         allowed = {abbr, expected_opp}
         others = {c for c in clubs if c not in allowed}
         if others:
-            # The page is showing a different matchup (most likely next week's
-            # report already). Its weekday headers can't be dated against this
-            # week's game, so the rows are dropped rather than mis-dated.
+            # The page is showing a different matchup (most likely last or
+            # next week's report). Its weekday headers can't be dated against
+            # this week's game, so the rows are dropped rather than mis-dated.
             mismatch = True
             logger.info("%s injury page shows %s, expected %s vs %s this week — skipped",
                         abbr, sorted(clubs), abbr, expected_opp)
-            rows = []
+    elif clubs and schedule and week and games_for_week(schedule, week):
+        # On a bye the page still carries last week's report; with no game
+        # date its headers would be dated against today and land in this week.
+        mismatch = True
+        logger.info("%s injury page shows %s, but %s has no game in week %s — skipped",
+                    abbr, sorted(clubs), abbr, week)
+    if mismatch:
+        rows, club_days = [], {}
     return {
         "abbr": abbr,
         "url": url,
         "rows": rows,
         "clubs": clubs,
+        "practice_days": club_days,
         "has_table": any(clubs.values()),
         "mismatch": mismatch,
     }
@@ -527,14 +627,14 @@ def fetch_all_team_sites(session: requests.Session, settings: Optional[dict] = N
     """ThreadPool over the 32 club pages → (rows, status).
 
     ``status`` = {"with_table": [abbr...], "without_table": [abbr...],
-    "mismatch": [abbr...], "failed": {abbr: error}}. Rows from a club that
-    appears on two pages (its own + its opponent's) are deduped in
-    :func:`merge_sources`.
+    "mismatch": [abbr...], "failed": {abbr: error}, "practice_days": {abbr:
+    [dates from its table's day headers]}}. Rows from a club that appears on
+    two pages (its own + its opponent's) are deduped in :func:`merge_sources`.
     """
     cfg = _settings(settings)
     workers = workers or int(cfg.get("injury_report", {}).get("team_site_workers", DEFAULT_TEAM_SITE_WORKERS))
     teams = list(teams if teams is not None else get_teams())
-    status: dict = {"with_table": [], "without_table": [], "mismatch": [], "failed": {}}
+    status: dict = {"with_table": [], "without_table": [], "mismatch": [], "failed": {}, "practice_days": {}}
     rows: list[dict] = []
     with ThreadPoolExecutor(max_workers=workers) as ex:
         futures = {
@@ -556,6 +656,8 @@ def fetch_all_team_sites(session: requests.Session, settings: Optional[dict] = N
             else:
                 status["without_table"].append(abbr)
             rows.extend(result["rows"])
+            for club, days in (result.get("practice_days") or {}).items():
+                status["practice_days"][club] = sorted(set(status["practice_days"].get(club, [])) | set(days))
     for k in ("with_table", "without_table", "mismatch"):
         status[k].sort()
     logger.info("Team-site injury reports: %d with a table, %d not posted, %d mismatched, %d failed; %d rows",
@@ -579,6 +681,11 @@ def parse_rotowire_rows(data: list[dict], week_dates: dict[str, str],
     ``sunday``/``monday`` for the Week 1 Wednesday opener are the Sun/Mon
     *before* the game, outside the Tue..Mon week window); ``week_dates`` is
     the fallback for teams without a game.
+
+    RotoWire's ``status`` is its own fantasy tag, not the club's game
+    designation: on the Friday morning of Week 2, before any Sunday club had
+    designated anyone, 131 of 231 rows read "Questionable", and a tag sticks
+    from the week before. It is never used as ``game_status``.
     """
     rows: list[dict] = []
     game_dates: dict[str, Optional[str]] = {}
@@ -605,7 +712,7 @@ def parse_rotowire_rows(data: list[dict], week_dates: dict[str, str],
                 practice[d] = code
         practice = _drop_future(practice, date_str)
         rows.append(_make_row(team, str(name), entry.get("pos", ""), entry.get("injtype", ""),
-                              practice, normalize_game_status(entry.get("status", "")), SOURCE_ROTOWIRE))
+                              practice, "", SOURCE_ROTOWIRE))
     return rows
 
 
@@ -810,10 +917,57 @@ def merge_sources(rows_by_source: dict[str, list[dict]]) -> tuple[list[dict], li
 # ---------------------------------------------------------------------------
 
 
+def _team_days(team: dict) -> Optional[list[str]]:
+    """A week-file team's practice-report dates: stored ones, else the rule
+    from its game date, else None (unknown — nothing is filtered)."""
+    if team.get("practice_days"):
+        return list(team["practice_days"])
+    if team.get("game_date"):
+        return practice_report_days(team["game_date"])
+    return None
+
+
+def designation_open(team: dict, date_str: str) -> bool:
+    """Game designations go out with a team's final practice report (Fri for
+    Sunday, Sat for Monday, Wed for Thursday), so before that day any status
+    is left over from the previous week."""
+    days = _team_days(team)
+    return not days or date_str >= max(days)
+
+
+def _sanitize_team(team: dict) -> int:
+    """Enforce the week's shape on a team already in the file: practice only
+    on report days, no designation reported before designation day (that is
+    last week's), no RotoWire tag posing as a designation. A designation with
+    no ``game_status_date`` predates this rule and is dropped unless a source
+    reported it again this run. Players left with nothing but a ``cleared``
+    marker are removed. Idempotent; returns how many values it dropped."""
+    days = _team_days(team)
+    designation_day = max(days) if days else None
+    dropped = 0
+    players = team.get("players") or {}
+    for key in list(players):
+        p = players[key]
+        if days is not None:
+            kept = {d: c for d, c in (p.get("practice") or {}).items() if d in days}
+            dropped += len(p.get("practice") or {}) - len(kept)
+            p["practice"] = kept
+        stale = designation_day is not None and (p.get("game_status_date") or "") < designation_day
+        if p.get("game_status") and (stale or p.get("game_status_source") == SOURCE_ROTOWIRE):
+            p["game_status"] = ""
+            p.pop("game_status_source", None)
+            p.pop("game_status_date", None)
+            dropped += 1
+        if p.get("cleared") and not p.get("practice") and not p.get("game_status"):
+            del players[key]
+    return dropped
+
+
 def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
                     schedule: Optional[list[dict]] = None,
                     sources_used: Optional[dict[str, int]] = None,
-                    conflicts: Optional[list[dict]] = None) -> tuple[dict, Optional[dict]]:
+                    conflicts: Optional[list[dict]] = None,
+                    practice_days: Optional[dict[str, list[str]]] = None) -> tuple[dict, Optional[dict]]:
     """Fold today's merged rows into ``data/injuries/<season>/wk<NN>.json``.
 
     Per player: practice dict union (today's value wins for the same date),
@@ -822,6 +976,11 @@ def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
     (the team *was* reported by some source) get ``cleared: <date>`` instead
     of being deleted, so the file still shows the whole week and
     :func:`diff_week` can emit ``cleared``. Returns (new, previous).
+
+    ``practice_days`` ({abbr: dates}, from :func:`team_practice_days`) is
+    stored per team; every team is then held to it — see
+    :func:`_sanitize_team` — which also repairs a file written before the
+    rule existed.
     """
     prev = load_week_file(season, week)
     cur: dict = copy.deepcopy(prev) if prev else {"season": int(season), "week": int(week), "teams": {}, "conflicts": []}
@@ -838,6 +997,9 @@ def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
     cur["sources_used"] = dict(sources_used)
     cur["conflicts"] = list(conflicts or [])
     cur.setdefault("teams", {})
+    for abbr, days in (practice_days or {}).items():
+        if abbr in cur["teams"] and days:
+            cur["teams"][abbr]["practice_days"] = sorted(days)
 
     teams_today: dict[str, set[str]] = {}
     for row in rows:
@@ -847,6 +1009,8 @@ def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
         if schedule and (team.get("opp") is None or team.get("game_date") is None):
             opp, gd = _team_game_info(schedule, abbr, week)
             team["opp"], team["game_date"] = opp, gd
+        if (practice_days or {}).get(abbr):
+            team["practice_days"] = sorted(practice_days[abbr])
         players = team.setdefault("players", {})
         p = players.get(row["name_key"])
         if p is None:
@@ -860,9 +1024,10 @@ def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
         for d, code in (row.get("practice") or {}).items():
             if code:
                 p["practice"][d] = code
-        if row.get("game_status"):
+        if row.get("game_status") and designation_open(team, date_str):
             p["game_status"] = row["game_status"]
             p["game_status_source"] = row.get("game_status_source") or row.get("source", "")
+            p["game_status_date"] = date_str     # last run a source reported it
         for f in ("injury", "pos", "name"):
             if row.get(f):
                 p[f] = row[f]
@@ -877,6 +1042,11 @@ def merge_into_week(rows: list[dict], season: int, week: int, date_str: str,
         for key, p in team.get("players", {}).items():
             if key not in seen and not p.get("cleared"):
                 p["cleared"] = date_str
+
+    dropped = sum(_sanitize_team(team) for team in cur["teams"].values())
+    if dropped:
+        logger.info("Injury week file: dropped %d values outside the week's report days / designation day",
+                    dropped)
 
     path = week_file_path(season, week)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1040,7 +1210,8 @@ def collect_injury_report(date_str: Optional[str] = None, settings: Optional[dic
     result: dict = {
         "date": date_str, "week": None, "season": None, "file": None, "rows": 0,
         "sources_used": {}, "team_sites_with_table": [], "team_sites_without_table": [],
-        "team_sites_mismatch": [], "team_sites_failed": {}, "changes": [], "conflicts": [], "errors": [],
+        "team_sites_mismatch": [], "team_sites_failed": {}, "nflcom_week_mismatch": None,
+        "changes": [], "conflicts": [], "errors": [],
     }
     try:
         cfg = _settings(settings)
@@ -1061,6 +1232,7 @@ def collect_injury_report(date_str: Optional[str] = None, settings: Optional[dic
         rows_by_source: dict[str, list[dict]] = {}
         nfl_week: Optional[int] = None
 
+        observed_days: dict[str, list[str]] = {}
         if SOURCE_TEAM_SITE in wanted:
             try:
                 rows, status = fetch_all_team_sites(session, cfg, schedule, week, date_str)
@@ -1069,6 +1241,7 @@ def collect_injury_report(date_str: Optional[str] = None, settings: Optional[dic
                 result["team_sites_without_table"] = status["without_table"]
                 result["team_sites_mismatch"] = status["mismatch"]
                 result["team_sites_failed"] = status["failed"]
+                observed_days = status.get("practice_days") or {}
             except Exception as e:  # noqa: BLE001
                 logger.exception("Team-site injury reports failed")
                 result["errors"].append(f"team_sites: {e}")
@@ -1096,6 +1269,19 @@ def collect_injury_report(date_str: Optional[str] = None, settings: Optional[dic
         if week is None:
             result["errors"].append("could not determine the NFL week (no schedule, no NFL.com title)")
             return result
+        if nfl_week is not None and nfl_week != week and rows_by_source.get(SOURCE_NFLCOM):
+            # NFL.com keeps the finished week up until the new week's first
+            # report (the Tuesday of Week 2 still said "Week 1"); taking it
+            # would carry last week's designations and final practice status
+            # into this week's file.
+            logger.info("NFL.com injuries page is week %d, collecting week %d — %d rows ignored",
+                        nfl_week, week, len(rows_by_source[SOURCE_NFLCOM]))
+            result["nflcom_week_mismatch"] = nfl_week
+            rows_by_source[SOURCE_NFLCOM] = []
+
+        practice_days = team_practice_days(schedule, week, observed_days)
+        for source in list(rows_by_source):
+            rows_by_source[source] = restrict_to_practice_days(rows_by_source[source], practice_days, source)
 
         # Unique players per source (a club is on its own page AND its opponent's).
         result["sources_used"] = {s: len({(r["team"], r["name_key"]) for r in rows})
@@ -1107,7 +1293,8 @@ def collect_injury_report(date_str: Optional[str] = None, settings: Optional[dic
             logger.info("Injury report: %d source conflicts", len(conflicts))
 
         cur, prev = merge_into_week(merged, season, week, date_str, schedule=schedule,
-                                    sources_used=result["sources_used"], conflicts=conflicts)
+                                    sources_used=result["sources_used"], conflicts=conflicts,
+                                    practice_days=practice_days)
         result["file"] = str(week_file_path(season, week))
         result["changes"] = diff_week(prev, cur)
         logger.info("Injury report week %d: %d players, %d changes", week, len(merged), len(result["changes"]))
@@ -1135,6 +1322,8 @@ def _print_summary(result: dict) -> None:
     print(f"  team sites not posted   ({len(without)}): {' '.join(without) or '-'}")
     if result["team_sites_mismatch"]:
         print(f"  team sites other matchup ({len(result['team_sites_mismatch'])}): {' '.join(result['team_sites_mismatch'])}")
+    if result.get("nflcom_week_mismatch"):
+        print(f"  NFL.com still on week {result['nflcom_week_mismatch']} — its rows were ignored")
     if result["team_sites_failed"]:
         print(f"  team sites failed ({len(result['team_sites_failed'])}):")
         for abbr, err in sorted(result["team_sites_failed"].items()):

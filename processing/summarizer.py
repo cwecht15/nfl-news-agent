@@ -1047,11 +1047,66 @@ def _position_for_title(title: str, position_lookup: dict[str, str]) -> str:
     return position_lookup.get(candidate.lower(), "")
 
 
+def _load_roster_positions() -> dict[str, list[tuple[str, str]]]:
+    """name_key -> [(team, position)] from the newest nflverse roster snapshot.
+
+    The depth chart only knows who is on a club's chart today, and most
+    signings are street free agents who are on none — so NFL.com's feed
+    (whose position field is blank) left their bullets unpositioned. nflverse
+    lists everyone rostered this season, with a position group (DB, DL, OL,
+    LB, ...). {} when no snapshot is on disk.
+    """
+    try:
+        from collectors.nflverse_roster_collector import latest_nflverse_snapshot
+        players, _date = latest_nflverse_snapshot()
+    except Exception:
+        return {}
+    out: dict[str, list[tuple[str, str]]] = {}
+    for p in (players or {}).values():
+        key, pos = p.get("name_key") or "", p.get("pos") or ""
+        if key and pos:
+            out.setdefault(key, []).append((p.get("team") or "", pos))
+    return out
+
+
+def _transaction_position(
+    item: NewsItem,
+    position_lookup: dict[str, str],
+    roster_positions: Optional[dict[str, list[tuple[str, str]]]] = None,
+) -> str:
+    """Position for a transaction bullet: the feed's own field, then the depth
+    chart (specific: CB, DT ...), then nflverse. A name nflverse holds more
+    than once resolves on the transaction's team, else only when every match
+    agrees — a wrong position is worse than none."""
+    extra = item.extra or {}
+    if extra.get("position"):
+        return _normalize_position(str(extra["position"]).upper())
+    pos = _position_for_title(item.title, position_lookup)
+    if pos:
+        return pos
+    name = extra.get("player") or (item.title.split(":", 1)[0] if ":" in item.title else "")
+    name = re.sub(r"^\[.*?\]\s*", "", str(name)).strip()
+    if not name:
+        return ""
+    from collectors.nflverse_roster_collector import name_key
+    key = name_key(name.replace(",", " "))          # NFL.com writes "Kenneth Murray, Jr."
+    pos = position_lookup.get(key) or next(
+        (p for n, p in position_lookup.items() if name_key(n) == key), "")
+    if pos or not roster_positions:
+        return pos
+    matches = roster_positions.get(key) or []
+    teams = {t for t in (extra.get("to_team"), extra.get("from_team"), *item.teams) if t}
+    on_team = {p for t, p in matches if t in teams}
+    candidates = on_team or {p for _t, p in matches}
+    return _normalize_position(candidates.pop()) if len(candidates) == 1 else ""
+
+
 def summarize_transactions(
     items: list[NewsItem],
     client: Optional[Any] = None,
     usage_tracker: Optional[dict[str, Any]] = None,
     position_lookup: Optional[dict[str, str]] = None,
+    roster_positions: Optional[dict[str, list[tuple[str, str]]]] = None,
 ) -> str:
     """Generate a transactions & signings summary."""
     if not items:
@@ -1063,7 +1118,7 @@ def summarize_transactions(
     lines = []
     for item in items:
         teams = ", ".join(item.teams) if item.teams else "Unknown"
-        pos = _position_for_title(item.title, position_lookup)
+        pos = _transaction_position(item, position_lookup, roster_positions)
         tag = f"[{teams} / {pos}]" if pos else f"[{teams}]"
         lines.append(f"- {tag} {item.title}")
         if item.summary:
@@ -1074,7 +1129,7 @@ List every transaction — do not omit or skip any, regardless of significance.
 For each move, briefly note the impact.
 
 Each input line is tagged like `[TEAM / POS]` or `[TEAM]`. The position tag
-comes from the team's depth chart and is reliable when present. If a line
+comes from the depth chart or the league roster and is reliable when present. If a line
 has a position tag, include the position in your bullet (e.g. "Lions signed
 LB Joe Bachie"). If a line has no position tag, do not invent one — just
 omit the position.
@@ -1937,6 +1992,7 @@ def run_summarization(
     position_lookup = _load_position_lookup()
     if position_lookup:
         logger.info("Loaded position lookup for %d players from depth charts", len(position_lookup))
+    roster_positions = _load_roster_positions() if transactions else {}
 
     logger.info("Generating transactions summary...")
     sections["transactions"] = {
@@ -1945,6 +2001,7 @@ def run_summarization(
             client,
             usage_tracker=usage_tracker,
             position_lookup=position_lookup,
+            roster_positions=roster_positions,
         ),
         "count": len(transactions),
     }

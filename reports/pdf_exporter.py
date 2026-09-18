@@ -755,12 +755,11 @@ def _render_depth_chart_changes(
         from collectors.depth_chart_collector import (
             annotate_depth_changes,
             diff_depth_charts,
+            load_depth_chart_by_date,
         )
 
-        with open(current_path, encoding="utf-8") as f:
-            cur = json.load(f)
-        with open(dc_dir / f"{prior_date}.json", encoding="utf-8") as f:
-            prev = json.load(f)
+        cur = load_depth_chart_by_date(date_str) or {}
+        prev = load_depth_chart_by_date(prior_date) or {}
         changes = diff_depth_charts(cur, prev)
 
         # Gather news titles from today's report for context linkage.

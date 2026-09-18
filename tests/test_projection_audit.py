@@ -190,6 +190,18 @@ def test_dismissal_filters_and_expires_with_week(isolated_dismissals):
     assert pa.load_dismissals() == {}
 
 
+def test_cleared_injury_listing_raises_nothing(isolated_dismissals):
+    """A player dropped from the club's report keeps his old status in the
+    week file (so the change feed can say he was cleared) — it must not
+    still read as OUT / DNP to the audit."""
+    inputs = _inputs()
+    for p in inputs["injuries"]["teams"]["BUF"]["players"].values():
+        p["cleared"] = "2026-09-11"
+    res = pa.run_audit(_ctx(), "2026-09-08", run="test", inputs=inputs, write=False)
+    types = {a["type"] for a in res["alerts"]}
+    assert "out_but_projected" not in types and "dnp_but_projected" not in types
+
+
 def test_missing_inputs_are_soft(isolated_dismissals):
     inputs = _inputs()
     inputs["state"] = None
