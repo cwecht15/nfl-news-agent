@@ -8,8 +8,10 @@ cd /d "C:\Users\cwech\Documents\Claude\Projects\NFL_News_Agent"
 REM Capture today's date as YYYY-MM-DD for the wrapper log filename.
 REM Wrapper log is separate from the pipeline's own log so Task Scheduler
 REM crashes (before/around the pipeline) are still recoverable.
-for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set DATETIME=%%I
-set TODAY=%DATETIME:~0,4%-%DATETIME:~4,2%-%DATETIME:~6,2%
+REM Not wmic: Windows 11 dropped it, and the resulting ':' in the log path made
+REM cmd silently skip every redirected command (see auto_backfill_youtube.bat).
+for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set TODAY=%%I
+if not defined TODAY set TODAY=undated
 
 if not exist "data\logs" mkdir "data\logs"
 set WRAPPERLOG=data\logs\%TODAY%-task.log

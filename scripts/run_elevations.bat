@@ -13,8 +13,10 @@ REM repo, which is what the dashboard and the report read.
 
 cd /d "C:\Users\cwech\Documents\Claude\Projects\NFL_News_Agent"
 
-for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set DATETIME=%%I
-set TODAY=%DATETIME:~0,4%-%DATETIME:~4,2%-%DATETIME:~6,2%
+REM Not wmic: Windows 11 dropped it, and the resulting ':' in the log path made
+REM cmd silently skip the dispatch (see auto_backfill_youtube.bat).
+for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set TODAY=%%I
+if not defined TODAY set TODAY=undated
 
 if not exist "data\logs" mkdir "data\logs"
 set WRAPPERLOG=data\logs\%TODAY%-elevations-task.log

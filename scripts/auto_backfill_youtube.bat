@@ -5,8 +5,11 @@ REM Captions-only catch-up + git push to master.
 
 cd /d "C:\Users\cwech\Documents\Claude\Projects\NFL_News_Agent"
 
-for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set DATETIME=%%I
-set TODAY=%DATETIME:~0,4%-%DATETIME:~4,2%-%DATETIME:~6,2%
+REM Not wmic: Windows 11 dropped it, TODAY came out as "~0,4DATETIME:~4,2...",
+REM the ':' made the log path invalid, and cmd silently skips any command whose
+REM redirect can't open — so the backfill AND the dispatch never ran (2026-09).
+for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set TODAY=%%I
+if not defined TODAY set TODAY=undated
 
 if not exist "data\logs" mkdir "data\logs"
 set WRAPPERLOG=data\logs\%TODAY%-yt-backfill-task.log
