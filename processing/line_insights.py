@@ -18,7 +18,6 @@ on every rerun. Movement thresholds are the collector's (``odds.thresholds``).
 
 from __future__ import annotations
 
-import math
 from typing import Any, Optional
 
 from collectors.odds_collector import (
@@ -182,22 +181,23 @@ STAT_ORDER = {s: i for i, s in enumerate(STAT_LABEL)}
 POS_ORDER = {"QB": 0, "RB": 1, "FB": 2, "WR": 3, "TE": 4, "K": 5}
 
 
-def display_value(stat: str, v: Optional[float]) -> Optional[float]:
-    """A market or projected value the way a person reads it.
+# Anytime TD is shown as implied TDs — the expected-TD rate the NFL Odds
+# project derives from the price. It is the unit the projection sheet uses
+# (Rush TD 0.7 + Rec TD 0.2), so "your proj" compares to it directly. It is
+# a count, not a probability; P(scores) = 1 - e^-rate if ever needed.
+TD_MIN_MOVE = 0.02        # smaller than this does not show at two decimals
 
-    Anytime TD is stored as an expected-TD rate (lambda); shown as the chance
-    of scoring, P = 1 - e^-lambda, in percent — "56%" reads, "0.82" does not.
-    Everything else is the stat's own mean.
-    """
-    if v is None:
-        return None
-    if stat in RATE_STATS:
-        return 100.0 * (1.0 - math.exp(-max(float(v), 0.0)))
-    return float(v)
+# Stats read to two decimals (counts well under 1); everything else to one.
+FINE_STATS = {"anytime_td", "pass_tds", "rush_tds", "rec_tds", "ints"}
+
+
+def display_value(stat: str, v: Optional[float]) -> Optional[float]:
+    """A market or projected value as the tables show it (the stat's own mean)."""
+    return None if v is None else float(v)
 
 
 def stat_display_label(stat: str) -> str:
-    return "Anytime TD %" if stat in RATE_STATS else STAT_LABEL.get(stat, stat)
+    return "Implied TDs" if stat in RATE_STATS else STAT_LABEL.get(stat, stat)
 
 
 def prop_table(week_data: Optional[dict], settings: Optional[dict] = None, *,
@@ -214,12 +214,12 @@ def prop_table(week_data: Optional[dict], settings: Optional[dict] = None, *,
     ``min_move_pct`` replaces that with a plain percent cut — "moved at least
     5%" — which is what a person scanning a team means by *moved*: the report
     thresholds hide a 6-yard (10%) rushing move. Anytime TD also needs a full
-    percentage point, so 2.5% -> 2.6% (+4%) is not a move.
+    ``TD_MIN_MOVE`` (0.02), so 0.030 -> 0.032 implied TDs (+7%) is not a move.
     ``vs_you_pct`` is the market relative to your projection. THIN markets
     (too few books) are left out unless ``include_thin``.
 
     Rows sort by ``size`` — the raw move in units of the stat's threshold —
-    not by ``move_pct``: a TD chance going 3% -> 12% is +300% and would bury
+    not by ``move_pct``: implied TDs going 0.03 -> 0.12 is +300% and would bury
     every yardage line, while in threshold units it ranks with its peers.
     """
     thr_all = _thresholds(settings).get("props") or {}
@@ -243,7 +243,7 @@ def prop_table(week_data: Optional[dict], settings: Optional[dict] = None, *,
         move_pct = ((now_d - open_d) / open_d * 100.0) if open_d else None
         if min_move_pct is not None:
             moved = (move_pct is not None and abs(move_pct) >= min_move_pct
-                     and (stat not in RATE_STATS or abs(now_d - open_d) >= 1.0))
+                     and (stat not in RATE_STATS or abs(now_d - open_d) >= TD_MIN_MOVE))
             if min_move_pct > 0 and not moved:
                 continue
         elif only_moved and not moved:

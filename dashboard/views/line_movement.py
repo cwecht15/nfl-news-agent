@@ -19,6 +19,7 @@ require_password()
 
 from dashboard import in_season_data as isd
 from dashboard.helpers import to_et_display
+from dashboard.prop_view import PROP_CAPTION, render_prop_table
 from processing import line_insights as li
 
 st.header("Line Movement")
@@ -131,25 +132,9 @@ def _render_games() -> None:
                    "(about six pulls a week).")
 
 
-PROP_COLUMNS = {
-    "Your proj": NUM(format="%.1f"), "Book line": NUM(format="%.1f"),
-    "Market open": NUM(format="%.1f"), "Market now": NUM(format="%.1f"),
-    "Move %": NUM(format="%+.0f%%", help="Market now vs where the line opened, in percent — "
-                                         "comparable across stats (a catch and 15 yards read alike)"),
-    "Last pull": NUM(format="%+.1f", help="Change in the most recent pull, in the stat's own units"),
-    "Market vs you %": NUM(format="%+.0f%%", help="Market now vs your projection"),
-}
-
-PROP_CAPTION = (
-    "**Market** = the betting consensus's implied average for the stat — not the posted O/U line, "
-    "which is **Book line**. Anytime TD is shown as the chance of scoring (%). **Move %** and "
-    "**Market vs you %** are relative, so receptions and yards compare on one scale."
-)
-
-
 def _prop_table_rows(rows: list[dict]) -> list[dict]:
     return [{"Player": r["player"], "Pos": r["pos"], "Team": r["team"], "Opp": r["opp"],
-             "Stat": r["stat_label"], "Your proj": r["you"], "Book line": r["book_line"],
+             "Stat": r["stat_label"], "_stat": r["stat"], "Your proj": r["you"], "Book line": r["book_line"],
              "Market open": r["open"], "Market now": r["now"], "Move %": r["move_pct"],
              "Last pull": r["last_pull"], "Market vs you %": r["vs_you_pct"], "Flag": r["flag"]}
             for r in rows]
@@ -177,7 +162,7 @@ def _render_movers() -> None:
     choices = {"All lines": 0.0, "Moved 5%+": 5.0, "Moved 10%+": 10.0, "Moved 20%+": 20.0}
     o1, o2 = st.columns([3, 1])
     show = o1.radio("Show", list(choices), index=1, horizontal=True, key="odds_moved",
-                    help="Move since the line opened, in percent. Anytime TD also needs a full point.")
+                    help="Move since the line opened, in percent. Implied TDs also need a 0.02 move.")
     thin = o2.checkbox("Include thin markets (1 book)", value=False, key="odds_thin")
     rows = li.prop_table(data, _settings, played=_played_teams(), min_move_pct=choices[show],
                          include_thin=thin)
@@ -187,8 +172,7 @@ def _render_movers() -> None:
     table = _filters(_prop_table_rows(rows), "movers")
     st.caption(f"{len(table)} player lines · biggest moves first (relative to each stat's threshold) · "
                "finished games left out")
-    st.dataframe(table[:500], use_container_width=True, hide_index=True, column_config=PROP_COLUMNS)
-    st.caption(PROP_CAPTION)
+    render_prop_table(table[:500], caption=PROP_CAPTION)
 
 
 def _render_divergence() -> None:
@@ -200,7 +184,7 @@ def _render_divergence() -> None:
         return
     rows.sort(key=lambda r: (order[r["flag"]], -abs(r["vs_you_pct"] or 0)))
     table = _filters(_prop_table_rows(rows), "diverge")
-    st.dataframe(table[:500], use_container_width=True, hide_index=True, column_config=PROP_COLUMNS)
+    render_prop_table(table[:500])
     st.caption(
         "Flags come from the NFL Odds project's Market_Check, computed against "
         "calibrated per-stat bands. **RED** / **AMBER** = the market's implied mean "
@@ -289,7 +273,7 @@ def _render_what_matters() -> None:
         you, now = li.display_value(r["stat"], r["ours"]), li.display_value(r["stat"], r["market_now"])
         table.append({
             "Player": r["player"], "Pos": r["pos"], "Team": r["team"], "Opp": r["opp"],
-            "Stat": li.stat_display_label(r["stat"]), "Your proj": you,
+            "Stat": li.stat_display_label(r["stat"]), "_stat": r["stat"], "Your proj": you,
             "Market open": li.display_value(r["stat"], r["market_open"]), "Market now": now,
             "Market vs you %": ((now - you) / you * 100.0) if you else None,
             "Trend": {"away": "↗ away from you", "toward": "↘ toward you"}.get(r["trend"], ""),
@@ -297,7 +281,7 @@ def _render_what_matters() -> None:
         })
     table = _filters(table, "wm")
     if table:
-        st.dataframe(table[:300], use_container_width=True, hide_index=True, column_config=PROP_COLUMNS)
+        render_prop_table(table[:300])
     else:
         st.success("No player line is flagged RED or moving away from your projection.")
     st.caption(PROP_CAPTION)

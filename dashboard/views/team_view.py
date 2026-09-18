@@ -24,6 +24,7 @@ from config_loader import get_teams
 from dashboard import in_season_data as isd
 from dashboard import team_data as td
 from dashboard.citations import build_citation_linker
+from dashboard.prop_view import PROP_CAPTION, render_prop_table
 from dashboard.helpers import (
     highlight_numbered_sources,
     highlight_sources,
@@ -238,29 +239,19 @@ else:
 st.subheader("Player lines")
 MOVE_CHOICES = {"All lines": 0.0, "Moved 5%+": 5.0, "Moved 10%+": 10.0, "Moved 20%+": 20.0}
 show = st.radio("Show", list(MOVE_CHOICES), horizontal=True, key="team_props_moved",
-                help="Move since the line opened, in percent. Anytime TD also needs a full point.")
+                help="Move since the line opened, in percent. Implied TDs also need a 0.02 move.")
 props = li.prop_table(odds, settings, team=team, min_move_pct=MOVE_CHOICES[show])
 if props:
     rank = {r["Player"]: i for i, r in enumerate(proj_rows)}   # biggest projections first
     props.sort(key=lambda r: (rank.get(r["player"], 999), li.POS_ORDER.get(r["pos"], 9), r["player"],
                               li.STAT_ORDER.get(r["stat"], 99)))
-    st.dataframe(
-        [{"Player": r["player"], "Pos": r["pos"], "Stat": r["stat_label"], "Your proj": r["you"],
-          "Book line": r["book_line"], "Market open": r["open"], "Market now": r["now"],
-          "Move %": r["move_pct"], "Market vs you %": r["vs_you_pct"], "Flag": r["flag"]}
-         for r in props],
-        use_container_width=True, hide_index=True,
-        column_config={
-            "Your proj": NUM(format="%.1f"), "Book line": NUM(format="%.1f"),
-            "Market open": NUM(format="%.1f"), "Market now": NUM(format="%.1f"),
-            "Move %": NUM(format="%+.0f%%", help="Market now vs where the line opened, in percent — "
-                                                 "comparable across stats"),
-            "Market vs you %": NUM(format="%+.0f%%", help="Market now vs your projection"),
-        },
+    render_prop_table(
+        [{"Player": r["player"], "Pos": r["pos"], "Stat": r["stat_label"], "_stat": r["stat"],
+          "Your proj": r["you"], "Book line": r["book_line"], "Market open": r["open"],
+          "Market now": r["now"], "Move %": r["move_pct"], "Market vs you %": r["vs_you_pct"],
+          "Flag": r["flag"]} for r in props],
+        caption=PROP_CAPTION + " Flags are the NFL Odds project's verdicts on market vs your projection.",
     )
-    st.caption("**Market** = the betting consensus's implied average for the stat (not the posted O/U "
-               "line, which is **Book line**). Anytime TD is shown as the chance of scoring. "
-               "Flags are the NFL Odds project's verdicts on market vs your projection.")
 else:
     st.caption("No player lines stored for this team this week." if not MOVE_CHOICES[show]
                else f"No line has moved {MOVE_CHOICES[show]:g}% or more since open.")

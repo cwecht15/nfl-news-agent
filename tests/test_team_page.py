@@ -1,8 +1,6 @@
 """Team page loaders (dashboard/team_data.py) and the shared line helpers it
 uses from processing/line_insights.py."""
 
-import math
-
 from collectors import odds_collector as oc
 from dashboard import team_data as td
 from processing import line_insights as li
@@ -34,16 +32,18 @@ def test_prop_table_puts_receptions_and_yards_on_one_scale():
     assert round(rows["Catcher"]["last_pull"], 2) == 0.65
 
 
-def test_anytime_td_is_shown_as_a_scoring_chance():
-    assert round(li.display_value("anytime_td", 0.82), 1) == round(100 * (1 - math.exp(-0.82)), 1)
-    assert li.display_value("rec_yds", 31.9) == 31.9
-    assert li.stat_display_label("anytime_td") == "Anytime TD %"
+def test_anytime_td_is_shown_as_implied_tds_like_the_sheet():
+    """Expected TDs — the unit the sheet projects (Rush TD + Rec TD) and the
+    NFL Odds project reports — so "your proj" compares directly."""
+    assert li.display_value("anytime_td", 0.82) == 0.82
+    assert li.stat_display_label("anytime_td") == "Implied TDs"
     rows = li.prop_table({"props": {"t": _prop("Back", "MIN", "anytime_td", 0.61, 0.51, 0.82)}}, SETTINGS)
-    assert round(rows[0]["open"]) == 40 and round(rows[0]["now"]) == 56
+    assert (rows[0]["you"], rows[0]["open"], rows[0]["now"]) == (0.61, 0.51, 0.82)
+    assert round(rows[0]["vs_you_pct"]) == 34
 
 
 def test_prop_table_ranks_by_threshold_units_not_percent():
-    """A TD chance going 3% -> 12% is +300%; ranked by percent it would bury
+    """Implied TDs going 0.03 -> 0.13 is +333%; ranked by percent it would bury
     a 17-yard passing move. In threshold units they rank as peers."""
     week = {"props": {
         "td": _prop("Longshot", "DEN", "anytime_td", 0.0, 0.03, 0.13),   # +0.10 rate = 1.0x thr
@@ -71,16 +71,15 @@ def test_prop_table_filters_team_thin_played_and_unmoved():
 def test_percent_move_filter_keeps_moves_the_report_thresholds_hide():
     """PIT, Week 2: "only lines that moved" showed one row because the report
     thresholds (6 rushing yards) hid Dowdle's 44.3 -> 38.4 (-13%)."""
-    td_rate = lambda p: -math.log(1 - p / 100)            # scoring chance % -> rate
     week = {"props": {
         "d": _prop("Rico Dowdle", "PIT", "rush_yds", 45.0, 44.3, 38.4),                 # -13%, 5.9 yds
         "w": _prop("Jaylen Warren", "PIT", "rush_yds", 55.5, 46.6, 48.3),               # +4%
-        "n": _prop("Nowakowski", "PIT", "anytime_td", 0.03, td_rate(2.5), td_rate(4.3)),  # +1.8 pts
-        "t": _prop("Tonyan", "PIT", "anytime_td", 0.03, td_rate(3.0), td_rate(3.2)),      # +7%, 0.2 pts
+        "n": _prop("Nowakowski", "PIT", "anytime_td", 0.03, 0.025, 0.046),   # +0.021 implied TDs
+        "t": _prop("Tonyan", "PIT", "anytime_td", 0.03, 0.030, 0.032),       # +7%, but only 0.002
     }}
     assert li.prop_table(week, SETTINGS, team="PIT") == []                      # report thresholds
     got = {r["player"] for r in li.prop_table(week, SETTINGS, team="PIT", min_move_pct=5.0)}
-    assert got == {"Rico Dowdle", "Nowakowski"}        # Tonyan's +7% is only a fifth of a point
+    assert got == {"Rico Dowdle", "Nowakowski"}        # Tonyan's +7% does not show at 2 decimals
     assert len(li.prop_table(week, SETTINGS, team="PIT", min_move_pct=0.0)) == 4   # "All lines"
 
 
