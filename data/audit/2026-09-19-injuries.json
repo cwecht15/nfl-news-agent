@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 2,
   "sheet": "primary",
-  "generated_at": "2026-09-19T21:37:38+00:00",
+  "generated_at": "2026-09-19T23:09:13+00:00",
   "inputs": {
     "snapshot_date": "2026-09-19",
     "nflverse_date": "2026-09-19",
-    "injury_week_updated": "2026-09-19T21:37:37+00:00",
-    "roster_state_updated": "2026-09-19T14:14:24+00:00"
+    "injury_week_updated": "2026-09-19T23:09:13+00:00",
+    "roster_state_updated": "2026-09-19T22:14:31+00:00"
   },
   "alerts": [
     {
@@ -36,6 +36,24 @@
       }
     },
     {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0026300|2",
+      "severity": "warning",
+      "player": "Josh Johnson",
+      "gsis_id": "00-0026300",
+      "pos": "QB",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Josh Johnson (QB, CIN) was elevated from the practice squad (2026-09-19) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-09-19"
+        ],
+        "elevations_used": 1
+      }
+    },
+    {
       "type": "out_but_projected",
       "key": "out_but_projected|00-0039751|2|D",
       "severity": "warning",
@@ -54,6 +72,24 @@
           "2026-09-19": "DNP"
         },
         "ppr": 2.4
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0033319|2",
+      "severity": "warning",
+      "player": "Nick Mullens",
+      "gsis_id": "00-0033319",
+      "pos": "QB",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Nick Mullens (QB, MIN) was elevated from the practice squad (2026-09-19) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-09-19"
+        ],
+        "elevations_used": 2
       }
     },
     {
@@ -118,6 +154,24 @@
         "delta": 14.25449842,
         "pct": 4.072713835,
         "flag": "RED"
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0035594|2",
+      "severity": "warning",
+      "player": "Travis Homer",
+      "gsis_id": "00-0035594",
+      "pos": "RB",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Travis Homer (RB, PIT) was elevated from the practice squad (2026-09-19) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-09-19"
+        ],
+        "elevations_used": 1
       }
     },
     {
@@ -270,6 +324,7 @@
   "errors": [],
   "counts": {
     "market_proj_gap": 4,
+    "elevated_not_projected": 3,
     "out_but_projected": 1,
     "sheet_status_stale": 2,
     "unconfirmed_report": 4,
