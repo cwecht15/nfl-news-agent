@@ -124,6 +124,53 @@ def event_rows(events: list[dict], team: str, since: Optional[str] = None) -> li
     return rows
 
 
+ELEVATION_DEADLINE = ("Standard elevations are declared by **4:00 PM ET the day before the game** "
+                      "(Saturday for Sunday, Wednesday for Thursday, Sunday for Monday) and an "
+                      "elevated player is active for it. Each club may elevate up to two a game, "
+                      "three times per player per season — a club with none simply elevated nobody.")
+
+
+def elevation_rows(events: list[dict], state: Optional[dict], max_elevations: int = 3) -> list[dict]:
+    """One row per elevation, newest first, with the player's season count."""
+    by_gsis = (state or {}).get("players") or {}
+    by_name = (state or {}).get("by_name") or {}
+    rows = []
+    for e in events or []:
+        gid = e.get("gsis_id") or by_name.get(e.get("name_key") or "")
+        used = (by_gsis.get(gid) or {}).get("elevations_used") if gid else None
+        rows.append({
+            "Date": e.get("date", ""), "Team": e.get("team", ""), "Player": e.get("name", ""),
+            "Pos": e.get("pos", ""),
+            "Used": f"{used}/{max_elevations}" if used else "",
+            "Source": (e.get("source") or "").replace("news:", ""),
+            "Confidence": e.get("confidence", ""),
+        })
+    rows.sort(key=lambda r: (r["Date"], r["Team"], r["Player"]), reverse=True)
+    return rows
+
+
+def elevation_status(events: list[dict], schedule: list[dict], week: int, today: str) -> dict:
+    """Are this week's elevations all in? Counts, and which clubs with a game
+    still to play have none recorded."""
+    from processing.season import games_for_week
+
+    reported = {e.get("team") for e in events or []}
+    upcoming: set[str] = set()
+    for g in games_for_week(schedule or [], week):
+        if str(g.get("date") or "") < today:
+            continue                      # game played: its elevations are settled
+        for side in ("home", "away"):
+            if g.get(side):
+                upcoming.add(to_news(g[side], "proj"))
+    return {
+        "total": len(events or []),
+        "today": sum(1 for e in events or [] if e.get("date") == today),
+        "teams": len(reported),
+        "waiting": sorted(upcoming - reported),
+        "upcoming_teams": len(upcoming),
+    }
+
+
 def audit_alerts(audit: Optional[dict], team: str) -> list[dict]:
     """Open audit alerts for ``team`` (the audit speaks projection style)."""
     out = [a for a in (audit or {}).get("alerts") or []

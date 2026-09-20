@@ -175,6 +175,38 @@ def test_event_rows_skip_ourlads_name_only_rows_and_old_events():
     assert [r["Player"] for r in rows] == ["Greg Dortch", "Claimed"]
 
 
+def test_elevation_rows_carry_the_season_count():
+    events = [
+        {"date": "2026-09-19", "team": "PIT", "name": "Travis Homer", "name_key": "travis homer",
+         "pos": "RB", "gsis_id": "00-1", "source": "espn_transactions", "confidence": "confirmed"},
+        {"date": "2026-09-18", "team": "BUF", "name": "Frank Gore Jr.", "name_key": "frank gore",
+         "pos": "RB", "source": "nflverse", "confidence": "confirmed"},
+    ]
+    state = {"players": {"00-1": {"elevations_used": 1}, "00-2": {"elevations_used": 3}},
+             "by_name": {"frank gore": "00-2"}}
+    rows = td.elevation_rows(events, state)
+    assert [r["Player"] for r in rows] == ["Travis Homer", "Frank Gore Jr."]   # newest first
+    assert rows[0]["Used"] == "1/3" and rows[1]["Used"] == "3/3"               # matched by name too
+
+
+def test_elevation_status_names_clubs_yet_to_report():
+    """Saturday: which clubs playing tomorrow have no elevation recorded yet.
+    A club that played already is settled, whatever it did."""
+    schedule = [
+        {"week": 2, "away": "CIN", "home": "HST", "date": "2026-09-20"},
+        {"week": 2, "away": "PIT", "home": "NE", "date": "2026-09-20"},
+        {"week": 2, "away": "BUF", "home": "DET", "date": "2026-09-17"},   # played Thursday
+    ]
+    events = [{"date": "2026-09-19", "team": "PIT"}, {"date": "2026-09-18", "team": "BUF"}]
+    status = td.elevation_status(events, schedule, 2, "2026-09-19")
+    assert status["total"] == 2 and status["today"] == 1 and status["teams"] == 2
+    assert status["waiting"] == ["CIN", "HOU", "NE"]        # HST -> HOU; BUF/DET already played
+    assert status["upcoming_teams"] == 4
+    done = td.elevation_status(events + [{"date": "2026-09-19", "team": t} for t in ("CIN", "HOU", "NE")],
+                               schedule, 2, "2026-09-19")
+    assert done["waiting"] == []
+
+
 def test_roster_rows_off_the_53_only():
     state = {"players": {
         "a": {"name": "IR Guy", "team": "NO", "pos": "RB", "status": "IR", "earliest_return_week": 5},
