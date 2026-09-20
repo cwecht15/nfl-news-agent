@@ -1,6 +1,8 @@
 @echo off
 REM NFL News Agent — Practice-Squad Elevation Check
-REM Called by Windows Task Scheduler (NFL_News_Agent_Elevations), Sat 4:15 PM.
+REM Called by Windows Task Scheduler (NFL_News_Agent_Elevations): Sat/Sun/Wed,
+REM every 45 minutes from 4:15 PM (Sat until 8 PM) - ESPN publishes the clubs
+REM gradually, so one run right after the deadline misses the late ones.
 REM
 REM Standard elevations are declared by 4:00 PM ET the day before a game, and
 REM an elevated player is active for it — so this has to be known Saturday

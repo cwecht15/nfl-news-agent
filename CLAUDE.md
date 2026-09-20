@@ -339,11 +339,15 @@ Tab bodies on Projections and Depth Charts are wrapped in `_render_*()` function
 ## Scheduling
 
 - Windows Task Scheduler: `NFL_News_Agent_Daily` at 6:00 AM (news pipeline)
-- Windows Task Scheduler: `NFL_News_Agent_Elevations` Saturdays at 4:15 PM — dispatches `inactives.yml`
-  (`scripts/run_elevations.bat`; register with `setup_scheduler.py create-elevations`). Elevations are
-  declared at 4:00 PM ET and must be known that night; `inactives.yml`'s own Sat 20:05/23:50 UTC crons
-  plus the daily 21:34 UTC PM run are the fallbacks, but GitHub fires this repo's crons a median 242
-  minutes late, so the local dispatch is what makes the deadline deterministic.
+- Windows Task Scheduler: `NFL_News_Agent_Elevations` — Sat/Sun/Wed, every 45 min from 4:15 PM (Sat
+  until 8 PM, the others until 7 PM) — dispatches `inactives.yml` = "Game-day inactives + elevations"
+  (`scripts/run_elevations.bat`; register with `setup_scheduler.py create-elevations`, triggers in
+  `ELEVATION_TRIGGERS`). Elevations are declared at 4:00 PM ET the day before a game (Sat for Sunday,
+  Sun for Monday, Wed for Thursday) and must be known that night; `inactives.yml`'s own crons plus the
+  daily 21:34 UTC PM run are the fallbacks, but GitHub fires this repo's crons a median 242 minutes
+  late, so the local dispatch is what makes the deadline deterministic. It **repeats** because ESPN
+  publishes clubs gradually: at 5:47 PM on 2026-09-19 only 16 of 30 clubs playing the next day had
+  one recorded, 26 by the evening.
 - Windows Task Scheduler: `NFL_News_Agent_Injuries` — Wed/Thu 5:00 PM, Fri every 45 min 3:45–6:45 PM,
   Sat 4:30 PM — dispatches `injuries.yml` (`scripts/run_injuries.bat`; register with
   `setup_scheduler.py create-injuries`, which builds a multi-trigger task via `INJURY_TRIGGERS`).

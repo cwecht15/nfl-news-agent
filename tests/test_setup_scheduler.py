@@ -23,6 +23,22 @@ def test_single_trigger_tasks_keep_their_schedule():
     assert daily.getElementsByTagName("ScheduleByDay")
 
 
+def test_elevations_task_repeats_on_each_declaration_day():
+    """Elevations are declared 4 PM ET the day before a game (Sat for Sunday,
+    Sun for Monday, Wed for Thursday) and ESPN publishes clubs gradually, so
+    each day repeats into the evening."""
+    doc = _parse(ss.task_xml("16:15", ss.ELEVATIONS_BAT, "d", "PT15M", triggers=ss.ELEVATION_TRIGGERS))
+    triggers = doc.getElementsByTagName("CalendarTrigger")
+    days = [next(n.tagName for n in t.getElementsByTagName("DaysOfWeek")[0].childNodes
+                 if n.nodeType == n.ELEMENT_NODE) for t in triggers]
+    assert days == ["Saturday", "Sunday", "Wednesday"]
+    spans = [t.getElementsByTagName("Duration")[0].firstChild.data for t in triggers]
+    assert spans == ["PT4H", "PT3H", "PT3H"]
+    assert all(t.getElementsByTagName("Interval")[0].firstChild.data == "PT45M" for t in triggers)
+    assert all(t.getElementsByTagName("StartBoundary")[0].firstChild.data.endswith("T16:15:00")
+               for t in triggers)
+
+
 def test_injuries_task_fires_wed_to_sat_and_repeats_friday():
     doc = _parse(ss.task_xml("00:00", ss.INJURIES_BAT, "d", "PT15M", triggers=ss.INJURY_TRIGGERS))
     triggers = doc.getElementsByTagName("CalendarTrigger")

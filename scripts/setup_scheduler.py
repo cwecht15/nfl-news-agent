@@ -4,15 +4,17 @@ Four tasks are supported:
 
   - NFL_News_Agent_Daily       → scripts/run_daily.bat at 6:00 AM (daily)
   - NFL_News_Agent_YT_Backfill → scripts/auto_backfill_youtube.bat at 5:30 AM (daily)
-  - NFL_News_Agent_Elevations  → scripts/run_elevations.bat at 4:15 PM (Saturdays)
+  - NFL_News_Agent_Elevations  → scripts/run_elevations.bat Sat/Sun/Wed, every 45 min
+                                 from 4:15 PM (Sat until 8 PM, the others until 7 PM)
   - NFL_News_Agent_Injuries    → scripts/run_injuries.bat Wed/Thu 5:00 PM, Fri every
                                  45 min 3:45-6:45 PM, Sat 4:30 PM (practice reports and
                                  game designations; dispatches injuries.yml)
 
-The Saturday task exists because practice-squad elevations are declared at
+The elevation task exists because practice-squad elevations are declared at
 4:00 PM ET the day before a game and have to be known that night — and
 GitHub fires this repo's crons a median of four hours late, while a
-workflow_dispatch starts in seconds.
+workflow_dispatch starts in seconds. It repeats through the evening because
+ESPN publishes the clubs gradually.
 
 All use StartWhenAvailable so missed runs execute as soon as the PC wakes up.
 Must be run with administrator privileges.
@@ -109,6 +111,16 @@ INJURY_TRIGGERS = [
     ("16:30", "Saturday", None, None),
 ]
 
+# Elevations are declared by 4 PM ET the day before a game — Saturday for
+# Sunday, Sunday for Monday, Wednesday for Thursday — but ESPN's feed
+# publishes clubs gradually: at 5:47 PM on 2026-09-19 only 16 of 30 clubs
+# playing the next day had one. So each day repeats into the evening.
+ELEVATION_TRIGGERS = [
+    ("16:15", "Saturday", "PT45M", "PT4H"),    # 4:15 … 8:00 PM
+    ("16:15", "Sunday", "PT45M", "PT3H"),      # Monday-night games
+    ("16:15", "Wednesday", "PT45M", "PT3H"),   # Thursday-night games
+]
+
 
 def create_task(
     task_name: str = "NFL_News_Agent_Daily",
@@ -201,7 +213,7 @@ USAGE = (
     "Usage:\n"
     "  python setup_scheduler.py create [HH:MM]              # daily news task (default 06:00)\n"
     "  python setup_scheduler.py create-yt [HH:MM]           # YT auto-backfill task (default 05:30)\n"
-    "  python setup_scheduler.py create-elevations [HH:MM]   # Saturday elevations dispatch (default 16:15)\n"
+    "  python setup_scheduler.py create-elevations [HH:MM]   # elevations dispatch, Sat/Sun/Wed (default 16:15)\n"
     "  python setup_scheduler.py create-injuries             # injury report dispatch, Wed-Sat afternoons\n"
     "  python setup_scheduler.py delete [task-name]          # default: NFL_News_Agent_Daily\n"
     "  python setup_scheduler.py status [task-name]          # default: NFL_News_Agent_Daily\n"
@@ -231,17 +243,16 @@ if __name__ == "__main__":
             exec_time_limit="PT1H",
         )
     elif action == "create-elevations":
-        time_arg = sys.argv[2] if len(sys.argv) > 2 else "16:15"
+        start = sys.argv[2] if len(sys.argv) > 2 else "16:15"
         create_task(
             task_name="NFL_News_Agent_Elevations",
-            run_time=time_arg,
             bat_path=ELEVATIONS_BAT,
             description=(
                 "NFL News Agent — dispatch the cloud elevation check after the "
-                "4 PM ET practice-squad elevation deadline (Saturdays)"
+                "4 PM ET practice-squad elevation deadline (Sat/Sun/Wed afternoons)"
             ),
             exec_time_limit="PT15M",
-            day_of_week="Saturday",
+            triggers=[(start, day, every, span) for _t, day, every, span in ELEVATION_TRIGGERS],
         )
     elif action == "create-injuries":
         create_task(
