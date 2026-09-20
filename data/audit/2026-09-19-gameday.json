@@ -4,14 +4,37 @@
   "season": 2026,
   "week": 2,
   "sheet": "primary",
-  "generated_at": "2026-09-20T01:05:14+00:00",
+  "generated_at": "2026-09-20T01:20:21+00:00",
   "inputs": {
     "snapshot_date": "2026-09-19",
     "nflverse_date": "2026-09-19",
     "injury_week_updated": "2026-09-19T23:29:44+00:00",
-    "roster_state_updated": "2026-09-20T01:05:14+00:00"
+    "roster_state_updated": "2026-09-20T01:20:21+00:00"
   },
   "alerts": [
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040075|2|rec_yds",
+      "severity": "warning",
+      "player": "LaJohntay Wester",
+      "gsis_id": "00-0040075",
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 2,
+      "message": "LaJohntay Wester (WR, BLT) Rec Yds: we project 13.1, the market implies 27.2 (odds pulled 2026-09-19 21:11-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 13.1,
+        "market_mean": 27.22512799,
+        "delta": 14.12512799,
+        "pct": 1.078254045,
+        "flag": "RED"
+      }
+    },
     {
       "type": "elevated_not_projected",
       "key": "elevated_not_projected|00-0026300|2",
@@ -210,6 +233,7 @@
   "dismissed": [],
   "errors": [],
   "counts": {
+    "market_proj_gap": 1,
     "elevated_not_projected": 3,
     "sheet_status_stale": 2,
     "unconfirmed_report": 4,
