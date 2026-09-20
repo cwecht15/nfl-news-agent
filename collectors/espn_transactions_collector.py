@@ -93,17 +93,25 @@ ELEVATION_RE = re.compile(
 _SPLIT_RE = re.compile(r"\s*,\s*|\s+and\s+", re.IGNORECASE)
 
 
+def _singular_position(token: str) -> str:
+    """``"LBs"`` / ``"lb."`` -> ``"LB"``; anything else upper-cased as given."""
+    t = token.upper().strip(".,")
+    return t[:-1] if t.endswith("S") and t[:-1] in _POSITIONS else t
+
+
 def _strip_positions(entry: str) -> tuple[str, str]:
     """``"LB LB Mohamoud Diabate"`` -> ``("Mohamoud Diabate", "LB")``.
 
     ESPN occasionally doubles the position token, so every leading position is
-    consumed and the first one is kept.
+    consumed and the first one is kept. A plural introduces a list of players
+    at that position ("Elevated LBs Curtis Robinson and Justin Barron"), so
+    "LBs" / "EDGEs" count as the position too.
     """
     tokens = entry.split()
     pos = ""
-    while tokens and tokens[0].upper().strip(".,") in _POSITIONS:
+    while tokens and _singular_position(tokens[0]) in _POSITIONS:
         if not pos:
-            pos = tokens[0].upper().strip(".,")
+            pos = _singular_position(tokens[0])
         tokens = tokens[1:]
     return " ".join(tokens).strip(), pos
 
