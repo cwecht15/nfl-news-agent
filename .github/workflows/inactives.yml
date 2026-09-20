@@ -102,6 +102,12 @@ jobs:
           for attempt in 1 2 3; do
             if git push origin HEAD:master; then exit 0; fi
             git fetch origin master
-            git rebase origin/master
+            # Another run committed between our checkout and this push. These
+            # files are this run's own output, so ours win on a conflicting
+            # hunk (-X theirs favours the commit being replayed) and the other
+            # run's files come across untouched. Without this the rebase stops
+            # on the conflict and the run's data is thrown away - a Saturday
+            # batch of practice-squad elevations was lost that way 2026-09-19.
+            git rebase -X theirs origin/master || { git rebase --abort || true; sleep 5; }
           done
           exit 1
