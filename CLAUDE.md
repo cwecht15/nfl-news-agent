@@ -63,6 +63,11 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --in
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --injuries-only
 # Register the Wed-Sat afternoon injury dispatch task (admin shell)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\setup_scheduler.py create-injuries
+
+# Refresh on demand: dispatches injuries.yml + inactives.yml (injury report /
+# designations, elevations, inactives). Desktop shortcut = Ctrl+Alt+N.
+scripts\refresh_now.bat
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\setup_scheduler.py shortcut
 # Practice-squad elevations from ESPN's transaction feed (no key; the only source that carries them)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\espn_transactions_collector.py
 # Poll inactives directly (--all polls every game of the week; --season/--week/--event for debugging)
@@ -224,6 +229,30 @@ the offseason path.
   excluded. When the odds week file is fresh, the game line is appended to that context
   ("— LAR -3.5, total 48 (down 1 from 49)") and the prompt permits a *significant move* as
   evidence for a game-script or role claim — never a restatement of the number itself.
+  `_append_opponent_injuries` then appends the **opponent's** designations from
+  `data/injuries/<season>/wkNN.json` ("— NYG injury report: Adebo (CB, knee) did not practice,
+  Banks (CB, calf) questionable"). This is the only route by which a cross-team read reaches Team
+  Notes: each team's item pool is built from items tagged with THAT team, so a depleted opposing
+  secondary is otherwise invisible no matter how the pool is ranked. A player with no designation
+  counts when he sat out the week's last practice (that is how an IR-bound player reads on the
+  club page) unless the injury is `NIR - Rest`; bye teams are skipped; a missing week file leaves
+  every line untouched, which is why `tests/test_team_notes_prompt.py` stubs both appenders.
+- **Team Notes own the role angle of a status change:** the in-season prompt used to say "mention
+  a transaction/injury ONLY to add the role/usage angle", which the model read as permission to
+  stay silent — on 2026-09-19 Puka Nacua's hip DNP sat at `LAR.sources[0]` and drew zero bullets
+  while three of five LAR bullets went to defense. It now forbids restating the **status line**
+  but *requires* the bullet whenever a change has a role consequence, allows the bullet to be
+  keyed to the **beneficiary** rather than the injured player, and caps non-skill (OL/defense/ST)
+  bullets at one. Statuses themselves still belong to the injury sections.
+- **Team pool ranking (`_diversify_by_source._score`):** `(team_specific, primary_title, deep,
+  fantasy_signal, body_len, published)`. Body length alone used to decide, which buried a 745-char
+  "WR1 misses practice" report under season columns. `_FANTASY_SIGNAL` (usage/opportunity language
+  — "did not practice", "misses practice", route/target share, committee, in line for) now
+  outranks length; length falls back to `summary`, then to the title, because The Athletic arrives
+  paywalled with the dek in the title and no body. `team_specific` demotes league-wide roundups
+  (`>= 4` tagged teams — "NFL Week 2 uniforms" was tagged with all 32 and burned a slot in all 32
+  pools); a real matchup preview tags 2, and roundups are demoted rather than dropped so a thin
+  pool still has a fallback.
 - **Report + dashboard:** six phase-gated sections (`roster_moves`, `practice_squad_elevations`
   — week-scoped, so Saturday's batch is still on Sunday morning's report — `injury_report_changes`,
   `game_day_inactives`, `line_movement`, `projection_audit`), `DailyReport.season_meta` / `inactives` / `odds` /
@@ -375,6 +404,10 @@ Tab bodies on Projections and Depth Charts are wrapped in `_render_*()` function
   discarded — that is how a Saturday batch of elevations was lost on 2026-09-19. Every
   data-committing workflow now rebases with `-X theirs` (favouring the commit being replayed,
   i.e. this run's own output) and aborts+retries rather than failing.
+- **On demand:** `scripts/refresh_now.bat` dispatches both time-sensitive workflows (injury report /
+  designations and elevations + inactives) in one go; `setup_scheduler.py shortcut` puts it on the
+  Desktop with a **Ctrl+Alt+N** hotkey. The two runs serialize on the `daily-pipeline` concurrency
+  group, so the second waits rather than racing the first.
 - All crons sit on odd minutes on purpose. Top-of-the-hour is the most oversubscribed slot GitHub has, and every :00 cron in this repo was running hours behind.
 - `StartWhenAvailable: true` — catches up on missed runs
 - `InteractiveToken` logon — must be logged in (screen lock OK)

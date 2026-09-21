@@ -30,8 +30,13 @@ openai:
       reasoning_effort: "medium"
       # Responses API counts reasoning tokens against this cap. With the
       # wider 12-item pools, 1600 left some teams a single cut-off bullet
-      # (reasoning ate the budget); 3200 gives output room to breathe.
-      max_output_tokens: 3200
+      # (reasoning ate the budget); 3200 gave output room to breathe.
+      # Raised to 6400 when the in-season prompt started asking for the role
+      # consequence of every status change: reasoning alone exceeded 3200, so
+      # the call returned no text and _should_retry_openai_no_text silently
+      # retried at double the budget — two billed calls per team, the first
+      # one wasted. Sized to the budget that retry was already landing on.
+      max_output_tokens: 6400
     # Line Movement lede — a short "what moved and what the news says" pass
     # over the deterministic mover list. Small on purpose: the section is
     # fully rendered without it, so this only adds the connective tissue.

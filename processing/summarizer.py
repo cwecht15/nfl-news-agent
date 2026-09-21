@@ -1436,6 +1436,29 @@ _DEEP_ARTICLE_PATTERNS = re.compile(
 )
 
 
+# Usage / opportunity language. Items matching this are what the in-season
+# Team Notes prompt is asked to write bullets about, so they earn a pool slot
+# ahead of longer but less projection-relevant coverage. Deliberately about
+# ROLE, not injury severity — "did not practice" matters here because of who
+# takes the snaps, not because of the diagnosis.
+_FANTASY_SIGNAL = re.compile(
+    r"\b(did not practice|dnp|limited (?:in )?practice|full participant|"
+    r"limited participant|ruled out|questionable|doubtful|inactive|"
+    # Beat-writer phrasing for the same event. PFT's "Nacua misses practice
+    # with a hip injury" is the headline this whole change exists to rescue.
+    r"miss(?:es|ed|ing)? practice|sat out|sits out|held out|"
+    r"added to the injury report|returns? to practice|back at practice|"
+    r"snap (?:share|count)|target share|route share|touches|carries|"
+    r"red[- ]zone|goal[- ]line|first[- ]team|starting (?:job|role)|"
+    r"depth chart|committee|rotation|workload|usage|"
+    r"steps? in|step(?:ping)? up|fill(?:s|ing)? in|in line (?:for|to)|"
+    r"increased role|expanded role|bigger role|more (?:targets|touches|work)|"
+    r"lead back|bell[- ]cow|featured|pecking order|"
+    r"(?:RB|WR|TE|QB)\d\b|no\.? ?[123] (?:receiver|running back|tight end))\b",
+    re.IGNORECASE,
+)
+
+
 def _is_deep_article(item) -> bool:
     """Heuristic: does this item probably contain per-player notes worth surfacing?"""
     if not isinstance(item, NewsItem):
@@ -1486,12 +1509,30 @@ def _diversify_by_source(
     def _score(it) -> tuple:
         if not isinstance(it, NewsItem):
             # Transcripts: rank below news but ahead of nothing.
-            return (0, 0, 0, getattr(it, "published", 0))
+            return (0, 0, 0, 0, 0, getattr(it, "published", 0))
         title = it.title or ""
-        body = it.full_text or ""
+        # A league-wide roundup ("NFL Week 2 uniforms", "Ranking all 32 backup
+        # QBs") gets tagged with every team it name-checks and is then injected
+        # into that many team pools — the uniforms column landed in all 32 on
+        # 2026-09-19 — where it burns a slot and yields nothing the prompt is
+        # even allowed to write about. A real matchup preview tags 2 teams, so
+        # only the long tail is caught here. Ranked below all team reporting
+        # rather than dropped, so a thin pool can still fall back on it.
+        team_specific = 0 if len(it.teams or []) >= _LEAGUE_ROUNDUP_TEAMS else 1
+        # Body length stands in for "how much the LLM can mine", so it has to
+        # match what _build_news_context_line actually renders (full_text OR
+        # summary). Scoring full_text alone buried every rich-summary RSS item
+        # below tweets. Paywalled items (The Athletic) arrive with the dek in
+        # the title and no body at all, so fall back to the title's length.
+        body = it.full_text or it.summary or ""
         primary = 1 if _PRIMARY_TITLE.search(title) else 0
         deep = 1 if _is_deep_article(it) else 0
-        return (primary, deep, len(body), it.published)
+        # A usage / opportunity signal outranks raw length: a 700-char "WR1
+        # misses practice" note is worth more to this week's projections than a
+        # 6,000-char season retrospective, and length alone always picked the
+        # retrospective.
+        signal = 1 if _FANTASY_SIGNAL.search(title) or _FANTASY_SIGNAL.search(body[:2000]) else 0
+        return (team_specific, primary, deep, signal, len(body) or len(title), it.published)
 
     primary_cap = max(1, limit // 2)
     nonprimary_cap = max(1, limit // 3)
@@ -1591,7 +1632,7 @@ def _in_season_game_lines() -> Optional[dict[str, str]]:
             abbr = t["abbr"]
             proj = to_proj(abbr)
             if proj in byes:
-                lines[abbr] = f"Week {ctx.week}: {abbr} is on bye this week"
+                lines[abbr] = f"Week {ctx.week}: {abbr}{_BYE_MARKER}"
                 continue
             g = opponent(schedule, proj, ctx.week)
             if not g:
@@ -1602,6 +1643,7 @@ def _in_season_game_lines() -> Optional[dict[str, str]]:
             verb = "hosts" if g["home_away"] == "Home" else "visits"
             lines[abbr] = f"Week {ctx.week}: {abbr} {verb} {opp}" + (f" on {when}" if when else "")
         _append_market_context(lines, ctx)
+        _append_opponent_injuries(lines, ctx)
         return lines
     except Exception as e:  # noqa: BLE001 — context is a bonus, never a blocker
         logger.warning("In-season game context unavailable: %s", e)
@@ -1654,6 +1696,109 @@ def _append_market_context(lines: dict[str, str], ctx) -> None:
         logger.warning("Market context unavailable for Team Notes: %s", e)
 
 
+# Opponent designations worth naming in the prompt. Out/Doubtful move a role for
+# certain; Questionable is kept because a Friday Q in an already-thin position
+# group is exactly the signal the reader is pricing.
+_OPP_INJURY_STATUS = {"O": "out", "D": "doubtful", "Q": "questionable"}
+_OPP_INJURY_SEVERITY = {"O": 0, "D": 1, "Q": 2, "DNP": 3}
+_OPP_INJURY_MAX = 4
+# Kept in sync with the bye line _in_season_game_lines builds.
+_BYE_MARKER = " is on bye this week"
+
+# Team count at which an item stops being team reporting and becomes a national
+# roundup. A game preview tags 2 teams; on 2026-09-19 everything at 4+ was a
+# picks/odds/uniforms/rankings column.
+_LEAGUE_ROUNDUP_TEAMS = 4
+_NOT_INJURY_RELATED = re.compile(r"\bnir\b|not injury[- ]related|\brest\b|\bpersonal\b", re.IGNORECASE)
+
+
+def _append_opponent_injuries(lines: dict[str, str], ctx) -> None:
+    """Add the OPPONENT's injury designations to each team's game context.
+
+    Reads the week file `collectors.injury_report_collector` already maintains,
+    never a live scrape — same posture as :func:`_append_market_context`.
+
+    This is the only route by which a cross-team read can reach Team Notes. The
+    per-team item pool is built from items tagged with THAT team, so a depleted
+    opposing secondary — the evidence behind "their corners are down, which
+    lifts our receivers" — is otherwise invisible no matter how well the pool is
+    ranked.
+
+    Produces e.g. "... — NYG injury report: Adebo (CB, knee) out, Banks (CB,
+    calf) questionable". A missing week file leaves every line untouched.
+    """
+    try:
+        from collectors.injury_report_collector import load_week_file
+
+        week_data = load_week_file(ctx.season, ctx.week)
+        teams = (week_data or {}).get("teams") or {}
+        if not teams:
+            return
+
+        for abbr in list(lines):
+            # A bye team has no opponent this week; the collector skips its page,
+            # so `opp` can still hold last week's matchup. Never append to a bye.
+            if _BYE_MARKER in lines[abbr]:
+                continue
+            team_rec = teams.get(abbr)
+            if not isinstance(team_rec, dict):
+                continue
+            opp = str(team_rec.get("opp") or "").strip()
+            opp_rec = teams.get(opp)
+            if not opp or not isinstance(opp_rec, dict):
+                continue
+
+            # `players` is a dict keyed by normalized name on disk; accept a
+            # list too so a hand-built or future shape doesn't silently yield
+            # nothing (iterating the dict gives name strings, not records).
+            roster = opp_rec.get("players") or []
+            if isinstance(roster, dict):
+                roster = list(roster.values())
+
+            listed = []
+            for p in roster:
+                if not isinstance(p, dict) or p.get("cleared"):
+                    continue
+                code = str(p.get("game_status") or "").strip().upper()
+                status = _OPP_INJURY_STATUS.get(code)
+                if not status:
+                    # No designation, but a player who sat out the last practice
+                    # of the week is effectively missing — this is how Adebo
+                    # (DNP all week, then IR) reads on the Giants' page, and
+                    # dropping him hid the story that thinned their secondary.
+                    practice = p.get("practice") or {}
+                    if not isinstance(practice, dict) or not practice:
+                        continue
+                    if str(practice[max(practice)] or "").strip().upper() != "DNP":
+                        continue
+                    # "NIR - Rest" is Not Injury Related: a veteran on load
+                    # management, not an availability signal. Without a
+                    # designation backing it, it is noise.
+                    if _NOT_INJURY_RELATED.search(str(p.get("injury") or "")):
+                        continue
+                    status, code = "did not practice", "DNP"
+                name = str(p.get("name") or "").strip()
+                if not name:
+                    continue
+                detail = ", ".join(x for x in (str(p.get("pos") or "").strip(),
+                                               str(p.get("injury") or "").strip().lower()) if x)
+                listed.append((
+                    _OPP_INJURY_SEVERITY.get(code, 9),
+                    f"{name} ({detail}) {status}" if detail else f"{name} {status}",
+                ))
+
+            if not listed:
+                continue
+            listed.sort(key=lambda x: x[0])
+            named = ", ".join(text for _, text in listed[:_OPP_INJURY_MAX])
+            extra = len(listed) - _OPP_INJURY_MAX
+            if extra > 0:
+                named += f", +{extra} more"
+            lines[abbr] += f" — {opp} injury report: {named}"
+    except Exception as e:  # noqa: BLE001 — opponent context is a bonus, never a blocker
+        logger.warning("Opponent injury context unavailable for Team Notes: %s", e)
+
+
 def _game_line(game_lines: Optional[dict[str, str]], team: str) -> Optional[str]:
     if not game_lines:
         return None
@@ -1679,6 +1824,8 @@ Game context: {game_line}. The reader sets THIS WEEK's fantasy/DFS projections.
 
 Real news = a usage or role signal at a skill position (snap/target/carry/red-zone share, a committee split, a pecking-order change, a new starter), an injury-driven role change (who absorbs the work), a game-plan or matchup detail for this game (pace, pass rate, personnel, weather, a plan to feature or limit someone), a practice-squad elevation or a return from IR/PUP that changes a role, a coaching decision — and the item must name a {team} player, coach, or executive and say something specific about them.
 NOT real news = the schedule or opponent restated, generic previews or predictions with no new information, general betting chatter or a line simply quoted, historical trivia, podcast promos, paywalled excerpts that only describe what the article will cover, non-committal coach quotes ("we'll see", "day-to-day") with no role implication, items where the only {team}-related "subject" is the journalist or outlet, items where you would have to write "the excerpt does not specify any {team} player / decision / detail."
+
+A status change WITH a role consequence is real news, not a duplicate of the Injury sections: a skill player missing practice, being ruled out, or returning changes who gets the work this week. Write the note for whoever the projection actually moves — that may be the beneficiary rather than the player who is hurt.
 
 If noteworthy: write 1-2 sentences covering what happened and what it means for this week's role/usage, and end with the citation [1].
 If NOT noteworthy: respond with exactly "SKIP" and nothing else. When in doubt, SKIP — a missing team note is far better than a bullet that admits it has no {team} content.
@@ -1735,10 +1882,10 @@ Output: a markdown bullet list, ORDERED BY IMPACT ON THIS WEEK'S PROJECTIONS (mo
 
 Rank the developments in this order, then write the bullets in that order:
 1. Usage / role changes at a skill position (QB, RB, FB, WR, TE, K): snap, target, carry or red-zone share shifts; committee splits; a new starter or play-caller; a WR/TE pecking-order change; goal-line or two-minute roles.
-2. Injury-driven opportunity: who absorbs the work when a player is out, limited, or returning — the ROLE consequence only (statuses themselves live in the Injury sections).
-3. This week's game plan and matchup: pace, pass rate, personnel packages, weather, a stated plan to feature or limit a player, a defensive weakness the item names.
+2. Injury-driven opportunity: who absorbs the work when a player is out, limited, or returning — the ROLE consequence only (statuses themselves live in the Injury sections). This is the richest vein in the report: when a rotation player misses practice or is ruled out, there is almost always a beneficiary worth a bullet.
+3. This week's game plan and matchup: pace, pass rate, personnel packages, weather, a stated plan to feature or limit a player, a defensive weakness the item names. When the game context above lists the OPPONENT's missing or limited starters, say what that opens up for {team}'s skill players — a depleted secondary lifts the receivers, a missing interior run-stuffer lifts the backfield.
 4. Practice-squad elevations, returns from IR/PUP, or trades that change skill-position roles.
-5. Everything else (offensive line, defense, special teams). Include only if genuinely newsworthy.
+5. Everything else (offensive line, defense, special teams). AT MOST ONE such bullet, and only after every skill-position development above has been written. Three defensive bullets on a day a starting receiver missed practice is a failure.
 
 Format each bullet as:
 - **Player or coach or exec name (POS)** — what happened in 1–2 sentences, then a short follow-up on what it means for this week's projection. End with the citation, e.g. [3] or [1, 4].
@@ -1752,14 +1899,15 @@ Rules:
 - One bullet per development. Do not synthesize multiple unrelated items into one bullet. But when MULTIPLE items report the SAME development, MERGE them into ONE bullet and cite every source, e.g. [1, 4].
 - Lead each bullet with the most-specific named subject (player, coach, or executive). For genuinely team-level points (game plan, pace), lead with the topic in bold.
 - Every bullet must end with at least one [N] citation pointing to the input item(s) that source it.
-- Do NOT restate transactions (signings, releases, trades, contract terms) or injury-status updates (questionable/doubtful/out, practice participation) — those have their own report sections. Mention one ONLY to add the role/usage angle those sections would not (e.g. "with X out, Y becomes the early-down back").
+- Transactions and injury statuses: do NOT restate the STATUS LINE itself (the designation, the practice-participation grid, the contract terms) — those sections own it. But when a status or roster change carries a ROLE CONSEQUENCE, you MUST write that bullet: name who absorbs the snaps, targets or carries, whose route share rises, who becomes the alpha. A significant skill player missing practice or being ruled out is a USAGE event, not merely a status event, and silently skipping it is the most costly mistake you can make here.
+- A bullet may be keyed to the BENEFICIARY rather than the player who is hurt — an item reporting that the WR1 did not practice can become "**Backup (WR)** — with the starter missing Friday's practice, he is the clear alpha if that starter sits [4]". Write the bullet for whoever the projection actually moves.
 - Do NOT write a bullet that merely restates the schedule, opponent, kickoff time, spread, total, or a generic preview — that is context, not a development. The ONE exception: when the game context above reports that the line or total MOVED, you may use that move as evidence for a game-script or role claim ("the total is down 3 since Tuesday, pointing to a run-heavier script"). Cite the move, never just the number.
 - Surface NON-OBVIOUS developments; do NOT re-state common knowledge ("the franchise QB is still the starter", "the all-pro is still the WR1").
 - NEVER invent a player's first name, jersey number, position, stat, or injury. If the source gives only a last name (e.g. "Jennings"), use ONLY the last name (e.g. "**Jennings (RB)**"). A wrong first name is worse than omitting it. Same for coaches and execs.
 - Skip pure trivia, power rankings, filler, and betting talk generally (picks, best bets, prop plays) — a significant line or total move used as evidence for usage or game script is the only market content that belongs here.
 - DROP any item whose {team}-relevant content boils down to "the excerpt does not specify any {team} player / decision / detail" or where the only named subject is the journalist or outlet. Never write a bullet about the absence of information.
 - Use only the information in today's items. If a detail is missing for an otherwise-substantive bullet, say it is not specified.
-- Keep the entire response under 280 words. This is a ceiling, not a target — prefer a few high-signal bullets over many thin ones.
+- Keep the entire response under 400 words. This is a ceiling, not a target — prefer a few high-signal bullets over many thin ones.
 - No section headers, no preamble, no closing commentary — just the bullets, highest projection impact first.
 
 Today's items:
