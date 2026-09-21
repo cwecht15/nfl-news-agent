@@ -1,0 +1,469 @@
+{
+  "date": "2026-09-21",
+  "run": "am",
+  "season": 2026,
+  "week": 2,
+  "sheet": "primary",
+  "generated_at": "2026-09-21T16:55:15+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-21",
+    "nflverse_date": "2026-09-21",
+    "injury_week_updated": "2026-09-21T16:55:14+00:00",
+    "roster_state_updated": "2026-09-21T16:55:10+00:00"
+  },
+  "alerts": [
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0026300|2",
+      "severity": "warning",
+      "player": "Josh Johnson",
+      "gsis_id": "00-0026300",
+      "pos": "QB",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Josh Johnson (QB, CIN) was elevated from the practice squad (2026-09-19) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-09-19"
+        ],
+        "elevations_used": 1
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036358|2|rec_yds",
+      "severity": "warning",
+      "player": "CeeDee Lamb",
+      "gsis_id": "00-0036358",
+      "pos": "WR",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 2,
+      "message": "CeeDee Lamb (WR, DAL) Rec Yds: we project 77.6, the market implies 108.0 (odds pulled 2026-09-20 19:34-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 77.6,
+        "market_mean": 107.9723873,
+        "delta": 30.37238734,
+        "pct": 0.391396744,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037247|2|anytime_td",
+      "severity": "warning",
+      "player": "George Pickens",
+      "gsis_id": "00-0037247",
+      "pos": "WR",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 2,
+      "message": "George Pickens (WR, DAL) Anytime TD rate: we project 0.54, the market implies 0.09 (odds pulled 2026-09-20 19:34-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.54,
+        "market_mean": 0.09420596259,
+        "delta": -0.4457940374,
+        "pct": -0.8255445137,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036997|2|anytime_td",
+      "severity": "warning",
+      "player": "Javonte Williams",
+      "gsis_id": "00-0036997",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Javonte Williams (RB, DAL) Anytime TD rate: we project 0.94, the market implies 0.22 (odds pulled 2026-09-20 19:34-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.94,
+        "market_mean": 0.2171180888,
+        "delta": -0.7228819112,
+        "pct": -0.7690233097,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039410|2|rec_yds",
+      "severity": "warning",
+      "player": "Ryan Flournoy",
+      "gsis_id": "00-0039410",
+      "pos": "WR",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Ryan Flournoy (WR, DAL) Rec Yds: we project 36.5, the market implies 22.7 (odds pulled 2026-09-20 19:34-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 36.5,
+        "market_mean": 22.7065556,
+        "delta": -13.7934444,
+        "pct": -0.3779025863,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036727|2",
+      "severity": "warning",
+      "player": "Adam Prentice",
+      "gsis_id": "00-0036727",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Adam Prentice (RB, DEN) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.5
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041467|2",
+      "severity": "warning",
+      "player": "Lewis Bond",
+      "gsis_id": "00-0041467",
+      "pos": "WR",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Lewis Bond (WR, HST) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.6
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039816|2",
+      "severity": "warning",
+      "player": "Anthony Gould",
+      "gsis_id": "00-0039816",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Anthony Gould (WR, IND) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.8
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0033319|2",
+      "severity": "warning",
+      "player": "Nick Mullens",
+      "gsis_id": "00-0033319",
+      "pos": "QB",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Nick Mullens (QB, JAX) was elevated from the practice squad (2026-09-19) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-09-19"
+        ],
+        "elevations_used": 2
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0033110|2|rec_yds",
+      "severity": "warning",
+      "player": "Tyler Higbee",
+      "gsis_id": "00-0033110",
+      "pos": "TE",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Tyler Higbee (TE, LA) Rec Yds: we project 6.1, the market implies 20.0 (also Rec) (odds pulled 2026-09-20 19:34-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 6.1,
+        "market_mean": 20.02712959,
+        "delta": 13.92712959,
+        "pct": 2.283135999,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035345|2",
+      "severity": "warning",
+      "player": "Chris Myarick",
+      "gsis_id": "00-0035345",
+      "pos": "TE",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Chris Myarick (TE, LV) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035891|2",
+      "severity": "warning",
+      "player": "Cody White",
+      "gsis_id": "00-0035891",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Cody White (WR, LV) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 1.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041342|2",
+      "severity": "warning",
+      "player": "Dillon Bell",
+      "gsis_id": "00-0041342",
+      "pos": "WR",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Dillon Bell (WR, MIN) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.1
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041326|2",
+      "severity": "warning",
+      "player": "CJ Donaldson",
+      "gsis_id": "00-0041326",
+      "pos": "RB",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 2,
+      "message": "CJ Donaldson (RB, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 1.1
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037231|2",
+      "severity": "warning",
+      "player": "Kevin Austin Jr.",
+      "gsis_id": "00-0037231",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Kevin Austin Jr. (WR, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.8
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035594|2",
+      "severity": "warning",
+      "player": "Travis Homer",
+      "gsis_id": "00-0035594",
+      "pos": "RB",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Travis Homer (RB, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.4
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040242|2|anytime_td",
+      "severity": "warning",
+      "player": "Jacory Croskey-Merritt",
+      "gsis_id": "00-0040242",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Jacory Croskey-Merritt (RB, WAS) Anytime TD rate: we project 0.54, the market implies 0.04 (odds pulled 2026-09-20 19:34-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.54,
+        "market_mean": 0.03827982099,
+        "delta": -0.501720179,
+        "pct": -0.9291114426,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0035659|2|anytime_td",
+      "severity": "warning",
+      "player": "Terry McLaurin",
+      "gsis_id": "00-0035659",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Terry McLaurin (WR, WAS) Anytime TD rate: we project 0.42, the market implies 0.07 (also Rec) (odds pulled 2026-09-20 19:34-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td",
+          "receptions"
+        ],
+        "ours": 0.42,
+        "market_mean": 0.06780066373,
+        "delta": -0.3521993363,
+        "pct": -0.8385698483,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|nintendo wii|2|released",
+      "severity": "info",
+      "player": "Nintendo Wii",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 11 days",
+      "evidence": {
+        "event": {
+          "event_id": "dbe683763185fa5b",
+          "event_type": "released",
+          "date": "2026-09-10",
+          "source": "news:SBN Bills (Buffalo Rumblings)"
+        },
+        "days_pending": 11
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|marquez valdez-scantling|2|ps_signed",
+      "severity": "info",
+      "player": "Marquez Valdez-Scantling",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Marquez Valdez-Scantling: reported ps signed on 2026-09-16 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 5 days",
+      "evidence": {
+        "event": {
+          "event_id": "a1a155d9e0e05ae7",
+          "event_type": "ps_signed",
+          "date": "2026-09-16",
+          "source": "news:SBN Chargers (Bolts From The Blue)"
+        },
+        "days_pending": 5
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|audric estime|2|ir_placed",
+      "severity": "info",
+      "player": "Audric Estime",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 9 days",
+      "evidence": {
+        "event": {
+          "event_id": "3c678b83451f2bd8",
+          "event_type": "ir_placed",
+          "date": "2026-09-12",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 9
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|xavier thomas|2|suspended",
+      "severity": "info",
+      "player": "Xavier Thomas",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 10 days",
+      "evidence": {
+        "event": {
+          "event_id": "e9e6dda68a40e203",
+          "event_type": "suspended",
+          "date": "2026-09-11",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 10
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "elevated_not_projected": 2,
+    "market_proj_gap": 7,
+    "sheet_status_stale": 9,
+    "unconfirmed_report": 4
+  }
+}
