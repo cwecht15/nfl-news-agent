@@ -258,8 +258,10 @@ def load_inputs(ctx, date_str: str, settings: Optional[dict] = None) -> dict:
     except Exception as e:  # noqa: BLE001
         inputs["errors"].append(f"injury report: {e}")
     try:
-        from collectors.depth_chart_collector import load_latest_depth_charts
+        from collectors.depth_chart_collector import get_depth_chart_dates, load_latest_depth_charts
         inputs["ourlads"] = load_latest_depth_charts() or {}
+        # The snapshot's own date, so the checks can tell fresh ranking from stale.
+        inputs["ourlads_date"] = (get_depth_chart_dates() or [None])[0]
     except Exception as e:  # noqa: BLE001
         inputs["errors"].append(f"ourlads: {e}")
     try:
@@ -382,11 +384,88 @@ def check_sheet_vs_roster(rows: dict[str, dict], output: dict, state: Optional[d
 
 MIN_TEAM_BLOCK_ROWS = 8   # a team block with fewer rows is being (re)built, not missing players
 
+# How old the OurLads snapshot may be before its depth ranking stops counting.
+# Overridable as projection_audit.ourlads_max_age_days.
+DEFAULT_OURLADS_MAX_AGE_DAYS = 3
+
+# Roster-state event types read as prose inside a missing-player alert. Anything
+# absent falls back to the raw type with underscores stripped.
+_EVENT_PHRASE = {
+    "ps_promoted": "promoted from the practice squad",
+    "ps_signed": "signed to the practice squad",
+    "signed": "signed",
+    "claimed": "claimed off waivers",
+    "activated": "activated",
+    "ir_activated": "activated off IR",
+    "ps_elevated": "elevated",
+}
+
+
+def _ourlads_fresh(ourlads_date: Optional[str], today: Optional[str],
+                   max_age_days: int = DEFAULT_OURLADS_MAX_AGE_DAYS) -> bool:
+    """Is the OurLads snapshot recent enough to rank players with?
+
+    A missing date (tests, a first run) counts as fresh: the depth chart can
+    only ever *lower* an alert's severity here, so guessing "fresh" cannot
+    hide anything.
+    """
+    if not ourlads_date or not today:
+        return True
+    try:
+        age = (date.fromisoformat(str(today)[:10]) - date.fromisoformat(str(ourlads_date)[:10])).days
+    except ValueError:
+        return True
+    return age <= max_age_days
+
+
+def _ourlads_entry(ourlads: dict, player: dict, team_proj: str, name_key: str) -> dict:
+    """The OurLads row for an nflverse player, by name then by normalized key."""
+    dc = ourlads.get((player.get("name") or "").lower())
+    if dc:
+        return dc
+    for k, v in ourlads.items():
+        if _name_key(k) == name_key and to_proj(str(v.get("team") or ""), "ourlads") == team_proj:
+            return v
+    return {}
+
+
+def check_depth_chart_freshness(ourlads_date: Optional[str], today: Optional[str], week: int,
+                                sheet: str, max_age_days: int = DEFAULT_OURLADS_MAX_AGE_DAYS) -> list[dict]:
+    """One info alert when the OurLads snapshot has gone stale.
+
+    The depth chart feeds severity ranking in ``check_missing_active`` and the
+    Depth Chart Movement section. When it stops updating, every one of those
+    quietly degrades; say so out loud instead.
+    """
+    if not ourlads_date or _ourlads_fresh(ourlads_date, today, max_age_days):
+        return []
+    return [_alert(
+        "depth_chart_stale", SEVERITY_INFO, team="", sheet=sheet, week=week,
+        message=f"OurLads depth chart is from {ourlads_date} (older than {max_age_days} days) - "
+                f"missing-player alerts are ranked on the roster alone until it refreshes",
+        evidence={"ourlads_date": ourlads_date, "max_age_days": max_age_days},
+        key_tail=str(ourlads_date),
+    )]
+
 
 def check_missing_active(rows: dict[str, dict], nflverse: Optional[dict], ourlads: Optional[dict],
                          positions: set[str], week: int, sheet: str, bye_teams: set[str],
-                         state: Optional[dict] = None) -> list[dict]:
+                         state: Optional[dict] = None, ourlads_date: Optional[str] = None,
+                         today: Optional[str] = None,
+                         max_age_days: int = DEFAULT_OURLADS_MAX_AGE_DAYS) -> list[dict]:
     """Active-roster QB/RB/WR/TE/K (nflverse) with no row on their team's sheet.
+
+    **nflverse is the roster truth; OurLads is enrichment only.** The depth
+    chart may lower an alert's severity and may promote a QB, but it can never
+    suppress a candidate. It used to: until 2026-09-22 a player's OurLads
+    *position label* was allowed to overrule nflverse's, so Tyler Goodson (DAL,
+    nflverse ``ACT``/``RB``, promoted off the practice squad on 09-16) and Blake
+    Grupe (NYJ, nflverse ``ACT``/``K``) were filtered out as a "returner" and a
+    "kickoff specialist" and drew no alert for four straight days. Fullbacks and
+    returners are now identified from nflverse's own ``depth_chart_position``,
+    which separates them cleanly - of every active skill player on 2026-09-20,
+    the only ones whose ``depth_chart_position`` differs from ``pos`` are 13
+    RB-listed fullbacks.
 
     A team whose block holds fewer than MIN_TEAM_BLOCK_ROWS player rows is
     reported once as ``team_block_incomplete`` instead of once per player —
@@ -413,11 +492,28 @@ def check_missing_active(rows: dict[str, dict], nflverse: Optional[dict], ourlad
     sheet_ids = set(rows)
     sheet_name_keys = {(_name_key(r.get("name", "")), to_proj(str(r.get("team") or ""), "proj")) for r in rows.values()}
     ourlads = ourlads or {}
+    fresh = _ourlads_fresh(ourlads_date, today, max_age_days)
+
+    # Teams that already project an active QB. Their backups are by design.
+    qb_covered: set[str] = set()
+    for gid, r in rows.items():
+        if str(r.get("pos") or "").upper() != "QB":
+            continue
+        nfv_rec = (nflverse or {}).get(gid) or {}
+        if nfv_rec.get("status") == "ACT":
+            qb_covered.add(to_proj(str(r.get("team") or ""), "proj"))
+
+    candidates: list[dict] = []
     for gid, p in nflverse.items():
         if p.get("status") != "ACT":
             continue
         pos = str(p.get("pos") or "").upper()
         if pos not in positions:
+            continue
+        # nflverse's own depth-chart position separates fullbacks and returners
+        # from the skill players they are listed behind. Never OurLads' label.
+        dcp = str(p.get("depth_chart_position") or pos).upper()
+        if dcp not in positions:
             continue
         team_proj = to_proj(str(p.get("team") or ""), "news")
         if team_proj in bye_teams or team_proj in incomplete:
@@ -429,40 +525,58 @@ def check_missing_active(rows: dict[str, dict], nflverse: Optional[dict], ourlad
             continue
         if gid in sheet_ids or (nk, team_proj) in sheet_name_keys:
             continue
-        dc = ourlads.get((p.get("name") or "").lower()) or {}
-        if not dc:
-            # try the OurLads name key variants
-            for k, v in ourlads.items():
-                if _name_key(k) == nk and to_proj(str(v.get("team") or ""), "ourlads") == team_proj:
-                    dc = v
-                    break
-        depth = dc.get("depth")
-        dc_pos = str(dc.get("pos") or "").upper()
-        dc_generic = str(dc.get("generic_pos") or "").upper()
-        # Fullbacks / returners / reserve buckets are never projected rows.
-        if dc_pos in ("FB", "KR", "PR", "H", "LS", "KO") or dc_generic in ("FB", "RET") or dc_pos in RESERVE_STATUSES:
-            continue
-        if pos == "K":
-            sev = SEVERITY_WARNING
-        elif pos == "QB":
-            # The sheet only projects the starter; a missing QB2/QB3 is by design.
-            if depth != 1:
-                continue
-            sev = SEVERITY_ERROR
-        elif depth is None:
-            sev = SEVERITY_INFO
-        elif depth <= 2:
-            sev = SEVERITY_WARNING
-        elif depth == 3:
-            sev = SEVERITY_INFO
+        dc = _ourlads_entry(ourlads, p, team_proj, nk)
+        candidates.append({
+            "gsis_id": gid, "player": p, "pos": pos, "team": team_proj,
+            "depth": dc.get("depth") if fresh else None,
+            "ourlads_pos": str(dc.get("pos") or "").upper(),
+            "state": st,
+        })
+
+    # QBs: one alert per team that projects no active QB, plus any QB the (fresh)
+    # depth chart calls the starter — the sheet following last month's QB1 is the
+    # one thing the chart genuinely knows that the roster does not.
+    qb_by_team: dict[str, list[dict]] = {}
+    for c in candidates:
+        if c["pos"] == "QB":
+            qb_by_team.setdefault(c["team"], []).append(c)
+
+    chosen: list[tuple[dict, str, str]] = []   # (candidate, severity, reason)
+    for c in candidates:
+        if c["pos"] != "QB":
+            sev = SEVERITY_INFO if (c["depth"] is not None and c["depth"] >= 4) else SEVERITY_WARNING
+            chosen.append((c, sev, ""))
+    for team_proj, qbs in qb_by_team.items():
+        starters = [c for c in qbs if c["depth"] == 1]
+        if team_proj not in qb_covered:
+            # Nobody active under center on the sheet. Name one QB, not the room.
+            pick = starters[0] if starters else sorted(
+                qbs, key=lambda c: (c["depth"] is None, c["depth"] or 0, c["player"].get("name", "")))[0]
+            chosen.append((pick, SEVERITY_ERROR, "no active QB is projected for this team"))
         else:
-            continue
+            for c in starters:
+                chosen.append((c, SEVERITY_ERROR, "OurLads lists him as the starter"))
+
+    for c, sev, reason in chosen:
+        p, depth = c["player"], c["depth"]
+        bits = []
+        if depth:
+            bits.append(f"OurLads {c['ourlads_pos'] or c['pos']} #{depth}")
+        last = (c["state"] or {}).get("last_event") or {}
+        if last.get("event_type") and last.get("date"):
+            bits.append(f"{_EVENT_PHRASE.get(last['event_type'], str(last['event_type']).replace('_', ' '))}"
+                        f" {last['date']}")
+        if reason:
+            bits.append(reason)
+        detail = f" ({'; '.join(bits)})" if bits else ""
         alerts.append(_alert(
-            "missing_active", sev, player=p.get("name", ""), gsis_id=gid, pos=pos, team=team_proj,
-            sheet=sheet, week=week,
-            message=f"{p.get('name')} ({pos}, {team_proj}) is on the active roster"
-                    f"{f' - OurLads {dc_pos or pos} #{depth}' if depth else ''} but has no row on the sheet",
-            evidence={"ourlads_depth": depth, "ourlads_pos": dc_pos, "nflverse_status": p.get("status"),
+            "missing_active", sev, player=p.get("name", ""), gsis_id=c["gsis_id"], pos=c["pos"],
+            team=c["team"], sheet=sheet, week=week,
+            message=f"{p.get('name')} ({c['pos']}, {c['team']}) is on the active roster but has no "
+                    f"row on the sheet{detail}",
+            evidence={"ourlads_depth": depth, "ourlads_pos": c["ourlads_pos"],
+                      "ourlads_stale": not fresh, "nflverse_status": p.get("status"),
+                      "depth_chart_position": p.get("depth_chart_position"),
                       "status_abbr": p.get("status_abbr")},
         ))
     return alerts
@@ -844,6 +958,7 @@ def run_audit(ctx, date_str: Optional[str] = None, run: str = "am",
     positions = {str(p).upper() for p in (cfg.get("positions") or ["QB", "RB", "WR", "TE", "K"])}
     max_elev = int((settings.get("roster", {}) or {}).get("max_elevations", 3))
     window_days = int((settings.get("roster", {}) or {}).get("confirm_window_days", 3))
+    ourlads_max_age = int(cfg.get("ourlads_max_age_days", DEFAULT_OURLADS_MAX_AGE_DAYS))
 
     inputs = inputs if inputs is not None else load_inputs(ctx, date_str, settings)
     snapshot = inputs.get("snapshot") or {}
@@ -864,7 +979,10 @@ def run_audit(ctx, date_str: Optional[str] = None, run: str = "am",
                                         played=played,
                                         elevated=elevated_this_week(inputs.get("state"), schedule, week))
         alerts += check_missing_active(rows, inputs.get("nflverse"), inputs.get("ourlads"), positions, week, sheet, byes,
-                                       state=inputs.get("state"))
+                                       state=inputs.get("state"), ourlads_date=inputs.get("ourlads_date"),
+                                       today=date_str, max_age_days=ourlads_max_age)
+        alerts += check_depth_chart_freshness(inputs.get("ourlads_date"), date_str, week, sheet,
+                                              max_age_days=ourlads_max_age)
         alerts += check_injuries(rows, output, inputs.get("injuries"), week, sheet, played=played)
         alerts += check_inactives(rows, output, inputs.get("inactives"), week, sheet, played=played)
         alerts += check_elevations(rows, inputs.get("state"), schedule, week, sheet, max_elev,

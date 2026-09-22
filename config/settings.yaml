@@ -280,6 +280,14 @@ injury_report:
 projection_audit:
   enabled: true
   positions: [QB, RB, WR, TE, K]
+  # The OurLads depth chart is enrichment only for "who's missing from the
+  # sheet": it can lower an alert's severity (deep bench) or raise a QB it
+  # calls the starter, but it can never suppress a player nflverse says is on
+  # the active roster. Letting its position label win is how a promoted RB
+  # listed as "KR" and a second kicker listed as "KO" drew no alert for four
+  # days in Week 2. Past this age its depth ranking is ignored entirely and a
+  # `depth_chart_stale` alert says so.
+  ourlads_max_age_days: 3
   # Market cross-checks (need the `odds` block below). Every verdict here is
   # one the NFL Odds project already computed against calibrated bands, so
   # there is no second set of thresholds to tune.

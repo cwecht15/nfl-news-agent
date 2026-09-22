@@ -148,9 +148,11 @@ def test_every_alert_type_fires(isolated_dismissals):
     # 3. wrong team
     assert [a["player"] for a in by["wrong_team"]] == ["Jerry Jeudy"]
     assert by["wrong_team"][0]["evidence"]["roster_team"] == "CLV"
-    # 4. missing active: James Cook (OurLads #1) is a warning; depth-6 WR skipped; OT skipped; bye team skipped
+    # 4. missing active: James Cook (OurLads #1) is a warning; the depth-6 WR is
+    #    demoted to info rather than dropped (OurLads may rank, never suppress);
+    #    OT skipped (not a projected position); bye team skipped
     missing = {a["player"]: a["severity"] for a in by["missing_active"]}
-    assert missing == {"James Cook": "warning"}
+    assert missing == {"James Cook": "warning", "Deep Bench": "info"}
     # 5. out but projected
     assert [a["player"] for a in by["out_but_projected"]] == ["Dawson Knox"]
     assert [a["player"] for a in by["dnp_but_projected"]] == ["Josh Allen"]
@@ -287,7 +289,9 @@ def test_missing_active_rules(isolated_dismissals):
     inputs["nflverse"].update({
         "00-0031": {"gsis_id": "00-0031", "name": "Starter Qb", "name_key": "starter qb", "team": "BUF", "pos": "QB", "status": "ACT", "status_abbr": "A01"},
         "00-0032": {"gsis_id": "00-0032", "name": "Backup Qb", "name_key": "backup qb", "team": "BUF", "pos": "QB", "status": "ACT", "status_abbr": "A01"},
-        "00-0033": {"gsis_id": "00-0033", "name": "Reggie Gilliam", "name_key": "reggie gilliam", "team": "BUF", "pos": "RB", "status": "ACT", "status_abbr": "A01"},
+        # A fullback: nflverse lists him at RB but depth-charts him at FB, which
+        # is how the check knows to skip him — OurLads' label is never consulted.
+        "00-0033": {"gsis_id": "00-0033", "name": "Reggie Gilliam", "name_key": "reggie gilliam", "team": "BUF", "pos": "RB", "depth_chart_position": "FB", "status": "ACT", "status_abbr": "A01"},
     })
     inputs["ourlads"].update({
         "starter qb": {"name": "Starter Qb", "pos": "QB", "generic_pos": "QB", "depth": 1, "team": "BUF"},
@@ -300,6 +304,68 @@ def test_missing_active_rules(isolated_dismissals):
     assert "Backup Qb" not in missing                 # QB2 never projected
     assert "Reggie Gilliam" not in missing            # fullback never projected
     assert missing.get("James Cook") == "warning"
+
+
+def test_ourlads_position_label_cannot_suppress_a_rostered_player(isolated_dismissals):
+    """The 2026-09-22 regression: OurLads called a promoted RB a kick returner.
+
+    Tyler Goodson was ACT at RB in nflverse, promoted off the practice squad on
+    09-16, and had no sheet row — but OurLads listed him as ``KR``/``RET`` and
+    the old filter dropped him on that basis for four days running. nflverse's
+    own depth_chart_position says RB, so he must be flagged.
+    """
+    inputs = _inputs()
+    inputs["nflverse"]["00-0034"] = {
+        "gsis_id": "00-0034", "name": "Tyler Goodson", "name_key": "tyler goodson", "team": "BUF",
+        "pos": "RB", "depth_chart_position": "RB", "status": "ACT", "status_abbr": "A01",
+    }
+    inputs["ourlads"]["tyler goodson"] = {"name": "Tyler Goodson", "pos": "KR", "generic_pos": "RET",
+                                          "depth": 2, "team": "BUF"}
+    res = pa.run_audit(_ctx(), "2026-09-08", run="test", inputs=inputs, write=False)
+    missing = {a["player"]: a["severity"] for a in _by_type(res["alerts"]).get("missing_active", [])}
+    assert missing.get("Tyler Goodson") == "warning"
+
+
+def test_missing_qb_is_flagged_from_the_roster_without_a_depth_chart(isolated_dismissals):
+    """A team whose only projected QB is no longer active gets one error.
+
+    No OurLads row for the replacement, so the old ``depth == 1`` rule would
+    have said nothing at all.
+    """
+    inputs = _inputs()
+    inputs["nflverse"]["00-0001"]["status"] = "RES"          # Josh Allen, BUF's only sheet QB
+    inputs["nflverse"]["00-0035"] = {
+        "gsis_id": "00-0035", "name": "Backup Starter", "name_key": "backup starter", "team": "BUF",
+        "pos": "QB", "depth_chart_position": "QB", "status": "ACT", "status_abbr": "A01",
+    }
+    inputs["nflverse"]["00-0036"] = {
+        "gsis_id": "00-0036", "name": "Third Stringer", "name_key": "third stringer", "team": "BUF",
+        "pos": "QB", "depth_chart_position": "QB", "status": "ACT", "status_abbr": "A01",
+    }
+    res = pa.run_audit(_ctx(), "2026-09-08", run="test", inputs=inputs, write=False)
+    qbs = [a for a in _by_type(res["alerts"]).get("missing_active", []) if a["pos"] == "QB"]
+    assert [(a["player"], a["severity"]) for a in qbs] == [("Backup Starter", "error")]
+    assert "no active QB is projected" in qbs[0]["message"]
+
+
+def test_stale_depth_chart_announces_itself_and_stops_demoting(isolated_dismissals):
+    inputs = _inputs()
+    inputs["ourlads_date"] = "2026-09-01"        # 7 days before the run date
+    res = pa.run_audit(_ctx(), "2026-09-08", run="test", inputs=inputs, write=False)
+    by = _by_type(res["alerts"])
+    assert len(by.get("depth_chart_stale", [])) == 1
+    assert "2026-09-01" in by["depth_chart_stale"][0]["message"]
+    # With the chart ignored, the depth-6 WR is no longer demoted to info
+    missing = {a["player"]: a["severity"] for a in by["missing_active"]}
+    assert missing.get("Deep Bench") == "warning"
+    assert missing.get("James Cook") == "warning"
+
+
+def test_fresh_depth_chart_raises_no_staleness_alert(isolated_dismissals):
+    inputs = _inputs()
+    inputs["ourlads_date"] = "2026-09-07"
+    res = pa.run_audit(_ctx(), "2026-09-08", run="test", inputs=inputs, write=False)
+    assert not _by_type(res["alerts"]).get("depth_chart_stale")
 
 
 def test_elevated_not_projected_is_scoped_to_projected_positions(isolated_dismissals):
