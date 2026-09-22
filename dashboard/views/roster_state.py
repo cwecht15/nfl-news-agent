@@ -14,6 +14,7 @@ from dashboard.auth import require_password
 require_password()
 
 from dashboard import in_season_data as isd
+from dashboard import refresh_controls as rc
 from dashboard import team_data as td
 from dashboard.helpers import to_et_display
 
@@ -25,10 +26,20 @@ if not state:
     st.info("No roster state yet (data/roster/state.json). It is built by the daily pipeline in-season.")
     st.stop()
 
+_settings, _ctx, _schedule, _week = isd.context()
+
+# Rosters and elevations move faster than the crons that collect them, so the
+# page can pull them on demand rather than waiting for the next run.
+rc.render_refresh(
+    ("roster", "elevations"), key="roster_state",
+    label="Refresh rosters",
+    stamps=isd.source_stamps(_ctx.season, _week),
+    help_note=td.ELEVATION_DEADLINE,
+)
+
 # --- practice-squad elevations -------------------------------------------
 # Their own panel because they are a deadline: declared 4 PM ET the day
 # before a game, and an elevated player is active for it.
-_settings, _ctx, _schedule, _week = isd.context()
 from processing.roster_events import elevations_for_week  # noqa: E402
 
 elevations = elevations_for_week(_week)
@@ -39,8 +50,8 @@ m1, m2, m3 = st.columns(3)
 m1.metric("This week", status["total"])
 m2.metric(f"Declared today ({_ctx.weekday})", status["today"])
 m3.metric("Clubs reported", f"{status['teams']}", help="Clubs with at least one elevation this week.")
-st.caption(f"Last checked **{to_et_display(state.get('updated_at'))}** — elevations are read from "
-           f"ESPN's transaction feed the same afternoon they are declared. " + td.ELEVATION_DEADLINE)
+st.caption("Read from ESPN's transaction feed the same afternoon they are declared. "
+           "The deadline and the last-checked time are on the Refresh control above.")
 if status["waiting"]:
     st.info(f"No elevation recorded yet for {len(status['waiting'])} of {status['upcoming_teams']} clubs "
             f"whose game is still to come: {', '.join(status['waiting'])}.")

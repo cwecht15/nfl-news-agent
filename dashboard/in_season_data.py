@@ -112,3 +112,46 @@ def odds_weeks(season: int) -> list[int]:
 
 def odds_week(season: int, week: int):
     return load_json(get_data_dir("odds") / str(season) / f"wk{week:02d}.json")
+
+
+def source_stamps(season: int, week: int | None) -> dict[str, str]:
+    """ISO "last updated" per refresh target, for the Refresh controls' captions.
+
+    The timestamp is the only honest signal that a dispatched refresh landed:
+    the workflow commits, Streamlit Cloud redeploys, and this value moves. Every
+    entry comes from the data file itself, never from a file mtime — on a fresh
+    cloud container an mtime is the checkout time, not the collection time.
+    """
+    stamps: dict[str, str] = {}
+    state = roster_state() or {}
+    if state.get("updated_at"):
+        # run_roster_step writes the ledger and the state together, so one
+        # timestamp covers both rosters and the elevations read into them.
+        stamps["roster"] = state["updated_at"]
+        stamps["elevations"] = state["updated_at"]
+
+    nflverse_dir = get_data_dir("roster") / "nflverse"
+    snaps = sorted(nflverse_dir.glob("*.json"), reverse=True) if nflverse_dir.exists() else []
+    if snaps:
+        snap = load_json(snaps[0]) or {}
+        if snap.get("fetched_at"):
+            stamps["nflverse"] = snap["fetched_at"]
+
+    if week:
+        inj = injury_week(season, week) or {}
+        if inj.get("updated_at"):
+            stamps["injuries"] = inj["updated_at"]
+        ina = inactives_week(season, week) or {}
+        if ina.get("updated_at"):
+            stamps["inactives"] = ina["updated_at"]
+
+    # NFL.com transactions have no file of their own — the newest official
+    # roster event is when they were last read.
+    latest_tx = ""
+    for e in events(2000):
+        if e.get("source") == "nflcom_transactions":
+            seen = str(e.get("observed_at") or "")
+            if seen > latest_tx:
+                latest_tx = seen
+    stamps["transactions"] = latest_tx or state.get("updated_at", "")
+    return {k: v for k, v in stamps.items() if v}

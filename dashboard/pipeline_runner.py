@@ -293,12 +293,15 @@ def render_sidebar_controls() -> bool:
 
     if not running_locally():
         st.sidebar.info(
-            "Pipeline runs aren't available from this dashboard.\n\n"
-            "Daily updates land automatically at **10:00 UTC** via GitHub "
-            "Actions (plus the 22:00 UTC afternoon refresh and game-day "
-            "inactives polls in-season). To trigger an off-cycle run, open "
-            "the repo's **Actions** tab and use the *Daily NFL News pipeline* "
-            "workflow's `workflow_dispatch` button.\n\n"
+            "The **full** pipeline (news collection, dedup, Team Notes) is "
+            "cron-only: it lands at **10:00 UTC**, plus the 22:00 UTC "
+            "afternoon refresh and game-day inactives polls in-season. For an "
+            "off-cycle full run, use the *Daily NFL News pipeline* workflow's "
+            "`workflow_dispatch` button in the repo's **Actions** tab.\n\n"
+            "For the fast-moving pieces — rosters, transactions, elevations, "
+            "the injury report, inactives — use the **🔄 Refresh** button on "
+            "the Roster State, Injury Report, Inactives, Projection Audit or "
+            "Team page. Those run here.\n\n"
             "For YouTube transcripts, run `scripts/collect_youtube.py` "
             "locally and push the results — the **YouTube Report** page will "
             "pick them up."

@@ -14,6 +14,7 @@ from dashboard.auth import require_password
 require_password()
 
 from dashboard import in_season_data as isd
+from dashboard import refresh_controls as rc
 from dashboard.helpers import to_et_display
 
 st.header("Game-Day Inactives")
@@ -30,6 +31,12 @@ if not inact_weeks:
 iw = st.selectbox("Week", inact_weeks, index=0, key="inact_week")
 idata = isd.inactives_week(ctx.season, iw) or {}
 st.caption(f"Updated {to_et_display(idata.get('updated_at'))}")
+# ESPN posts each club's list about 90 minutes before kickoff and fills in
+# gradually, so a poll a few minutes later is often worth it.
+rc.render_refresh(("inactives",), key="inactives", label="Refresh inactives",
+                  stamps=isd.source_stamps(ctx.season, _week),
+                  help_note="Polls ESPN for every game within 2.5h of kickoff; a no-op outside "
+                            "that window.")
 skill = {"QB", "RB", "FB", "WR", "TE", "K"}
 only_skill = st.checkbox("Skill positions only", value=True, key="inact_skill")
 rows = []

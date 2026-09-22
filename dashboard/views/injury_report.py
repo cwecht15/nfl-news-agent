@@ -15,6 +15,7 @@ require_password()
 
 from collectors.injury_report_collector import split_trailing_pos
 from dashboard import in_season_data as isd
+from dashboard import refresh_controls as rc
 from dashboard.helpers import to_et_display
 from dashboard.team_data import REFRESH_SCHEDULE
 from processing.season import weekday_name
@@ -66,6 +67,12 @@ st.caption(
     f"{', '.join(f'{k}={v}' for k, v in sorted((data.get('sources_used') or {}).items()))}. "
     + REFRESH_SCHEDULE
 )
+# Clubs post practice reports ~3:30-5 PM ET and Friday's carries the Sunday
+# designations, but the afternoon cron often starts hours later.
+rc.render_refresh(("injuries",), key="injury_report", label="Refresh injuries",
+                  stamps=isd.source_stamps(ctx.season, wk),
+                  help_note="Re-reads all 32 club injury pages, then RotoWire and NFL.com. "
+                            "Takes about a minute.")
 teams = data.get("teams") or {}
 col_team, col_pos, col_cleared = st.columns([2, 1, 1])
 show_cleared = col_cleared.checkbox("Show players dropped from the report", value=False, key="ir_cleared")

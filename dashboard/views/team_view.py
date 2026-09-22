@@ -21,7 +21,9 @@ from dashboard.auth import require_password
 require_password()
 
 from config_loader import get_teams
+from dashboard import _workflow_dispatch as wd
 from dashboard import in_season_data as isd
+from dashboard import refresh_controls as rc
 from dashboard import team_data as td
 from dashboard.citations import build_citation_linker
 from dashboard.prop_view import PROP_CAPTION, render_prop_table
@@ -110,6 +112,11 @@ if not in_season:
 # ---------------------------------------------------------------------------
 # This week
 # ---------------------------------------------------------------------------
+
+rc.render_refresh(tuple(wd.TARGETS), key="team_view", label="Refresh all",
+                  stamps=isd.source_stamps(ctx.season, week),
+                  help_note="Re-collects rosters, transactions, elevations, injuries and "
+                            "inactives for every club, then re-runs the projection audit.")
 
 game = season_mod.opponent(schedule, to_proj(team), week) if schedule and week else None
 odds = isd.odds_week(ctx.season, week) or {}
@@ -262,6 +269,32 @@ if props:
 else:
     st.caption("No player lines stored for this team this week." if not MOVE_CHOICES[show]
                else f"No line has moved {MOVE_CHOICES[show]:g}% or more since open.")
+
+# ---------------------------------------------------------------------------
+# Practice-squad elevations
+#
+# Week-scoped, not run-scoped: an elevation is declared at 4 PM ET the day
+# before the game, so Saturday's batch has to still be here on Sunday. An empty
+# list for a club whose game is still to come means "nobody elevated yet", not
+# "nothing collected" — elevation_status knows which clubs are still waiting.
+# ---------------------------------------------------------------------------
+
+from processing.roster_events import elevations_for_week  # noqa: E402
+
+st.subheader("Practice-squad elevations")
+_week_elev = elevations_for_week(week) if week else []
+_elev = [e for e in _week_elev if e.get("team") == team]
+if _elev:
+    st.dataframe(td.elevation_rows(_elev, isd.roster_state()),
+                 use_container_width=True, hide_index=True)
+else:
+    _status = td.elevation_status(_week_elev, schedule, week, today) if week else {"waiting": []}
+    if team in _status.get("waiting", []):
+        st.caption(f"No elevation recorded for {team} yet — its game is still to come, and a club "
+                   "may simply have elevated nobody.")
+    else:
+        st.caption("No elevations this week.")
+st.caption(td.ELEVATION_DEADLINE)
 
 # ---------------------------------------------------------------------------
 # Roster + depth chart

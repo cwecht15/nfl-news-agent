@@ -13,7 +13,9 @@ st.set_page_config(page_title="Projection Audit", page_icon="✅", layout="wide"
 from dashboard.auth import require_password
 require_password()
 
+from dashboard import _workflow_dispatch as wd
 from dashboard import in_season_data as isd
+from dashboard import refresh_controls as rc
 from dashboard._repo_sync import has_pat_configured, push_audit_dismissals_to_repo
 from dashboard.helpers import running_locally
 from processing.projection_audit import (
@@ -37,6 +39,14 @@ st.caption(
 )
 if audit.get("errors"):
     st.warning("Inputs missing: " + "; ".join(audit["errors"]))
+
+# The audit is only as current as the data under it, so this page offers the
+# whole set — re-collect everything, then re-run the audit against it.
+_settings, _ctx, _schedule, _week = isd.context()
+rc.render_refresh(tuple(wd.TARGETS), key="projection_audit", label="Refresh everything",
+                  stamps=isd.source_stamps(_ctx.season, _week),
+                  help_note="Re-collects rosters, transactions, elevations, injuries and "
+                            "inactives, then re-runs this audit against them.")
 
 if not running_locally():
     pat_ok = has_pat_configured()
