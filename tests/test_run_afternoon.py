@@ -2,6 +2,8 @@
 
 import json
 
+import pytest
+
 from models import DailyReport
 from processing.season import SeasonContext
 from reports import report_builder
@@ -167,3 +169,133 @@ def test_injuries_only_runs_just_the_injury_report_and_audit(monkeypatch):
     assert roster_events is None                      # "did not look" - roster section untouched
     assert injury_changes and audit_alerts
     assert kw.get("create_missing") is False
+
+
+# ---------------------------------------------------------------------------
+# --only: on-demand refresh targets (the dashboard's Refresh buttons)
+# ---------------------------------------------------------------------------
+
+
+def test_parse_targets_accepts_csv_whitespace_list_and_all():
+    assert run_afternoon.parse_targets("roster") == {"roster"}
+    assert run_afternoon.parse_targets(" roster , elevations ") == {"roster", "elevations"}
+    assert run_afternoon.parse_targets(["injuries"]) == {"injuries"}
+    assert run_afternoon.parse_targets("all") == set(run_afternoon.REFRESH_TARGETS)
+    assert run_afternoon.parse_targets(None) == set()
+    assert run_afternoon.parse_targets("") == set()
+
+
+def test_parse_targets_rejects_an_unknown_token_loudly():
+    with pytest.raises(ValueError) as e:
+        run_afternoon.parse_targets("roster,rosters")
+    msg = str(e.value)
+    assert "rosters" in msg
+    for t in run_afternoon.REFRESH_TARGETS:
+        assert t in msg
+
+
+@pytest.mark.parametrize("targets,skip,tx,odds", [
+    ({"roster"},       {"elevations", "injuries", "inactives"}, False, False),
+    ({"elevations"},   {"roster", "injuries", "inactives"},     False, False),
+    ({"injuries"},     {"elevations", "roster", "inactives"},   False, False),
+    # inactives implies elevations (the Saturday 4 PM ET deadline lands in this window)
+    ({"inactives"},    {"roster", "injuries"},                  False, True),
+    # transactions implies roster (the scrape is only useful as roster events)
+    ({"transactions"}, {"elevations", "injuries", "inactives"}, True,  False),
+    ({"roster", "injuries"}, {"elevations", "inactives"},       False, False),
+])
+def test_plan_for_targets_skip_sets(targets, skip, tx, odds):
+    plan = run_afternoon.plan_for_targets(targets)
+    assert plan["skip"] == skip
+    assert plan["collect_transactions"] is tx
+    assert plan["odds"] is odds
+    assert plan["run"] == "refresh"
+    assert "audit" not in plan["skip"]          # every refresh re-runs the audit
+
+
+def test_plan_for_all_targets_skips_nothing():
+    plan = run_afternoon.plan_for_targets(set(run_afternoon.REFRESH_TARGETS))
+    assert plan["skip"] == set()
+    assert plan["collect_transactions"] and plan["odds"]
+
+
+def test_only_modes_match_the_existing_only_flags():
+    """The regression net for "don't break --injuries-only / --inactives-only".
+
+    These literals are the ones hard-coded in run_pm's two older branches and
+    pinned by six crons and three .bat dispatchers.
+    """
+    assert run_afternoon.plan_for_targets({"injuries"})["skip"] == {"elevations", "roster", "inactives"}
+    assert run_afternoon.plan_for_targets({"inactives"})["skip"] == {"roster", "injuries"}
+
+
+def _only_harness(monkeypatch, calls, heavy=("_refresh_active_sheet", "_rescrape_depth_charts")):
+    def fake_steps(**kw):
+        calls["steps"] = kw
+        return [{"event_id": "e1"}], None, [{"type": "missing_active"}], None
+
+    def fake_update(date_str, ctx, roster_events, injury_changes, audit_alerts, logger, **kw):
+        calls["update"] = (roster_events, injury_changes, audit_alerts, kw)
+
+    monkeypatch.setattr(run_afternoon, "get_season_context", lambda today=None: _ctx())
+    monkeypatch.setattr(run_afternoon, "setup_logging", lambda d: None)
+    monkeypatch.setattr(run_afternoon, "write_status", lambda *a, **k: None)
+    monkeypatch.setattr(run_afternoon, "clear_status", lambda: None)
+    monkeypatch.setattr(run_afternoon, "run_in_season_steps", fake_steps)
+    monkeypatch.setattr(run_afternoon, "_update_report", fake_update)
+    for name in heavy:
+        monkeypatch.setattr(run_afternoon, name, lambda *a, **k: (_ for _ in ()).throw(AssertionError(name)))
+
+
+def test_only_roster_runs_just_the_roster_step(monkeypatch):
+    """No Sheets re-read, no OurLads, no transactions scrape, no odds."""
+    calls = {}
+    _only_harness(monkeypatch, calls,
+                  heavy=("_refresh_active_sheet", "_rescrape_depth_charts",
+                         "_collect_pm_transactions", "run_odds_step"))
+    assert run_afternoon.run_pm("2026-09-22", only="roster") == 0
+    assert calls["steps"]["skip"] == {"elevations", "injuries", "inactives"}
+    assert calls["steps"]["run"] == "refresh"
+    assert calls["steps"]["news_items"] == []
+    _roster, _inj, _alerts, kw = calls["update"]
+    assert kw.get("create_missing") is False
+    assert kw.get("odds") is None
+
+
+def test_only_transactions_feeds_the_scrape_into_the_roster_step(monkeypatch):
+    calls = {}
+    sentinel = [object()]
+    _only_harness(monkeypatch, calls,
+                  heavy=("_refresh_active_sheet", "_rescrape_depth_charts", "run_odds_step"))
+    monkeypatch.setattr(run_afternoon, "_collect_pm_transactions", lambda *a, **k: sentinel)
+    assert run_afternoon.run_pm("2026-09-22", only="transactions") == 0
+    assert calls["steps"]["news_items"] is sentinel
+    assert "roster" not in calls["steps"]["skip"]
+
+
+def test_only_inactives_reads_the_odds_sheet(monkeypatch):
+    calls = {}
+    _only_harness(monkeypatch, calls,
+                  heavy=("_refresh_active_sheet", "_rescrape_depth_charts", "_collect_pm_transactions"))
+    monkeypatch.setattr(run_afternoon, "run_odds_step", lambda *a, **k: {"season": 2026})
+    monkeypatch.setattr(run_afternoon, "_odds_section", lambda *a, **k: {"summary": "x"})
+    assert run_afternoon.run_pm("2026-09-22", only="inactives") == 0
+    assert calls["update"][3].get("odds") == {"season": 2026}
+
+
+def test_only_is_a_noop_in_the_offseason(monkeypatch):
+    monkeypatch.setattr(run_afternoon, "get_season_context",
+                        lambda today=None: SeasonContext("offseason", 2026, None, None, {}, "2026-06-01", "Mon", False))
+    monkeypatch.setattr(run_afternoon, "setup_logging", lambda d: None)
+    assert run_afternoon.run_pm("2026-06-01", only="all") == 0
+
+
+def test_only_rejects_a_bad_target_before_collecting_anything(monkeypatch):
+    monkeypatch.setattr(run_afternoon, "get_season_context", lambda today=None: _ctx())
+    monkeypatch.setattr(run_afternoon, "setup_logging", lambda d: None)
+    monkeypatch.setattr(run_afternoon, "write_status", lambda *a, **k: None)
+    monkeypatch.setattr(run_afternoon, "clear_status", lambda: None)
+    for name in ("_collect_pm_transactions", "run_in_season_steps", "run_odds_step"):
+        monkeypatch.setattr(run_afternoon, name, lambda *a, **k: (_ for _ in ()).throw(AssertionError(name)))
+    with pytest.raises(ValueError):
+        run_afternoon.run_pm("2026-09-22", only="nonsense")

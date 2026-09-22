@@ -23,6 +23,12 @@ Usage:
     python scripts/run_afternoon.py [--date YYYY-MM-DD] [--skip-ourlads] [--skip-transactions]
     python scripts/run_afternoon.py --inactives-only   # game-day: ESPN inactives + audit
     python scripts/run_afternoon.py --injuries-only    # injury report + audit (practice reports, designations)
+    python scripts/run_afternoon.py --only roster,transactions   # on-demand refresh (see REFRESH_TARGETS)
+
+``--only`` is what the dashboard's Refresh buttons dispatch through
+.github/workflows/refresh.yml: pick the sources that have moved since the last
+cron instead of waiting for the next one. Like the two ``*-only`` modes it
+updates the report in place and never creates one.
 """
 
 from __future__ import annotations
@@ -53,6 +59,75 @@ from scripts.run_daily import (
     _inactive_rows, clear_status, run_in_season_steps, run_odds_step, setup_logging,
     write_status,
 )
+
+
+# ---------------------------------------------------------------------------
+# On-demand refresh targets (--only), used by the dashboard's Refresh buttons
+# via .github/workflows/refresh.yml.
+# ---------------------------------------------------------------------------
+
+REFRESH_TARGETS: tuple[str, ...] = ("roster", "elevations", "injuries", "inactives", "transactions")
+
+# Every step run_in_season_steps knows about except "audit", which every refresh
+# re-runs: it is pure-disk and it is what turns freshly collected data into the
+# alerts the Projection Audit and Team pages actually show.
+_REFRESH_STEPS = {"elevations", "roster", "injuries", "inactives"}
+
+# target -> the steps it needs run_in_season_steps to perform
+_TARGET_STEPS: dict[str, set[str]] = {
+    "roster": {"roster"},
+    "elevations": {"elevations"},
+    "injuries": {"injuries"},
+    # An elevation is one ESPN request and the game-day poll exists partly to
+    # beat the Saturday 4 PM ET deadline, so inactives always carries it. This
+    # makes `--only inactives` identical in effect to `--inactives-only`.
+    "inactives": {"inactives", "elevations"},
+    # The NFL.com scrape only writes data/raw/<date>/web_pm.json; those rows
+    # become roster events solely by being handed to run_in_season_steps as
+    # news_items. Skipping the roster step would collect data nobody reads.
+    "transactions": {"roster"},
+}
+
+
+def parse_targets(spec: str | list[str] | tuple[str, ...] | None) -> set[str]:
+    """``"roster, elevations"`` / ``"all"`` / ``["roster"]`` -> a validated set.
+
+    Raises ValueError on an unknown token rather than dropping it: a typo from
+    the dashboard has to fail loudly in the CI log, not quietly produce a run
+    that collects nothing and still commits a green tick.
+    """
+    if spec is None:
+        return set()
+    tokens = [t.strip().lower() for t in (spec.split(",") if isinstance(spec, str) else spec)]
+    tokens = [t for t in tokens if t]
+    if not tokens:
+        return set()
+    if "all" in tokens:
+        return set(REFRESH_TARGETS)
+    unknown = [t for t in tokens if t not in REFRESH_TARGETS]
+    if unknown:
+        raise ValueError(f"unknown refresh target(s) {', '.join(unknown)} — "
+                         f"valid targets are {', '.join(REFRESH_TARGETS)} (or 'all')")
+    return set(tokens)
+
+
+def plan_for_targets(targets: set[str]) -> dict:
+    """Map refresh targets onto run_in_season_steps' knobs.
+
+    Returns ``{"skip", "run", "collect_transactions", "odds"}``. A step runs
+    when *any* requested target wants it, so the skip set is what nothing asked
+    for.
+    """
+    wanted: set[str] = set()
+    for t in targets:
+        wanted |= _TARGET_STEPS.get(t, set())
+    return {
+        "skip": _REFRESH_STEPS - wanted,
+        "run": "refresh",
+        "collect_transactions": "transactions" in targets,
+        # Lines move hardest on game day, which is when inactives are polled.
+        "odds": "inactives" in targets,
+    }
 
 
 def _collect_pm_transactions(date_str: str, logger: logging.Logger, lookback_hours: int = 36) -> list:
@@ -169,9 +244,10 @@ def _update_report(date_str: str, ctx, roster_events, injury_changes, audit_aler
     except FileNotFoundError:
         if not create_missing:
             logger.warning(
-                "No report for %s and this is an inactives-only run — not writing a "
-                "skeleton. The inactives themselves are saved under data/inactives/. "
-                "Run scripts/run_daily.py --date %s to produce the morning report.",
+                "No report for %s and this run is an updater, not a producer — not writing "
+                "a skeleton. What it collected is saved under data/ (roster, injuries, "
+                "inactives, audit) and the pages that read those files directly will show "
+                "it. Run scripts/run_daily.py --date %s to produce the morning report.",
                 date_str, date_str,
             )
             return None
@@ -258,9 +334,55 @@ def _merge_by_keys(existing: list[dict], new: list[dict], keys: tuple[str, ...])
     return out
 
 
+def _run_targets(date_str: str, ctx, targets: set[str], logger: logging.Logger) -> int:
+    """On-demand refresh of a named subset of the in-season steps.
+
+    Backs the dashboard's Refresh buttons via .github/workflows/refresh.yml,
+    for the sources that move faster than the crons: rosters, transactions,
+    practice-squad elevations, the injury report and game-day inactives.
+
+    Deliberately NOT a refactor of ``--inactives-only`` / ``--injuries-only``.
+    Those two are pinned by six cron schedules, three .bat dispatchers and
+    tests/test_run_afternoon.py, and a generalisation that quietly moved their
+    skip sets would cost a Saturday's elevations before anyone noticed.
+
+    Never re-reads the projection sheet: ``_refresh_active_sheet`` is out of
+    reach here, so a refresh cannot move the active-week pointer as a side
+    effect. Always ``create_missing=False`` — a refresh updates a report, it
+    never authors one.
+    """
+    plan = plan_for_targets(targets)
+    label = ", ".join(sorted(targets))
+    write_status("PM 1", "running", f"Refreshing {label}")
+
+    news_items: list = []
+    if plan["collect_transactions"]:
+        try:
+            news_items = _collect_pm_transactions(date_str, logger)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("PM transactions failed (non-fatal): %s", e)
+
+    odds_week = run_odds_step(date_str, ctx, logger) if plan["odds"] else None
+
+    roster_events, injury_changes, audit_alerts, inactives_week = run_in_season_steps(
+        date_str=date_str, season_ctx=ctx, news_items=news_items, dc_status_changes=[],
+        logger=logger, run=plan["run"], skip=plan["skip"],
+    )
+    write_status("PM 4", "running", "Updating daily report")
+    _update_report(
+        date_str, ctx, roster_events, injury_changes, audit_alerts, logger,
+        inactives=inactives_week, create_missing=False,
+        line_movement=(_odds_section(odds_week, ctx, inactives_week, logger, date_str=date_str)
+                       if odds_week else None),
+        odds=odds_week,
+    )
+    logger.info("Refresh complete (%s).", label)
+    return 0
+
+
 def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_transactions: bool = False,
            backfill_from: str | None = None, inactives_only: bool = False,
-           injuries_only: bool = False) -> int:
+           injuries_only: bool = False, *, only: str | list[str] | None = None) -> int:
     date_str = date_override or today_et()
     setup_logging(date_str)
     logger = logging.getLogger("afternoon")
@@ -270,7 +392,8 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
         logger.info("season.phase is offseason — afternoon run has nothing to do.")
         return 0
 
-    mode = ("game-day inactives" if inactives_only else
+    mode = ("on-demand refresh" if only else
+            "game-day inactives" if inactives_only else
             "injury report refresh" if injuries_only else "Afternoon in-season update")
     write_status("PM", "running", mode)
     logger.info("=" * 60)
@@ -278,6 +401,12 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
     logger.info("=" * 60)
 
     try:
+        if only:
+            # Dashboard Refresh button (via refresh.yml). Runs only the
+            # collectors the named targets need, then the audit and an
+            # in-place report update.
+            return _run_targets(date_str, ctx, parse_targets(only), logger)
+
         if inactives_only:
             # Game-day cron: poll ESPN for inactives near kickoff, re-run the
             # audit against the current sheet snapshot, refresh the report.
@@ -375,14 +504,21 @@ if __name__ == "__main__":
     ap.add_argument("--skip-transactions", action="store_true")
     ap.add_argument("--backfill-from", default=None, metavar="YYYY-MM-DD",
                     help="one-shot: seed the roster ledger from data/raw/<date>/web.json since this date")
-    ap.add_argument("--inactives-only", action="store_true",
-                    help="game-day mode: ESPN inactives + projection audit + report refresh only")
-    ap.add_argument("--injuries-only", action="store_true",
-                    help="injury report + projection audit + report refresh only (practice reports, designations)")
+    # One mode at a time: --only roster --injuries-only should fail loudly
+    # rather than silently letting one branch win.
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--inactives-only", action="store_true",
+                      help="game-day mode: ESPN inactives + projection audit + report refresh only")
+    mode.add_argument("--injuries-only", action="store_true",
+                      help="injury report + projection audit + report refresh only (practice reports, designations)")
+    mode.add_argument("--only", default=None, metavar="TARGETS",
+                      help="on-demand refresh: comma-separated subset of "
+                           f"{','.join(REFRESH_TARGETS)} (or 'all')")
     args = ap.parse_args()
     try:
         sys.exit(run_pm(args.date, args.skip_ourlads, args.skip_transactions, args.backfill_from,
-                        inactives_only=args.inactives_only, injuries_only=args.injuries_only))
+                        inactives_only=args.inactives_only, injuries_only=args.injuries_only,
+                        only=args.only))
     except Exception:
         clear_status()
         raise
