@@ -63,7 +63,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: requirements.txt
+          cache-dependency-path: requirements-refresh.txt
 
       - name: Check season phase
         id: phase
@@ -75,11 +75,14 @@ jobs:
           print(f"in_season={'true' if phase in ('in_season','inseason','in-season','season') else 'false'}")
           PY
 
+      # The slim set: these runs never touch the summarizer or the embedding
+      # deduplicator, so installing torch / sentence-transformers / whisper /
+      # yt-dlp cost ~2m45s of a ~4m run for nothing. See requirements-refresh.txt.
       - name: Install Python dependencies
         if: steps.phase.outputs.in_season == 'true'
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-refresh.txt
 
       # Only the `inactives` target needs this: run_odds_step reads the NFL Odds
       # project's sheets over gspread. Without the secret it logs a non-fatal

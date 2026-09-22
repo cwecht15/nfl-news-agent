@@ -1,0 +1,34 @@
+# Slim dependency set for the workflows that only collect roster-facing data:
+# refresh.yml, injuries.yml and inactives.yml.
+#
+# Those runs are supposed to be the *fast* path — the whole point of the
+# dashboard's Refresh buttons is not waiting for the next cron. Installing the
+# full requirements.txt made them slow for no reason: a 2026-09-22 refresh
+# spent ~2m45s of its 4m15s on pip, almost all of it on torch,
+# sentence-transformers, openai-whisper and yt-dlp. None of those are reachable
+# from scripts/run_afternoon.py --only:
+#
+#   sentence-transformers  embedding dedup, imported lazily inside
+#                          processing/deduplicator.py and only by the news
+#                          collection stage of run_daily.py
+#   openai / anthropic     summarizer; every refresh mode is explicitly no-LLM
+#   openai-whisper, yt-dlp YouTube transcripts, which don't run on CI at all
+#   streamlit              the dashboard, not the collectors
+#   reportlab              the dashboard's PDF export
+#
+# tests/test_slim_requirements.py imports every module the refresh path can
+# reach and fails if one of them needs something that isn't here, so this
+# cannot silently drift out of date.
+#
+# The full requirements.txt still backs daily.yml, in_season_pm.yml and
+# podcasts.yml, which do run the summarizer and the deduplicator.
+
+requests>=2.31          # every collector
+beautifulsoup4>=4.12    # NFL.com / club-site / OurLads HTML (html.parser only, no lxml)
+feedparser>=6.0         # imported at module scope by the RSS collector
+pyyaml>=6.0             # config/*.yaml
+python-dotenv>=1.0      # .env
+jinja2>=3.1             # report HTML in reports/report_builder.py
+gspread>=6.0            # the odds sheet read, used by --only inactives
+google-auth>=2.27       # its service-account credentials
+tzdata>=2024.1          # zoneinfo database; see processing.season.today_et
