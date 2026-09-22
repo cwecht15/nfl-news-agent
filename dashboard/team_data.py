@@ -100,6 +100,36 @@ def roster_rows(state: Optional[dict], team: str, skill_only: bool = False) -> l
     return rows
 
 
+_ACTIVE_POS_ORDER = {p: i for i, p in enumerate(("QB", "RB", "FB", "WR", "TE", "K",
+                                                 "C", "G", "OG", "T", "OT", "OL"))}
+
+
+def active_roster_rows(state: Optional[dict], team: str, skill_only: bool = False) -> list[dict]:
+    """The club's active roster (nflverse ``ACT``), skill positions first.
+
+    The Roster section used to show only ``roster_rows`` - who is *off* the 53 -
+    under a heading that reads like the whole roster, so "who is actually on
+    this team right now" was the one roster question the Team page could not
+    answer. The data was already in ``state.json`` (every player nflverse
+    carries, with a status); this just surfaces it.
+    """
+    rows = []
+    for p in ((state or {}).get("players") or {}).values():
+        if p.get("team") != team or p.get("status") != "ACT":
+            continue
+        pos = p.get("pos", "")
+        if skill_only and pos not in SKILL:
+            continue
+        rows.append({
+            "Player": p.get("name", ""), "Pos": pos,
+            # An elevated practice-squad player reads ACT for the week and
+            # reverts on his own, so the count is worth carrying here too.
+            "Elevations": p.get("elevations_used") or 0,
+        })
+    rows.sort(key=lambda r: (_ACTIVE_POS_ORDER.get(r["Pos"], 99), r["Pos"], r["Player"]))
+    return rows
+
+
 def event_rows(events: list[dict], team: str, since: Optional[str] = None) -> list[dict]:
     """Roster events for ``team`` on/after ``since`` (ISO date), newest first.
 

@@ -1126,6 +1126,29 @@ def _state_path() -> Path:
     return _base_dir() / "state.json"
 
 
+# Per-source abbreviations that reached the ledger before their collector
+# normalized them. Healed on read rather than rewritten on disk, the same way
+# the OurLads name damage is handled: the file stays a faithful record of what
+# each source said, and a stale row can't outlive the fix.
+_TEAM_ALIASES = {"WSH": "WAS", "JAC": "JAX", "LA": "LAR", "ARZ": "ARI", "AZ": "ARI",
+                 "BLT": "BAL", "CLV": "CLE", "HST": "HOU"}
+
+
+def _heal_event_team(ev: dict) -> dict:
+    """Map a stray source dialect onto the news-style abbr everything else uses.
+
+    ESPN calls Washington WSH; until 2026-09-22 the elevations collector passed
+    that straight through, so three of the club's events were filed under a code
+    no other source or page used - the Roster State filter listed WAS and WSH as
+    separate clubs and the Team page matched neither.
+    """
+    for key in ("team", "to_team", "from_team"):
+        val = ev.get(key)
+        if val and val in _TEAM_ALIASES:
+            ev[key] = _TEAM_ALIASES[val]
+    return ev
+
+
 def load_events() -> list[dict]:
     path = _events_path()
     if not path.exists():
@@ -1137,7 +1160,7 @@ def load_events() -> list[dict]:
             if not line:
                 continue
             try:
-                events.append(json.loads(line))
+                events.append(_heal_event_team(json.loads(line)))
             except json.JSONDecodeError:
                 logger.warning("Skipping bad ledger line: %s", line[:80])
     return events

@@ -1,6 +1,8 @@
 """Team page loaders (dashboard/team_data.py) and the shared line helpers it
 uses from processing/line_insights.py."""
 
+import json
+
 from collectors import odds_collector as oc
 from dashboard import team_data as td
 from processing import line_insights as li
@@ -227,3 +229,56 @@ def test_designation_note_explains_an_empty_game_status_column():
     assert td.designation_note(week, "SEA", "2026-09-19") == ""      # past designation day: nobody designated
     week["teams"]["SEA"]["players"]["d"]["game_status"] = "OUT"
     assert td.designation_note(week, "SEA", "2026-09-18") == ""      # posted
+
+
+# ---------------------------------------------------------------------------
+# Active roster + team-code healing
+# ---------------------------------------------------------------------------
+
+
+def test_active_roster_rows_returns_the_53_skill_first():
+    state = {"players": {
+        "1": {"name": "Starter Qb", "team": "WAS", "pos": "QB", "status": "ACT"},
+        "2": {"name": "Right Tackle", "team": "WAS", "pos": "OT", "status": "ACT"},
+        "3": {"name": "A Receiver", "team": "WAS", "pos": "WR", "status": "ACT", "elevations_used": 2},
+        "4": {"name": "On Ir", "team": "WAS", "pos": "RB", "status": "IR"},
+        "5": {"name": "Other Club", "team": "DAL", "pos": "QB", "status": "ACT"},
+    }}
+    rows = td.active_roster_rows(state, "WAS")
+    assert [r["Player"] for r in rows] == ["Starter Qb", "A Receiver", "Right Tackle"]
+    assert [r["Elevations"] for r in rows] == [0, 2, 0]
+    # The off-53 list stays its own thing and does not overlap
+    assert [r["Player"] for r in td.roster_rows(state, "WAS")] == ["On Ir"]
+
+
+def test_active_roster_rows_skill_filter():
+    state = {"players": {
+        "1": {"name": "Starter Qb", "team": "WAS", "pos": "QB", "status": "ACT"},
+        "2": {"name": "Right Tackle", "team": "WAS", "pos": "OT", "status": "ACT"},
+    }}
+    assert [r["Player"] for r in td.active_roster_rows(state, "WAS", skill_only=True)] == ["Starter Qb"]
+
+
+def test_espn_team_dialect_is_healed_on_read(tmp_path, monkeypatch):
+    """ESPN calls Washington WSH; nothing else does.
+
+    Three of the club's 2026-09-19 elevations landed under WSH, which split it
+    from WAS in every team filter. Old rows heal on read rather than being
+    rewritten on disk.
+    """
+    from processing import roster_events as re_mod
+
+    ledger = tmp_path / "events.jsonl"
+    ledger.write_text(
+        json.dumps({"event_id": "a", "event_type": "ps_elevated", "team": "WSH",
+                    "name": "Ricky Barber", "pos": "DT", "date": "2026-09-19",
+                    "source": "espn_transactions", "confidence": "confirmed"}) + "\n"
+        + json.dumps({"event_id": "b", "event_type": "signed", "team": "JAC",
+                      "from_team": "LA", "name": "Some Guy", "pos": "WR",
+                      "date": "2026-09-19", "source": "espn_transactions"}) + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(re_mod, "_events_path", lambda: ledger)
+    events = re_mod.load_events()
+    assert [e["team"] for e in events] == ["WAS", "JAX"]
+    assert events[1]["from_team"] == "LAR"

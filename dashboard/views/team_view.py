@@ -301,10 +301,22 @@ st.caption(td.ELEVATION_DEADLINE)
 # ---------------------------------------------------------------------------
 
 st.subheader("Roster")
+_state = isd.roster_state() or {}
+if _state.get("updated_at"):
+    st.caption(f"From the nflverse roster collected **{to_et_display(_state['updated_at'])}** — "
+               "the Refresh control at the top of the page re-reads it.")
+skill_only = st.checkbox("Skill positions only", value=True, key="team_roster_skill")
+
+active = td.active_roster_rows(_state, team, skill_only=skill_only)
+st.markdown(f"**Active roster** ({len(active)})")
+if active:
+    st.dataframe(active, use_container_width=True, hide_index=True)
+else:
+    st.caption("No active-roster players recorded for this team.")
+
 left, right = st.columns(2)
 with left:
-    skill_only = st.checkbox("Skill positions only", value=True, key="team_roster_skill")
-    off53 = td.roster_rows(isd.roster_state(), team, skill_only=skill_only)
+    off53 = td.roster_rows(_state, team, skill_only=skill_only)
     st.markdown(f"**Off the active roster** ({len(off53)})")
     st.dataframe(off53, use_container_width=True, hide_index=True)
 with right:

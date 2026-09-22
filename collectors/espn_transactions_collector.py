@@ -128,7 +128,13 @@ def parse_elevations(rows: list[dict]) -> list[dict]:
         abbr = str(((row.get("team") or {}).get("abbreviation") or "")).strip().upper()
         if not desc or not abbr:
             continue
-        team = to_news(abbr) or abbr
+        # ESPN's dialect, not news-style: it calls Washington WSH. Without the
+        # "espn" source the map is never consulted and the club's elevations
+        # land under a code nothing else uses, splitting it in two - the Roster
+        # State team filter listed both WAS and WSH, "Clubs reported" counted
+        # one club twice, and the Team page (which matches on the news abbr)
+        # showed neither of Washington's 2026-09-19 elevations.
+        team = to_news(abbr, "espn") or abbr
         day = str(row.get("date") or "")[:10]
         for m in ELEVATION_RE.finditer(desc):
             for entry in _SPLIT_RE.split(m.group("body")):
