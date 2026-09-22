@@ -286,3 +286,32 @@ def test_workflow_commits_only_what_a_refresh_writes():
     assert "data/weekly_projections" not in paths
     assert "data/depth_charts" not in paths
     assert "data/schedule" not in paths
+
+
+def test_the_api_and_gh_paths_label_themselves_differently(monkeypatch):
+    """A run has to say which transport sent it, or "is the PAT working?"
+    can't be answered from the Actions list."""
+    api = FakeRequests()
+    monkeypatch.setattr(wd, "_get_pat", lambda: "tok")
+    monkeypatch.setattr(wd, "_requests", lambda: api)
+    wd.dispatch_refresh(["roster"])
+    assert api.posts[0]["json"]["inputs"]["requested_by"] == "dashboard"
+
+    wd._reset_for_tests()
+    sent = {}
+
+    class P:
+        returncode = 0
+        stdout = stderr = ""
+
+    monkeypatch.setattr(wd, "_get_pat", lambda: None)
+    monkeypatch.setattr(wd, "running_locally", lambda: True)
+    monkeypatch.setattr(wd, "_gh_available", lambda: True)
+    monkeypatch.setattr(wd.subprocess, "run", lambda cmd, **kw: (sent.update(cmd=cmd), P())[1])
+    wd.dispatch_refresh(["roster"])
+    assert "requested_by=dashboard-local" in sent["cmd"]
+
+
+def test_run_name_carries_the_transport_label():
+    spec = yaml.safe_load(WORKFLOW_PATH.read_text(encoding="utf-8"))
+    assert "inputs.requested_by" in spec["run-name"]

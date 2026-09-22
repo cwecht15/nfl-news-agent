@@ -217,18 +217,22 @@ def dispatch_refresh(targets: Sequence[str] | str, *, date: Optional[str] = None
         return False, (f"A refresh was started {ago}s ago — available again in "
                        f"{int(remaining)}s."), ""
 
+    transport = _transport()
+    if transport == "none":
+        return False, _NO_TRANSPORT_MSG, ""
+
     spec = _normalize(targets)
     nonce = uuid.uuid4().hex[:8]
     inputs = {
         "targets": spec,
         "date": date or "",
         "nonce": nonce,
-        "requested_by": requested_by,
+        # Which transport actually sent it, so a run in the Actions list says
+        # whether it came from the deployed site (PAT) or someone's local
+        # dashboard (gh CLI). Without this the two are indistinguishable, which
+        # makes "is the PAT working?" unanswerable from the run record.
+        "requested_by": f"{requested_by}-local" if transport == "gh" else requested_by,
     }
-
-    transport = _transport()
-    if transport == "none":
-        return False, _NO_TRANSPORT_MSG, ""
 
     if transport == "gh":
         ok, msg = _dispatch_via_gh(inputs)
