@@ -166,3 +166,18 @@
 2026-09-22 14:25:39,019 [INFO] afternoon: Projection audit: 15 open alerts (info=5, warning=10), 0 dismissed
 2026-09-22 14:25:39,035 [WARNING] afternoon: No report for 2026-09-22 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-09-22 to produce the morning report.
 2026-09-22 14:25:39,035 [INFO] afternoon: Refresh complete (elevations, inactives, injuries, roster, transactions).
+2026-09-22 14:32:06,705 [INFO] afternoon: ============================================================
+2026-09-22 14:32:06,706 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-09-22 (week 3, Tue)
+2026-09-22 14:32:06,706 [INFO] afternoon: ============================================================
+2026-09-22 14:32:06,706 [INFO] afternoon: Step 5b: Updating roster events/state...
+2026-09-22 14:32:06,749 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
+2026-09-22 14:32:06,851 [INFO] collectors.nflverse_roster_collector: nflverse roster: 2981 rows (944735 bytes)
+2026-09-22 14:32:06,866 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 1 rows without gsis_id skipped, 0 duplicate gsis rows
+2026-09-22 14:32:06,887 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 2980 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-09-22.json
+2026-09-22 14:32:06,947 [INFO] processing.roster_events: Saved roster state: 2993 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-09-22 14:32:06,954 [INFO] processing.roster_events: Roster step 2026-09-22: {"nflverse_transitions": 234, "nflverse_events": 48, "appended": 0, "ledger": 989, "confirmed_new": 0}
+2026-09-22 14:32:06,955 [INFO] afternoon: Roster events: 0 new (appended=0, confirmed_new=0, ledger=989, nflverse_events=48, nflverse_transitions=234, status={'ACT': 1695, 'EXE': 4, 'FA': 418, 'IR': 243, 'NFI': 6, 'PS': 561, 'PUP': 30, 'RET': 23, 'SUS': 5, 'UNKNOWN': 8}); state covers 2993 players
+2026-09-22 14:32:06,955 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-09-22 14:32:07,287 [INFO] afternoon: Projection audit: 15 open alerts (info=5, warning=10), 0 dismissed
+2026-09-22 14:32:07,289 [WARNING] afternoon: No report for 2026-09-22 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-09-22 to produce the morning report.
+2026-09-22 14:32:07,289 [INFO] afternoon: Refresh complete (roster).
