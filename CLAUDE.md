@@ -61,6 +61,9 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --inactives-only
 # Injury refresh: injury report + audit + report refresh only (what .github/workflows/injuries.yml runs)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --injuries-only
+# On-demand refresh of just the fast-moving sources (what refresh.yml runs; dashboard Refresh buttons)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --only roster,transactions
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\run_afternoon.py --only all
 # Register the Wed-Sat afternoon injury dispatch task (admin shell)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\setup_scheduler.py create-injuries
 
@@ -214,7 +217,20 @@ the offseason path.
   `sheet_line_stale` (the sheet's Spread/O-U drifted from the market — it drives every
   player projection in that game), `market_proj_gap` (RED only; correlated stats collapse
   to one alert per player) and `market_only_player` (quoted by the market with **no row**
-  on the sheet — a projected zero is not the same thing). A practice-squad player marked ACTIVE
+  on the sheet — a projected zero is not the same thing).
+  **`missing_active` answers "are the right guys projected" from nflverse, never from OurLads.**
+  Until 2026-09-22 it drew candidates from nflverse and then let the depth chart's *position label*
+  overrule nflverse's, so Tyler Goodson (DAL, nflverse `ACT`/`RB`, promoted off the PS 09-16) was
+  dropped as a `KR` and Blake Grupe (NYJ, `ACT`/`K`) as a `KO` — the 09-20 audit carried zero
+  `missing_active` alerts while both sat on an active roster with no row, and had for four days.
+  The chart is now enrichment only: it may demote a `depth >= 4` player to info and may raise a QB
+  it calls the starter, but it can never suppress a candidate. Fullbacks and returners come from
+  nflverse's own `depth_chart_position` (the only active skill players whose `depth_chart_position`
+  differs from `pos` are the ~13 RB-listed fullbacks — a clean separator). QBs otherwise fire only
+  when a club projects **no** active QB, which is what keeps the 51 league-wide backups quiet. Past
+  `projection_audit.ourlads_max_age_days` (3) the chart's ranking is ignored and `depth_chart_stale`
+  says so, rather than letting every dependent check degrade in silence.
+  A practice-squad player marked ACTIVE
   with an elevation dated inside the week's Tue..Mon window (`elevated_this_week`) raises neither
   `status_conflict` nor `sheet_status_stale`: the sheet is right for that game and he reverts on
   his own. Output `data/audit/<date>-<run>.json`;
@@ -258,6 +274,20 @@ the offseason path.
   `game_day_inactives`, `line_movement`, `projection_audit`), `DailyReport.season_meta` / `inactives` / `odds` /
   `pm_updated_at`, and the in-season dashboard pages (Home week hub / Roster State / Injury
   Report / Inactives / Projection Audit / Line Movement — shared loaders in `dashboard/in_season_data.py`).
+- **On-demand refresh (cloud):** `run_afternoon.py --only <targets>` where targets are any of
+  `roster, elevations, injuries, inactives, transactions` (or `all`), mapped onto
+  `run_in_season_steps`' `skip` set by `plan_for_targets`. Two implications are deliberate:
+  **transactions implies roster** (the NFL.com scrape only writes `web_pm.json`; those rows become
+  roster events solely by being handed to `run_in_season_steps` as `news_items`) and **inactives
+  implies elevations** (the game-day poll exists partly to beat the Saturday 4 PM ET deadline),
+  which makes `--only injuries` / `--only inactives` produce skip sets identical to the older
+  `--injuries-only` / `--inactives-only`. Those two branches are **not** refactored — six crons,
+  three `.bat` dispatchers and `tests/test_run_afternoon.py` pin them — and a test asserts the
+  literals still match. The audit is never skipped, `create_missing` is always False (a refresh
+  updates a report, never authors one) and `_refresh_active_sheet` is unreachable, so a refresh
+  cannot move the active-week pointer as a side effect. Dispatched from the dashboard's Refresh
+  buttons via `.github/workflows/refresh.yml` (`dashboard/_workflow_dispatch.py` +
+  `dashboard/refresh_controls.py`); see **Scheduling**.
 - **Afternoon run:** `scripts/run_afternoon.py` (cloud cron `.github/workflows/in_season_pm.yml`,
   21:34 UTC, shares the `daily-pipeline` concurrency group; skips itself in the offseason) —
   transactions + nflverse + OurLads + injuries + audit, then updates `data/reports/<date>.json`
@@ -343,11 +373,11 @@ FantasyPoints only when a non-empty `data/raw/<date>/fantasypoints.json` exists 
 |---------|------|---------|
 | This Week | Home | In-season week hub: week / day role / working sheet, today's AM + evening run times, counts (roster moves, injury changes, inactives, audit alerts) linking to their pages, this week's games + byes. Offseason: info line + PDF export. Local pipeline runner lives in this page's sidebar (`dashboard/pipeline_runner.py`). |
 | This Week | Daily Report | Report sections + Team Notes with clickable `[N]` citations; search, flagging. Caption shows week / day role / AM + evening run times; sections with 0 items open collapsed. Projection Alerts (transaction reconciler) only in the offseason. Line Movement pairs each market move with the day's news for that team/player. YouTube subsection appears only on locally-generated reports (`run_daily.py --include-yt-section`). |
-| This Week | Team | Everything about one team (`?team=BUF` deep-links; still `team_view.py` so bookmarks hold). In-season: this week's game — spread / total / implied team total now vs open and your sheet's implied total vs the market (`line_insights.game_card`), line history — then the team's audit alerts, latest team notes with linked `[N]`, injury grid on the team's own report days, inactives, weekly projections with Δ PPR since the week's previous snapshot, player lines (market open → now, Move %, market vs you %; anytime TD in implied TDs, the sheet's unit; filter All / Moved 5%+ / 10%+ / 20%+), off-the-53 list + this week's roster moves, OurLads depth, earlier notes. Offseason: notes history only. Loaders in `dashboard/team_data.py` normalize every source's team dialect. |
-| This Week | Injury Report *(in-season)* | Weekly practice grid (Wed/Thu/Fri) + game status per listed player, source conflicts. |
-| This Week | Inactives *(in-season)* | Game-day inactives from ESPN per-game rosters, skill-position filter. |
-| This Week | Roster State *(in-season)* | **Practice-squad elevations** first — this week's count, how many were declared today, clubs reported, when it was last checked, and which clubs whose game is still to come have none yet (`team_data.elevation_status`; a club may simply have elevated nobody), filterable by team and position. Then IR/PUP/NFI/SUS/PS standing per player (return eligibility, elevations used) + recent roster-event feed. |
-| This Week | Projection Audit *(in-season)* | Latest audit alerts with severity/type filters, per-alert dismiss + note, restore; cloud "Save dismissals to repo". |
+| This Week | Team | Everything about one team (`?team=BUF` deep-links; still `team_view.py` so bookmarks hold). In-season: this week's game — spread / total / implied team total now vs open and your sheet's implied total vs the market (`line_insights.game_card`), line history — then the team's audit alerts, latest team notes with linked `[N]`, injury grid on the team's own report days, inactives, weekly projections with Δ PPR since the week's previous snapshot, player lines (market open → now, Move %, market vs you %; anytime TD in implied TDs, the sheet's unit; filter All / Moved 5%+ / 10%+ / 20%+), off-the-53 list + this week's roster moves, **practice-squad elevations** (this week's, with each player's n/3 season count; a club whose game is still ahead and has none simply elevated nobody), OurLads depth, earlier notes. A **Refresh all** control at the top dispatches every collector. Offseason: notes history only. Loaders in `dashboard/team_data.py` normalize every source's team dialect. |
+| This Week | Injury Report *(in-season)* | Weekly practice grid (Wed/Thu/Fri) + game status per listed player, source conflicts, **Refresh injuries** button. |
+| This Week | Inactives *(in-season)* | Game-day inactives from ESPN per-game rosters, skill-position filter, **Refresh inactives** button. |
+| This Week | Roster State *(in-season)* | **Practice-squad elevations** first — a **Refresh rosters** button (rosters + elevations) carrying the last-collected time, this week's count, how many were declared today, clubs reported, and which clubs whose game is still to come have none yet (`team_data.elevation_status`; a club may simply have elevated nobody), filterable by team and position. Then IR/PUP/NFI/SUS/PS standing per player (return eligibility, elevations used) + recent roster-event feed. |
+| This Week | Projection Audit *(in-season)* | Latest audit alerts with severity/type filters, per-alert dismiss + note, restore; cloud "Save dismissals to repo"; **Refresh everything** (re-collect every source, then re-run the audit against it). |
 | This Week | Line Movement *(in-season)* | **What matters** first: team implied totals that moved or where your sheet is off the market, and player lines RED or moving away from your projection (played games left out). Then game lines vs open / sharp / your sheet, prop movers (Move % and market-vs-you % so receptions and yards compare; ranked by move ÷ stat threshold; anytime TD in implied TDs; per-row precision via `dashboard/prop_view.py`), market-vs-projection flags, and **Recent pulls** (each odds pull's changes). Reads `data/odds/` only — never spends a Sheets read on a rerun. |
 | Sources | Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
 | Sources | YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
@@ -404,10 +434,25 @@ Tab bodies on Projections and Depth Charts are wrapped in `_render_*()` function
   discarded — that is how a Saturday batch of elevations was lost on 2026-09-19. Every
   data-committing workflow now rebases with `-X theirs` (favouring the commit being replayed,
   i.e. this run's own output) and aborts+retries rather than failing.
-- **On demand:** `scripts/refresh_now.bat` dispatches both time-sensitive workflows (injury report /
-  designations and elevations + inactives) in one go; `setup_scheduler.py shortcut` puts it on the
-  Desktop with a **Ctrl+Alt+N** hotkey. The two runs serialize on the `daily-pipeline` concurrency
-  group, so the second waits rather than racing the first.
+- **On demand (local):** `scripts/refresh_now.bat` dispatches both time-sensitive workflows (injury
+  report / designations and elevations + inactives) in one go; `setup_scheduler.py shortcut` puts it
+  on the Desktop with a **Ctrl+Alt+N** hotkey. The two runs serialize on the `daily-pipeline`
+  concurrency group, so the second waits rather than racing the first.
+- **On demand (cloud):** `.github/workflows/refresh.yml` — **`workflow_dispatch` only, no cron.**
+  Runs `run_afternoon.py --only "<targets>"` and commits `data/{roster,injuries,inactives,audit,odds,reports,raw,logs}`
+  — deliberately *not* `weekly_projections` / `schedule` / `depth_charts` (no refresh target writes
+  them) or `pipeline_status.json` (a CI pid in the repo would confuse the local runner's liveness
+  check). Dispatched by the dashboard's Refresh buttons through `dashboard/_workflow_dispatch.py`,
+  which needs the `GITHUB_PAT` Streamlit secret to carry **Actions: Read and write** on top of the
+  Contents permission the Save-to-repo buttons already use; with no PAT but a local `gh` it shells
+  out like the `.bat` dispatchers. `POST /dispatches` answers 204 with no run id, so the helper
+  mints a nonce, passes it as an input, and `refresh.yml` carries it in its `run-name:` — the API
+  returns that as `display_title`, which is how a dispatch finds its own run instead of guessing at
+  "newest". It shares the `daily-pipeline` group, so a refresh queues behind an in-flight run; a
+  third dispatch cancels the *pending* one, which is why the UI reads `cancelled` as "superseded by
+  a newer refresh" rather than as a failure. Guardrails: a process-global 180 s cooldown (one
+  process serves every visitor, so it throttles the workflow rather than one tab), a hard in-flight
+  gate, and an optional `st.secrets["refresh_password"]` that stays open while unset.
 - All crons sit on odd minutes on purpose. Top-of-the-hour is the most oversubscribed slot GitHub has, and every :00 cron in this repo was running hours behind.
 - `StartWhenAvailable: true` — catches up on missed runs
 - `InteractiveToken` logon — must be logged in (screen lock OK)
