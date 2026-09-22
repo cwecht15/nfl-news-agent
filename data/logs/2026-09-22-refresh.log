@@ -1,0 +1,16 @@
+2026-09-22 13:41:56,753 [INFO] afternoon: ============================================================
+2026-09-22 13:41:56,753 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-09-22 (week 3, Tue)
+2026-09-22 13:41:56,753 [INFO] afternoon: ============================================================
+2026-09-22 13:41:56,754 [INFO] afternoon: Step 5b: Updating roster events/state...
+2026-09-22 13:41:56,813 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
+2026-09-22 13:41:57,177 [INFO] collectors.nflverse_roster_collector: nflverse roster: 2981 rows (944735 bytes)
+2026-09-22 13:41:57,197 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 1 rows without gsis_id skipped, 0 duplicate gsis rows
+2026-09-22 13:41:57,227 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 2980 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-09-22.json
+2026-09-22 13:41:57,252 [INFO] processing.roster_events: Roster ledger: 3 guessed promotions relabeled as elevations
+2026-09-22 13:41:57,303 [INFO] processing.roster_events: Saved roster state: 2993 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-09-22 13:41:57,311 [INFO] processing.roster_events: Roster step 2026-09-22: {"nflverse_transitions": 234, "nflverse_events": 45, "promotions_relabeled": 3, "appended": 45, "ledger": 986, "confirmed_new": 0}
+2026-09-22 13:41:57,312 [INFO] afternoon: Roster events: 45 new (appended=45, confirmed_new=0, ledger=986, nflverse_events=45, nflverse_transitions=234, promotions_relabeled=3, status={'ACT': 1695, 'EXE': 4, 'FA': 418, 'IR': 243, 'NFI': 6, 'PS': 561, 'PUP': 30, 'RET': 23, 'SUS': 5, 'UNKNOWN': 8}); state covers 2993 players
+2026-09-22 13:41:57,312 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-09-22 13:41:57,837 [INFO] afternoon: Projection audit: 10 open alerts (info=4, warning=6), 0 dismissed
+2026-09-22 13:41:57,840 [WARNING] afternoon: No report for 2026-09-22 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-09-22 to produce the morning report.
+2026-09-22 13:41:57,840 [INFO] afternoon: Refresh complete (roster).
