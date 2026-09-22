@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 2,
   "sheet": "primary",
-  "generated_at": "2026-09-22T13:41:57+00:00",
+  "generated_at": "2026-09-22T14:04:28+00:00",
   "inputs": {
     "snapshot_date": "2026-09-21",
     "nflverse_date": "2026-09-22",
-    "injury_week_updated": null,
-    "roster_state_updated": "2026-09-22T13:41:57+00:00"
+    "injury_week_updated": "2026-09-22T14:04:28+00:00",
+    "roster_state_updated": "2026-09-22T14:04:24+00:00"
   },
   "alerts": [
     {
@@ -51,6 +51,54 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040142|2|anytime_td",
+      "severity": "warning",
+      "player": "Kaleb Johnson",
+      "gsis_id": "00-0040142",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Kaleb Johnson (RB, GB) Anytime TD rate: we project 0.02, the market implies 0.40 (also Rush Yds) (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td",
+          "rush_yds"
+        ],
+        "ours": 0.02,
+        "market_mean": 0.4011762592,
+        "delta": 0.3811762592,
+        "pct": 19.05881296,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039811|2|rush_yds",
+      "severity": "warning",
+      "player": "MarShawn Lloyd",
+      "gsis_id": "00-0039811",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 2,
+      "message": "MarShawn Lloyd (RB, GB) Rush Yds: we project 54.6, the market implies 33.6 (also Rush+Rec Yds) (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_rec_yds",
+          "rush_yds"
+        ],
+        "ours": 54.6,
+        "market_mean": 33.57902547,
+        "delta": -21.02097453,
+        "pct": -0.3849995335,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "elevated_not_projected",
       "key": "elevated_not_projected|00-0033319|2",
       "severity": "warning",
@@ -66,6 +114,51 @@
           "2026-09-19"
         ],
         "elevations_used": 2
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036355|2|pass_tds",
+      "severity": "warning",
+      "player": "Justin Herbert",
+      "gsis_id": "00-0036355",
+      "pos": "QB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Justin Herbert (QB, LAC) Pass TD: we project 1.90, the market implies 1.34 (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "stat": "pass_tds",
+        "stats": [
+          "pass_tds"
+        ],
+        "ours": 1.9,
+        "market_mean": 1.339462116,
+        "delta": -0.5605378841,
+        "pct": -0.295019939,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|MIA|2|KC@MIA",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 2,
+      "message": "KC@MIA: the sheet has 10.5 / 45.5, the market 11.5 / 46.0 (FP-SPREAD) (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "game": "KC@MIA",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": 10.5,
+        "sheet_ou": 45.5,
+        "market_spread": 11.5,
+        "market_total": 46.0,
+        "spread_delta": 1.0,
+        "total_delta": 0.5
       }
     },
     {
@@ -146,6 +239,24 @@
       }
     },
     {
+      "type": "market_only_player",
+      "key": "market_only_player|00-0038416|2|anytime_td",
+      "severity": "info",
+      "player": "Tyson Bagent",
+      "gsis_id": "00-0038416",
+      "pos": "QB",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 2,
+      "message": "Tyson Bagent (QB, CHI) is quoted by the market (Anytime TD rate 0.20) but has no row on the sheet (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "market_mean": 0.2045707838,
+        "flag": "MKT-ONLY",
+        "n_books": 2
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|marquez valdez-scantling|2|ps_signed",
       "severity": "info",
@@ -214,7 +325,10 @@
   "counts": {
     "elevated_not_projected": 2,
     "missing_active": 2,
+    "market_proj_gap": 3,
+    "sheet_line_stale": 1,
     "sheet_status_stale": 2,
-    "unconfirmed_report": 4
+    "unconfirmed_report": 4,
+    "market_only_player": 1
   }
 }
