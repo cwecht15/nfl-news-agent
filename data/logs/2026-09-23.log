@@ -340,23 +340,19 @@
 2026-09-23 20:16:51,130 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-23.html
 2026-09-23 20:16:51,130 [INFO] afternoon: Report 2026-09-23 updated in place (pm_updated_at=2026-09-23T20:16:51+00:00)
 2026-09-23 20:16:51,131 [INFO] afternoon: Game-day inactives run complete.
-2026-09-23 21:01:43,153 [INFO] afternoon: ============================================================
-2026-09-23 21:01:43,153 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-09-23 (week 3, Wed)
-2026-09-23 21:01:43,153 [INFO] afternoon: ============================================================
-2026-09-23 21:01:43,153 [INFO] afternoon: Step 2c: Reading market lines...
-2026-09-23 21:01:46,947 [INFO] afternoon: Market lines: week 3, 16 games, 475 player-stats, 0 changes (none); odds pulled 2026-09-22T09:06-04:00 [last odds pull was 32h ago]
-2026-09-23 21:01:46,948 [WARNING] afternoon: Odds source error: last odds pull was 32h ago
-2026-09-23 21:01:47,112 [INFO] collectors.espn_transactions_collector: ESPN elevations: 41 in the last 4 days (43 parsed from 100 rows)
-2026-09-23 21:01:47,112 [INFO] afternoon: Step 5f: 41 practice-squad elevations from ESPN (ATL, BAL, CAR, CIN, CLE, DAL, DEN, HOU, JAX, KC, LAC, LAR, LV, MIA, MIN, NE, NO, NYG, NYJ, PHI, PIT, SEA, SF, TB, TEN, WAS)
-2026-09-23 21:01:47,195 [INFO] processing.roster_events: Saved roster state: 3003 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
-2026-09-23 21:01:47,201 [INFO] processing.roster_events: Roster step 2026-09-23: {"nflverse_transitions": 60, "nflverse_events": 46, "espn_elevations": 41, "appended": 0, "ledger": 1093, "confirmed_new": 0}
-2026-09-23 21:01:47,202 [INFO] afternoon: Elevations merged into the ledger: 0 new events
-2026-09-23 21:01:47,203 [INFO] afternoon: Step 5e: Checking game-day inactives...
-2026-09-23 21:01:47,264 [INFO] collectors.inactives_collector: Inactives week 3: 0 games polled, 0 teams published, 0 changed
-2026-09-23 21:01:47,265 [INFO] afternoon: Inactives: week 3, 0 games polled, 0 teams published, 0 newly published/changed
-2026-09-23 21:01:47,265 [INFO] afternoon: Step 5d: Auditing weekly projections...
-2026-09-23 21:01:47,365 [INFO] afternoon: Projection audit: 15 open alerts (info=4, warning=11), 0 dismissed
-2026-09-23 21:01:47,413 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-23.json
-2026-09-23 21:01:47,415 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-23.html
-2026-09-23 21:01:47,415 [INFO] afternoon: Report 2026-09-23 updated in place (pm_updated_at=2026-09-23T21:01:47+00:00)
-2026-09-23 21:01:47,416 [INFO] afternoon: Game-day inactives run complete.
+2026-09-23 21:03:24,992 [INFO] afternoon: ============================================================
+2026-09-23 21:03:24,992 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-09-23 (week 3, Wed)
+2026-09-23 21:03:24,992 [INFO] afternoon: ============================================================
+2026-09-23 21:03:24,992 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-09-23 21:03:27,584 [INFO] collectors.injury_report_collector: Team-site injury reports: 18 with a table, 14 not posted, 0 mismatched, 0 failed; 228 rows
+2026-09-23 21:03:28,064 [INFO] collectors.injury_report_collector: RotoWire practice report: 115 rows
+2026-09-23 21:03:28,295 [INFO] collectors.injury_report_collector: NFL.com injuries: week 3, 148 rows (practice status dated 2026-09-23)
+2026-09-23 21:03:28,300 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk03.json (19 teams)
+2026-09-23 21:03:28,301 [INFO] collectors.injury_report_collector: Injury report week 3: 150 players, 139 changes
+2026-09-23 21:03:28,308 [INFO] afternoon: Injury report: week 3, 150 rows (nflcom=148, rotowire=115, team_site=114), 139 changes, 0 conflicts, team sites with a table: 18
+2026-09-23 21:03:28,309 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-09-23 21:03:29,153 [INFO] afternoon: Projection audit: 15 open alerts (info=4, warning=11), 0 dismissed
+2026-09-23 21:03:29,227 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-23.json
+2026-09-23 21:03:29,229 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-23.html
+2026-09-23 21:03:29,230 [INFO] afternoon: Report 2026-09-23 updated in place (pm_updated_at=2026-09-23T21:03:29+00:00)
+2026-09-23 21:03:29,231 [INFO] afternoon: Injury report refresh complete.
