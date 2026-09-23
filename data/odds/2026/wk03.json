@@ -38,11 +38,11 @@
         "home_p": 0.71
       },
       "sheet": {
-        "spread_home": -6.0,
+        "spread_home": -5.5,
         "ou": 43.5,
-        "fp_spread_delta": -0.5,
+        "fp_spread_delta": -1.0,
         "fp_total_delta": 1.0,
-        "fp_flag": ""
+        "fp_flag": "FP-SPREAD"
       },
       "implied": {
         "home": 25.5,
@@ -267,9 +267,9 @@
       },
       "sheet": {
         "spread_home": -6.5,
-        "ou": 48.0,
+        "ou": 47.5,
         "fp_spread_delta": 0.0,
-        "fp_total_delta": 0.0,
+        "fp_total_delta": 0.5,
         "fp_flag": ""
       },
       "implied": {
@@ -323,9 +323,9 @@
         "home_p": 0.42
       },
       "sheet": {
-        "spread_home": 2.5,
+        "spread_home": 3.0,
         "ou": 42.5,
-        "fp_spread_delta": 0.0,
+        "fp_spread_delta": -0.5,
         "fp_total_delta": 1.0,
         "fp_flag": ""
       },
@@ -894,9 +894,9 @@
       },
       "sheet": {
         "spread_home": 4.5,
-        "ou": 41.5,
+        "ou": 41.0,
         "fp_spread_delta": -1.5,
-        "fp_total_delta": 2.5,
+        "fp_total_delta": 3.0,
         "fp_flag": "FP-BOTH"
       },
       "implied": {
@@ -14693,6 +14693,7 @@
     }
   },
   "flags_seen": {
+    "sheet_drift|ATL@GB": "FP-SPREAD",
     "sheet_drift|TEN@NYG": "FP-SPREAD",
     "sheet_drift|PHI@CHI": "FP-BOTH",
     "market_only|00-0039917|pass_att": true,
@@ -14711,38 +14712,22 @@
   "changes": [
     {
       "type": "sheet_drift",
-      "team": "CHI",
+      "team": "GB",
       "player": "",
       "gsis_id": "",
       "pos": "",
       "stat": "",
       "stat_label": "",
-      "game": "PHI@CHI",
+      "game": "ATL@GB",
       "basis": "vs the sheet",
       "ours": null,
-      "old": 4.5,
-      "new": 3.0,
-      "magnitude": 4.0,
-      "message": "**PHI@CHI**: your sheet has +4.5 / 41.5, market +3 / 44 (FP-BOTH)"
-    },
-    {
-      "type": "sheet_drift",
-      "team": "NYG",
-      "player": "",
-      "gsis_id": "",
-      "pos": "",
-      "stat": "",
-      "stat_label": "",
-      "game": "TEN@NYG",
-      "basis": "vs the sheet",
-      "ours": null,
-      "old": -2.5,
-      "new": -3.5,
+      "old": -5.5,
+      "new": -6.5,
       "magnitude": 2.0,
-      "message": "**TEN@NYG**: your sheet has -2.5 / 39.5, market -3.5 / 40.5 (FP-SPREAD)"
+      "message": "**ATL@GB**: your sheet has -5.5 / 43.5, market -6.5 / 44.5 (FP-SPREAD)"
     }
   ],
-  "changes_seen_at": "2026-09-22T23:49:37+00:00",
+  "changes_seen_at": "2026-09-23T14:57:43+00:00",
   "pull_log": [
     {
       "pulled_at": "2026-09-22T09:06-04:00",
@@ -20853,6 +20838,29 @@
           "message": "**TEN@NYG**: your sheet has -2.5 / 39.5, market -3.5 / 40.5 (FP-SPREAD)"
         }
       ]
+    },
+    {
+      "pulled_at": "2026-09-22T09:06-04:00",
+      "props_pull_id": "2026-09-22T13:06:18+00:00",
+      "seen_at": "2026-09-23T14:57:43+00:00",
+      "changes": [
+        {
+          "type": "sheet_drift",
+          "team": "GB",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "ATL@GB",
+          "basis": "vs the sheet",
+          "ours": null,
+          "old": -5.5,
+          "new": -6.5,
+          "magnitude": 2.0,
+          "message": "**ATL@GB**: your sheet has -5.5 / 43.5, market -6.5 / 44.5 (FP-SPREAD)"
+        }
+      ]
     }
   ],
   "pull": {
@@ -20860,7 +20868,7 @@
     "props_pull_id": "2026-09-22T13:06:18+00:00",
     "week_reported": 3,
     "stale_reason": "",
-    "age_hours": 10.7
+    "age_hours": 25.9
   },
-  "updated_at": "2026-09-22T23:49:37+00:00"
+  "updated_at": "2026-09-23T14:57:43+00:00"
 }

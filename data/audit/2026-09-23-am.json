@@ -1,0 +1,474 @@
+{
+  "date": "2026-09-23",
+  "run": "am",
+  "season": 2026,
+  "week": 3,
+  "sheet": "primary",
+  "generated_at": "2026-09-23T15:10:47+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-23",
+    "nflverse_date": "2026-09-23",
+    "injury_week_updated": "2026-09-23T15:10:46+00:00",
+    "roster_state_updated": "2026-09-23T15:10:43+00:00"
+  },
+  "alerts": [
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039471|3",
+      "severity": "warning",
+      "player": "Frank Gore Jr.",
+      "gsis_id": "00-0039471",
+      "pos": "RB",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Frank Gore Jr. (RB, BUF) sheet Status is ACTIVE but roster says PS",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035500|3",
+      "severity": "warning",
+      "player": "Greg Dortch",
+      "gsis_id": "00-0035500",
+      "pos": "WR",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Greg Dortch (WR, BUF) sheet Status is ACTIVE but roster says PS",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039344|3",
+      "severity": "warning",
+      "player": "Jonathon Brooks",
+      "gsis_id": "00-0039344",
+      "pos": "RB",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jonathon Brooks (RB, CAR) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|CHI|3|PHI@CHI",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 3,
+      "message": "PHI@CHI: the sheet has 4.5 / 41.0, the market 3.0 / 44.0 (FP-BOTH) (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "game": "PHI@CHI",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 4.5,
+        "sheet_ou": 41.0,
+        "market_spread": 3.0,
+        "market_total": 44.0,
+        "spread_delta": -1.5,
+        "total_delta": 3.0
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0037120|3",
+      "severity": "warning",
+      "player": "Tyler Goodson",
+      "gsis_id": "00-0037120",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Tyler Goodson (RB, DAL) is on the active roster but has no row on the sheet (OurLads KR #2; promoted from the practice squad 2026-09-16)",
+      "evidence": {
+        "ourlads_depth": 2,
+        "ourlads_pos": "KR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "RB",
+        "status_abbr": "I01"
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|GB|3|ATL@GB",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 3,
+      "message": "ATL@GB: the sheet has -5.5 / 43.5, the market -6.5 / 44.5 (FP-SPREAD) (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "game": "ATL@GB",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": -5.5,
+        "sheet_ou": 43.5,
+        "market_spread": -6.5,
+        "market_total": 44.5,
+        "spread_delta": -1.0,
+        "total_delta": 1.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040142|3|anytime_td",
+      "severity": "warning",
+      "player": "Kaleb Johnson",
+      "gsis_id": "00-0040142",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Kaleb Johnson (RB, GB) Anytime TD rate: we project 0.02, the market implies 0.40 (also Rush Yds) (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td",
+          "rush_yds"
+        ],
+        "ours": 0.02,
+        "market_mean": 0.4011762592,
+        "delta": 0.3811762592,
+        "pct": 19.05881296,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039811|3|rush_yds",
+      "severity": "warning",
+      "player": "MarShawn Lloyd",
+      "gsis_id": "00-0039811",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 3,
+      "message": "MarShawn Lloyd (RB, GB) Rush Yds: we project 54.6, the market implies 33.6 (also Rush+Rec Yds) (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_rec_yds",
+          "rush_yds"
+        ],
+        "ours": 54.6,
+        "market_mean": 33.57902547,
+        "delta": -21.02097453,
+        "pct": -0.3849995335,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0037664|3",
+      "severity": "warning",
+      "player": "Alec Pierce",
+      "gsis_id": "00-0037664",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Alec Pierce (WR, IND) is on the active roster but has no row on the sheet (OurLads LWR #1)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "LWR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035589|3",
+      "severity": "warning",
+      "player": "Gary Jennings",
+      "gsis_id": "00-0035589",
+      "pos": "WR",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Gary Jennings (WR, LAC) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0039489|3",
+      "severity": "warning",
+      "player": "Hayden Rucci",
+      "gsis_id": "00-0039489",
+      "pos": "TE",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Hayden Rucci (TE, LAC) is on the active roster but has no row on the sheet (OurLads TE #2; promoted from the practice squad 2026-09-23)",
+      "evidence": {
+        "ourlads_depth": 2,
+        "ourlads_pos": "TE",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "TE",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036355|3|pass_tds",
+      "severity": "warning",
+      "player": "Justin Herbert",
+      "gsis_id": "00-0036355",
+      "pos": "QB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Justin Herbert (QB, LAC) Pass TD: we project 1.90, the market implies 1.34 (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "stat": "pass_tds",
+        "stats": [
+          "pass_tds"
+        ],
+        "ours": 1.9,
+        "market_mean": 1.339462116,
+        "delta": -0.5605378841,
+        "pct": -0.295019939,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039373|3",
+      "severity": "warning",
+      "player": "Audric Estimé",
+      "gsis_id": "00-0039373",
+      "pos": "RB",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Audric Estimé (RB, NO) sheet Status is IR but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041326|3",
+      "severity": "warning",
+      "player": "CJ Donaldson",
+      "gsis_id": "00-0041326",
+      "pos": "RB",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "CJ Donaldson (RB, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 1.3
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|NYG|3|TEN@NYG",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 3,
+      "message": "TEN@NYG: the sheet has -2.5 / 39.5, the market -3.5 / 40.5 (FP-SPREAD) (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "game": "TEN@NYG",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": -2.5,
+        "sheet_ou": 39.5,
+        "market_spread": -3.5,
+        "market_total": 40.5,
+        "spread_delta": -1.0,
+        "total_delta": 1.0
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038905|3",
+      "severity": "warning",
+      "player": "Blake Grupe",
+      "gsis_id": "00-0038905",
+      "pos": "K",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Blake Grupe (K, NYJ) is on the active roster but has no row on the sheet (OurLads KO #1)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "KO",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "K",
+        "status_abbr": "I01"
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0030061|3",
+      "severity": "warning",
+      "player": "Zach Ertz",
+      "gsis_id": "00-0030061",
+      "pos": "TE",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Zach Ertz (TE, PHI) is projected Active (5.9 PPR) but roster status is PS (since 2026-09-23)",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 5.9,
+        "slot": 4,
+        "earliest_return_week": null
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|nintendo wii|3|released",
+      "severity": "info",
+      "player": "Nintendo Wii",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 13 days",
+      "evidence": {
+        "event": {
+          "event_id": "dbe683763185fa5b",
+          "event_type": "released",
+          "date": "2026-09-10",
+          "source": "news:SBN Bills (Buffalo Rumblings)"
+        },
+        "days_pending": 13
+      }
+    },
+    {
+      "type": "market_only_player",
+      "key": "market_only_player|00-0038416|3|anytime_td",
+      "severity": "info",
+      "player": "Tyson Bagent",
+      "gsis_id": "00-0038416",
+      "pos": "QB",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Tyson Bagent (QB, CHI) is quoted by the market (Anytime TD rate 0.20) but has no row on the sheet (odds pulled 2026-09-22 09:06-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "market_mean": 0.2045707838,
+        "flag": "MKT-ONLY",
+        "n_books": 2
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|marquez valdez-scantling|3|ps_signed",
+      "severity": "info",
+      "player": "Marquez Valdez-Scantling",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Marquez Valdez-Scantling: reported ps signed on 2026-09-16 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 7 days",
+      "evidence": {
+        "event": {
+          "event_id": "a1a155d9e0e05ae7",
+          "event_type": "ps_signed",
+          "date": "2026-09-16",
+          "source": "news:SBN Chargers (Bolts From The Blue)"
+        },
+        "days_pending": 7
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|audric estime|3|ir_placed",
+      "severity": "info",
+      "player": "Audric Estime",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 11 days",
+      "evidence": {
+        "event": {
+          "event_id": "3c678b83451f2bd8",
+          "event_type": "ir_placed",
+          "date": "2026-09-12",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 11
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|xavier thomas|3|suspended",
+      "severity": "info",
+      "player": "Xavier Thomas",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 12 days",
+      "evidence": {
+        "event": {
+          "event_id": "e9e6dda68a40e203",
+          "event_type": "suspended",
+          "date": "2026-09-11",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 12
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "sheet_status_stale": 6,
+    "sheet_line_stale": 3,
+    "missing_active": 4,
+    "market_proj_gap": 3,
+    "status_conflict": 1,
+    "unconfirmed_report": 4,
+    "market_only_player": 1
+  }
+}
