@@ -4,14 +4,54 @@
   "season": 2026,
   "week": 3,
   "sheet": "primary",
-  "generated_at": "2026-09-23T23:16:41+00:00",
+  "generated_at": "2026-09-24T00:01:33+00:00",
   "inputs": {
     "snapshot_date": "2026-09-23",
     "nflverse_date": "2026-09-23",
-    "injury_week_updated": "2026-09-23T21:03:28+00:00",
-    "roster_state_updated": "2026-09-23T23:16:41+00:00"
+    "injury_week_updated": "2026-09-23T23:57:43+00:00",
+    "roster_state_updated": "2026-09-24T00:01:33+00:00"
   },
   "alerts": [
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0038619|3",
+      "severity": "error",
+      "player": "Andrei Iosivas",
+      "gsis_id": "00-0038619",
+      "pos": "WR",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Andrei Iosivas (WR, CIN) is projected Active (4.4 PPR) but roster status is IR (since 2026-09-23); eligible Wk 8",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "ourlads",
+        "sheet_status": "ACTIVE",
+        "ppr": 4.4,
+        "slot": 3,
+        "earliest_return_week": 8
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0037557|3",
+      "severity": "error",
+      "player": "Ronnie Rivers",
+      "gsis_id": "00-0037557",
+      "pos": "RB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Ronnie Rivers (RB, LA) is projected Active (0.4 PPR) but roster status is IR (since 2026-09-23); eligible Wk 7",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.4,
+        "slot": 3,
+        "earliest_return_week": 7
+      }
+    },
     {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0039471|3",
@@ -61,72 +101,32 @@
       "message": "Jonathon Brooks (RB, CAR) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "news",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0037120|3",
-      "severity": "warning",
-      "player": "Tyler Goodson",
-      "gsis_id": "00-0037120",
-      "pos": "RB",
-      "team": "DAL",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Tyler Goodson (RB, DAL) is on the active roster but has no row on the sheet (OurLads KR #2; promoted from the practice squad 2026-09-16)",
-      "evidence": {
-        "ourlads_depth": 2,
-        "ourlads_pos": "KR",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "RB",
-        "status_abbr": "I01"
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0037664|3",
-      "severity": "warning",
-      "player": "Alec Pierce",
-      "gsis_id": "00-0037664",
-      "pos": "WR",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Alec Pierce (WR, IND) is on the active roster but has no row on the sheet (OurLads LWR #1)",
-      "evidence": {
-        "ourlads_depth": 1,
-        "ourlads_pos": "LWR",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "WR",
-        "status_abbr": "A01"
       }
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0035589|3",
+      "key": "sheet_status_stale|00-0033885|3",
       "severity": "warning",
-      "player": "Gary Jennings",
-      "gsis_id": "00-0035589",
-      "pos": "WR",
+      "player": "David Njoku",
+      "gsis_id": "00-0033885",
+      "pos": "TE",
       "team": "LAC",
       "sheet": "primary",
       "week": 3,
-      "message": "Gary Jennings (WR, LAC) sheet Status is ACTIVE but roster says FA",
+      "message": "David Njoku (TE, LAC) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "news",
+        "roster_status": "IR",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0039489|3",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039489|3",
       "severity": "warning",
       "player": "Hayden Rucci",
       "gsis_id": "00-0039489",
@@ -134,14 +134,12 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 3,
-      "message": "Hayden Rucci (TE, LAC) is on the active roster but has no row on the sheet (OurLads TE #2; promoted from the practice squad 2026-09-23)",
+      "message": "Hayden Rucci (TE, LAC) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
-        "ourlads_depth": 2,
-        "ourlads_pos": "TE",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "TE",
-        "status_abbr": "A01"
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.1
       }
     },
     {
@@ -157,7 +155,7 @@
       "message": "Audric Estimé (RB, NO) sheet Status is IR but roster says FA",
       "evidence": {
         "roster_status": "FA",
-        "status_source": "nflverse",
+        "status_source": "official",
         "sheet_status": "IR",
         "ppr": 0.0
       }
@@ -178,6 +176,42 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040691|3",
+      "severity": "warning",
+      "player": "Jaxson Dart",
+      "gsis_id": "00-0040691",
+      "pos": "QB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jaxson Dart (QB, NYG) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "ourlads",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040582|3",
+      "severity": "warning",
+      "player": "Arian Smith",
+      "gsis_id": "00-0040582",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Arian Smith (WR, NYJ) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -210,12 +244,12 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 3,
-      "message": "Zach Ertz (TE, PHI) is projected Active (5.9 PPR) but roster status is PS (since 2026-09-23)",
+      "message": "Zach Ertz (TE, PHI) is projected Active (6.0 PPR) but roster status is PS (since 2026-09-23)",
       "evidence": {
         "roster_status": "PS",
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
-        "ppr": 5.9,
+        "ppr": 6.0,
         "slot": 4,
         "earliest_return_week": null
       }
@@ -308,9 +342,9 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "sheet_status_stale": 6,
-    "missing_active": 4,
-    "status_conflict": 1,
+    "status_conflict": 3,
+    "sheet_status_stale": 9,
+    "missing_active": 1,
     "unconfirmed_report": 4
   }
 }
