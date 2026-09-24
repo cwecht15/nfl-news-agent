@@ -1,0 +1,583 @@
+{
+  "date": "2026-09-24",
+  "run": "injuries",
+  "season": 2026,
+  "week": 3,
+  "sheet": "primary",
+  "generated_at": "2026-09-24T21:01:47+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-24",
+    "nflverse_date": "2026-09-24",
+    "injury_week_updated": "2026-09-24T21:01:45+00:00",
+    "roster_state_updated": "2026-09-24T18:59:49+00:00"
+  },
+  "alerts": [
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0037557|3",
+      "severity": "error",
+      "player": "Ronnie Rivers",
+      "gsis_id": "00-0037557",
+      "pos": "RB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Ronnie Rivers (RB, LA) is projected Active (0.4 PPR) but roster status is IR (since 2026-09-24); eligible Wk 7",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.4,
+        "slot": 3,
+        "earliest_return_week": 7
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039471|3",
+      "severity": "warning",
+      "player": "Frank Gore Jr.",
+      "gsis_id": "00-0039471",
+      "pos": "RB",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Frank Gore Jr. (RB, BUF) sheet Status is ACTIVE but roster says PS",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035500|3",
+      "severity": "warning",
+      "player": "Greg Dortch",
+      "gsis_id": "00-0035500",
+      "pos": "WR",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Greg Dortch (WR, BUF) sheet Status is ACTIVE but roster says PS",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039344|3",
+      "severity": "warning",
+      "player": "Jonathon Brooks",
+      "gsis_id": "00-0039344",
+      "pos": "RB",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jonathon Brooks (RB, CAR) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041496|3|anytime_td",
+      "severity": "warning",
+      "player": "Jonah Coleman",
+      "gsis_id": "00-0041496",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jonah Coleman (RB, DEN) Anytime TD rate: we project 0.11, the market implies 0.56 (odds pulled 2026-09-24 14:16-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.11,
+        "market_mean": 0.5569252406,
+        "delta": 0.4469252406,
+        "pct": 4.062956732,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0037664|3",
+      "severity": "warning",
+      "player": "Alec Pierce",
+      "gsis_id": "00-0037664",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Alec Pierce (WR, IND) is on the active roster but has no row on the sheet (OurLads IR #1; ir placed 2026-09-23)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "IR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0033885|3",
+      "severity": "warning",
+      "player": "David Njoku",
+      "gsis_id": "00-0033885",
+      "pos": "TE",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "David Njoku (TE, LAC) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039489|3",
+      "severity": "warning",
+      "player": "Hayden Rucci",
+      "gsis_id": "00-0039489",
+      "pos": "TE",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Hayden Rucci (TE, LAC) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.1
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0034272|3",
+      "severity": "warning",
+      "player": "Marquez Valdes-Scantling",
+      "gsis_id": "00-0034272",
+      "pos": "WR",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Marquez Valdes-Scantling (WR, LAC) is on the active roster but has no row on the sheet (OurLads LWR #2; promoted from the practice squad 2026-09-24)",
+      "evidence": {
+        "ourlads_depth": 2,
+        "ourlads_pos": "LWR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039373|3",
+      "severity": "warning",
+      "player": "Audric Estimé",
+      "gsis_id": "00-0039373",
+      "pos": "RB",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Audric Estimé (RB, NO) sheet Status is IR but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041326|3",
+      "severity": "warning",
+      "player": "CJ Donaldson",
+      "gsis_id": "00-0041326",
+      "pos": "RB",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "CJ Donaldson (RB, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 1.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040582|3",
+      "severity": "warning",
+      "player": "Arian Smith",
+      "gsis_id": "00-0040582",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Arian Smith (WR, NYJ) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038905|3",
+      "severity": "warning",
+      "player": "Blake Grupe",
+      "gsis_id": "00-0038905",
+      "pos": "K",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Blake Grupe (K, NYJ) is on the active roster but has no row on the sheet (OurLads KO #1)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "KO",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "K",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0041267|3",
+      "severity": "warning",
+      "player": "Malik McClain",
+      "gsis_id": "00-0041267",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Malik McClain (WR, NYJ) is on the active roster but has no row on the sheet (OurLads LWR #2; promoted from the practice squad 2026-09-24)",
+      "evidence": {
+        "ourlads_depth": 2,
+        "ourlads_pos": "LWR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036389|3|rush_att",
+      "severity": "warning",
+      "player": "Jalen Hurts",
+      "gsis_id": "00-0036389",
+      "pos": "QB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jalen Hurts (QB, PHI) Rush Att: we project 4.2, the market implies 7.3 (odds pulled 2026-09-24 14:16-04:00)",
+      "evidence": {
+        "stat": "rush_att",
+        "stats": [
+          "rush_att"
+        ],
+        "ours": 4.2,
+        "market_mean": 7.264132143,
+        "delta": 3.064132143,
+        "pct": 0.7295552721,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0030061|3",
+      "severity": "warning",
+      "player": "Zach Ertz",
+      "gsis_id": "00-0030061",
+      "pos": "TE",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Zach Ertz (TE, PHI) is projected Active (6.0 PPR) but roster status is PS (since 2026-09-24)",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 6.0,
+        "slot": 4,
+        "earliest_return_week": null
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038797|3|anytime_td",
+      "severity": "warning",
+      "player": "Emanuel Wilson",
+      "gsis_id": "00-0038797",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Emanuel Wilson (RB, SEA) Anytime TD rate: we project 0.71, the market implies 0.36 (odds pulled 2026-09-24 14:16-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.71,
+        "market_mean": 0.3564197299,
+        "delta": -0.3535802701,
+        "pct": -0.4980003804,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039064|3",
+      "severity": "info",
+      "player": "Zay Flowers",
+      "gsis_id": "00-0039064",
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Zay Flowers (WR, BLT) did not practice on the latest report (Hamstring); projected 13.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-23": "DNP",
+          "2026-09-24": "DNP"
+        },
+        "injury": "Hamstring",
+        "ppr": 13.4
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|nintendo wii|3|released",
+      "severity": "info",
+      "player": "Nintendo Wii",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 14 days",
+      "evidence": {
+        "event": {
+          "event_id": "dbe683763185fa5b",
+          "event_type": "released",
+          "date": "2026-09-10",
+          "source": "news:SBN Bills (Buffalo Rumblings)"
+        },
+        "days_pending": 14
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039491|3",
+      "severity": "info",
+      "player": "Jalen Coker",
+      "gsis_id": "00-0039491",
+      "pos": "WR",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jalen Coker (WR, CAR) did not practice on the latest report (Ankle); projected 13.7 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-23": "LP",
+          "2026-09-24": "DNP"
+        },
+        "injury": "Ankle",
+        "ppr": 13.7
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038619|3",
+      "severity": "info",
+      "player": "Andrei Iosivas",
+      "gsis_id": "00-0038619",
+      "pos": "WR",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Andrei Iosivas (WR, CIN) did not practice on the latest report (Thumb); projected 4.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-23": "DNP",
+          "2026-09-24": "DNP"
+        },
+        "injury": "Thumb",
+        "ppr": 4.4
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0041550|3",
+      "severity": "info",
+      "player": "Brenen Thompson",
+      "gsis_id": "00-0041550",
+      "pos": "WR",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Brenen Thompson (WR, LAC) did not practice on the latest report (Quadricep); projected 1.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-23": "DNP",
+          "2026-09-24": "DNP"
+        },
+        "injury": "Quadricep",
+        "ppr": 1.8
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|marquez valdez-scantling|3|ps_signed",
+      "severity": "info",
+      "player": "Marquez Valdez-Scantling",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Marquez Valdez-Scantling: reported ps signed on 2026-09-16 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 8 days",
+      "evidence": {
+        "event": {
+          "event_id": "a1a155d9e0e05ae7",
+          "event_type": "ps_signed",
+          "date": "2026-09-16",
+          "source": "news:SBN Chargers (Bolts From The Blue)"
+        },
+        "days_pending": 8
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038824|3",
+      "severity": "info",
+      "player": "Ryan Miller",
+      "gsis_id": "00-0038824",
+      "pos": "WR",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Ryan Miller (WR, MIA) did not practice on the latest report (Hip /Back); projected 1.5 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-23": "LP",
+          "2026-09-24": "DNP"
+        },
+        "injury": "Hip /Back",
+        "ppr": 1.5
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0041395|3",
+      "severity": "info",
+      "player": "Eli Raridon",
+      "gsis_id": "00-0041395",
+      "pos": "TE",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Eli Raridon (TE, NE) did not practice on the latest report (Thigh); projected 2.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-23": "LP",
+          "2026-09-24": "DNP"
+        },
+        "injury": "Thigh",
+        "ppr": 2.4
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|audric estime|3|ir_placed",
+      "severity": "info",
+      "player": "Audric Estime",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 12 days",
+      "evidence": {
+        "event": {
+          "event_id": "3c678b83451f2bd8",
+          "event_type": "ir_placed",
+          "date": "2026-09-12",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 12
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|xavier thomas|3|suspended",
+      "severity": "info",
+      "player": "Xavier Thomas",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 13 days",
+      "evidence": {
+        "event": {
+          "event_id": "e9e6dda68a40e203",
+          "event_type": "suspended",
+          "date": "2026-09-11",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 13
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039032|3",
+      "severity": "info",
+      "player": "Tyjae Spears",
+      "gsis_id": "00-0039032",
+      "pos": "RB",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Tyjae Spears (RB, TEN) did not practice on the latest report (Ankle); projected 7.3 PPR",
+      "evidence": {
+        "practice": {
+          "2026-09-23": "DNP",
+          "2026-09-24": "DNP"
+        },
+        "injury": "Ankle",
+        "ppr": 7.3
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "status_conflict": 2,
+    "sheet_status_stale": 8,
+    "market_proj_gap": 3,
+    "missing_active": 4,
+    "dnp_but_projected": 7,
+    "unconfirmed_report": 4
+  }
+}
