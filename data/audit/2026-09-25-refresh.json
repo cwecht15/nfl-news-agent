@@ -4,14 +4,36 @@
   "season": 2026,
   "week": 3,
   "sheet": "primary",
-  "generated_at": "2026-09-25T17:00:07+00:00",
+  "generated_at": "2026-09-25T18:31:58+00:00",
   "inputs": {
     "snapshot_date": "2026-09-25",
     "nflverse_date": "2026-09-25",
-    "injury_week_updated": "2026-09-25T17:00:06+00:00",
-    "roster_state_updated": "2026-09-25T15:57:17+00:00"
+    "injury_week_updated": "2026-09-25T18:31:58+00:00",
+    "roster_state_updated": "2026-09-25T18:31:54+00:00"
   },
   "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0041550|3|OUT",
+      "severity": "error",
+      "player": "Brenen Thompson",
+      "gsis_id": "00-0041550",
+      "pos": "WR",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Brenen Thompson (WR, LAC) is OUT (Quadricep) but projected for 1.8 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Quadricep",
+        "practice": {
+          "2026-09-23": "DNP",
+          "2026-09-24": "DNP",
+          "2026-09-25": "DNP"
+        },
+        "ppr": 1.8
+      }
+    },
     {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0032398|3|rec_yds",
@@ -237,46 +259,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0034827|3",
-      "severity": "info",
-      "player": "DJ Moore",
-      "gsis_id": "00-0034827",
-      "pos": "WR",
-      "team": "BUF",
-      "sheet": "primary",
-      "week": 3,
-      "message": "DJ Moore (WR, BUF) did not practice on the latest report (Shoulder); projected 12.6 PPR",
-      "evidence": {
-        "practice": {
-          "2026-09-23": "LP",
-          "2026-09-24": "DNP"
-        },
-        "injury": "Shoulder",
-        "ppr": 12.6
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0039901|3",
-      "severity": "info",
-      "player": "Keon Coleman",
-      "gsis_id": "00-0039901",
-      "pos": "WR",
-      "team": "BUF",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Keon Coleman (WR, BUF) did not practice on the latest report (Ankle); projected 5.3 PPR",
-      "evidence": {
-        "practice": {
-          "2026-09-23": "DNP",
-          "2026-09-24": "DNP"
-        },
-        "injury": "Ankle",
-        "ppr": 5.3
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|nintendo wii|3|released",
       "severity": "info",
@@ -335,26 +317,6 @@
         },
         "injury": "Knee",
         "ppr": 4.2
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0041550|3",
-      "severity": "info",
-      "player": "Brenen Thompson",
-      "gsis_id": "00-0041550",
-      "pos": "WR",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Brenen Thompson (WR, LAC) did not practice on the latest report (Quadricep); projected 1.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-09-23": "DNP",
-          "2026-09-24": "DNP"
-        },
-        "injury": "Quadricep",
-        "ppr": 1.8
       }
     },
     {
@@ -504,10 +466,11 @@
   "dismissed": [],
   "errors": [],
   "counts": {
+    "out_but_projected": 1,
     "market_proj_gap": 3,
     "missing_active": 4,
     "sheet_status_stale": 3,
-    "dnp_but_projected": 10,
+    "dnp_but_projected": 7,
     "unconfirmed_report": 4
   }
 }
