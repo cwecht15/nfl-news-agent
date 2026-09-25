@@ -4,14 +4,36 @@
   "season": 2026,
   "week": 3,
   "sheet": "primary",
-  "generated_at": "2026-09-25T20:31:45+00:00",
+  "generated_at": "2026-09-25T23:12:19+00:00",
   "inputs": {
     "snapshot_date": "2026-09-25",
     "nflverse_date": "2026-09-25",
-    "injury_week_updated": "2026-09-25T20:31:44+00:00",
+    "injury_week_updated": "2026-09-25T23:12:18+00:00",
     "roster_state_updated": "2026-09-25T18:31:54+00:00"
   },
   "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0041496|3|OUT",
+      "severity": "error",
+      "player": "Jonah Coleman",
+      "gsis_id": "00-0041496",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jonah Coleman (RB, DEN) is OUT (Ankle) but projected for 2.9 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-09-23": "DNP",
+          "2026-09-24": "DNP",
+          "2026-09-25": "DNP"
+        },
+        "ppr": 2.9
+      }
+    },
     {
       "type": "out_but_projected",
       "key": "out_but_projected|00-0041550|3|OUT",
@@ -205,6 +227,28 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0039874|3|D",
+      "severity": "warning",
+      "player": "Jaylen Wright",
+      "gsis_id": "00-0039874",
+      "pos": "RB",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jaylen Wright (RB, MIA) is Doubtful (Foot) but projected for 1.6 PPR",
+      "evidence": {
+        "game_status": "D",
+        "injury": "Foot",
+        "practice": {
+          "2026-09-23": "LP",
+          "2026-09-24": "LP",
+          "2026-09-25": "DNP"
+        },
+        "ppr": 1.6
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0041326|3",
       "severity": "warning",
@@ -282,46 +326,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0041496|3",
-      "severity": "info",
-      "player": "Jonah Coleman",
-      "gsis_id": "00-0041496",
-      "pos": "RB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Jonah Coleman (RB, DEN) did not practice on the latest report (Ankle); projected 2.9 PPR",
-      "evidence": {
-        "practice": {
-          "2026-09-23": "DNP",
-          "2026-09-24": "DNP"
-        },
-        "injury": "Ankle",
-        "ppr": 2.9
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036244|3",
-      "severity": "info",
-      "player": "Colby Parkinson",
-      "gsis_id": "00-0036244",
-      "pos": "TE",
-      "team": "LA",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Colby Parkinson (TE, LA) did not practice on the latest report (Knee); projected 4.2 PPR",
-      "evidence": {
-        "practice": {
-          "2026-09-23": "DNP",
-          "2026-09-24": "DNP"
-        },
-        "injury": "Knee",
-        "ppr": 4.2
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|marquez valdez-scantling|3|ps_signed",
       "severity": "info",
@@ -343,26 +347,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0038824|3",
-      "severity": "info",
-      "player": "Ryan Miller",
-      "gsis_id": "00-0038824",
-      "pos": "WR",
-      "team": "MIA",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Ryan Miller (WR, MIA) did not practice on the latest report (Hip); projected 1.4 PPR",
-      "evidence": {
-        "practice": {
-          "2026-09-23": "LP",
-          "2026-09-24": "DNP"
-        },
-        "injury": "Hip",
-        "ppr": 1.4
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|audric estime|3|ir_placed",
       "severity": "info",
@@ -381,26 +365,6 @@
           "source": "news:Pro Football Talk"
         },
         "days_pending": 13
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0031408|3",
-      "severity": "info",
-      "player": "Mike Evans",
-      "gsis_id": "00-0031408",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Mike Evans (WR, SF) did not practice on the latest report (Hip); projected 13.3 PPR",
-      "evidence": {
-        "practice": {
-          "2026-09-23": "DNP",
-          "2026-09-24": "DNP"
-        },
-        "injury": "Hip",
-        "ppr": 13.3
       }
     },
     {
@@ -428,11 +392,10 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "out_but_projected": 2,
+    "out_but_projected": 4,
     "market_proj_gap": 3,
     "missing_active": 4,
     "sheet_status_stale": 3,
-    "unconfirmed_report": 4,
-    "dnp_but_projected": 4
+    "unconfirmed_report": 4
   }
 }
