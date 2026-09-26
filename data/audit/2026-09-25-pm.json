@@ -1,0 +1,351 @@
+{
+  "date": "2026-09-25",
+  "run": "pm",
+  "season": 2026,
+  "week": 3,
+  "sheet": "primary",
+  "generated_at": "2026-09-26T00:09:23+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-25",
+    "nflverse_date": "2026-09-25",
+    "injury_week_updated": "2026-09-26T00:09:23+00:00",
+    "roster_state_updated": "2026-09-26T00:09:19+00:00"
+  },
+  "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0041099|3|OUT",
+      "severity": "error",
+      "player": "Barion Brown",
+      "gsis_id": "00-0041099",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Barion Brown (WR, NO) is OUT (Hamstring) but projected for 0.2 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hamstring",
+        "practice": {
+          "2026-09-23": "DNP",
+          "2026-09-24": "DNP",
+          "2026-09-25": "DNP"
+        },
+        "ppr": 0.2
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0032398|3|rec_yds",
+      "severity": "warning",
+      "player": "Chris Moore",
+      "gsis_id": "00-0032398",
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Chris Moore (WR, BLT) Rec Yds: we project 12.5, the market implies 26.1 (odds pulled 2026-09-25 10:48-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 12.5,
+        "market_mean": 26.06593568,
+        "delta": 13.56593568,
+        "pct": 1.085274854,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040075|3|rec_yds",
+      "severity": "warning",
+      "player": "LaJohntay Wester",
+      "gsis_id": "00-0040075",
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 3,
+      "message": "LaJohntay Wester (WR, BLT) Rec Yds: we project 5.3, the market implies 23.6 (also Rec) (odds pulled 2026-09-25 10:48-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 5.3,
+        "market_mean": 23.55602959,
+        "delta": 18.25602959,
+        "pct": 3.444533885,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035500|3",
+      "severity": "warning",
+      "player": "Greg Dortch",
+      "gsis_id": "00-0035500",
+      "pos": "WR",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Greg Dortch (WR, BUF) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.1
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038619|3",
+      "severity": "warning",
+      "player": "Andrei Iosivas",
+      "gsis_id": "00-0038619",
+      "pos": "WR",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Andrei Iosivas (WR, CIN) is on the active roster but has no row on the sheet (OurLads IR #1; ir placed 2026-09-23)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "IR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0037664|3",
+      "severity": "warning",
+      "player": "Alec Pierce",
+      "gsis_id": "00-0037664",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Alec Pierce (WR, IND) is on the active roster but has no row on the sheet (OurLads IR #1; ir placed 2026-09-23)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "IR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040737|3|rec_yds",
+      "severity": "warning",
+      "player": "Terrance Ferguson",
+      "gsis_id": "00-0040737",
+      "pos": "TE",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Terrance Ferguson (TE, LA) Rec Yds: we project 39.7, the market implies 55.0 (odds pulled 2026-09-25 10:48-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 39.7,
+        "market_mean": 55.03269128,
+        "delta": 15.33269128,
+        "pct": 0.3862138861,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039489|3",
+      "severity": "warning",
+      "player": "Hayden Rucci",
+      "gsis_id": "00-0039489",
+      "pos": "TE",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Hayden Rucci (TE, LAC) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 1.7
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0034272|3",
+      "severity": "warning",
+      "player": "Marquez Valdes-Scantling",
+      "gsis_id": "00-0034272",
+      "pos": "WR",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Marquez Valdes-Scantling (WR, LAC) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.7
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041326|3",
+      "severity": "warning",
+      "player": "CJ Donaldson",
+      "gsis_id": "00-0041326",
+      "pos": "RB",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "CJ Donaldson (RB, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 1.4
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038905|3",
+      "severity": "warning",
+      "player": "Blake Grupe",
+      "gsis_id": "00-0038905",
+      "pos": "K",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Blake Grupe (K, NYJ) is on the active roster but has no row on the sheet (OurLads KO #1)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "KO",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "K",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041267|3",
+      "severity": "warning",
+      "player": "Malik McClain",
+      "gsis_id": "00-0041267",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Malik McClain (WR, NYJ) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.2
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|nintendo wii|3|released",
+      "severity": "info",
+      "player": "Nintendo Wii",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 15 days",
+      "evidence": {
+        "event": {
+          "event_id": "dbe683763185fa5b",
+          "event_type": "released",
+          "date": "2026-09-10",
+          "source": "news:SBN Bills (Buffalo Rumblings)"
+        },
+        "days_pending": 15
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|marquez valdez-scantling|3|ps_signed",
+      "severity": "info",
+      "player": "Marquez Valdez-Scantling",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Marquez Valdez-Scantling: reported ps signed on 2026-09-16 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 9 days",
+      "evidence": {
+        "event": {
+          "event_id": "a1a155d9e0e05ae7",
+          "event_type": "ps_signed",
+          "date": "2026-09-16",
+          "source": "news:SBN Chargers (Bolts From The Blue)"
+        },
+        "days_pending": 9
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|audric estime|3|ir_placed",
+      "severity": "info",
+      "player": "Audric Estime",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 13 days",
+      "evidence": {
+        "event": {
+          "event_id": "3c678b83451f2bd8",
+          "event_type": "ir_placed",
+          "date": "2026-09-12",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 13
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|xavier thomas|3|suspended",
+      "severity": "info",
+      "player": "Xavier Thomas",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 14 days",
+      "evidence": {
+        "event": {
+          "event_id": "e9e6dda68a40e203",
+          "event_type": "suspended",
+          "date": "2026-09-11",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 14
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "out_but_projected": 1,
+    "market_proj_gap": 3,
+    "sheet_status_stale": 5,
+    "missing_active": 3,
+    "unconfirmed_report": 4
+  }
+}
