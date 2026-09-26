@@ -66,7 +66,8 @@ from scripts.run_daily import (
 # via .github/workflows/refresh.yml.
 # ---------------------------------------------------------------------------
 
-REFRESH_TARGETS: tuple[str, ...] = ("roster", "elevations", "injuries", "inactives", "transactions")
+REFRESH_TARGETS: tuple[str, ...] = ("roster", "elevations", "injuries", "inactives", "transactions",
+                                   "odds")
 
 # Every step run_in_season_steps knows about except "audit", which every refresh
 # re-runs: it is pure-disk and it is what turns freshly collected data into the
@@ -86,6 +87,9 @@ _TARGET_STEPS: dict[str, set[str]] = {
     # become roster events solely by being handed to run_in_season_steps as
     # news_items. Skipping the roster step would collect data nobody reads.
     "transactions": {"roster"},
+    # Market lines are read by run_odds_step, outside run_in_season_steps; the
+    # audit that always re-runs is what turns them into market alerts.
+    "odds": set(),
 }
 
 
@@ -126,7 +130,7 @@ def plan_for_targets(targets: set[str]) -> dict:
         "run": "refresh",
         "collect_transactions": "transactions" in targets,
         # Lines move hardest on game day, which is when inactives are polled.
-        "odds": "inactives" in targets,
+        "odds": bool({"inactives", "odds"} & targets),
     }
 
 
@@ -339,7 +343,8 @@ def _run_targets(date_str: str, ctx, targets: set[str], logger: logging.Logger) 
 
     Backs the dashboard's Refresh buttons via .github/workflows/refresh.yml,
     for the sources that move faster than the crons: rosters, transactions,
-    practice-squad elevations, the injury report and game-day inactives.
+    practice-squad elevations, the injury report, game-day inactives and the
+    market lines the NFL Odds project publishes (a sheet read, no API credits).
 
     Deliberately NOT a refactor of ``--inactives-only`` / ``--injuries-only``.
     Those two are pinned by six cron schedules, three .bat dispatchers and

@@ -14,12 +14,14 @@ import streamlit as st
 
 from processing.line_insights import FINE_STATS
 
-VALUE_COLS = ("Your proj", "Book line", "Market open", "Market now")
+VALUE_COLS = ("Your proj", "Book line", "Market open", "Market then", "Market now")
 HELP = {
     "Book line": "The posted over/under. Anytime TD is a yes/no bet, so it has none.",
     "Market open": "The betting consensus's implied average when the line opened.",
+    "Market then": "The betting consensus's implied average at the \"Moved since\" baseline.",
     "Market now": "The betting consensus's implied average at the latest pull.",
-    "Move %": "Market now vs where the line opened, in percent — comparable across stats.",
+    "Move %": "Market now vs where the line started (open, or the page's \"Moved since\" "
+              "baseline), in percent — comparable across stats.",
     "Last pull": "Change in the most recent pull, in the stat's own units.",
     "Market vs you %": "Market now vs your projection; \"you: 0\" when your sheet projects none.",
 }

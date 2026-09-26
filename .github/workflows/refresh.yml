@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       targets:
-        description: "Comma-separated: roster, elevations, injuries, inactives, transactions — or 'all'"
+        description: "Comma-separated: roster, elevations, injuries, inactives, transactions, odds — or 'all'"
         required: false
         default: "all"
       date:
@@ -84,7 +84,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-refresh.txt
 
-      # Only the `inactives` target needs this: run_odds_step reads the NFL Odds
+      # Only the `inactives` and `odds` targets need this: run_odds_step reads the NFL Odds
       # project's sheets over gspread. Without the secret it logs a non-fatal
       # warning — the inactives still land, the line movement doesn't.
       - name: Restore secrets onto disk

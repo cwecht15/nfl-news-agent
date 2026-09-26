@@ -144,6 +144,9 @@ def source_stamps(season: int, week: int | None) -> dict[str, str]:
         ina = inactives_week(season, week) or {}
         if ina.get("updated_at"):
             stamps["inactives"] = ina["updated_at"]
+        odds = odds_week(season, week) or {}
+        if odds.get("updated_at"):
+            stamps["odds"] = odds["updated_at"]
 
     # NFL.com transactions have no file of their own — the newest official
     # roster event is when they were last read.

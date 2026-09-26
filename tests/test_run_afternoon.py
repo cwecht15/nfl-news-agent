@@ -203,6 +203,8 @@ def test_parse_targets_rejects_an_unknown_token_loudly():
     # transactions implies roster (the scrape is only useful as roster events)
     ({"transactions"}, {"elevations", "injuries", "inactives"}, True,  False),
     ({"roster", "injuries"}, {"elevations", "inactives"},       False, False),
+    # odds is a sheet read outside run_in_season_steps: every step skipped, audit still runs
+    ({"odds"},         {"roster", "elevations", "injuries", "inactives"}, False, True),
 ])
 def test_plan_for_targets_skip_sets(targets, skip, tx, odds):
     plan = run_afternoon.plan_for_targets(targets)

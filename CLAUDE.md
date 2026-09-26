@@ -202,10 +202,19 @@ the offseason path.
   `window=True, since=report_window_start(date)` — every pull first seen after the *previous day's*
   report — so Thursday 4 PM's moves reach Friday morning's report, and the afternoon rebuild covers
   the same window (it can only add, never blank the morning's section). The dashboard page leads
-  with **What matters** (`processing/line_insights.py`): implied team totals open → now and the
-  sheet's implied total vs the market's (the sheet line drives every projection in the game), and
-  player lines flagged RED or moving *away* from your projection since open (in units of the
-  stat's movement threshold); teams whose game is over are left out. **Recent pulls** lists
+  with **Movement** (`processing/line_insights.py`), measured from a page-level **Moved since**
+  baseline — Open / Yesterday's report / Latest pull. Every non-open baseline is a cutoff on when
+  this repo first *read* a pull (`pull_log[].seen_at`; a pull's read time is the first `seen_at`
+  at or after it), and "Latest pull" covers every pull the latest read brought in (a full prop
+  pull and an anytime-TD merge pull often land in one read). Movement is kept apart from state:
+  `team_movement` (every team's implied total then → now, a diverging bar chart, the move split
+  exactly into `from_total` = Δtotal/2 and `from_spread` = −Δspread/2), `sheet_vs_market` (the
+  sheet's implied total vs the market's now — a state, no baseline), and `player_movement` (one
+  row per player grouping the stats that moved at least N× their threshold; a RED/AMBER flag on a
+  line that did not move adds no row — flags live on Market vs projections). Props carry
+  `history: [[pulled_at, mkt_mu], ...]` (value changes only, rebuilt from the whole week tab on
+  every read), which is what makes a mid-week baseline possible; older files fall back to
+  `opened`/`previous`. Teams whose game is over are left out. **Recent pulls** lists
   `pull_log`, falling back to a state-derived latest-pull diff for files without one.
 - **Projection audit (Step 5d):** `processing/projection_audit.py` cross-checks the active sheet
   against roster state / nflverse / injuries / inactives / OurLads / schedule: `status_conflict`
@@ -275,8 +284,11 @@ the offseason path.
   `pm_updated_at`, and the in-season dashboard pages (Home week hub / Roster State / Injury
   Report / Inactives / Projection Audit / Line Movement — shared loaders in `dashboard/in_season_data.py`).
 - **On-demand refresh (cloud):** `run_afternoon.py --only <targets>` where targets are any of
-  `roster, elevations, injuries, inactives, transactions` (or `all`), mapped onto
-  `run_in_season_steps`' `skip` set by `plan_for_targets`. Two implications are deliberate:
+  `roster, elevations, injuries, inactives, transactions, odds` (or `all`), mapped onto
+  `run_in_season_steps`' `skip` set by `plan_for_targets`. `odds` re-reads the NFL Odds project's
+  sheets via `run_odds_step` (no Odds API call, 0 credits — a new *price* still needs that
+  project's own pull) and skips every in-season step; the audit it always re-runs is what turns
+  new lines into market alerts. Two implications are deliberate:
   **transactions implies roster** (the NFL.com scrape only writes `web_pm.json`; those rows become
   roster events solely by being handed to `run_in_season_steps` as `news_items`) and **inactives
   implies elevations** (the game-day poll exists partly to beat the Saturday 4 PM ET deadline),
@@ -378,7 +390,7 @@ FantasyPoints only when a non-empty `data/raw/<date>/fantasypoints.json` exists 
 | This Week | Inactives *(in-season)* | Game-day inactives from ESPN per-game rosters, skill-position filter, **Refresh inactives** button. |
 | This Week | Roster State *(in-season)* | **Practice-squad elevations** first — a **Refresh rosters** button (rosters + elevations) carrying the last-collected time, this week's count, how many were declared today, clubs reported, and which clubs whose game is still to come have none yet (`team_data.elevation_status`; a club may simply have elevated nobody), filterable by team and position. Then IR/PUP/NFI/SUS/PS standing per player (return eligibility, elevations used) + recent roster-event feed. |
 | This Week | Projection Audit *(in-season)* | Latest audit alerts with severity/type filters, per-alert dismiss + note, restore; cloud "Save dismissals to repo"; **Refresh everything** (re-collect every source, then re-run the audit against it). |
-| This Week | Line Movement *(in-season)* | **What matters** first: team implied totals that moved or where your sheet is off the market, and player lines RED or moving away from your projection (played games left out). Then game lines vs open / sharp / your sheet, prop movers (Move % and market-vs-you % so receptions and yards compare; ranked by move ÷ stat threshold; anytime TD in implied TDs; per-row precision via `dashboard/prop_view.py`), market-vs-projection flags, and **Recent pulls** (each odds pull's changes). Reads `data/odds/` only — never spends a Sheets read on a rerun. |
+| This Week | Line Movement *(in-season)* | **Refresh lines** button (re-reads the odds sheets, 0 credits) and a **Moved since** selector (Open / Yesterday's report / Latest pull) that every tab follows. **Movement** first: a diverging bar chart + table of every team's implied-total move with why (total vs spread part), your sheet vs the market as its own table, and player lines that moved — one row per player, stats grouped, ▲/▼, toward/away from your projection (played games left out). Then game lines vs the baseline / sharp / your sheet, all player lines (Move % and market-vs-you % so receptions and yards compare; ranked by move ÷ stat threshold; anytime TD in implied TDs; per-row precision via `dashboard/prop_view.py`), market-vs-projection flags, and **Recent pulls** (each odds pull's changes). Reads `data/odds/` only — never spends a Sheets read on a rerun. |
 | Sources | Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
 | Sources | YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
 | Sources | Podcast Report | Date-range picker → checkbox episode table → on-demand LLM summary of pushed podcast episodes (Episode Highlights + per-team bullets). Transcript-tag-first, show-notes fallback. Cached. |

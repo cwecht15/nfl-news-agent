@@ -117,6 +117,19 @@ def test_previous_pull_is_resolved_per_player_stat_not_globally():
     assert td["previous"] is None and td["pulls"] == 1
 
 
+def test_prop_history_keeps_one_pair_per_value_change():
+    base = {"gsis_id": "00-3", "player": "C", "team": "NE", "opp": "SEA", "pos": "WR",
+            "stat": "receptions", "ours": 4.0, "cons_line": 4.5, "n_books": 6, "delta": 0.0,
+            "pct": 0.0, "flag": "", "game": "g", "event_id": "e", "kickoff_utc": ""}
+    rows = [{**base, "pulled_at": at, "mkt_mu": mu} for at, mu in (
+        ("2026-09-10T10:00:00+00:00", 4.6),     # out of order on purpose
+        ("2026-09-08T10:00:00+00:00", 4.2),
+        ("2026-09-09T10:00:00+00:00", 4.2),     # unchanged -> no new pair
+    )]
+    hist = oc.collapse_prop_history(rows)["00-3|receptions"]["history"]
+    assert hist == [["2026-09-08T10:00:00+00:00", 4.2], ["2026-09-10T10:00:00+00:00", 4.6]]
+
+
 def test_thin_quotes_are_stored_but_never_produce_a_change():
     rows = [
         {"pulled_at": "2026-09-08T10:00:00+00:00", "gsis_id": "00-2", "player": "B", "team": "NE",

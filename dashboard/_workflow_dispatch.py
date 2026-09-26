@@ -75,6 +75,10 @@ TARGETS: dict[str, dict] = {
         "label": "Transactions",
         "blurb": "NFL.com signings, releases, reserve-list and waiver moves.",
     },
+    "odds": {
+        "label": "Market lines",
+        "blurb": "Re-reads the NFL Odds project's sheets (no Odds API call, 0 credits).",
+    },
 }
 
 

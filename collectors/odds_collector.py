@@ -476,6 +476,16 @@ def collapse_prop_history(rows: list[dict], min_books: int = 2) -> dict[str, dic
             return {"mkt_mu": r["mkt_mu"], "cons_line": r["cons_line"],
                     "n_books": r["n_books"], "at": r["pulled_at"]}
 
+        # [pulled_at, mkt_mu] each time the value changed, so the dashboard can
+        # measure a move from any point in the week ("since yesterday's
+        # report"), not only from open or the previous pull.
+        # Rounded: the sheet carries ~11 decimals, which tripled the file.
+        history: list[list] = []
+        for r in entries:
+            mu = round(r["mkt_mu"], 4)
+            if not history or history[-1][1] != mu:
+                history.append([r["pulled_at"], mu])
+
         out[key] = {
             "gsis_id": last["gsis_id"], "player": last["player"], "team": last["team"],
             "opp": last["opp"], "pos": last["pos"], "stat": last["stat"],
@@ -485,6 +495,7 @@ def collapse_prop_history(rows: list[dict], min_books: int = 2) -> dict[str, dic
             "thin": last["flag"] == "THIN" or last["n_books"] < min_books,
             "pulls": len(entries),
             "opened": _snap(first), "previous": _snap(prev), "current": _snap(last),
+            "history": history,
         }
     return out
 
