@@ -1,0 +1,548 @@
+{
+  "date": "2026-09-26",
+  "run": "pm",
+  "season": 2026,
+  "week": 3,
+  "sheet": "primary",
+  "generated_at": "2026-09-26T23:52:06+00:00",
+  "inputs": {
+    "snapshot_date": "2026-09-26",
+    "nflverse_date": "2026-09-26",
+    "injury_week_updated": "2026-09-26T23:52:06+00:00",
+    "roster_state_updated": "2026-09-26T23:52:03+00:00"
+  },
+  "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0041099|3|OUT",
+      "severity": "error",
+      "player": "Barion Brown",
+      "gsis_id": "00-0041099",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Barion Brown (WR, NO) is OUT (Hamstring) but projected for 0.2 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hamstring",
+        "practice": {
+          "2026-09-23": "DNP",
+          "2026-09-24": "DNP",
+          "2026-09-25": "DNP"
+        },
+        "ppr": 0.2
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0035662|3|OUT",
+      "severity": "error",
+      "player": "Marquise Brown",
+      "gsis_id": "00-0035662",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Marquise Brown (WR, PHI) is OUT (Ankle) but projected for 0.2 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-09-25": "DNP",
+          "2026-09-26": "DNP"
+        },
+        "ppr": 0.2
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041496|3",
+      "severity": "warning",
+      "player": "Jonah Coleman",
+      "gsis_id": "00-0041496",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jonah Coleman (RB, DEN) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039816|3",
+      "severity": "warning",
+      "player": "Anthony Gould",
+      "gsis_id": "00-0039816",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Anthony Gould (WR, IND) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0035021|3",
+      "severity": "warning",
+      "player": "Ashton Dulin",
+      "gsis_id": "00-0035021",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Ashton Dulin (WR, IND) is on the active roster but has no row on the sheet (OurLads KR #2)",
+      "evidence": {
+        "ourlads_depth": 2,
+        "ourlads_pos": "KR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038905|3",
+      "severity": "warning",
+      "player": "Blake Grupe",
+      "gsis_id": "00-0038905",
+      "pos": "K",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Blake Grupe (K, NYJ) is on the active roster but has no row on the sheet (OurLads KO #1)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "KO",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "K",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040405|3",
+      "severity": "warning",
+      "player": "Jamaal Pritchett",
+      "gsis_id": "00-0040405",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jamaal Pritchett (WR, NYJ) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036252|3|rec_yds",
+      "severity": "warning",
+      "player": "Michael Pittman",
+      "gsis_id": "00-0036252",
+      "pos": "WR",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Michael Pittman (WR, PIT) Rec Yds: we project 47.9, the market implies 30.6 (also Rec) (odds pulled 2026-09-26 19:25-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 47.9,
+        "market_mean": 30.59885725,
+        "delta": -17.30114275,
+        "pct": -0.3611929592,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035594|3",
+      "severity": "warning",
+      "player": "Travis Homer",
+      "gsis_id": "00-0035594",
+      "pos": "RB",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Travis Homer (RB, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 1.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0032775|3",
+      "severity": "warning",
+      "player": "Demarcus Robinson",
+      "gsis_id": "00-0032775",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Demarcus Robinson (WR, SF) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|sheldrick jackson|3|ps_signed",
+      "severity": "info",
+      "player": "Sheldrick Jackson",
+      "gsis_id": null,
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Sheldrick Jackson: reported ps signed on 2026-09-23 (SBN Ravens (Baltimore Beatdown)) still unconfirmed after 3 days",
+      "evidence": {
+        "event": {
+          "event_id": "4cb100ab7e99990c",
+          "event_type": "ps_signed",
+          "date": "2026-09-23",
+          "source": "news:SBN Ravens (Baltimore Beatdown)"
+        },
+        "days_pending": 3
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|nintendo wii|3|released",
+      "severity": "info",
+      "player": "Nintendo Wii",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 16 days",
+      "evidence": {
+        "event": {
+          "event_id": "dbe683763185fa5b",
+          "event_type": "released",
+          "date": "2026-09-10",
+          "source": "news:SBN Bills (Buffalo Rumblings)"
+        },
+        "days_pending": 16
+      }
+    },
+    {
+      "type": "market_only_player",
+      "key": "market_only_player|00-0038416|3|pass_att",
+      "severity": "info",
+      "player": "Tyson Bagent",
+      "gsis_id": "00-0038416",
+      "pos": "QB",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Tyson Bagent (QB, CHI) is quoted by the market (Pass Att 30.2) but has no row on the sheet (odds pulled 2026-09-26 19:25-04:00)",
+      "evidence": {
+        "stat": "pass_att",
+        "market_mean": 30.17535755,
+        "flag": "MKT-ONLY",
+        "n_books": 2
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0034091|3",
+      "severity": "info",
+      "player": "George Odum",
+      "gsis_id": "00-0034091",
+      "pos": "DB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 3,
+      "message": "George Odum (DB, HST) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|marquez valdez-scantling|3|ps_signed",
+      "severity": "info",
+      "player": "Marquez Valdez-Scantling",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Marquez Valdez-Scantling: reported ps signed on 2026-09-16 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 10 days",
+      "evidence": {
+        "event": {
+          "event_id": "a1a155d9e0e05ae7",
+          "event_type": "ps_signed",
+          "date": "2026-09-16",
+          "source": "news:SBN Chargers (Bolts From The Blue)"
+        },
+        "days_pending": 10
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|marquez valdez-scantling|3|ps_promoted",
+      "severity": "info",
+      "player": "Marquez Valdez-Scantling",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Marquez Valdez-Scantling: reported ps promoted on 2026-09-23 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 3 days",
+      "evidence": {
+        "event": {
+          "event_id": "6699951c49f939af",
+          "event_type": "ps_promoted",
+          "date": "2026-09-23",
+          "source": "news:SBN Chargers (Bolts From The Blue)"
+        },
+        "days_pending": 3
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0035891|3",
+      "severity": "info",
+      "player": "Cody White",
+      "gsis_id": "00-0035891",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Cody White (WR, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0035692|3",
+      "severity": "info",
+      "player": "Clelin Ferrell",
+      "gsis_id": "00-0035692",
+      "pos": "DL",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Clelin Ferrell (DL, MIA) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0031360|3",
+      "severity": "info",
+      "player": "Kyle Van Noy",
+      "gsis_id": "00-0031360",
+      "pos": "LB",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Kyle Van Noy (LB, MIN) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|audric estime|3|ir_placed",
+      "severity": "info",
+      "player": "Audric Estime",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 14 days",
+      "evidence": {
+        "event": {
+          "event_id": "3c678b83451f2bd8",
+          "event_type": "ir_placed",
+          "date": "2026-09-12",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 14
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037231|3",
+      "severity": "info",
+      "player": "Kevin Austin Jr.",
+      "gsis_id": "00-0037231",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Kevin Austin Jr. (WR, NO) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0034419|3",
+      "severity": "info",
+      "player": "Braxton Berrios",
+      "gsis_id": "00-0034419",
+      "pos": "WR",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Braxton Berrios (WR, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-21",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036280|3",
+      "severity": "info",
+      "player": "Malik Harrison",
+      "gsis_id": "00-0036280",
+      "pos": "LB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Malik Harrison (LB, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-21",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040341|3",
+      "severity": "info",
+      "player": "Doneiko Slaughter",
+      "gsis_id": "00-0040341",
+      "pos": "DB",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Doneiko Slaughter (DB, PIT) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|xavier thomas|3|suspended",
+      "severity": "info",
+      "player": "Xavier Thomas",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 15 days",
+      "evidence": {
+        "event": {
+          "event_id": "e9e6dda68a40e203",
+          "event_type": "suspended",
+          "date": "2026-09-11",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 15
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036993|3",
+      "severity": "info",
+      "player": "Ifeatu Melifonwu",
+      "gsis_id": "00-0036993",
+      "pos": "DB",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Ifeatu Melifonwu (DB, TB) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "out_but_projected": 2,
+    "sheet_status_stale": 5,
+    "missing_active": 2,
+    "market_proj_gap": 1,
+    "unconfirmed_report": 6,
+    "market_only_player": 1,
+    "elevation_limit": 9
+  }
+}
