@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 3,
   "sheet": "primary",
-  "generated_at": "2026-09-26T23:31:18+00:00",
+  "generated_at": "2026-09-26T23:34:39+00:00",
   "inputs": {
     "snapshot_date": "2026-09-26",
     "nflverse_date": "2026-09-26",
     "injury_week_updated": "2026-09-26T15:00:53+00:00",
-    "roster_state_updated": "2026-09-26T23:16:08+00:00"
+    "roster_state_updated": "2026-09-26T23:34:38+00:00"
   },
   "alerts": [
     {
@@ -121,6 +121,24 @@
       "sheet": "primary",
       "week": 3,
       "message": "Nick Westbrook-Ikhine (WR, IND) was elevated from the practice squad (2026-09-26) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-09-26"
+        ],
+        "elevations_used": 1
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0041415|3",
+      "severity": "warning",
+      "player": "Dean Connors",
+      "gsis_id": "00-0041415",
+      "pos": "RB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Dean Connors (RB, LA) was elevated from the practice squad (2026-09-26) but has no row on the sheet",
       "evidence": {
         "elevation_dates": [
           "2026-09-26"
@@ -407,6 +425,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0031360|3",
+      "severity": "info",
+      "player": "Kyle Van Noy",
+      "gsis_id": "00-0031360",
+      "pos": "LB",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Kyle Van Noy (LB, MIN) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|audric estime|3|ir_placed",
       "severity": "info",
@@ -425,6 +463,66 @@
           "source": "news:Pro Football Talk"
         },
         "days_pending": 14
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037231|3",
+      "severity": "info",
+      "player": "Kevin Austin Jr.",
+      "gsis_id": "00-0037231",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Kevin Austin Jr. (WR, NO) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0034419|3",
+      "severity": "info",
+      "player": "Braxton Berrios",
+      "gsis_id": "00-0034419",
+      "pos": "WR",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Braxton Berrios (WR, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-21",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036280|3",
+      "severity": "info",
+      "player": "Malik Harrison",
+      "gsis_id": "00-0036280",
+      "pos": "LB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Malik Harrison (LB, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-21",
+          "2026-09-26"
+        ]
       }
     },
     {
@@ -467,6 +565,26 @@
         },
         "days_pending": 15
       }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036993|3",
+      "severity": "info",
+      "player": "Ifeatu Melifonwu",
+      "gsis_id": "00-0036993",
+      "pos": "DB",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Ifeatu Melifonwu (DB, TB) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
     }
   ],
   "dismissed": [],
@@ -474,11 +592,11 @@
   "counts": {
     "out_but_projected": 1,
     "sheet_status_stale": 5,
-    "elevated_not_projected": 2,
+    "elevated_not_projected": 3,
     "missing_active": 3,
     "market_proj_gap": 1,
     "unconfirmed_report": 6,
     "market_only_player": 1,
-    "elevation_limit": 4
+    "elevation_limit": 9
   }
 }
