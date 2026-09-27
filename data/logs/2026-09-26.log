@@ -504,3 +504,24 @@
 2026-09-27 01:01:36,396 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-26.html
 2026-09-27 01:01:36,396 [INFO] afternoon: Report 2026-09-26 updated in place (pm_updated_at=2026-09-27T01:01:36+00:00)
 2026-09-27 01:01:36,396 [INFO] afternoon: Game-day inactives run complete.
+2026-09-27 01:13:07,748 [INFO] afternoon: ============================================================
+2026-09-27 01:13:07,748 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-09-26 (week 3, Sat)
+2026-09-27 01:13:07,748 [INFO] afternoon: ============================================================
+2026-09-27 01:13:07,927 [INFO] collectors.espn_transactions_collector: ESPN elevations: 36 in the last 4 days (75 parsed from 100 rows); practice-squad promotions: 25
+2026-09-27 01:13:07,927 [INFO] afternoon: Step 5f: 36 practice-squad elevations from ESPN (BAL, BUF, CAR, CIN, DAL, DET, HOU, IND, JAX, KC, LAR, LV, MIA, MIN, NE, NO, NYG, PIT, SEA, SF, TB, TEN, WAS)
+2026-09-27 01:13:07,927 [INFO] afternoon: Step 5f: 25 practice-squad promotions from ESPN (ARI, ATL, BUF, CAR, CHI, CIN, DAL, DEN, DET, LAC, LAR, MIA, MIN, NE, NO, NYG, NYJ, SEA, SF)
+2026-09-27 01:13:07,928 [INFO] afternoon: Step 5b: Updating roster events/state...
+2026-09-27 01:13:07,973 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
+2026-09-27 01:13:08,158 [INFO] collectors.nflverse_roster_collector: nflverse roster: 2999 rows (951136 bytes)
+2026-09-27 01:13:08,177 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 2 rows without gsis_id skipped, 0 duplicate gsis rows
+2026-09-27 01:13:08,201 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 2997 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-09-26.json
+2026-09-27 01:13:08,217 [INFO] processing.roster_events: Roster ledger: 1 reported events confirmed
+2026-09-27 01:13:08,270 [INFO] processing.roster_events: Saved roster state: 3011 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-09-27 01:13:08,281 [INFO] processing.roster_events: Roster step 2026-09-26: {"nflverse_transitions": 3, "nflverse_events": 3, "espn_elevations": 61, "appended": 25, "ledger": 1312, "confirmed_new": 0}
+2026-09-27 01:13:08,282 [INFO] afternoon: Roster events: 25 new (appended=25, confirmed_new=0, espn_elevations=61, ledger=1312, nflverse_events=3, nflverse_transitions=3, status={'ACT': 1693, 'EXE': 5, 'FA': 419, 'IR': 269, 'NFI': 6, 'PS': 553, 'PUP': 30, 'RET': 23, 'SUS': 5, 'UNKNOWN': 8}); state covers 3011 players
+2026-09-27 01:13:08,282 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-09-27 01:13:10,017 [INFO] afternoon: Projection audit: 28 open alerts (error=4, info=16, warning=8), 0 dismissed
+2026-09-27 01:13:10,045 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-26.json
+2026-09-27 01:13:10,047 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-09-26.html
+2026-09-27 01:13:10,047 [INFO] afternoon: Report 2026-09-26 updated in place (pm_updated_at=2026-09-27T01:13:10+00:00)
+2026-09-27 01:13:10,047 [INFO] afternoon: Refresh complete (elevations, roster).
