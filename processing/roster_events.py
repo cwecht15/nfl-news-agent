@@ -943,12 +943,16 @@ def normalize_ourlads(status_changes: list[dict], date_str: str, schedule: Optio
 
 def normalize_espn_elevations(elevations: list[dict], date_str: str,
                               schedule: Optional[list[dict]] = None) -> list[dict]:
-    """``espn_transactions_collector.collect_elevations`` rows -> events.
+    """``espn_transactions_collector.collect_ps_moves`` rows -> events.
 
     ESPN names the move outright ("Elevated LB Bralen Trice ... from the
     practice squad"), so unlike the nflverse DEV->ACT flip there is nothing to
     infer and these are ``confirmed`` on arrival — which is what lets
     ``elevations_used`` (and therefore the 3-per-season cap) advance.
+
+    Rows tagged ``event_type: ps_promoted`` ("Signed WR Jamaal Pritchett from
+    the practice squad") are signings to the 53 and become ``ps_promoted``
+    events; untagged rows are elevations, as they always were.
 
     Each row's own ``date`` is used, not ``date_str``: ESPN's feed is a rolling
     window, so a Saturday run legitimately re-reads Wednesday's rows, and the
@@ -959,14 +963,17 @@ def normalize_espn_elevations(elevations: list[dict], date_str: str,
         name = (e.get("name") or "").strip()
         if not name:
             continue
+        etype = "ps_promoted" if e.get("event_type") == "ps_promoted" else "ps_elevated"
+        team = to_news(e.get("team") or "")
         out.append(make_event(
             date_str=e.get("date") or date_str,
             name=name,
-            event_type="ps_elevated",
+            event_type=etype,
             source="espn_transactions",
             source_kind="espn",
             confidence="confirmed",
-            team=to_news(e.get("team") or ""),
+            team=team,
+            to_team=team if etype == "ps_promoted" else "",
             pos=e.get("pos") or "",
             detail=(e.get("detail") or "")[:200],
             schedule=schedule,
@@ -1346,6 +1353,11 @@ _RESERVE_PLACEMENTS = {"ir_placed": "IR", "pup_placed": "PUP", "nfi_placed": "NF
 # that release fall through and the audit flagged the player as "active but
 # not on the sheet". Overridable via settings roster.official_override_days.
 _OFFICIAL_OVERRIDE_DAYS = 7
+# Sources trusted to override a lagging baseline: NFL.com, and ESPN's
+# transaction feed (a practice-squad promotion lands there the same afternoon
+# and in nflverse days later). An ESPN elevation has no status effect, so
+# this only ever reaches its promotions.
+_OVERRIDE_KINDS = frozenset({"official", "espn"})
 
 
 def _baseline_predates(rec: dict, ev: dict, target: Optional[str]) -> bool:
@@ -1473,7 +1485,7 @@ def build_state(
             ev_d = date.fromisoformat(ev_date)
             base_d = date.fromisoformat(baseline_date)
             history_only = rec.get("gsis_id") is not None and ev_d < base_d
-            if (history_only and ev.get("source_kind") == "official"
+            if (history_only and ev.get("source_kind") in _OVERRIDE_KINDS
                     and (base_d - ev_d).days <= override_days
                     and _baseline_predates(rec, ev, target)):
                 history_only = False

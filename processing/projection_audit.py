@@ -139,6 +139,13 @@ def _state_lookup(state: Optional[dict], gsis_id: Optional[str], name_key: str) 
     return players.get(f"name:{name_key}")
 
 
+def _state_promoted(st: Optional[dict]) -> bool:
+    """Roster state put this player on the 53 from a source trusted to run
+    ahead of nflverse (NFL.com, ESPN). A news-only (reported) move does not
+    count: the headline classifier can misread the club."""
+    return bool(st) and st.get("status") == "ACT" and st.get("status_source") in ("official", "espn")
+
+
 def _ppr(rec: Optional[dict]) -> float:
     if not rec:
         return 0.0
@@ -505,7 +512,17 @@ def check_missing_active(rows: dict[str, dict], nflverse: Optional[dict], ourlad
 
     candidates: list[dict] = []
     for gid, p in nflverse.items():
-        if p.get("status") != "ACT":
+        nk = p.get("name_key") or _name_key(p.get("name", ""))
+        # Roster state carries official NFL.com / ESPN moves nflverse hasn't
+        # caught up with yet — in both directions. A practice-squad promotion
+        # sits in nflverse as DEV for days (Jamaal Pritchett, NYJ, promoted
+        # 2026-09-26 for that Sunday), so a confirmed promotion makes him a
+        # candidate; a move off the 53 still removes one.
+        st = _state_lookup(state, gid, nk)
+        via_state = p.get("status") != "ACT"
+        if via_state and not _state_promoted(st):
+            continue
+        if st and st.get("status") and st["status"] != "ACT":
             continue
         pos = str(p.get("pos") or "").upper()
         if pos not in positions:
@@ -515,13 +532,9 @@ def check_missing_active(rows: dict[str, dict], nflverse: Optional[dict], ourlad
         dcp = str(p.get("depth_chart_position") or pos).upper()
         if dcp not in positions:
             continue
-        team_proj = to_proj(str(p.get("team") or ""), "news")
+        team = (st.get("team") if via_state else None) or p.get("team") or ""
+        team_proj = to_proj(str(team), "news")
         if team_proj in bye_teams or team_proj in incomplete:
-            continue
-        nk = p.get("name_key") or _name_key(p.get("name", ""))
-        # Roster state carries official NFL.com moves nflverse hasn't caught up with yet
-        st = _state_lookup(state, gid, nk)
-        if st and st.get("status") and st["status"] != "ACT":
             continue
         if gid in sheet_ids or (nk, team_proj) in sheet_name_keys:
             continue

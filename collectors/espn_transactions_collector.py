@@ -1,4 +1,4 @@
-"""Practice-squad elevations from ESPN's league transaction feed (in-season).
+"""Practice-squad elevations and promotions from ESPN's league transaction feed (in-season).
 
 Standard elevations are due 4:00 PM ET the day before a game, and an elevated
 player is active for it — but no source this project already polls says so:
@@ -90,7 +90,32 @@ ELEVATION_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Whose practice squad: the club's own, or another's ("from Atlanta's practice
+# squad", "off New Orleans' practice squad") — either way he joins this club's 53.
+_PS_OWNER = r"(?:(?:the|their|its)\s+|[A-Z][A-Za-z.'’ ]*?['’]s?\s+)?"
+_ACTIVE_ROSTER = r"to\s+(?:the\s+|their\s+|its\s+)?(?:active|53-man)\s+roster"
+
+# Practice squad -> 53-man roster. ESPN words it as a signing ("Signed WR
+# Jamaal Pritchett from the practice squad", "... off the practice squad to the
+# active roster", "... to the active roster from the practice squad"). A bare
+# "Signed X to the active roster" is left alone: it is as often a street free
+# agent. "Signed X to the practice squad" never matches — it needs from/off.
+PROMOTION_RE = re.compile(
+    r"\b(?:Sign(?:ed|ing)|Promot(?:ed|ing))\s+(?P<body>" + _BODY_CHAR + r"+?)"
+    r"(?=\s+(?:" + _ACTIVE_ROSTER + r"\s+)?(?:from|off)\s+" + _PS_OWNER + r"practice[- ]squad)",
+    re.IGNORECASE,
+)
+# "Promoted" alone is unambiguous, so it may name only the destination.
+PROMOTED_TO_ROSTER_RE = re.compile(
+    r"\bPromot(?:ed|ing)\s+(?P<body>" + _BODY_CHAR + r"+?)(?=\s+" + _ACTIVE_ROSTER + r")",
+    re.IGNORECASE,
+)
+
 _SPLIT_RE = re.compile(r"\s*,\s*|\s+and\s+", re.IGNORECASE)
+# A lazy body can still swallow an earlier move in the same sentence
+# ("Signed A to the practice squad and signed B from the practice squad").
+_INNER_VERB_RE = re.compile(r"\b(?:sign(?:ed|ing)|promot(?:ed|ing))\s+", re.IGNORECASE)
+_BODY_REJECT_RE = re.compile(r"practice[- ]squad|\broster\b", re.IGNORECASE)
 
 
 def _singular_position(token: str) -> str:
@@ -117,11 +142,25 @@ def _strip_positions(entry: str) -> tuple[str, str]:
 
 
 def parse_elevations(rows: list[dict]) -> list[dict]:
-    """ESPN transaction rows -> ``[{date, team, name, pos, detail}]``.
+    """ESPN transaction rows -> ``[{date, team, name, pos, detail, event_type}]``.
 
     Rows without an elevation clause yield nothing, so the unrelated moves
     bundled into the same description are ignored rather than misread.
     """
+    return _parse_clauses(rows, (ELEVATION_RE,), "ps_elevated")
+
+
+def parse_promotions(rows: list[dict]) -> list[dict]:
+    """Practice-squad -> 53-man signings, same row shape as :func:`parse_elevations`.
+
+    NFL.com lists these a day late and nflverse days late; ESPN has them the
+    same afternoon (2026-09-26: "Signed WR Jamaal Pritchett from the practice
+    squad" sat in this feed while the roster state still called him PS).
+    """
+    return _parse_clauses(rows, (PROMOTION_RE, PROMOTED_TO_ROSTER_RE), "ps_promoted")
+
+
+def _parse_clauses(rows: list[dict], patterns: tuple[re.Pattern, ...], event_type: str) -> list[dict]:
     out: list[dict] = []
     for row in rows or []:
         desc = str(row.get("description") or "")
@@ -136,19 +175,26 @@ def parse_elevations(rows: list[dict]) -> list[dict]:
         # showed neither of Washington's 2026-09-19 elevations.
         team = to_news(abbr, "espn") or abbr
         day = str(row.get("date") or "")[:10]
-        for m in ELEVATION_RE.finditer(desc):
-            for entry in _SPLIT_RE.split(m.group("body")):
-                name, pos = _strip_positions(entry.strip())
-                # A bare position with no name, or a stray fragment, is not a player.
-                if not name or len(name.split()) < 2:
+        seen: set[str] = set()
+        for pattern in patterns:
+            for m in pattern.finditer(desc):
+                body = _INNER_VERB_RE.split(m.group("body"))[-1]
+                if _BODY_REJECT_RE.search(body):
                     continue
-                out.append({
-                    "date": day,
-                    "team": team,
-                    "name": name,
-                    "pos": pos,
-                    "detail": f"ESPN: {m.group(0).strip()}",
-                })
+                for entry in _SPLIT_RE.split(body):
+                    name, pos = _strip_positions(entry.strip())
+                    # A bare position with no name, or a stray fragment, is not a player.
+                    if not name or len(name.split()) < 2 or name in seen:
+                        continue
+                    seen.add(name)
+                    out.append({
+                        "date": day,
+                        "team": team,
+                        "name": name,
+                        "pos": pos,
+                        "detail": f"ESPN: {m.group(0).strip()}",
+                        "event_type": event_type,
+                    })
     return out
 
 
@@ -175,7 +221,15 @@ def fetch_transactions(url: str = DEFAULT_URL, limit: int = DEFAULT_LIMIT,
 
 def collect_elevations(date_str: Optional[str] = None, settings: Optional[dict] = None,
                        session: Optional[requests.Session] = None) -> list[dict]:
-    """Elevations inside the lookback window, newest first.
+    """Elevations inside the lookback window, newest first."""
+    return [r for r in collect_ps_moves(date_str, settings=settings, session=session)
+            if r["event_type"] == "ps_elevated"]
+
+
+def collect_ps_moves(date_str: Optional[str] = None, settings: Optional[dict] = None,
+                     session: Optional[requests.Session] = None) -> list[dict]:
+    """Elevations and practice-squad promotions inside the lookback window,
+    newest first, each tagged with its ``event_type``. One HTTP request.
 
     Returns ``[]`` — never raises — when the feed is unreachable or the
     ``roster.elevations`` block is disabled.
@@ -191,12 +245,15 @@ def collect_elevations(date_str: Optional[str] = None, settings: Optional[dict] 
         session=session,
     )
     elevations = parse_elevations(rows)
+    promotions = parse_promotions(rows)
     days = int(cfg.get("lookback_days", DEFAULT_LOOKBACK_DAYS))
     today = date.fromisoformat(date_str) if date_str else datetime.now(timezone.utc).date()
     cutoff = (today - timedelta(days=days)).isoformat()
-    fresh = [e for e in elevations if e["date"] >= cutoff]
-    logger.info("ESPN elevations: %d in the last %d days (%d parsed from %d rows)",
-                len(fresh), days, len(elevations), len(rows))
+    fresh = [e for e in elevations + promotions if e["date"] >= cutoff]
+    n_elev = sum(1 for e in fresh if e["event_type"] == "ps_elevated")
+    logger.info("ESPN elevations: %d in the last %d days (%d parsed from %d rows); "
+                "practice-squad promotions: %d",
+                n_elev, days, len(elevations), len(rows), len(fresh) - n_elev)
     return sorted(fresh, key=lambda e: (e["date"], e["team"], e["name"]), reverse=True)
 
 
@@ -214,7 +271,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     cfg.update({"enabled": True, "limit": args.limit, "lookback_days": args.days})
     settings = {**settings, "roster": {**settings.get("roster", {}), "elevations": cfg}}
 
-    rows = collect_elevations(args.date, settings=settings)
+    rows = collect_ps_moves(args.date, settings=settings)
     if args.json:
         print(json.dumps(rows, indent=2))
         return 0
@@ -222,9 +279,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     for r in rows:
         by_day.setdefault(r["date"], []).append(r)
     for day in sorted(by_day, reverse=True):
-        print(f"\n{day} — {len(by_day[day])} elevations")
-        for r in sorted(by_day[day], key=lambda x: (x["team"], x["name"])):
-            print(f"  {r['team']:4} {r['pos']:5} {r['name']}")
+        print(f"\n{day} — {len(by_day[day])} moves")
+        for r in sorted(by_day[day], key=lambda x: (x["event_type"], x["team"], x["name"])):
+            kind = "promoted" if r["event_type"] == "ps_promoted" else "elevated"
+            print(f"  {kind:8} {r['team']:4} {r['pos']:5} {r['name']}")
     print(f"\n{len(rows)} total")
     return 0
 

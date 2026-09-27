@@ -77,6 +77,45 @@ def test_other_moves_in_the_same_description_are_ignored(parsed, name):
     assert name not in _names(parsed)
 
 
+def test_promotions_parsed_from_the_same_feed(rows):
+    promoted = {p["name"]: p for p in etc.parse_promotions(rows)}
+    assert promoted["AJ Finley"]["team"] == "SEA"      # ... from the practice squad to the active roster
+    assert promoted["Dalen Cambre"]["pos"] == "WR"     # bundled after an elevation clause
+    assert all(p["event_type"] == "ps_promoted" for p in promoted.values())
+    # An elevation is never a promotion, and vice versa.
+    assert not {"Braxton Berrios", "Rodney Thomas II", "Bralen Trice"} & set(promoted)
+
+
+@pytest.mark.parametrize("desc,expected", [
+    ("Signed WR Jamaal Pritchett from the practice squad.", ["Jamaal Pritchett"]),
+    ("Signed LB Joe Giles-Harris off the practice squad to the active roster", ["Joe Giles-Harris"]),
+    ("Signed TE Nick Muse to the active roster from the practice squad", ["Nick Muse"]),
+    ("Signed DT Jack Heflin and WR Malik McClain from the practice squad", ["Jack Heflin", "Malik McClain"]),
+    ("Signed DB Maximus Pulley from Philadelphia's practice squad to the active roster", ["Maximus Pulley"]),
+    ("Signed LS Scott Daly from New Orleans' practice squad", ["Scott Daly"]),
+    ("Promoted RB C.J. Donaldson to the active roster.", ["C.J. Donaldson"]),
+    # Not promotions: joins the practice squad, or an unqualified signing.
+    ("Signed WR Tyler Johnson, DB John Saunders and WR Sterling Shepard to the practice squad", []),
+    ("Signed DT Jaden Crumedy to the active roster.", []),
+    ("Signed QB Will Levis to the practice squad and signed WR Malik McClain from the practice squad.",
+     ["Malik McClain"]),
+])
+def test_promotion_shapes(desc, expected):
+    out = etc.parse_promotions([{"description": desc, "team": {"abbreviation": "NYJ"},
+                                 "date": "2026-09-26T07:00Z"}])
+    assert [p["name"] for p in out] == expected
+
+
+def test_collect_ps_moves_tags_both_kinds(rows, monkeypatch):
+    monkeypatch.setattr(etc, "fetch_transactions", lambda **kw: rows)
+    settings = {"roster": {"elevations": {"enabled": True, "lookback_days": 30}}}
+    moves = etc.collect_ps_moves("2026-09-12", settings=settings)
+    kinds = {m["event_type"] for m in moves}
+    assert kinds == {"ps_elevated", "ps_promoted"}
+    assert etc.collect_elevations("2026-09-12", settings=settings) == \
+        [m for m in moves if m["event_type"] == "ps_elevated"]
+
+
 def test_multi_player_rows_keep_everyone(parsed):
     """The failure mode of the news-headline path: only the first name survives."""
     sf = sorted(p["name"] for p in parsed if p["team"] == "SF")

@@ -326,6 +326,36 @@ def test_ourlads_position_label_cannot_suppress_a_rostered_player(isolated_dismi
     assert missing.get("Tyler Goodson") == "warning"
 
 
+def test_promotion_nflverse_has_not_seen_is_still_missing_active(isolated_dismissals):
+    """The 2026-09-26 regression: Jamaal Pritchett (NYJ) was signed off the
+    practice squad that afternoon — ESPN had it, nflverse still said DEV — and
+    the audit, drawing candidates only from nflverse ACT, said nothing."""
+    inputs = _inputs()
+    inputs["nflverse"]["00-0037"] = {
+        "gsis_id": "00-0037", "name": "Jamaal Pritchett", "name_key": "jamaal pritchett", "team": "BUF",
+        "pos": "WR", "depth_chart_position": "WR", "status": "DEV", "status_abbr": "P01",
+    }
+    inputs["nflverse"]["00-0038"] = {
+        "gsis_id": "00-0038", "name": "Rumored Guy", "name_key": "rumored guy", "team": "BUF",
+        "pos": "WR", "depth_chart_position": "WR", "status": "DEV", "status_abbr": "P01",
+    }
+    inputs["state"]["players"]["00-0037"] = {
+        "gsis_id": "00-0037", "name": "Jamaal Pritchett", "name_key": "jamaal pritchett", "team": "BUF",
+        "pos": "WR", "status": "ACT", "status_source": "espn", "status_since": "2026-09-08",
+        "elevations_used": 0, "elevation_dates": [], "pending": [],
+    }
+    # A news-classifier promotion alone is not trusted to run ahead of nflverse.
+    inputs["state"]["players"]["00-0038"] = {
+        "gsis_id": "00-0038", "name": "Rumored Guy", "name_key": "rumored guy", "team": "BUF",
+        "pos": "WR", "status": "ACT", "status_source": "news", "status_since": "2026-09-08",
+        "elevations_used": 0, "elevation_dates": [], "pending": [],
+    }
+    res = pa.run_audit(_ctx(), "2026-09-08", run="test", inputs=inputs, write=False)
+    missing = {a["player"]: a for a in _by_type(res["alerts"]).get("missing_active", [])}
+    assert missing["Jamaal Pritchett"]["team"] == "BUF"
+    assert "Rumored Guy" not in missing
+
+
 def test_missing_qb_is_flagged_from_the_roster_without_a_depth_chart(isolated_dismissals):
     """A team whose only projected QB is no longer active gets one error.
 

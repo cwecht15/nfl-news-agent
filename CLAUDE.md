@@ -149,7 +149,13 @@ the offseason path.
   still a P-code is an elevation, not a promotion — `build_state` reads that fingerprint off the
   baseline too, so an elevated player stays `PS` instead of looking signed to the 53.
   `reconcile_promotions` relabels an older guessed `ps_promoted` once a confirmed elevation for the
-  same player lands. `elevated_not_projected` is scoped to `projections.in_season.positions`: a normal
+  same player lands. The same feed also carries **practice-squad promotions** ("Signed WR Jamaal
+  Pritchett from the practice squad", "... from Atlanta's practice squad to the active roster"):
+  `collect_ps_moves` returns both kinds tagged with `event_type`, promotions become confirmed
+  `ps_promoted` events (`source_kind: espn`, which like `official` may override a lagging nflverse
+  baseline for `official_override_days`), and `missing_active` accepts a player nflverse still
+  calls DEV when roster state has him ACT from an official/ESPN source — never from news alone.
+  A bare "Signed X to the active roster" is ignored (as often a street free agent). `elevated_not_projected` is scoped to `projections.in_season.positions`: a normal
   Saturday elevates ~45 players league-wide and most are DB/LB/OL who were never going to have a row.
 - **Injury report tracker (Step 5c):** `collectors/injury_report_collector.py` — team sites
   (`https://www.<site_domain>/team/injury-report/`, `site_domain` per team in `config/teams.yaml`;

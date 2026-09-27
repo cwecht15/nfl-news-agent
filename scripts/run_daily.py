@@ -311,24 +311,33 @@ def run_in_season_steps(
     audit_alerts: list[dict] | None = None
     inactives_week: dict | None = None
 
-    # --- 5f: practice-squad elevations ------------------------------------
-    # Runs before 5b so the elevations ride into the same ledger write. One
+    # --- 5f: practice-squad elevations + promotions -------------------------
+    # Runs before 5b so the moves ride into the same ledger write. One
     # HTTP request, no Sheets read, no LLM — cheap enough for the game-day
-    # cron, which is the run that has to beat kickoff.
+    # cron, which is the run that has to beat kickoff. Promotions ride along
+    # because ESPN is the only same-day source for them too.
     espn_elevations: list[dict] = []
     if "elevations" not in skip:
         try:
-            from collectors.espn_transactions_collector import collect_elevations
+            from collectors.espn_transactions_collector import collect_ps_moves
 
-            espn_elevations = collect_elevations(date_str)
-            if espn_elevations:
+            espn_elevations = collect_ps_moves(date_str)
+            elevated = [e for e in espn_elevations if e["event_type"] == "ps_elevated"]
+            promoted = [e for e in espn_elevations if e["event_type"] == "ps_promoted"]
+            if elevated:
                 logger.info(
                     "Step 5f: %d practice-squad elevations from ESPN (%s)",
-                    len(espn_elevations),
-                    ", ".join(sorted({e["team"] for e in espn_elevations})),
+                    len(elevated),
+                    ", ".join(sorted({e["team"] for e in elevated})),
                 )
             else:
                 logger.info("Step 5f: no practice-squad elevations in the window.")
+            if promoted:
+                logger.info(
+                    "Step 5f: %d practice-squad promotions from ESPN (%s)",
+                    len(promoted),
+                    ", ".join(sorted({e["team"] for e in promoted})),
+                )
         except Exception as e:
             logger.warning("Elevation step failed (non-fatal): %s", e)
 

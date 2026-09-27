@@ -643,6 +643,23 @@ def test_espn_elevation_increments_the_used_counter():
     assert p["status"] == "PS"          # an elevation is not a status change
 
 
+def test_espn_promotion_puts_a_practice_squad_player_on_the_53():
+    """2026-09-26: "Signed WR Jamaal Pritchett from the practice squad" was on
+    ESPN that afternoon while nflverse kept him DEV for days. A confirmed ESPN
+    promotion applies over the baseline, even one read a day after the move."""
+    espn = re_.normalize_espn_elevations(
+        [{"date": "2026-09-12", "team": "KC", "name": "Carson Steele", "pos": "RB",
+          "event_type": "ps_promoted"}],
+        "2026-09-13", schedule=_sched())
+    assert [(e["event_type"], e["source_kind"], e["confidence"]) for e in espn] == \
+        [("ps_promoted", "espn", "confirmed")]
+    state = re_.build_state(espn, _roster(), _sched(), settings=SETTINGS,
+                            baseline_date="2026-09-13", as_of="2026-09-13")
+    p = state["players"]["00-3"]
+    assert (p["status"], p["team"], p["status_source"]) == ("ACT", "KC", "espn")
+    assert p["elevations_used"] == 0
+
+
 def test_elevations_for_week_scopes_and_dedupes():
     """One row per player for the whole week: ESPN, a tweet and the nflverse
     flip all describe the same elevation, and Sunday still needs Saturday's."""
