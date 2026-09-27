@@ -4,14 +4,34 @@
   "season": 2026,
   "week": 3,
   "sheet": "primary",
-  "generated_at": "2026-09-27T01:01:36+00:00",
+  "generated_at": "2026-09-27T01:28:18+00:00",
   "inputs": {
     "snapshot_date": "2026-09-26",
     "nflverse_date": "2026-09-26",
     "injury_week_updated": "2026-09-26T23:52:06+00:00",
-    "roster_state_updated": "2026-09-27T01:01:36+00:00"
+    "roster_state_updated": "2026-09-27T01:28:17+00:00"
   },
   "alerts": [
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0040464|3",
+      "severity": "error",
+      "player": "DJ Uiagalelei",
+      "gsis_id": "00-0040464",
+      "pos": "QB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 3,
+      "message": "DJ Uiagalelei (QB, LAC) is on the active roster but has no row on the sheet (OurLads QB #1; signed 2026-09-26; OurLads lists him as the starter)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "QB",
+        "status_abbr": "P01"
+      }
+    },
     {
       "type": "out_but_projected",
       "key": "out_but_projected|00-0041099|3|OUT",
@@ -32,6 +52,26 @@
           "2026-09-25": "DNP"
         },
         "ppr": 0.2
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0038998|3",
+      "severity": "error",
+      "player": "Jake Haener",
+      "gsis_id": "00-0038998",
+      "pos": "QB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Jake Haener (QB, NYG) is on the active roster but has no row on the sheet (OurLads QB #1; signed 2026-09-26; OurLads lists him as the starter)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "QB",
+        "status_abbr": "P06"
       }
     },
     {
@@ -537,9 +577,9 @@
   "dismissed": [],
   "errors": [],
   "counts": {
+    "missing_active": 4,
     "out_but_projected": 2,
     "sheet_status_stale": 5,
-    "missing_active": 2,
     "market_proj_gap": 1,
     "unconfirmed_report": 6,
     "market_only_player": 1,
