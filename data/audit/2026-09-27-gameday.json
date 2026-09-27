@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 3,
   "sheet": "primary",
-  "generated_at": "2026-09-27T19:44:21+00:00",
+  "generated_at": "2026-09-27T22:33:33+00:00",
   "inputs": {
     "snapshot_date": "2026-09-27",
     "nflverse_date": "2026-09-27",
     "injury_week_updated": "2026-09-27T12:35:19+00:00",
-    "roster_state_updated": "2026-09-27T19:44:20+00:00"
+    "roster_state_updated": "2026-09-27T22:33:32+00:00"
   },
   "alerts": [
     {
@@ -27,6 +27,23 @@
         "game": "CAR @ CLE",
         "phase": "postgame",
         "ppr": 4.4
+      }
+    },
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0038705|3",
+      "severity": "error",
+      "player": "Emari Demercado",
+      "gsis_id": "00-0038705",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Emari Demercado (RB, DAL) is INACTIVE for BAL VS DAL (postgame) but projected for 2.3 PPR",
+      "evidence": {
+        "game": "BAL VS DAL",
+        "phase": "postgame",
+        "ppr": 2.3
       }
     },
     {
@@ -103,6 +120,40 @@
           "2026-09-25": "DNP"
         },
         "ppr": 0.2
+      }
+    },
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0041099|3",
+      "severity": "error",
+      "player": "Barion Brown",
+      "gsis_id": "00-0041099",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Barion Brown (WR, NO) is INACTIVE for LV @ NO (postgame) but projected for 0.2 PPR",
+      "evidence": {
+        "game": "LV @ NO",
+        "phase": "postgame",
+        "ppr": 0.2
+      }
+    },
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0039518|3",
+      "severity": "error",
+      "player": "Treyton Welch",
+      "gsis_id": "00-0039518",
+      "pos": "TE",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 3,
+      "message": "Treyton Welch (TE, NO) is INACTIVE for LV @ NO (postgame) but projected for 0.1 PPR",
+      "evidence": {
+        "game": "LV @ NO",
+        "phase": "postgame",
+        "ppr": 0.1
       }
     },
     {
@@ -837,7 +888,7 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "inactive_but_projected": 6,
+    "inactive_but_projected": 9,
     "missing_active": 4,
     "out_but_projected": 1,
     "sheet_status_stale": 26,
