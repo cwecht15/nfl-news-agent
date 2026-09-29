@@ -1,21 +1,3 @@
-2026-09-29 14:02:29,817 [INFO] afternoon: ============================================================
-2026-09-29 14:02:29,817 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-09-29 (week 4, Tue)
-2026-09-29 14:02:29,817 [INFO] afternoon: ============================================================
-2026-09-29 14:02:30,229 [INFO] collectors.espn_transactions_collector: ESPN elevations: 38 in the last 4 days (63 parsed from 100 rows); practice-squad promotions: 8
-2026-09-29 14:02:30,229 [INFO] afternoon: Step 5f: 38 practice-squad elevations from ESPN (BAL, BUF, CAR, CIN, DAL, DET, HOU, IND, JAX, KC, LAR, LV, MIA, MIN, NE, NO, NYG, PHI, PIT, SEA, SF, TB, TEN, WAS)
-2026-09-29 14:02:30,229 [INFO] afternoon: Step 5f: 8 practice-squad promotions from ESPN (BUF, CIN, DAL, DEN, GB, MIN, NYG, NYJ)
-2026-09-29 14:02:30,230 [INFO] afternoon: Step 5b: Updating roster events/state...
-2026-09-29 14:02:30,264 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
-2026-09-29 14:02:30,662 [INFO] collectors.nflverse_roster_collector: nflverse roster: 2999 rows (956676 bytes)
-2026-09-29 14:02:30,674 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 2 rows without gsis_id skipped, 0 duplicate gsis rows
-2026-09-29 14:02:30,691 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 2997 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-09-29.json
-2026-09-29 14:02:30,743 [INFO] processing.roster_events: Saved roster state: 3017 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
-2026-09-29 14:02:30,751 [INFO] processing.roster_events: Roster step 2026-09-29: {"nflverse_transitions": 13, "nflverse_events": 2, "espn_elevations": 46, "appended": 2, "ledger": 1428, "confirmed_new": 0}
-2026-09-29 14:02:30,752 [INFO] afternoon: Roster events: 2 new (appended=2, confirmed_new=0, espn_elevations=46, ledger=1428, nflverse_events=2, nflverse_transitions=13, status={'ACT': 1733, 'EXE': 6, 'FA': 420, 'IR': 272, 'NFI': 6, 'PS': 516, 'PUP': 30, 'RET': 23, 'SUS': 3, 'UNKNOWN': 8}); state covers 3017 players
-2026-09-29 14:02:30,753 [INFO] afternoon: Step 5d: Auditing weekly projections...
-2026-09-29 14:02:31,178 [INFO] afternoon: Projection audit: 34 open alerts (info=6, warning=28), 0 dismissed
-2026-09-29 14:02:31,181 [WARNING] afternoon: No report for 2026-09-29 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-09-29 to produce the morning report.
-2026-09-29 14:02:31,181 [INFO] afternoon: Refresh complete (elevations, roster).
 2026-09-29 16:41:17,910 [INFO] orchestrator: ============================================================
 2026-09-29 16:41:17,927 [INFO] orchestrator: NFL News Agent - Daily Run: 2026-09-29
 2026-09-29 16:41:17,927 [INFO] orchestrator: ============================================================
@@ -103,6 +85,7 @@
 2026-09-29 16:45:57,265 [INFO] sentence_transformers.base.model: No device provided, using cpu
 2026-09-29 16:45:57,368 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
 2026-09-29 16:45:57,437 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 2026-09-29 16:45:57,438 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 2026-09-29 16:45:57,443 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/modules.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2Fmodules.json=&etag=%22952a9b81c0bfd99800fabf352f69c7ccd46c5e43%22 "HTTP/1.1 200 OK"
 2026-09-29 16:45:57,512 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
@@ -119,6 +102,7 @@
 2026-09-29 16:45:57,902 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
 2026-09-29 16:45:57,968 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
 2026-09-29 16:45:57,973 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2Fconfig.json=&etag=%2272b987fd805cfa2b58c4c8c952b274a11bfd5a00%22 "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 5710.76it/s]
 2026-09-29 16:45:58,142 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
 2026-09-29 16:45:58,210 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
 2026-09-29 16:45:58,278 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
@@ -137,10 +121,12 @@
 2026-09-29 16:45:58,947 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/1_Pooling%2Fconfig.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2F1_Pooling%2Fconfig.json=&etag=%22d1514c3162bbe87b343f565fadc62e6c06f04f03%22 "HTTP/1.1 200 OK"
 2026-09-29 16:45:59,015 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/2_Normalize/config.json "HTTP/1.1 404 Not Found"
 2026-09-29 16:45:59,086 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
+Batches:   0%|          | 0/23 [00:00<?, ?it/s]Batches:   4%|▍         | 1/23 [00:00<00:05,  4.32it/s]Batches:   9%|▊         | 2/23 [00:00<00:03,  6.28it/s]Batches:  13%|█▎        | 3/23 [00:00<00:02,  7.45it/s]Batches:  22%|██▏       | 5/23 [00:00<00:01,  9.09it/s]Batches:  30%|███       | 7/23 [00:00<00:01, 10.20it/s]Batches:  39%|███▉      | 9/23 [00:00<00:01, 10.96it/s]Batches:  48%|████▊     | 11/23 [00:01<00:01, 11.45it/s]Batches:  57%|█████▋    | 13/23 [00:01<00:00, 12.03it/s]Batches:  65%|██████▌   | 15/23 [00:01<00:00, 12.67it/s]Batches:  74%|███████▍  | 17/23 [00:01<00:00, 13.06it/s]Batches:  83%|████████▎ | 19/23 [00:01<00:00, 13.37it/s]Batches:  91%|█████████▏| 21/23 [00:01<00:00, 14.05it/s]Batches: 100%|██████████| 23/23 [00:01<00:00, 12.21it/s]
 2026-09-29 16:46:00,977 [INFO] processing.deduplicator: Using embedding-based deduplication (all-MiniLM-L6-v2).
 2026-09-29 16:46:01,172 [INFO] processing.deduplicator: Deduplicated 710 items into 495 story groups.
 2026-09-29 16:46:01,173 [INFO] orchestrator: Deduplicated: 710 items -> 495 unique stories
 2026-09-29 16:46:01,174 [INFO] orchestrator: Step 2b: Filtering cross-day duplicates...
+Batches:   0%|          | 0/59 [00:00<?, ?it/s]Batches:   2%|▏         | 1/59 [00:00<00:13,  4.22it/s]Batches:   3%|▎         | 2/59 [00:00<00:10,  5.38it/s]Batches:   5%|▌         | 3/59 [00:00<00:08,  6.76it/s]Batches:   7%|▋         | 4/59 [00:00<00:07,  7.50it/s]Batches:  10%|█         | 6/59 [00:00<00:06,  8.57it/s]Batches:  12%|█▏        | 7/59 [00:00<00:05,  8.89it/s]Batches:  15%|█▌        | 9/59 [00:01<00:05,  9.57it/s]Batches:  19%|█▊        | 11/59 [00:01<00:04, 10.09it/s]Batches:  22%|██▏       | 13/59 [00:01<00:04, 10.63it/s]Batches:  25%|██▌       | 15/59 [00:01<00:04, 10.80it/s]Batches:  29%|██▉       | 17/59 [00:01<00:03, 11.19it/s]Batches:  32%|███▏      | 19/59 [00:01<00:03, 11.58it/s]Batches:  36%|███▌      | 21/59 [00:02<00:03, 11.75it/s]Batches:  39%|███▉      | 23/59 [00:02<00:03, 11.93it/s]Batches:  42%|████▏     | 25/59 [00:02<00:02, 12.04it/s]Batches:  46%|████▌     | 27/59 [00:02<00:02, 12.10it/s]Batches:  49%|████▉     | 29/59 [00:02<00:02, 12.53it/s]Batches:  53%|█████▎    | 31/59 [00:02<00:02, 12.94it/s]Batches:  56%|█████▌    | 33/59 [00:03<00:02, 12.93it/s]Batches:  59%|█████▉    | 35/59 [00:03<00:01, 13.12it/s]Batches:  63%|██████▎   | 37/59 [00:03<00:01, 13.61it/s]Batches:  66%|██████▌   | 39/59 [00:03<00:01, 13.53it/s]Batches:  69%|██████▉   | 41/59 [00:03<00:01, 13.67it/s]Batches:  73%|███████▎  | 43/59 [00:03<00:01, 13.91it/s]Batches:  76%|███████▋  | 45/59 [00:03<00:00, 14.10it/s]Batches:  80%|███████▉  | 47/59 [00:04<00:00, 14.31it/s]Batches:  83%|████████▎ | 49/59 [00:04<00:00, 14.51it/s]Batches:  86%|████████▋ | 51/59 [00:04<00:00, 14.40it/s]Batches:  90%|████████▉ | 53/59 [00:04<00:00, 14.68it/s]Batches:  93%|█████████▎| 55/59 [00:04<00:00, 15.21it/s]Batches:  97%|█████████▋| 57/59 [00:04<00:00, 16.08it/s]Batches: 100%|██████████| 59/59 [00:04<00:00, 12.45it/s]
 2026-09-29 16:46:06,470 [INFO] processing.cross_day_filter: Cross-day filter: 495 -> 316 items (179 suppressed, lookback=2 days, threshold=0.82).
 2026-09-29 16:46:06,470 [INFO] processing.cross_day_filter:   suppressed (sim=0.85): J.J. McCarthy traded to Giants: Will he succeed in New York?
 2026-09-29 16:46:06,471 [INFO] processing.cross_day_filter:   suppressed (sim=0.88): Packers sign veteran offensive lineman Mekhi Becton
