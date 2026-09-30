@@ -2,532 +2,258 @@
   "date": "2026-09-29",
   "run": "refresh",
   "season": 2026,
-  "week": 3,
-  "sheet": "primary",
-  "generated_at": "2026-09-29T14:02:31+00:00",
+  "week": 4,
+  "sheet": "secondary",
+  "generated_at": "2026-09-30T00:05:13+00:00",
   "inputs": {
-    "snapshot_date": "2026-09-28",
+    "snapshot_date": "2026-09-29",
     "nflverse_date": "2026-09-29",
-    "injury_week_updated": null,
-    "roster_state_updated": "2026-09-29T14:02:30+00:00"
+    "injury_week_updated": "2026-09-29T16:58:19+00:00",
+    "roster_state_updated": "2026-09-30T00:05:12+00:00"
   },
   "alerts": [
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040394|3",
-      "severity": "warning",
-      "player": "Anthony Tyus III",
-      "gsis_id": "00-0040394",
-      "pos": "RB",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Anthony Tyus III (RB, CAR) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.7
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0033589|3",
-      "severity": "warning",
-      "player": "David Moore",
-      "gsis_id": "00-0033589",
+      "type": "status_conflict",
+      "key": "status_conflict|00-0040534|4",
+      "severity": "error",
+      "player": "Ke'Shawn Williams",
+      "gsis_id": "00-0040534",
       "pos": "WR",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 3,
-      "message": "David Moore (WR, CAR) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "team": "CIN",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Ke'Shawn Williams (WR, CIN) is projected Active (0.4 PPR) but roster status is FA (since 2026-09-29)",
       "evidence": {
-        "roster_status": "ACT",
+        "roster_status": "FA",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.4,
+        "slot": 4,
+        "earliest_return_week": null
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0040464|4",
+      "severity": "error",
+      "player": "DJ Uiagalelei",
+      "gsis_id": "00-0040464",
+      "pos": "QB",
+      "team": "LAC",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "DJ Uiagalelei (QB, LAC) is on the active roster but has no row on the sheet (OurLads QB #1; promoted from the practice squad 2026-09-27; OurLads lists him as the starter)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "QB",
+        "status_abbr": "I02"
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0039040|4",
+      "severity": "error",
+      "player": "De'Von Achane",
+      "gsis_id": "00-0039040",
+      "pos": "RB",
+      "team": "MIA",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "De'Von Achane (RB, MIA) is projected Active (12.1 PPR) but roster status is IR (since 2026-09-29); eligible Wk 9",
+      "evidence": {
+        "roster_status": "IR",
         "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.5
+        "sheet_status": "ACTIVE",
+        "ppr": 12.1,
+        "slot": 1,
+        "earliest_return_week": 9
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0040494|4",
+      "severity": "error",
+      "player": "Max Brosmer",
+      "gsis_id": "00-0040494",
+      "pos": "QB",
+      "team": "MIN",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Max Brosmer (QB, MIN) is on the active roster but has no row on the sheet (OurLads QB #1; promoted from the practice squad 2026-09-29; OurLads lists him as the starter)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "QB",
+        "status_abbr": "P06"
       }
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0034613|3",
+      "key": "sheet_status_stale|00-0034613|4",
       "severity": "warning",
       "player": "Tanner Hudson",
       "gsis_id": "00-0034613",
       "pos": "TE",
       "team": "CIN",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Tanner Hudson (TE, CIN) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "nflverse",
+        "status_source": "espn",
         "sheet_status": "PS",
-        "ppr": 0.9
+        "ppr": 2.2
       }
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036727|3",
-      "severity": "warning",
-      "player": "Adam Prentice",
-      "gsis_id": "00-0036727",
-      "pos": "RB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Adam Prentice (RB, DEN) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.2
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041496|3",
+      "key": "sheet_status_stale|00-0041496|4",
       "severity": "warning",
       "player": "Jonah Coleman",
       "gsis_id": "00-0041496",
       "pos": "RB",
       "team": "DEN",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Jonah Coleman (RB, DEN) sheet Status is PS but roster says IR",
       "evidence": {
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041292|3",
-      "severity": "warning",
-      "player": "Kolbe Katsis",
-      "gsis_id": "00-0041292",
-      "pos": "WR",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Kolbe Katsis (WR, DEN) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.3
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041467|3",
-      "severity": "warning",
-      "player": "Lewis Bond",
-      "gsis_id": "00-0041467",
-      "pos": "WR",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Lewis Bond (WR, HST) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.2
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0039816|3",
-      "severity": "warning",
-      "player": "Anthony Gould",
-      "gsis_id": "00-0039816",
-      "pos": "WR",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Anthony Gould (WR, IND) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.1
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036182|3",
-      "severity": "warning",
-      "player": "Nick Westbrook-Ikhine",
-      "gsis_id": "00-0036182",
-      "pos": "WR",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Nick Westbrook-Ikhine (WR, IND) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.3
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041415|3",
-      "severity": "warning",
-      "player": "Dean Connors",
-      "gsis_id": "00-0041415",
-      "pos": "RB",
-      "team": "LA",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Dean Connors (RB, LA) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.1
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0039489|3",
-      "severity": "warning",
-      "player": "Hayden Rucci",
-      "gsis_id": "00-0039489",
-      "pos": "TE",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Hayden Rucci (TE, LAC) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.7
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0034272|3",
-      "severity": "warning",
-      "player": "Marquez Valdes-Scantling",
-      "gsis_id": "00-0034272",
-      "pos": "WR",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Marquez Valdes-Scantling (WR, LAC) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.7
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040331|3",
-      "severity": "warning",
-      "player": "Patrick Herbert",
-      "gsis_id": "00-0040331",
-      "pos": "TE",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Patrick Herbert (TE, LAC) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.4
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0035891|3",
-      "severity": "warning",
-      "player": "Cody White",
-      "gsis_id": "00-0035891",
-      "pos": "WR",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Cody White (WR, LV) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.2
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0039040|3",
-      "severity": "warning",
-      "player": "De'Von Achane",
-      "gsis_id": "00-0039040",
-      "pos": "RB",
-      "team": "MIA",
-      "sheet": "primary",
-      "week": 3,
-      "message": "De'Von Achane (RB, MIA) sheet Status is ACTIVE but roster says IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 18.3
+        "ppr": 4.5
       }
     },
     {
       "type": "missing_active",
-      "key": "missing_active|00-0039710|3",
+      "key": "missing_active|00-0035021|4",
+      "severity": "warning",
+      "player": "Ashton Dulin",
+      "gsis_id": "00-0035021",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Ashton Dulin (WR, IND) is on the active roster but has no row on the sheet (OurLads KR #3)",
+      "evidence": {
+        "ourlads_depth": 3,
+        "ourlads_pos": "KR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "I01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0039710|4",
       "severity": "warning",
       "player": "Jeshaun Jones",
       "gsis_id": "00-0039710",
       "pos": "WR",
       "team": "MIN",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Jeshaun Jones (WR, MIN) is on the active roster but has no row on the sheet (OurLads SUS #1; reinstated 2026-09-28)",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Jeshaun Jones (WR, MIN) is on the active roster but has no row on the sheet (OurLads SUS #1; reinstated 2026-09-29)",
       "evidence": {
         "ourlads_depth": 1,
         "ourlads_pos": "SUS",
         "ourlads_stale": false,
-        "nflverse_status": "RES",
+        "nflverse_status": "ACT",
         "depth_chart_position": "WR",
-        "status_abbr": "R40"
+        "status_abbr": "A01"
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041326|3",
+      "type": "missing_active",
+      "key": "missing_active|00-0038905|4",
       "severity": "warning",
-      "player": "CJ Donaldson",
-      "gsis_id": "00-0041326",
-      "pos": "RB",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 3,
-      "message": "CJ Donaldson (RB, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.4
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038740|3",
-      "severity": "warning",
-      "player": "Jalen Moreno-Cropper",
-      "gsis_id": "00-0038740",
-      "pos": "WR",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Jalen Moreno-Cropper (WR, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.3
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0037231|3",
-      "severity": "warning",
-      "player": "Kevin Austin Jr.",
-      "gsis_id": "00-0037231",
-      "pos": "WR",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Kevin Austin Jr. (WR, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.6
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0034419|3",
-      "severity": "warning",
-      "player": "Braxton Berrios",
-      "gsis_id": "00-0034419",
-      "pos": "WR",
-      "team": "NYG",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Braxton Berrios (WR, NYG) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.6
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040405|3",
-      "severity": "warning",
-      "player": "Jamaal Pritchett",
-      "gsis_id": "00-0040405",
-      "pos": "WR",
+      "player": "Blake Grupe",
+      "gsis_id": "00-0038905",
+      "pos": "K",
       "team": "NYJ",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Jamaal Pritchett (WR, NYJ) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Blake Grupe (K, NYJ) is on the active roster but has no row on the sheet (OurLads KO #1)",
       "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.7
+        "ourlads_depth": 1,
+        "ourlads_pos": "KO",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "K",
+        "status_abbr": "I01"
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041267|3",
+      "type": "status_conflict",
+      "key": "status_conflict|00-0030061|4",
       "severity": "warning",
-      "player": "Malik McClain",
-      "gsis_id": "00-0041267",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Malik McClain (WR, NYJ) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "player": "Zach Ertz",
+      "gsis_id": "00-0030061",
+      "pos": "TE",
+      "team": "PHI",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Zach Ertz (TE, PHI) is projected Active (5.2 PPR) but roster status is PS (since 2026-09-22)",
       "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.9
+        "roster_status": "PS",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 5.2,
+        "slot": 4,
+        "earliest_return_week": null
       }
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0032385|3",
-      "severity": "warning",
-      "player": "Sterling Shepard",
-      "gsis_id": "00-0032385",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Sterling Shepard (WR, NYJ) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 2.8
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038409|3",
-      "severity": "warning",
-      "player": "Lew Nichols III",
-      "gsis_id": "00-0038409",
-      "pos": "RB",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Lew Nichols III (RB, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.9
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0035594|3",
-      "severity": "warning",
-      "player": "Travis Homer",
-      "gsis_id": "00-0035594",
-      "pos": "RB",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Travis Homer (RB, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.6
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0037745|3",
-      "severity": "warning",
-      "player": "Velus Jones Jr.",
-      "gsis_id": "00-0037745",
-      "pos": "RB",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 3,
-      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0032775|3",
+      "key": "sheet_status_stale|00-0032775|4",
       "severity": "warning",
       "player": "Demarcus Robinson",
       "gsis_id": "00-0032775",
       "pos": "WR",
       "team": "SF",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Demarcus Robinson (WR, SF) sheet Status is PS but roster says IR",
       "evidence": {
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.0
+        "ppr": 4.9
       }
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036924|3",
+      "key": "sheet_status_stale|00-0036924|4",
       "severity": "warning",
       "player": "Michael Carter",
       "gsis_id": "00-0036924",
       "pos": "RB",
       "team": "TEN",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Michael Carter (RB, TEN) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "nflverse",
+        "status_source": "espn",
         "sheet_status": "PS",
         "ppr": 0.0
       }
     },
     {
       "type": "unconfirmed_report",
-      "key": "unconfirmed_report|sheldrick jackson|3|ps_signed",
+      "key": "unconfirmed_report|sheldrick jackson|4|ps_signed",
       "severity": "info",
       "player": "Sheldrick Jackson",
       "gsis_id": null,
       "pos": "WR",
       "team": "BLT",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Sheldrick Jackson: reported ps signed on 2026-09-23 (SBN Ravens (Baltimore Beatdown)) still unconfirmed after 6 days",
       "evidence": {
         "event": {
@@ -541,14 +267,14 @@
     },
     {
       "type": "unconfirmed_report",
-      "key": "unconfirmed_report|nintendo wii|3|released",
+      "key": "unconfirmed_report|nintendo wii|4|released",
       "severity": "info",
       "player": "Nintendo Wii",
       "gsis_id": null,
       "pos": "",
       "team": "BUF",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 19 days",
       "evidence": {
         "event": {
@@ -561,15 +287,55 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036727|4",
+      "severity": "info",
+      "player": "Adam Prentice",
+      "gsis_id": "00-0036727",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Adam Prentice (RB, DEN) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-14",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0034091|4",
+      "severity": "info",
+      "player": "George Odum",
+      "gsis_id": "00-0034091",
+      "pos": "DB",
+      "team": "HST",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "George Odum (DB, HST) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
-      "key": "unconfirmed_report|marquez valdez-scantling|3|ps_signed",
+      "key": "unconfirmed_report|marquez valdez-scantling|4|ps_signed",
       "severity": "info",
       "player": "Marquez Valdez-Scantling",
       "gsis_id": null,
       "pos": "",
       "team": "LAC",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Marquez Valdez-Scantling: reported ps signed on 2026-09-16 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 13 days",
       "evidence": {
         "event": {
@@ -583,14 +349,14 @@
     },
     {
       "type": "unconfirmed_report",
-      "key": "unconfirmed_report|marquez valdez-scantling|3|ps_promoted",
+      "key": "unconfirmed_report|marquez valdez-scantling|4|ps_promoted",
       "severity": "info",
       "player": "Marquez Valdez-Scantling",
       "gsis_id": null,
       "pos": "",
       "team": "LAC",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Marquez Valdez-Scantling: reported ps promoted on 2026-09-23 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 6 days",
       "evidence": {
         "event": {
@@ -603,15 +369,35 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0035891|4",
+      "severity": "info",
+      "player": "Cody White",
+      "gsis_id": "00-0035891",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Cody White (WR, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
-      "key": "unconfirmed_report|audric estime|3|ir_placed",
+      "key": "unconfirmed_report|audric estime|4|ir_placed",
       "severity": "info",
       "player": "Audric Estime",
       "gsis_id": null,
       "pos": "",
       "team": "NO",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 17 days",
       "evidence": {
         "event": {
@@ -624,15 +410,95 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037231|4",
+      "severity": "info",
+      "player": "Kevin Austin Jr.",
+      "gsis_id": "00-0037231",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Kevin Austin Jr. (WR, NO) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0034419|4",
+      "severity": "info",
+      "player": "Braxton Berrios",
+      "gsis_id": "00-0034419",
+      "pos": "WR",
+      "team": "NYG",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Braxton Berrios (WR, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-21",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036280|4",
+      "severity": "info",
+      "player": "Malik Harrison",
+      "gsis_id": "00-0036280",
+      "pos": "LB",
+      "team": "NYG",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Malik Harrison (LB, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-21",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040341|4",
+      "severity": "info",
+      "player": "Doneiko Slaughter",
+      "gsis_id": "00-0040341",
+      "pos": "DB",
+      "team": "PIT",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Doneiko Slaughter (DB, PIT) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
-      "key": "unconfirmed_report|xavier thomas|3|suspended",
+      "key": "unconfirmed_report|xavier thomas|4|suspended",
       "severity": "info",
       "player": "Xavier Thomas",
       "gsis_id": null,
       "pos": "",
       "team": "SF",
-      "sheet": "primary",
-      "week": 3,
+      "sheet": "secondary",
+      "week": 4,
       "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 18 days",
       "evidence": {
         "event": {
@@ -643,13 +509,35 @@
         },
         "days_pending": 18
       }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036993|4",
+      "severity": "info",
+      "player": "Ifeatu Melifonwu",
+      "gsis_id": "00-0036993",
+      "pos": "DB",
+      "team": "TB",
+      "sheet": "secondary",
+      "week": 4,
+      "message": "Ifeatu Melifonwu (DB, TB) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
     }
   ],
   "dismissed": [],
   "errors": [],
   "counts": {
-    "sheet_status_stale": 27,
-    "missing_active": 1,
-    "unconfirmed_report": 6
+    "status_conflict": 3,
+    "missing_active": 5,
+    "sheet_status_stale": 4,
+    "unconfirmed_report": 6,
+    "elevation_limit": 8
   }
 }
