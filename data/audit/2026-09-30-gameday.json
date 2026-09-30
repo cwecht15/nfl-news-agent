@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 4,
   "sheet": "primary",
-  "generated_at": "2026-09-30T21:04:05+00:00",
+  "generated_at": "2026-09-30T23:21:04+00:00",
   "inputs": {
     "snapshot_date": "2026-09-30",
     "nflverse_date": "2026-09-30",
-    "injury_week_updated": "2026-09-30T11:47:11+00:00",
-    "roster_state_updated": "2026-09-30T21:04:05+00:00"
+    "injury_week_updated": "2026-09-30T21:02:04+00:00",
+    "roster_state_updated": "2026-09-30T23:21:04+00:00"
   },
   "alerts": [
     {
@@ -73,6 +73,42 @@
         "delta": 18.38456201,
         "pct": 0.33065759,
         "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040394|4",
+      "severity": "warning",
+      "player": "Anthony Tyus III",
+      "gsis_id": "00-0040394",
+      "pos": "RB",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Anthony Tyus III (RB, CAR) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "espn",
+        "sheet_status": "PS",
+        "ppr": 0.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0033589|4",
+      "severity": "warning",
+      "player": "David Moore",
+      "gsis_id": "00-0033589",
+      "pos": "WR",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 4,
+      "message": "David Moore (WR, CAR) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "espn",
+        "sheet_status": "PS",
+        "ppr": 0.8
       }
     },
     {
@@ -151,6 +187,24 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "WR",
         "status_abbr": "I01"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041415|4",
+      "severity": "warning",
+      "player": "Dean Connors",
+      "gsis_id": "00-0041415",
+      "pos": "RB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Dean Connors (RB, LA) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "espn",
+        "sheet_status": "PS",
+        "ppr": 0.2
       }
     },
     {
@@ -515,26 +569,6 @@
         },
         "days_pending": 19
       }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0036993|4",
-      "severity": "info",
-      "player": "Ifeatu Melifonwu",
-      "gsis_id": "00-0036993",
-      "pos": "DB",
-      "team": "TB",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Ifeatu Melifonwu (DB, TB) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-09-12",
-          "2026-09-19",
-          "2026-09-26"
-        ]
-      }
     }
   ],
   "dismissed": [],
@@ -543,8 +577,8 @@
     "status_conflict": 1,
     "missing_active": 7,
     "market_proj_gap": 2,
-    "sheet_status_stale": 4,
+    "sheet_status_stale": 7,
     "unconfirmed_report": 6,
-    "elevation_limit": 6
+    "elevation_limit": 5
   }
 }
