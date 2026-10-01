@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 4,
   "sheet": "primary",
-  "generated_at": "2026-10-01T00:46:31+00:00",
+  "generated_at": "2026-10-01T02:31:55+00:00",
   "inputs": {
     "snapshot_date": "2026-09-30",
     "nflverse_date": "2026-09-30",
-    "injury_week_updated": "2026-10-01T00:35:48+00:00",
-    "roster_state_updated": "2026-10-01T00:46:31+00:00"
+    "injury_week_updated": "2026-10-01T00:51:12+00:00",
+    "roster_state_updated": "2026-10-01T02:31:54+00:00"
   },
   "alerts": [
     {
@@ -88,7 +88,7 @@
       "message": "Anthony Tyus III (RB, CAR) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.3
       }
@@ -106,7 +106,7 @@
       "message": "David Moore (WR, CAR) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.8
       }
@@ -146,6 +146,24 @@
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039146|4",
+      "severity": "warning",
+      "player": "Jayden Reed",
+      "gsis_id": "00-0039146",
+      "pos": "WR",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Jayden Reed (WR, GB) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
@@ -202,7 +220,7 @@
       "message": "Dean Connors (RB, LA) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.2
       }
@@ -322,6 +340,24 @@
         "delta": 20.76142655,
         "pct": 0.4228396446,
         "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039855|4",
+      "severity": "warning",
+      "player": "Jalen McMillan",
+      "gsis_id": "00-0039855",
+      "pos": "WR",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Jalen McMillan (WR, TB) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -577,7 +613,7 @@
     "status_conflict": 1,
     "missing_active": 7,
     "market_proj_gap": 2,
-    "sheet_status_stale": 7,
+    "sheet_status_stale": 9,
     "unconfirmed_report": 6,
     "elevation_limit": 5
   }
