@@ -397,3 +397,21 @@
 2026-10-02 00:23:07,630 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-01.html
 2026-10-02 00:23:07,631 [INFO] afternoon: Report 2026-10-01 updated in place (pm_updated_at=2026-10-02T00:23:07+00:00)
 2026-10-02 00:23:07,631 [INFO] afternoon: Refresh complete (elevations, inactives, injuries, odds, roster, transactions).
+2026-10-02 00:48:29,380 [INFO] afternoon: ============================================================
+2026-10-02 00:48:29,380 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-10-01 (week 4, Thu)
+2026-10-02 00:48:29,380 [INFO] afternoon: ============================================================
+2026-10-02 00:48:29,380 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-10-02 00:48:32,094 [INFO] collectors.injury_report_collector: Team-site injury reports: 30 with a table, 2 not posted, 0 mismatched, 0 failed; 561 rows
+2026-10-02 00:48:32,578 [INFO] collectors.injury_report_collector: RotoWire practice report: 293 rows
+2026-10-02 00:48:32,902 [INFO] collectors.injury_report_collector: NFL.com injuries: week 4, 291 rows (practice status dated 2026-10-01)
+2026-10-02 00:48:32,903 [INFO] collectors.injury_report_collector: rotowire: dropped rows for FA — no game this week
+2026-10-02 00:48:32,907 [INFO] collectors.injury_report_collector: Injury report: 1 source conflicts
+2026-10-02 00:48:32,915 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk04.json (32 teams)
+2026-10-02 00:48:32,916 [INFO] collectors.injury_report_collector: Injury report week 4: 300 players, 0 changes
+2026-10-02 00:48:32,923 [INFO] afternoon: Injury report: week 4, 300 rows (nflcom=291, rotowire=292, team_site=281), 0 changes, 1 conflicts, team sites with a table: 30
+2026-10-02 00:48:32,924 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-10-02 00:48:33,450 [INFO] afternoon: Projection audit: 45 open alerts (error=2, info=21, warning=22), 0 dismissed
+2026-10-02 00:48:33,467 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-01.json
+2026-10-02 00:48:33,470 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-01.html
+2026-10-02 00:48:33,470 [INFO] afternoon: Report 2026-10-01 updated in place (pm_updated_at=2026-10-02T00:48:33+00:00)
+2026-10-02 00:48:33,470 [INFO] afternoon: Injury report refresh complete.
