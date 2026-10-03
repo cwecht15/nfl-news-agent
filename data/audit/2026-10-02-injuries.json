@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 4,
   "sheet": "primary",
-  "generated_at": "2026-10-03T00:31:00+00:00",
+  "generated_at": "2026-10-03T01:13:37+00:00",
   "inputs": {
     "snapshot_date": "2026-10-02",
     "nflverse_date": "2026-10-02",
-    "injury_week_updated": "2026-10-03T00:30:59+00:00",
-    "roster_state_updated": "2026-10-02T23:38:24+00:00"
+    "injury_week_updated": "2026-10-03T01:13:36+00:00",
+    "roster_state_updated": "2026-10-03T00:44:41+00:00"
   },
   "alerts": [
     {
@@ -25,7 +25,7 @@
       "message": "Xavier Smith (WR, LA) is projected Active (1.0 PPR) but roster status is FA (since 2026-10-02)",
       "evidence": {
         "roster_status": "FA",
-        "status_source": "news",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 1.0,
         "slot": 5,
@@ -50,28 +50,6 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "QB",
         "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0036322|4|OUT",
-      "severity": "error",
-      "player": "Justin Jefferson",
-      "gsis_id": "00-0036322",
-      "pos": "WR",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Justin Jefferson (WR, MIN) is OUT (Ankle) but projected for 16.1 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Ankle",
-        "practice": {
-          "2026-09-30": "DNP",
-          "2026-10-01": "DNP",
-          "2026-10-02": "DNP"
-        },
-        "ppr": 16.1
       }
     },
     {
@@ -141,6 +119,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|BUF|4|NE@BUF",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 4,
+      "message": "NE@BUF: the sheet has -7.0 / 50.0, the market -6.5 / 48.5 (FP-TOTAL) (odds pulled 2026-10-02 10:40-04:00)",
+      "evidence": {
+        "game": "NE@BUF",
+        "fp_flag": "FP-TOTAL",
+        "sheet_spread": -7.0,
+        "sheet_ou": 50.0,
+        "market_spread": -6.5,
+        "market_total": 48.5,
+        "spread_delta": 0.5,
+        "total_delta": -1.5
+      }
+    },
+    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0040236|4|anytime_td",
       "severity": "warning",
@@ -178,7 +178,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 1.8
+        "ppr": 1.7
       }
     },
     {
@@ -196,6 +196,42 @@
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035406|4",
+      "severity": "warning",
+      "player": "Lil'Jordan Humphrey",
+      "gsis_id": "00-0035406",
+      "pos": "WR",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Lil'Jordan Humphrey (WR, DEN) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039603|4",
+      "severity": "warning",
+      "player": "British Brooks",
+      "gsis_id": "00-0039603",
+      "pos": "RB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 4,
+      "message": "British Brooks (RB, HST) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
@@ -304,8 +340,8 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0039710|4",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039710|4",
       "severity": "warning",
       "player": "Jeshaun Jones",
       "gsis_id": "00-0039710",
@@ -313,14 +349,12 @@
       "team": "MIN",
       "sheet": "primary",
       "week": 4,
-      "message": "Jeshaun Jones (WR, MIN) is on the active roster but has no row on the sheet (OurLads RWR #2; reinstated 2026-09-29)",
+      "message": "Jeshaun Jones (WR, MIN) sheet Status is SUS but roster says ACT - activated",
       "evidence": {
-        "ourlads_depth": 2,
-        "ourlads_pos": "RWR",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "WR",
-        "status_abbr": "A01"
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "SUS",
+        "ppr": 0.0
       }
     },
     {
@@ -688,10 +722,11 @@
   "errors": [],
   "counts": {
     "status_conflict": 1,
-    "missing_active": 5,
-    "out_but_projected": 4,
+    "missing_active": 4,
+    "out_but_projected": 3,
+    "sheet_line_stale": 1,
     "market_proj_gap": 5,
-    "sheet_status_stale": 8,
+    "sheet_status_stale": 11,
     "unconfirmed_report": 6,
     "ir_return_window": 1,
     "elevation_limit": 3
