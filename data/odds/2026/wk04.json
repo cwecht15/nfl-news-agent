@@ -38,11 +38,11 @@
         "home_p": 0.36
       },
       "sheet": {
-        "spread_home": 4.0,
+        "spread_home": 4.5,
         "ou": 47.5,
-        "fp_spread_delta": -0.5,
+        "fp_spread_delta": -1.0,
         "fp_total_delta": 0.0,
-        "fp_flag": ""
+        "fp_flag": "FP-SPREAD"
       },
       "implied": {
         "home": 22.0,
@@ -265,9 +265,9 @@
         "home_p": 0.73
       },
       "sheet": {
-        "spread_home": -7.0,
+        "spread_home": -6.5,
         "ou": 50.0,
-        "fp_spread_delta": 0.5,
+        "fp_spread_delta": 0.0,
         "fp_total_delta": -1.5,
         "fp_flag": "FP-TOTAL"
       },
@@ -574,9 +574,9 @@
       },
       "sheet": {
         "spread_home": 3.5,
-        "ou": 39.5,
+        "ou": 39.0,
         "fp_spread_delta": 0.0,
-        "fp_total_delta": -1.0,
+        "fp_total_delta": -0.5,
         "fp_flag": ""
       },
       "implied": {
@@ -881,9 +881,9 @@
         "home_p": 0.35
       },
       "sheet": {
-        "spread_home": 5.0,
+        "spread_home": 4.5,
         "ou": 47.5,
-        "fp_spread_delta": -0.5,
+        "fp_spread_delta": 0.0,
         "fp_total_delta": 0.0,
         "fp_flag": ""
       },
@@ -1011,9 +1011,9 @@
         "home_p": 0.36
       },
       "sheet": {
-        "spread_home": 4.0,
+        "spread_home": 3.5,
         "ou": 51.0,
-        "fp_spread_delta": -0.5,
+        "fp_spread_delta": 0.0,
         "fp_total_delta": 0.0,
         "fp_flag": ""
       },
@@ -1076,9 +1076,9 @@
         "home_p": 0.57
       },
       "sheet": {
-        "spread_home": -2.5,
+        "spread_home": -2.0,
         "ou": 47.5,
-        "fp_spread_delta": 0.0,
+        "fp_spread_delta": -0.5,
         "fp_total_delta": 0.0,
         "fp_flag": ""
       },
@@ -56046,6 +56046,7 @@
     }
   },
   "flags_seen": {
+    "sheet_drift|IND@WAS": "FP-SPREAD",
     "sheet_drift|NE@BUF": "FP-TOTAL",
     "market_only|00-0039915|anytime_td": true,
     "market_only|00-0039890|anytime_td": true,
@@ -56064,22 +56065,22 @@
   "changes": [
     {
       "type": "sheet_drift",
-      "team": "BUF",
+      "team": "WAS",
       "player": "",
       "gsis_id": "",
       "pos": "",
       "stat": "",
       "stat_label": "",
-      "game": "NE@BUF",
+      "game": "IND@WAS",
       "basis": "vs the sheet",
       "ours": null,
-      "old": -7.0,
-      "new": -6.5,
-      "magnitude": 2.0,
-      "message": "**NE@BUF**: your sheet has -7 / 50, market -6.5 / 48.5 (FP-TOTAL)"
+      "old": 4.5,
+      "new": 3.5,
+      "magnitude": 1.0,
+      "message": "**IND@WAS**: your sheet has +4.5 / 47.5, market +3.5 / 47.5 (FP-SPREAD)"
     }
   ],
-  "changes_seen_at": "2026-10-03T00:44:32+00:00",
+  "changes_seen_at": "2026-10-03T15:02:05+00:00",
   "pull_log": [
     {
       "pulled_at": "2026-09-29T13:33-04:00",
@@ -73850,6 +73851,29 @@
           "message": "**NE@BUF**: your sheet has -7 / 50, market -6.5 / 48.5 (FP-TOTAL)"
         }
       ]
+    },
+    {
+      "pulled_at": "2026-10-02T10:40-04:00",
+      "props_pull_id": "2026-10-02T14:40:02+00:00",
+      "seen_at": "2026-10-03T15:02:05+00:00",
+      "changes": [
+        {
+          "type": "sheet_drift",
+          "team": "WAS",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "IND@WAS",
+          "basis": "vs the sheet",
+          "ours": null,
+          "old": 4.5,
+          "new": 3.5,
+          "magnitude": 1.0,
+          "message": "**IND@WAS**: your sheet has +4.5 / 47.5, market +3.5 / 47.5 (FP-SPREAD)"
+        }
+      ]
     }
   ],
   "pull": {
@@ -73857,7 +73881,7 @@
     "props_pull_id": "2026-10-02T14:40:02+00:00",
     "week_reported": 4,
     "stale_reason": "",
-    "age_hours": 11.7
+    "age_hours": 24.4
   },
-  "updated_at": "2026-10-03T02:24:44+00:00"
+  "updated_at": "2026-10-03T15:02:05+00:00"
 }
