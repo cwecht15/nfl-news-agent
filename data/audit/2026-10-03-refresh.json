@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 4,
   "sheet": "primary",
-  "generated_at": "2026-10-03T23:36:02+00:00",
+  "generated_at": "2026-10-03T23:38:05+00:00",
   "inputs": {
     "snapshot_date": "2026-10-03",
     "nflverse_date": "2026-10-03",
     "injury_week_updated": "2026-10-03T15:13:23+00:00",
-    "roster_state_updated": "2026-10-03T23:36:01+00:00"
+    "roster_state_updated": "2026-10-03T23:38:01+00:00"
   },
   "alerts": [
     {
@@ -112,6 +112,24 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.7
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036727|4",
+      "severity": "warning",
+      "player": "Adam Prentice",
+      "gsis_id": "00-0036727",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Adam Prentice (RB, DEN) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "espn",
+        "sheet_status": "PS",
+        "ppr": 0.2
       }
     },
     {
@@ -279,6 +297,24 @@
       }
     },
     {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0038998|4",
+      "severity": "warning",
+      "player": "Jake Haener",
+      "gsis_id": "00-0038998",
+      "pos": "QB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Jake Haener (QB, NYG) was elevated from the practice squad (2026-10-03) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-03"
+        ],
+        "elevations_used": 1
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0031236|4",
       "severity": "warning",
@@ -315,6 +351,42 @@
       }
     },
     {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0034867|4",
+      "severity": "warning",
+      "player": "Malik Turner",
+      "gsis_id": "00-0034867",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Malik Turner (WR, SF) was elevated from the practice squad (2026-10-03) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-03"
+        ],
+        "elevations_used": 1
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0035282|4",
+      "severity": "warning",
+      "player": "Easton Stick",
+      "gsis_id": "00-0035282",
+      "pos": "QB",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Easton Stick (QB, TB) was elevated from the practice squad (2026-10-03) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-03"
+        ],
+        "elevations_used": 1
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0039855|4",
       "severity": "warning",
@@ -330,6 +402,24 @@
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0035567|4",
+      "severity": "warning",
+      "player": "Craig Reynolds",
+      "gsis_id": "00-0035567",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Craig Reynolds (RB, WAS) was elevated from the practice squad (2026-10-03) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-03"
+        ],
+        "elevations_used": 1
       }
     },
     {
@@ -394,26 +484,6 @@
     },
     {
       "type": "elevation_limit",
-      "key": "elevation_limit|00-0036727|4",
-      "severity": "info",
-      "player": "Adam Prentice",
-      "gsis_id": "00-0036727",
-      "pos": "RB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Adam Prentice (RB, DEN) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-09-14",
-          "2026-09-19",
-          "2026-09-26"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
       "key": "elevation_limit|00-0034091|4",
       "severity": "info",
       "player": "George Odum",
@@ -429,6 +499,26 @@
           "2026-09-12",
           "2026-09-19",
           "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040209|4",
+      "severity": "info",
+      "player": "Jalen McLeod",
+      "gsis_id": "00-0040209",
+      "pos": "LB",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Jalen McLeod (LB, JAX) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-09-26",
+          "2026-10-03"
         ]
       }
     },
@@ -535,6 +625,26 @@
         },
         "days_pending": 22
       }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040318|4",
+      "severity": "info",
+      "player": "Ale Kaho",
+      "gsis_id": "00-0040318",
+      "pos": "LB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Ale Kaho (LB, WAS) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-09-26",
+          "2026-10-03"
+        ]
+      }
     }
   ],
   "dismissed": [],
@@ -543,9 +653,10 @@
     "out_but_projected": 2,
     "status_conflict": 1,
     "missing_active": 2,
-    "sheet_status_stale": 12,
+    "sheet_status_stale": 13,
+    "elevated_not_projected": 4,
     "unconfirmed_report": 6,
     "ir_return_window": 1,
-    "elevation_limit": 3
+    "elevation_limit": 4
   }
 }
