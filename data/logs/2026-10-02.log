@@ -521,21 +521,23 @@
 2026-10-03 01:15:06,661 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-02.html
 2026-10-03 01:15:06,661 [INFO] afternoon: Report 2026-10-02 updated in place (pm_updated_at=2026-10-03T01:15:06+00:00)
 2026-10-03 01:15:06,661 [INFO] afternoon: Injury report refresh complete.
-2026-10-03 02:23:20,012 [INFO] afternoon: ============================================================
-2026-10-03 02:23:20,013 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-10-02 (week 4, Fri)
-2026-10-03 02:23:20,013 [INFO] afternoon: ============================================================
-2026-10-03 02:23:20,013 [INFO] afternoon: Step 5c: Collecting injury reports...
-2026-10-03 02:23:22,893 [INFO] collectors.injury_report_collector: Team-site injury reports: 32 with a table, 0 not posted, 0 mismatched, 0 failed; 606 rows
-2026-10-03 02:23:23,388 [INFO] collectors.injury_report_collector: RotoWire practice report: 308 rows
-2026-10-03 02:23:23,719 [INFO] collectors.injury_report_collector: NFL.com injuries: week 4, 313 rows (practice status dated 2026-10-02)
-2026-10-03 02:23:23,721 [INFO] collectors.injury_report_collector: rotowire: dropped rows for FA — no game this week
-2026-10-03 02:23:23,725 [INFO] collectors.injury_report_collector: Injury report: 4 source conflicts
-2026-10-03 02:23:23,735 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk04.json (32 teams)
-2026-10-03 02:23:23,736 [INFO] collectors.injury_report_collector: Injury report week 4: 319 players, 0 changes
-2026-10-03 02:23:23,744 [INFO] afternoon: Injury report: week 4, 319 rows (nflcom=313, rotowire=307, team_site=304), 0 changes, 4 conflicts, team sites with a table: 32
-2026-10-03 02:23:23,744 [INFO] afternoon: Step 5d: Auditing weekly projections...
-2026-10-03 02:23:24,696 [INFO] afternoon: Projection audit: 35 open alerts (error=5, info=10, warning=20), 0 dismissed
-2026-10-03 02:23:24,730 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-02.json
-2026-10-03 02:23:24,732 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-02.html
-2026-10-03 02:23:24,732 [INFO] afternoon: Report 2026-10-02 updated in place (pm_updated_at=2026-10-03T02:23:24+00:00)
-2026-10-03 02:23:24,733 [INFO] afternoon: Injury report refresh complete.
+2026-10-03 02:24:43,861 [INFO] afternoon: ============================================================
+2026-10-03 02:24:43,861 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-10-02 (week 4, Fri)
+2026-10-03 02:24:43,861 [INFO] afternoon: ============================================================
+2026-10-03 02:24:43,862 [INFO] afternoon: Step 2c: Reading market lines...
+2026-10-03 02:24:49,364 [INFO] afternoon: Market lines: week 4, 16 games, 1146 player-stats, 0 changes (none); odds pulled 2026-10-02T10:40-04:00
+2026-10-03 02:24:49,746 [INFO] collectors.espn_transactions_collector: ESPN elevations: 2 in the last 4 days (38 parsed from 100 rows); practice-squad promotions: 17
+2026-10-03 02:24:49,747 [INFO] afternoon: Step 5f: 2 practice-squad elevations from ESPN (PHI)
+2026-10-03 02:24:49,747 [INFO] afternoon: Step 5f: 17 practice-squad promotions from ESPN (BAL, CAR, CIN, DAL, DET, GB, HOU, LAR, MIA, MIN, NYJ, TB, TEN)
+2026-10-03 02:24:49,867 [INFO] processing.roster_events: Saved roster state: 3039 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-10-03 02:24:49,882 [INFO] processing.roster_events: Roster step 2026-10-02: {"nflverse_transitions": 41, "nflverse_events": 27, "espn_elevations": 19, "appended": 0, "ledger": 1803, "confirmed_new": 0}
+2026-10-03 02:24:49,884 [INFO] afternoon: Elevations merged into the ledger: 0 new events
+2026-10-03 02:24:49,885 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-10-03 02:24:50,077 [INFO] collectors.inactives_collector: Inactives week 4: 1 games polled, 2 teams published, 0 changed
+2026-10-03 02:24:50,079 [INFO] afternoon: Inactives: week 4, 1 games polled, 2 teams published, 0 newly published/changed
+2026-10-03 02:24:50,081 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-10-03 02:24:50,309 [INFO] afternoon: Projection audit: 35 open alerts (error=5, info=10, warning=20), 0 dismissed
+2026-10-03 02:24:50,364 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-02.json
+2026-10-03 02:24:50,367 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-02.html
+2026-10-03 02:24:50,367 [INFO] afternoon: Report 2026-10-02 updated in place (pm_updated_at=2026-10-03T02:24:50+00:00)
+2026-10-03 02:24:50,368 [INFO] afternoon: Game-day inactives run complete.
