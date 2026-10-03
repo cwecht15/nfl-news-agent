@@ -47,6 +47,7 @@ import json
 import logging
 import re
 import sys
+import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -67,10 +68,15 @@ DEFAULT_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/transa
 DEFAULT_LIMIT = 100          # one page ≈ 10 days of league-wide transactions
 DEFAULT_LOOKBACK_DAYS = 4
 DEFAULT_TIMEOUT = 30
+DEFAULT_ATTEMPTS = 3
+_NO_CACHE = {"Cache-Control": "no-cache", "Pragma": "no-cache"}
 
 # ESPN uses a few position labels the injury-report tables never show.
 _EXTRA_POSITIONS = {"EDGE", "DE", "DT", "NT", "OG", "OT", "SAF", "PK", "ATH", "DL", "OL"}
 _POSITIONS = {p.upper() for p in POSITION_TOKENS} | _EXTRA_POSITIONS
+# Typos seen in ESPN's feed. "Elevated OLD Barryl Peterson III" (2026-10-03)
+# otherwise left "OLD" glued to the name, which then matched no roster.
+_POSITION_TYPOS = {"OLD": "OLB"}
 
 # A period that ends the clause, as opposed to one inside a name. Excludes
 # "Jr." / "Sr." and single-letter initials ("C.J."), and requires whitespace
@@ -121,6 +127,7 @@ _BODY_REJECT_RE = re.compile(r"practice[- ]squad|\broster\b", re.IGNORECASE)
 def _singular_position(token: str) -> str:
     """``"LBs"`` / ``"lb."`` -> ``"LB"``; anything else upper-cased as given."""
     t = token.upper().strip(".,")
+    t = _POSITION_TYPOS.get(t, t)
     return t[:-1] if t.endswith("S") and t[:-1] in _POSITIONS else t
 
 
@@ -200,23 +207,49 @@ def _parse_clauses(rows: list[dict], patterns: tuple[re.Pattern, ...], event_typ
 
 def fetch_transactions(url: str = DEFAULT_URL, limit: int = DEFAULT_LIMIT,
                        timeout: int = DEFAULT_TIMEOUT,
-                       session: Optional[requests.Session] = None) -> list[dict]:
+                       session: Optional[requests.Session] = None,
+                       fresh_as_of: Optional[str] = None, attempts: int = DEFAULT_ATTEMPTS,
+                       retry_sleep: float = 3.0) -> list[dict]:
     """Page 1 of the league transaction feed.
 
     Deliberately a single page: ``limit`` alone returns the newest ``limit``
     rows, but combining ``limit`` with ``page`` returns a different (older)
     window than the page size implies, so paging would silently skip today.
+
+    With ``fresh_as_of`` (YYYY-MM-DD), a response whose newest row is older
+    is refetched up to ``attempts`` times and the freshest one kept. On a day
+    with no transactions yet that costs a few seconds and changes nothing.
     """
     sess = session or requests.Session()
-    try:
-        resp = sess.get(url, params={"limit": int(limit)}, timeout=timeout)
-        resp.raise_for_status()
-        rows = resp.json().get("transactions") or []
-    except Exception as e:  # noqa: BLE001 — non-fatal, like every other collector
-        logger.warning("ESPN transactions fetch failed: %s", e)
-        return []
-    logger.debug("ESPN transactions: %d rows", len(rows))
-    return rows
+    best: list[dict] = []
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            # ESPN does not serve every caller the same copy of this feed. On
+            # 2026-10-03 the GitHub runners got a page ending before Saturday's
+            # 18 elevations at 22:42 and 23:34 UTC (identical "38 parsed from
+            # 100 rows" both times) while a local fetch had them all, so bust
+            # any cache in the path and keep the freshest response.
+            resp = sess.get(url, params={"limit": int(limit), "_": int(time.time() * 1000)},
+                            headers=_NO_CACHE, timeout=timeout)
+            resp.raise_for_status()
+            rows = resp.json().get("transactions") or []
+        except Exception as e:  # noqa: BLE001 — non-fatal, like every other collector
+            logger.warning("ESPN transactions fetch failed (attempt %d/%d): %s", attempt, attempts, e)
+            continue
+        if not best or newest_row_date(rows) > newest_row_date(best):
+            best = rows
+        if not fresh_as_of or newest_row_date(best) >= fresh_as_of or attempt == attempts:
+            break
+        logger.info("ESPN transactions: newest row %s is older than %s — refetching (attempt %d/%d)",
+                    newest_row_date(best) or "none", fresh_as_of, attempt, attempts)
+        time.sleep(retry_sleep)
+    logger.debug("ESPN transactions: %d rows", len(best))
+    return best
+
+
+def newest_row_date(rows: list[dict]) -> str:
+    """YYYY-MM-DD of the newest row (ESPN stamps every row 07:00Z of its day)."""
+    return max((str(r.get("date") or "")[:10] for r in rows or []), default="")
 
 
 def collect_elevations(date_str: Optional[str] = None, settings: Optional[dict] = None,
@@ -238,11 +271,17 @@ def collect_ps_moves(date_str: Optional[str] = None, settings: Optional[dict] = 
     if not cfg.get("enabled", True):
         logger.info("roster.elevations disabled — skipping ESPN transactions.")
         return []
+    from processing.season import today_et
+
+    # Only a run for today can tell a stale copy of the feed from a quiet day.
+    et_today = today_et()
     rows = fetch_transactions(
         url=cfg.get("url", DEFAULT_URL),
         limit=int(cfg.get("limit", DEFAULT_LIMIT)),
         timeout=int(cfg.get("timeout", DEFAULT_TIMEOUT)),
         session=session,
+        fresh_as_of=et_today if not date_str or date_str == et_today else None,
+        attempts=int(cfg.get("attempts", DEFAULT_ATTEMPTS)),
     )
     elevations = parse_elevations(rows)
     promotions = parse_promotions(rows)
@@ -251,9 +290,12 @@ def collect_ps_moves(date_str: Optional[str] = None, settings: Optional[dict] = 
     cutoff = (today - timedelta(days=days)).isoformat()
     fresh = [e for e in elevations + promotions if e["date"] >= cutoff]
     n_elev = sum(1 for e in fresh if e["event_type"] == "ps_elevated")
-    logger.info("ESPN elevations: %d in the last %d days (%d parsed from %d rows); "
+    # The newest row's date is what exposes a stale feed: without it, a page
+    # that stops yesterday reads exactly like a Saturday with no elevations.
+    logger.info("ESPN elevations: %d in the last %d days (%d parsed from %d rows, newest row %s); "
                 "practice-squad promotions: %d",
-                n_elev, days, len(elevations), len(rows), len(fresh) - n_elev)
+                n_elev, days, len(elevations), len(rows), newest_row_date(rows) or "none",
+                len(fresh) - n_elev)
     return sorted(fresh, key=lambda e: (e["date"], e["team"], e["name"]), reverse=True)
 
 

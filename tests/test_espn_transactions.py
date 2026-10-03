@@ -159,3 +159,55 @@ def test_fetch_failure_is_non_fatal(monkeypatch):
             raise RuntimeError("network down")
 
     assert etc.fetch_transactions(session=Boom()) == []
+
+
+class _Resp:
+    def __init__(self, rows):
+        self._rows = rows
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return {"transactions": self._rows}
+
+
+class _Seq:
+    """Serves the given row lists in order, recording each call's kwargs."""
+    def __init__(self, *pages):
+        self.pages, self.calls = list(pages), []
+
+    def get(self, url, **kw):
+        self.calls.append(kw)
+        return _Resp(self.pages[min(len(self.calls), len(self.pages)) - 1])
+
+
+_STALE = [{"date": "2026-10-02T07:00Z", "description": "Signed WR A B.", "team": {"abbreviation": "NYG"}}]
+_FRESH = _STALE + [{"date": "2026-10-03T07:00Z", "description": "Elevated DB Jalen Mills.",
+                    "team": {"abbreviation": "DET"}}]
+
+
+def test_stale_feed_is_refetched_and_the_freshest_kept():
+    # 2026-10-03: the GitHub runners were served a page ending the day before.
+    sess = _Seq(_STALE, _FRESH)
+    rows = etc.fetch_transactions(session=sess, fresh_as_of="2026-10-03", retry_sleep=0)
+    assert rows == _FRESH and len(sess.calls) == 2
+    assert sess.calls[0]["headers"]["Cache-Control"] == "no-cache"
+
+
+def test_quiet_day_gives_up_after_the_attempts_and_keeps_the_rows():
+    sess = _Seq(_STALE)
+    rows = etc.fetch_transactions(session=sess, fresh_as_of="2026-10-03", attempts=3, retry_sleep=0)
+    assert rows == _STALE and len(sess.calls) == 3
+
+
+def test_no_freshness_check_means_one_request():
+    sess = _Seq(_STALE)
+    assert etc.fetch_transactions(session=sess) == _STALE and len(sess.calls) == 1
+
+
+def test_old_typo_reads_as_olb():
+    rows = [{"date": "2026-10-03T07:00Z", "team": {"abbreviation": "LAR"},
+             "description": "Signed WR Alex Bachman. Elevated OLD Barryl Peterson III and DB Cam Lampkin."}]
+    got = {(e["name"], e["pos"]) for e in etc.parse_elevations(rows)}
+    assert got == {("Barryl Peterson III", "OLB"), ("Cam Lampkin", "DB")}
