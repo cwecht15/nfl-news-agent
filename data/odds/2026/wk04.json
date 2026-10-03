@@ -39,9 +39,9 @@
       },
       "sheet": {
         "spread_home": 4.0,
-        "ou": 48.0,
+        "ou": 47.5,
         "fp_spread_delta": -0.5,
-        "fp_total_delta": -0.5,
+        "fp_total_delta": 0.0,
         "fp_flag": ""
       },
       "implied": {
@@ -265,11 +265,11 @@
         "home_p": 0.73
       },
       "sheet": {
-        "spread_home": -6.5,
-        "ou": 48.5,
-        "fp_spread_delta": 0.0,
-        "fp_total_delta": 0.0,
-        "fp_flag": ""
+        "spread_home": -7.0,
+        "ou": 50.0,
+        "fp_spread_delta": 0.5,
+        "fp_total_delta": -1.5,
+        "fp_flag": "FP-TOTAL"
       },
       "implied": {
         "home": 27.5,
@@ -574,9 +574,9 @@
       },
       "sheet": {
         "spread_home": 3.5,
-        "ou": 38.5,
+        "ou": 39.5,
         "fp_spread_delta": 0.0,
-        "fp_total_delta": 0.0,
+        "fp_total_delta": -1.0,
         "fp_flag": ""
       },
       "implied": {
@@ -647,9 +647,9 @@
       },
       "sheet": {
         "spread_home": 3.5,
-        "ou": 43.0,
+        "ou": 42.5,
         "fp_spread_delta": -0.5,
-        "fp_total_delta": 0.5,
+        "fp_total_delta": 1.0,
         "fp_flag": ""
       },
       "implied": {
@@ -881,9 +881,9 @@
         "home_p": 0.35
       },
       "sheet": {
-        "spread_home": 4.5,
+        "spread_home": 5.0,
         "ou": 47.5,
-        "fp_spread_delta": 0.0,
+        "fp_spread_delta": -0.5,
         "fp_total_delta": 0.0,
         "fp_flag": ""
       },
@@ -1011,9 +1011,9 @@
         "home_p": 0.36
       },
       "sheet": {
-        "spread_home": 3.5,
+        "spread_home": 4.0,
         "ou": 51.0,
-        "fp_spread_delta": 0.0,
+        "fp_spread_delta": -0.5,
         "fp_total_delta": 0.0,
         "fp_flag": ""
       },
@@ -56046,6 +56046,7 @@
     }
   },
   "flags_seen": {
+    "sheet_drift|NE@BUF": "FP-TOTAL",
     "market_only|00-0039915|anytime_td": true,
     "market_only|00-0039890|anytime_td": true,
     "market_only|00-0036912|anytime_td": true,
@@ -56062,119 +56063,23 @@
   },
   "changes": [
     {
-      "type": "prop_move",
-      "team": "CHI",
-      "player": "Kyle Monangai",
-      "gsis_id": "00-0040236",
-      "pos": "RB",
-      "stat": "anytime_td",
-      "stat_label": "Anytime TD rate",
-      "game": "New York Jets @ Chicago Bears",
-      "basis": "since the previous pull",
-      "ours": 0.36,
-      "old": 0.3832223299,
-      "new": 0.8550544687,
-      "magnitude": 4.718,
-      "message": "**Kyle Monangai** (RB, CHI) Anytime TD rate 0.86, up from 0.38 since the previous pull; we project 0.36"
-    },
-    {
-      "type": "prop_move",
-      "team": "SEA",
-      "player": "George Holani",
-      "gsis_id": "00-0039299",
-      "pos": "RB",
-      "stat": "anytime_td",
-      "stat_label": "Anytime TD rate",
-      "game": "Los Angeles Chargers @ Seattle Seahawks",
-      "basis": "since the previous pull",
-      "ours": 0.2,
-      "old": 0.246256425,
-      "new": 0.4575089342,
-      "magnitude": 2.113,
-      "message": "**George Holani** (RB, SEA) Anytime TD rate 0.46, up from 0.25 since the previous pull; we project 0.20"
-    },
-    {
-      "type": "prop_move",
-      "team": "SEA",
-      "player": "Emanuel Wilson",
-      "gsis_id": "00-0038797",
-      "pos": "RB",
-      "stat": "anytime_td",
-      "stat_label": "Anytime TD rate",
-      "game": "Los Angeles Chargers @ Seattle Seahawks",
-      "basis": "since the previous pull",
-      "ours": 0.39,
-      "old": 0.3471651677,
-      "new": 0.5137696245,
-      "magnitude": 1.666,
-      "message": "**Emanuel Wilson** (RB, SEA) Anytime TD rate 0.51, up from 0.35 since the previous pull; we project 0.39"
-    },
-    {
-      "type": "market_only",
-      "team": "LAC",
-      "player": "Ladd McConkey",
-      "gsis_id": "00-0039915",
-      "pos": "WR",
-      "stat": "anytime_td",
-      "stat_label": "Anytime TD rate",
-      "game": "Los Angeles Chargers @ Seattle Seahawks",
-      "basis": "no projection",
-      "ours": 0.0,
-      "old": null,
-      "new": 0.2522057035,
-      "magnitude": 1.0,
-      "message": "Market quotes **Ladd McConkey** (WR, LAC) Anytime TD rate 0.25 — the sheet projects none"
-    },
-    {
-      "type": "market_only",
-      "team": "NYJ",
-      "player": "Adonai Mitchell",
-      "gsis_id": "00-0039890",
-      "pos": "WR",
-      "stat": "anytime_td",
-      "stat_label": "Anytime TD rate",
-      "game": "New York Jets @ Chicago Bears",
-      "basis": "no projection",
-      "ours": 0.0,
-      "old": null,
-      "new": 0.3108913054,
-      "magnitude": 1.0,
-      "message": "Market quotes **Adonai Mitchell** (WR, NYJ) Anytime TD rate 0.31 — the sheet projects none"
-    },
-    {
-      "type": "market_only",
-      "team": "PHI",
-      "player": "DeVonta Smith",
-      "gsis_id": "00-0036912",
-      "pos": "WR",
-      "stat": "anytime_td",
-      "stat_label": "Anytime TD rate",
-      "game": "Los Angeles Rams @ Philadelphia Eagles",
-      "basis": "no projection",
-      "ours": 0.0,
-      "old": null,
-      "new": 0.4158274924,
-      "magnitude": 1.0,
-      "message": "Market quotes **DeVonta Smith** (WR, PHI) Anytime TD rate 0.42 — the sheet projects none"
-    },
-    {
-      "type": "market_only",
-      "team": "WAS",
-      "player": "Rachaad White",
-      "gsis_id": "00-0037256",
-      "pos": "RB",
-      "stat": "anytime_td",
-      "stat_label": "Anytime TD rate",
-      "game": "Indianapolis Colts @ Washington Commanders",
-      "basis": "no projection",
-      "ours": 0.0,
-      "old": null,
-      "new": 0.2803019652,
-      "magnitude": 1.0,
-      "message": "Market quotes **Rachaad White** (RB, WAS) Anytime TD rate 0.28 — the sheet projects none"
+      "type": "sheet_drift",
+      "team": "BUF",
+      "player": "",
+      "gsis_id": "",
+      "pos": "",
+      "stat": "",
+      "stat_label": "",
+      "game": "NE@BUF",
+      "basis": "vs the sheet",
+      "ours": null,
+      "old": -7.0,
+      "new": -6.5,
+      "magnitude": 2.0,
+      "message": "**NE@BUF**: your sheet has -7 / 50, market -6.5 / 48.5 (FP-TOTAL)"
     }
   ],
-  "changes_seen_at": "2026-10-02T16:29:30+00:00",
+  "changes_seen_at": "2026-10-03T00:44:32+00:00",
   "pull_log": [
     {
       "pulled_at": "2026-09-29T13:33-04:00",
@@ -73922,6 +73827,29 @@
           "message": "Market quotes **Rachaad White** (RB, WAS) Anytime TD rate 0.28 — the sheet projects none"
         }
       ]
+    },
+    {
+      "pulled_at": "2026-10-02T10:40-04:00",
+      "props_pull_id": "2026-10-02T14:40:02+00:00",
+      "seen_at": "2026-10-03T00:44:32+00:00",
+      "changes": [
+        {
+          "type": "sheet_drift",
+          "team": "BUF",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "NE@BUF",
+          "basis": "vs the sheet",
+          "ours": null,
+          "old": -7.0,
+          "new": -6.5,
+          "magnitude": 2.0,
+          "message": "**NE@BUF**: your sheet has -7 / 50, market -6.5 / 48.5 (FP-TOTAL)"
+        }
+      ]
     }
   ],
   "pull": {
@@ -73929,7 +73857,7 @@
     "props_pull_id": "2026-10-02T14:40:02+00:00",
     "week_reported": 4,
     "stale_reason": "",
-    "age_hours": 1.8
+    "age_hours": 10.1
   },
-  "updated_at": "2026-10-02T16:29:30+00:00"
+  "updated_at": "2026-10-03T00:44:32+00:00"
 }
