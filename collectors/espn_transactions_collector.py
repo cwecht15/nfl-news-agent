@@ -260,7 +260,8 @@ def collect_elevations(date_str: Optional[str] = None, settings: Optional[dict] 
 
 
 def collect_ps_moves(date_str: Optional[str] = None, settings: Optional[dict] = None,
-                     session: Optional[requests.Session] = None) -> list[dict]:
+                     session: Optional[requests.Session] = None,
+                     raw_out: Optional[list] = None) -> list[dict]:
     """Elevations and practice-squad promotions inside the lookback window,
     newest first, each tagged with its ``event_type``. One HTTP request.
 
@@ -283,6 +284,8 @@ def collect_ps_moves(date_str: Optional[str] = None, settings: Optional[dict] = 
         fresh_as_of=et_today if not date_str or date_str == et_today else None,
         attempts=int(cfg.get("attempts", DEFAULT_ATTEMPTS)),
     )
+    if raw_out is not None:
+        raw_out.extend(rows)   # the CBS fallback needs every row ESPN describes
     elevations = parse_elevations(rows)
     promotions = parse_promotions(rows)
     days = int(cfg.get("lookback_days", DEFAULT_LOOKBACK_DAYS))

@@ -965,13 +965,18 @@ def normalize_espn_elevations(elevations: list[dict], date_str: str,
             continue
         etype = "ps_promoted" if e.get("event_type") == "ps_promoted" else "ps_elevated"
         team = to_news(e.get("team") or "")
+        # CBS rows (collectors/cbs_transactions_collector.py) only say a player
+        # moved between the PS and the 53, not which kind of move, so they stay
+        # `reported` until ESPN's own row confirms them — the season count
+        # (elevations_used) waits for that.
+        cbs = e.get("source") == "cbs"
         out.append(make_event(
             date_str=e.get("date") or date_str,
             name=name,
             event_type=etype,
-            source="espn_transactions",
-            source_kind="espn",
-            confidence="confirmed",
+            source="cbs_transactions" if cbs else "espn_transactions",
+            source_kind="cbs" if cbs else "espn",
+            confidence="reported" if cbs else "confirmed",
             team=team,
             to_team=team if etype == "ps_promoted" else "",
             pos=e.get("pos") or "",

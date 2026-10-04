@@ -321,7 +321,8 @@ def run_in_season_steps(
         try:
             from collectors.espn_transactions_collector import collect_ps_moves
 
-            espn_elevations = collect_ps_moves(date_str)
+            espn_raw: list[dict] = []
+            espn_elevations = collect_ps_moves(date_str, raw_out=espn_raw)
             elevated = [e for e in espn_elevations if e["event_type"] == "ps_elevated"]
             promoted = [e for e in espn_elevations if e["event_type"] == "ps_promoted"]
             if elevated:
@@ -340,6 +341,22 @@ def run_in_season_steps(
                 )
         except Exception as e:
             logger.warning("Elevation step failed (non-fatal): %s", e)
+            espn_raw = []
+        # ESPN publishes clubs gradually (10 of ~30 by 7:40 PM ET on
+        # 2026-10-03); CBS's transaction log fills in the rest as `reported`
+        # elevations for players ESPN hasn't described yet.
+        try:
+            from collectors.cbs_transactions_collector import collect_cbs_elevations
+
+            cbs = collect_cbs_elevations(date_str, espn_rows=espn_raw)
+            if cbs:
+                logger.info(
+                    "Step 5f: %d more elevations from CBS, pending ESPN confirmation (%s)",
+                    len(cbs), ", ".join(sorted({e["team"] for e in cbs})),
+                )
+                espn_elevations = espn_elevations + cbs
+        except Exception as e:
+            logger.warning("CBS elevation fallback failed (non-fatal): %s", e)
 
     # --- 5b: roster events + state ---------------------------------------
     if "roster" not in skip:

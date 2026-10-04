@@ -269,6 +269,14 @@ roster:
     lookback_days: 4            # ESPN dates rows by day and sometimes by game day,
                                 # so re-read a few days and let the ledger dedup
     timeout: 30
+    # Fallback: ESPN publishes clubs gradually (10 of ~30 by 7:40 PM ET on
+    # 2026-10-03). CBS's transaction log has the rest but only says "Active/
+    # prac. squad", so its rows count as `reported` elevations for players on
+    # that club's PS whom ESPN hasn't mentioned, until ESPN confirms them.
+    cbs:
+      enabled: true
+      url: "https://www.cbssports.com/nfl/transactions/"
+      lookback_days: 2
 
 injury_report:
   enabled: true
