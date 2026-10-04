@@ -534,3 +534,25 @@
 2026-10-03 20:11:17,816 [INFO] reports.report_builder: Saved HTML report: C:\Users\cwech\AppData\Local\Temp\nfl_cbs_wt\data\reports\2026-10-03.html
 2026-10-03 20:11:17,817 [INFO] afternoon: Report 2026-10-03 updated in place (pm_updated_at=2026-10-04T00:11:17+00:00)
 2026-10-03 20:11:17,818 [INFO] afternoon: Refresh complete (elevations, roster).
+2026-10-03 20:12:37,683 [INFO] afternoon: ============================================================
+2026-10-03 20:12:37,683 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-10-03 (week 4, Sat)
+2026-10-03 20:12:37,683 [INFO] afternoon: ============================================================
+2026-10-03 20:12:37,904 [INFO] collectors.espn_transactions_collector: ESPN elevations: 18 in the last 4 days (44 parsed from 100 rows, newest row 2026-10-03); practice-squad promotions: 17
+2026-10-03 20:12:37,904 [INFO] afternoon: Step 5f: 18 practice-squad elevations from ESPN (CHI, DET, JAX, LAR, MIA, MIN, NYG, SF, TB, WAS)
+2026-10-03 20:12:37,904 [INFO] afternoon: Step 5f: 17 practice-squad promotions from ESPN (BAL, CAR, CIN, DAL, DEN, DET, HOU, LAR, MIA, MIN, NYJ, TB, TEN)
+2026-10-03 20:12:38,457 [INFO] collectors.cbs_transactions_collector: CBS elevations: 26 not yet in ESPN (55 move rows since 2026-10-01, 490 rows on the page, newest 2026-10-03)
+2026-10-03 20:12:38,458 [INFO] afternoon: Step 5f: 26 more elevations from CBS, pending ESPN confirmation (ARI, BAL, BUF, CAR, CIN, DAL, HOU, IND, KC, LAC, LAR, NE, NYJ, PHI, PIT, SEA, TEN)
+2026-10-03 20:12:38,462 [INFO] afternoon: Step 5b: Updating roster events/state...
+2026-10-03 20:12:38,559 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
+2026-10-03 20:12:38,896 [INFO] collectors.nflverse_roster_collector: nflverse roster: 3020 rows (959484 bytes)
+2026-10-03 20:12:38,910 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 1 rows without gsis_id skipped, 0 duplicate gsis rows
+2026-10-03 20:12:39,027 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 3019 players -> C:\Users\cwech\AppData\Local\Temp\nfl_cbs2_wt\data\roster\nflverse\2026-10-03.json
+2026-10-03 20:12:39,278 [INFO] processing.roster_events: Saved roster state: 3042 players -> C:\Users\cwech\AppData\Local\Temp\nfl_cbs2_wt\data\roster\state.json
+2026-10-03 20:12:39,317 [INFO] processing.roster_events: Roster step 2026-10-03: {"nflverse_transitions": 5, "nflverse_events": 5, "espn_elevations": 61, "appended": 1, "ledger": 1880, "confirmed_new": 0}
+2026-10-03 20:12:39,319 [INFO] afternoon: Roster events: 1 new (appended=1, confirmed_new=0, espn_elevations=61, ledger=1880, nflverse_events=5, nflverse_transitions=5, status={'ACT': 1695, 'EXE': 3, 'FA': 423, 'IR': 291, 'NFI': 6, 'PS': 556, 'PUP': 30, 'RET': 23, 'SUS': 2, 'UNKNOWN': 13}); state covers 3042 players
+2026-10-03 20:12:39,325 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-10-03 20:12:40,901 [INFO] afternoon: Projection audit: 35 open alerts (error=2, info=11, warning=22), 0 dismissed
+2026-10-03 20:12:41,103 [INFO] reports.report_builder: Saved JSON report: C:\Users\cwech\AppData\Local\Temp\nfl_cbs2_wt\data\reports\2026-10-03.json
+2026-10-03 20:12:41,149 [INFO] reports.report_builder: Saved HTML report: C:\Users\cwech\AppData\Local\Temp\nfl_cbs2_wt\data\reports\2026-10-03.html
+2026-10-03 20:12:41,150 [INFO] afternoon: Report 2026-10-03 updated in place (pm_updated_at=2026-10-04T00:12:40+00:00)
+2026-10-03 20:12:41,151 [INFO] afternoon: Refresh complete (elevations, roster).
