@@ -1,0 +1,23 @@
+2026-10-04 12:18:28,561 [INFO] afternoon: ============================================================
+2026-10-04 12:18:28,561 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-10-04 (week 4, Sun)
+2026-10-04 12:18:28,561 [INFO] afternoon: ============================================================
+2026-10-04 12:18:28,562 [INFO] afternoon: Step 2c: Reading market lines...
+2026-10-04 12:18:34,781 [INFO] afternoon: Market lines: week 4, 16 games, 1249 player-stats, 0 changes (none); odds pulled 2026-10-03T21:08-04:00
+2026-10-04 12:18:34,921 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-03 is older than 2026-10-04 — refetching (attempt 1/3)
+2026-10-04 12:18:37,972 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-03 is older than 2026-10-04 — refetching (attempt 2/3)
+2026-10-04 12:18:40,994 [INFO] collectors.espn_transactions_collector: ESPN elevations: 20 in the last 4 days (46 parsed from 100 rows, newest row 2026-10-03); practice-squad promotions: 9
+2026-10-04 12:18:40,994 [INFO] afternoon: Step 5f: 20 practice-squad elevations from ESPN (BUF, CHI, DET, JAX, LAR, MIA, MIN, NYG, SF, TB, WAS)
+2026-10-04 12:18:40,994 [INFO] afternoon: Step 5f: 9 practice-squad promotions from ESPN (BAL, CAR, DAL, DEN, DET, HOU, LAR, TB)
+2026-10-04 12:18:43,089 [INFO] collectors.cbs_transactions_collector: CBS elevations: 23 not yet in ESPN (48 move rows since 2026-10-02, 490 rows on the page, newest 2026-10-03)
+2026-10-04 12:18:43,091 [INFO] afternoon: Step 5f: 23 more elevations from CBS, pending ESPN confirmation (ARI, BAL, CAR, CIN, DAL, HOU, IND, KC, LAC, LAR, NE, NYJ, PHI, SEA, TEN)
+2026-10-04 12:18:43,161 [INFO] processing.roster_events: Roster ledger: 2 reported events confirmed
+2026-10-04 12:18:43,219 [INFO] processing.roster_events: Saved roster state: 3042 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-10-04 12:18:43,234 [INFO] processing.roster_events: Roster step 2026-10-04: {"nflverse_transitions": 5, "nflverse_events": 5, "espn_elevations": 52, "appended": 2, "ledger": 1882, "confirmed_new": 0}
+2026-10-04 12:18:43,237 [INFO] afternoon: Elevations merged into the ledger: 2 new events
+2026-10-04 12:18:43,237 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-10-04 12:18:43,547 [INFO] collectors.inactives_collector: Inactives week 4: 1 games polled, 0 teams published, 0 changed
+2026-10-04 12:18:43,551 [INFO] afternoon: Inactives: week 4, 1 games polled, 0 teams published, 0 newly published/changed
+2026-10-04 12:18:43,551 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-10-04 12:18:43,785 [INFO] afternoon: Projection audit: 61 open alerts (error=3, info=11, warning=47), 0 dismissed
+2026-10-04 12:18:43,802 [WARNING] afternoon: No report for 2026-10-04 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-10-04 to produce the morning report.
+2026-10-04 12:18:43,802 [INFO] afternoon: Game-day inactives run complete.
