@@ -106,6 +106,15 @@ def inactives_week(season: int, week: int):
     return load_json(get_data_dir("inactives") / str(season) / f"wk{week:02d}.json")
 
 
+@st.cache_data(ttl=300, show_spinner=False)
+def attrition(season: int, week: int):
+    """``processing.attrition`` for ``week`` — every baseline slot with its
+    availability, per team and unit. None until the Week-1 baseline exists
+    (scripts/build_attrition_baseline.py)."""
+    from processing.attrition import compute_for_week
+    return compute_for_week(season, week)
+
+
 def odds_weeks(season: int) -> list[int]:
     return _week_files("odds", season)
 

@@ -207,6 +207,23 @@ if inactive:
     st.markdown("**Game-day inactives**")
     st.dataframe(inactive, use_container_width=True, hide_index=True)
 
+# Who is this team (and its opponent) down, by Week-1 depth-chart slot —
+# including starters already on IR from earlier weeks.
+attr = isd.attrition(ctx.season, int(week)) if week else None
+if attr and team in attr:
+    from dashboard import attrition_view as av
+
+    st.subheader("Attrition by position")
+    opp_abbr = to_news(game["opp"], "proj") if game else ""
+    sides = [(team, names[team])] + ([(opp_abbr, f"Opponent — {names.get(opp_abbr, opp_abbr)}")]
+                                      if opp_abbr in attr else [])
+    for abbr, title in sides:
+        summary = av.unit_summary(attr[abbr])
+        st.markdown(f"**{title}**" + (f" · {summary}" if summary else ""))
+        av.render_detail(attr[abbr], key=f"team_attr_{abbr}", include_departed=False,
+                         empty="No Week-1 slot is down.")
+    st.caption(av.CAPTION)
+
 # ---------------------------------------------------------------------------
 # Game line history
 # ---------------------------------------------------------------------------

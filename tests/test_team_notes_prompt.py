@@ -57,11 +57,13 @@ def test_game_lines_in_season(monkeypatch):
     monkeypatch.setattr("processing.season.get_season_context",
                         lambda *a, **k: SeasonContext("in_season", 2026, 3, "primary", {"primary": 3}, "2026-09-23", "Wed", False))
     monkeypatch.setattr("processing.season.load_schedule", lambda *a, **k: sched)
-    # These two append " — …" tails from on-disk week files. Neutralize them so
+    # These three append " — …" tails from on-disk files. Neutralize them so
     # this test pins the SCHEDULE formatting rather than silently breaking the
-    # day data/odds/2026/wk03.json or data/injuries/2026/wk03.json lands on disk.
+    # day data/odds/2026/wk03.json, data/injuries/2026/wk03.json or the
+    # attrition baseline lands on disk.
     monkeypatch.setattr(sm, "_append_market_context", lambda *a, **k: None)
     monkeypatch.setattr(sm, "_append_opponent_injuries", lambda *a, **k: None)
+    monkeypatch.setattr(sm, "_append_attrition", lambda *a, **k: None)
     lines = sm._in_season_game_lines()
     assert lines["BUF"] == "Week 3: BUF visits KC on Sunday 2026-09-27 4:25 PM"
     assert lines["KC"] == "Week 3: KC hosts BUF on Sunday 2026-09-27 4:25 PM"

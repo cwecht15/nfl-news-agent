@@ -241,7 +241,14 @@ def scrape_all_teams(delay: float = 2.0, max_workers: int = 6) -> dict:
                 continue
             for p in players:
                 key = p["name"].lower()
-                # If player appears on multiple teams, keep the latest
+                # A name on several rows (a starting CB who also returns kicks)
+                # keeps the LAST row as pos/depth, as it always has — every
+                # diff and join reads those. The rows it displaced are kept in
+                # `also` so the real slot isn't lost (processing/attrition.py
+                # otherwise has to guess a KR1's position back).
+                prev = all_players.get(key)
+                if prev and prev.get("team") == p["team"]:
+                    p["also"] = prev.get("also", []) + [{"pos": prev["pos"], "depth": prev["depth"]}]
                 all_players[key] = p
     return all_players
 

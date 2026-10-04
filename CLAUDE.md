@@ -77,6 +77,9 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\espn_transactions_
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\inactives_collector.py --all
 # Market lines + prop movement (reads the NFL Odds project's sheets; no betting API)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m collectors.odds_collector --dry-run
+# Positional attrition: freeze the Week-1 slot baseline (once; commit data/attrition/), then inspect
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\build_attrition_baseline.py
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.attrition --team CAR
 # Season context (phase, week, working sheet)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.season
 ```
@@ -155,7 +158,17 @@ the offseason path.
   `ps_promoted` events (`source_kind: espn`, which like `official` may override a lagging nflverse
   baseline for `official_override_days`), and `missing_active` accepts a player nflverse still
   calls DEV when roster state has him ACT from an official/ESPN source — never from news alone.
-  A bare "Signed X to the active roster" is ignored (as often a street free agent). `elevated_not_projected` is scoped to `projections.in_season.positions`: a normal
+  A bare "Signed X to the active roster" is ignored (as often a street free agent).
+  **ESPN is slow and uneven, so CBS backs it up:** at 7:40 PM ET on 2026-10-03 ESPN had Saturday
+  elevations for 10 clubs, CBS's transaction log (`collectors/cbs_transactions_collector.py`,
+  `roster.elevations.cbs`) ~30, and GitHub's runners were even served a copy of ESPN's feed ending
+  the day before — `fetch_transactions` now cache-busts, refetches (3×) when the newest row predates
+  today ET, and logs `newest row <date>`. CBS only says `Active/prac. squad` (either direction,
+  elevation or promotion — it used it for a signing *to* the PS), so a CBS row becomes an elevation
+  only when roster state has the player on that club's PS (a nickname resolves to the one PS player
+  with that last name + initial: CBS "Cameron" = nflverse "Cam") **and ESPN mentions him in none of
+  the club's rows**. Those land `confidence: reported`, `source_kind: cbs` — on the dashboard at
+  once, but `elevations_used` advances only when ESPN's own row confirms them via `confirm_reported`. `elevated_not_projected` is scoped to `projections.in_season.positions`: a normal
   Saturday elevates ~45 players league-wide and most are DB/LB/OL who were never going to have a row.
 - **Injury report tracker (Step 5c):** `collectors/injury_report_collector.py` — team sites
   (`https://www.<site_domain>/team/injury-report/`, `site_domain` per team in `config/teams.yaml`;
@@ -268,6 +281,32 @@ the offseason path.
   counts when he sat out the week's last practice (that is how an IR-bound player reads on the
   club page) unless the injury is `NIR - Rest`; bye teams are skipped; a missing week file leaves
   every line untouched, which is why `tests/test_team_notes_prompt.py` stubs both appenders.
+- **Positional attrition ("who is each team down, by slot"):** `processing/attrition.py`. The
+  injury sections list players; this says a club is down its **CB1 + CB2** or **WR1 + WR3**, and
+  keeps remembering a starter IR'd in Week 2 (OurLads moves him to its `IR` bucket and promotes the
+  backup, so the live chart hides the loss). Slots are **frozen once from the chart just before
+  Week 1** by `scripts/build_attrition_baseline.py` → `data/attrition/<season>/baseline.json`
+  (committed; dates under `settings.yaml → attrition`): QB/RB/WR/TE ranks from the Week-1 sheet
+  (`WR1..3` starters), OL (named spots) / IDL / EDGE / LB / CB (NB = CB3, a starter) / S from
+  OurLads ranked by depth then row. Three OurLads facts drive the builder: the page ends with a
+  **practice-squad block** reusing plain labels (WR, C, DT, LB, CB, S, ED…), so a player counts only
+  when nflverse has him `ACT` on the baseline date (an unmatched name is kept on any row that block
+  never uses); **DE rows sit inside** when the team also lists LOLB/ROLB/RUSH/ED (odd front); and
+  the snapshot kept one row per name, so a starter who returns kicks was stored as `KR1` — a
+  returner whose nflverse position fits fills the empty LCB/RCB or SS/FS row (logged in `repairs`;
+  `baseline_overrides.json` `{team: {label: name}}` for the rest). Since 2026-10 the collector keeps
+  displaced rows in `also: [{pos, depth}]` (pos/depth unchanged, last row still wins), which the
+  builder reads first. Status per baseline player, most severe wins: roster state IR/PUP/NFI/SUS
+  (`since_week` from `ir_date`) and this week's inactives / OUT = 1.0, D 0.75, a non-rest
+  last-practice DNP 0.5, Q 0.35; traded/released/practice-squad = **departed** (greyed, never
+  scored). Unit score = Σ status × slot weight (starter 1, first backup ½, deeper ¼) →
+  none/mild/notable/severe (1.75 ≈ two starters out; QB1 alone is severe). Players lost before
+  Week 1 are not counted. Surfaces: the **Depth Attrition** page (32 × unit heat map, click a row
+  for the detail with next man up, opponent side by side), an **Attrition by position** panel on
+  the Team page (team + opponent), and `summarizer._append_attrition`, which appends "— BUF down:
+  WR1 Moore (IR wk2)" and "— NYG depleted: CB1 Banks (IR wk2), CB2 Adebo (out)" to the Team Notes
+  game context (stubbed in `tests/test_team_notes_prompt.py` like the other appenders). Nothing is
+  written per run — every surface recomputes from the baseline + the existing week files.
 - **Team Notes own the role angle of a status change:** the in-season prompt used to say "mention
   a transaction/injury ONLY to add the role/usage angle", which the model read as permission to
   stay silent — on 2026-09-19 Puka Nacua's hip DNP sat at `LAR.sources[0]` and drew zero bullets
@@ -393,6 +432,7 @@ FantasyPoints only when a non-empty `data/raw/<date>/fantasypoints.json` exists 
 | This Week | Daily Report | Report sections + Team Notes with clickable `[N]` citations; search, flagging. Caption shows week / day role / AM + evening run times; sections with 0 items open collapsed. Projection Alerts (transaction reconciler) only in the offseason. Line Movement pairs each market move with the day's news for that team/player. YouTube subsection appears only on locally-generated reports (`run_daily.py --include-yt-section`). |
 | This Week | Team | Everything about one team (`?team=BUF` deep-links; still `team_view.py` so bookmarks hold). In-season: this week's game — spread / total / implied team total now vs open and your sheet's implied total vs the market (`line_insights.game_card`), line history — then the team's audit alerts, latest team notes with linked `[N]`, injury grid on the team's own report days, inactives, weekly projections with Δ PPR since the week's previous snapshot, player lines (market open → now, Move %, market vs you %; anytime TD in implied TDs, the sheet's unit; filter All / Moved 5%+ / 10%+ / 20%+), off-the-53 list + this week's roster moves, **practice-squad elevations** (this week's, with each player's n/3 season count; a club whose game is still ahead and has none simply elevated nobody), OurLads depth, earlier notes. A **Refresh all** control at the top dispatches every collector. Offseason: notes history only. Loaders in `dashboard/team_data.py` normalize every source's team dialect. |
 | This Week | Injury Report *(in-season)* | Weekly practice grid (Wed/Thu/Fri) + game status per listed player, source conflicts, **Refresh injuries** button. |
+| This Week | Depth Attrition *(in-season)* | 32 teams × QB/RB/WR/TE/OL/DT/EDGE/LB/CB/S heat map of which Week-1 depth-chart slots are down (IR from earlier weeks included; Q/D/DNP partial), sorted by total depletion; click a row for the slot-by-slot detail (status, since, back-by week, missed weeks, next man up) with this week's opponent side by side. |
 | This Week | Inactives *(in-season)* | Game-day inactives from ESPN per-game rosters, skill-position filter, **Refresh inactives** button. |
 | This Week | Roster State *(in-season)* | **Practice-squad elevations** first — a **Refresh rosters** button (rosters + elevations) carrying the last-collected time, this week's count, how many were declared today, clubs reported, and which clubs whose game is still to come have none yet (`team_data.elevation_status`; a club may simply have elevated nobody), filterable by team and position. Then IR/PUP/NFI/SUS/PS standing per player (return eligibility, elevations used) + recent roster-event feed. |
 | This Week | Projection Audit *(in-season)* | Latest audit alerts with severity/type filters, per-alert dismiss + note, restore; cloud "Save dismissals to repo"; **Refresh everything** (re-collect every source, then re-run the audit against it). |
@@ -493,6 +533,7 @@ data/
   injuries/<season>/wk<NN>.json
   inactives/<season>/wk<NN>.json, inactives/espn_athletes.json
   odds/<season>/wkNN.json                accumulating market lines + prop movement
+  attrition/<season>/baseline.json       frozen Week-1 depth slots (+ optional baseline_overrides.json)
   audit/<date>-<am|pm|gameday>.json
   projections/audit_dismissals.json
   transcripts/

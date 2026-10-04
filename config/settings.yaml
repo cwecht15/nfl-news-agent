@@ -315,6 +315,27 @@ projection_audit:
       rec_tds: 0.20
       pass_tds: 0.50
 
+attrition:
+  # Positional injury attrition (processing/attrition.py): which depth-chart
+  # slots each team is down this week. Slots are frozen from the chart just
+  # before Week 1 by scripts/build_attrition_baseline.py (re-run it after
+  # changing these dates) — QB/RB/WR/TE from the Week-1 sheet, the rest from
+  # OurLads, filtered to the 53 by nflverse.
+  baseline_depth_date: "2026-09-09"
+  baseline_proj_snapshot: "wk01/primary/2026-09-08"
+  baseline_nflverse_date: "2026-09-08"
+  skill_starters: {QB: 1, RB: 1, WR: 3, TE: 1}
+  # Availability weight by status; most severe source wins.
+  weights: {IR: 1.0, PUP: 1.0, NFI: 1.0, SUS: 1.0, INACTIVE: 1.0, OUT: 1.0, D: 0.75, DNP: 0.5, Q: 0.35}
+  slot_weights: {starter: 1.0, backup1: 0.5, deeper: 0.25}
+  # Unit score = sum(status weight x slot weight). Two starters out = 2.0.
+  levels: {severe: 1.75, notable: 0.9}
+  unit_levels:
+    QB: {severe: 0.9, notable: 0.5}
+  notes:
+    own_units: [QB, RB, WR, TE, OL]   # units named in a team's own "down:" line
+    opp_max_units: 3                  # opponent units named in "depleted:"
+
 inactives:
   # Game-day inactives from ESPN's per-game rosters (active flag before
   # kickoff, didNotPlay after). Polled by the pipeline steps and by the

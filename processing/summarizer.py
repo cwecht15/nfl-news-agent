@@ -1644,6 +1644,7 @@ def _in_season_game_lines() -> Optional[dict[str, str]]:
             lines[abbr] = f"Week {ctx.week}: {abbr} {verb} {opp}" + (f" on {when}" if when else "")
         _append_market_context(lines, ctx)
         _append_opponent_injuries(lines, ctx)
+        _append_attrition(lines, ctx)
         return lines
     except Exception as e:  # noqa: BLE001 — context is a bonus, never a blocker
         logger.warning("In-season game context unavailable: %s", e)
@@ -1799,6 +1800,42 @@ def _append_opponent_injuries(lines: dict[str, str], ctx) -> None:
         logger.warning("Opponent injury context unavailable for Team Notes: %s", e)
 
 
+def _append_attrition(lines: dict[str, str], ctx) -> None:
+    """Add positional attrition — which Week-1 depth-chart slots are down —
+    for the team itself and for its opponent.
+
+    The injury-report line above only knows this week's designations. A WR1
+    who went on IR in Week 2 is off that report for good, yet he is the
+    reason this week's WR3 is running with the starters; the frozen Week-1
+    baseline in :mod:`processing.attrition` keeps him in view. Produces e.g.
+    "... — BUF down: WR1 Moore (IR wk2) — NYG depleted: CB1 Banks (IR wk2),
+    CB2 Adebo (out)". No baseline leaves every line untouched.
+    """
+    try:
+        from processing import attrition as attr_mod
+        from processing.season import load_schedule, opponent
+        from processing.team_abbr import to_news
+
+        data = attr_mod.compute_for_week(ctx.season, ctx.week)
+        if not data:
+            return
+        cfg = attr_mod.config()
+        schedule = load_schedule(season=ctx.season) or []
+        for abbr in list(lines):
+            if _BYE_MARKER in lines[abbr]:
+                continue
+            own = attr_mod.own_team_line(data.get(abbr) or {}, cfg)
+            if own:
+                lines[abbr] += f" — {abbr} down: {own}"
+            g = opponent(schedule, abbr, ctx.week, source="news")
+            opp = to_news(g["opp"], "proj") if g else ""
+            opp_txt = attr_mod.opponent_line(data.get(opp) or {}, cfg) if opp else ""
+            if opp_txt:
+                lines[abbr] += f" — {opp} depleted: {opp_txt}"
+    except Exception as e:  # noqa: BLE001 — attrition context is a bonus, never a blocker
+        logger.warning("Attrition context unavailable for Team Notes: %s", e)
+
+
 def _game_line(game_lines: Optional[dict[str, str]], team: str) -> Optional[str]:
     if not game_lines:
         return None
@@ -1882,8 +1919,8 @@ Output: a markdown bullet list, ORDERED BY IMPACT ON THIS WEEK'S PROJECTIONS (mo
 
 Rank the developments in this order, then write the bullets in that order:
 1. Usage / role changes at a skill position (QB, RB, FB, WR, TE, K): snap, target, carry or red-zone share shifts; committee splits; a new starter or play-caller; a WR/TE pecking-order change; goal-line or two-minute roles.
-2. Injury-driven opportunity: who absorbs the work when a player is out, limited, or returning — the ROLE consequence only (statuses themselves live in the Injury sections). This is the richest vein in the report: when a rotation player misses practice or is ruled out, there is almost always a beneficiary worth a bullet.
-3. This week's game plan and matchup: pace, pass rate, personnel packages, weather, a stated plan to feature or limit a player, a defensive weakness the item names. When the game context above lists the OPPONENT's missing or limited starters, say what that opens up for {team}'s skill players — a depleted secondary lifts the receivers, a missing interior run-stuffer lifts the backfield.
+2. Injury-driven opportunity: who absorbs the work when a player is out, limited, or returning — the ROLE consequence only (statuses themselves live in the Injury sections). This is the richest vein in the report: when a rotation player misses practice or is ruled out, there is almost always a beneficiary worth a bullet. When the game context says "{team} down: WR1 ... (IR wk2)", those are Week-1 starters still missing — the player an item shows filling that slot is the beneficiary to name.
+3. This week's game plan and matchup: pace, pass rate, personnel packages, weather, a stated plan to feature or limit a player, a defensive weakness the item names. When the game context above lists the OPPONENT's missing or limited starters (its injury report, or 'depleted:' slots such as CB1/CB2), say what that opens up for {team}'s skill players — a depleted secondary lifts the receivers, a missing interior run-stuffer lifts the backfield.
 4. Practice-squad elevations, returns from IR/PUP, or trades that change skill-position roles.
 5. Everything else (offensive line, defense, special teams). AT MOST ONE such bullet, and only after every skill-position development above has been written. Three defensive bullets on a day a starting receiver missed practice is a failure.
 
