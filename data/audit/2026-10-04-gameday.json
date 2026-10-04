@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 4,
   "sheet": "primary",
-  "generated_at": "2026-10-04T19:32:54+00:00",
+  "generated_at": "2026-10-04T20:45:23+00:00",
   "inputs": {
     "snapshot_date": "2026-10-04",
     "nflverse_date": "2026-10-04",
     "injury_week_updated": "2026-10-04T12:44:50+00:00",
-    "roster_state_updated": "2026-10-04T19:32:53+00:00"
+    "roster_state_updated": "2026-10-04T20:45:21+00:00"
   },
   "alerts": [
     {
@@ -121,6 +121,40 @@
         "game": "NE @ BUF",
         "phase": "postgame",
         "ppr": 0.3
+      }
+    },
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0040405|4",
+      "severity": "error",
+      "player": "Jamaal Pritchett",
+      "gsis_id": "00-0040405",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Jamaal Pritchett (WR, NYJ) is INACTIVE for NYJ @ CHI (postgame) but projected for 0.2 PPR",
+      "evidence": {
+        "game": "NYJ @ CHI",
+        "phase": "postgame",
+        "ppr": 0.2
+      }
+    },
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0040177|4",
+      "severity": "error",
+      "player": "Jordan James",
+      "gsis_id": "00-0040177",
+      "pos": "RB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Jordan James (RB, SF) is INACTIVE for DEN @ SF (postgame) but projected for 0.6 PPR",
+      "evidence": {
+        "game": "DEN @ SF",
+        "phase": "postgame",
+        "ppr": 0.6
       }
     },
     {
@@ -667,7 +701,7 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "inactive_but_projected": 3,
+    "inactive_but_projected": 5,
     "status_conflict": 2,
     "missing_active": 2,
     "elevated_not_projected": 3,
