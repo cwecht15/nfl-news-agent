@@ -4,56 +4,14 @@
   "season": 2026,
   "week": 4,
   "sheet": "primary",
-  "generated_at": "2026-10-03T23:42:42+00:00",
+  "generated_at": "2026-10-04T00:11:17+00:00",
   "inputs": {
     "snapshot_date": "2026-10-03",
     "nflverse_date": "2026-10-03",
-    "injury_week_updated": "2026-10-03T15:13:23+00:00",
-    "roster_state_updated": "2026-10-03T23:42:41+00:00"
+    "injury_week_updated": "2026-10-04T00:03:09+00:00",
+    "roster_state_updated": "2026-10-04T00:11:14+00:00"
   },
   "alerts": [
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0030279|4|OUT",
-      "severity": "error",
-      "player": "Keenan Allen",
-      "gsis_id": "00-0030279",
-      "pos": "WR",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Keenan Allen (WR, IND) is OUT (Rest, Groin) but projected for 9.9 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Rest, Groin",
-        "practice": {
-          "2026-09-30": "LP",
-          "2026-10-01": "LP",
-          "2026-10-02": "DNP"
-        },
-        "ppr": 9.9
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0038359|4",
-      "severity": "error",
-      "player": "Xavier Smith",
-      "gsis_id": "00-0038359",
-      "pos": "WR",
-      "team": "LA",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Xavier Smith (WR, LA) is projected Active (1.0 PPR) but roster status is FA (since 2026-10-03)",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "news",
-        "sheet_status": "ACTIVE",
-        "ppr": 1.0,
-        "slot": 5,
-        "earliest_return_week": null
-      }
-    },
     {
       "type": "missing_active",
       "key": "missing_active|00-0040464|4",
@@ -127,7 +85,7 @@
       "message": "Adam Prentice (RB, DEN) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.2
       }
@@ -152,24 +110,6 @@
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0035406|4",
-      "severity": "warning",
-      "player": "Lil'Jordan Humphrey",
-      "gsis_id": "00-0035406",
-      "pos": "WR",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Lil'Jordan Humphrey (WR, DEN) sheet Status is ACTIVE but roster says FA",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0039603|4",
       "severity": "warning",
       "player": "British Brooks",
@@ -187,8 +127,8 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0033854|4",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0033854|4",
       "severity": "warning",
       "player": "Dare Ogunbowale",
       "gsis_id": "00-0033854",
@@ -196,14 +136,84 @@
       "team": "HST",
       "sheet": "primary",
       "week": 4,
-      "message": "Dare Ogunbowale (RB, HST) is on the active roster but has no row on the sheet (OurLads RB #3; promoted from the practice squad 2026-09-30)",
+      "message": "Dare Ogunbowale (RB, HST) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
-        "ourlads_depth": 3,
-        "ourlads_pos": "RB",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "RB",
-        "status_abbr": "A01"
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.7
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|kenneth murray|4",
+      "severity": "warning",
+      "player": "Kenneth Murray",
+      "gsis_id": null,
+      "pos": "QB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Kenneth Murray (QB, HST) was elevated from the practice squad (2026-10-03) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-03"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0036182|4",
+      "severity": "warning",
+      "player": "Nick Westbrook-Ikhine",
+      "gsis_id": "00-0036182",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Nick Westbrook-Ikhine (WR, IND) was elevated from the practice squad (2026-10-03) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-03"
+        ],
+        "elevations_used": 1
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035602|4",
+      "severity": "warning",
+      "player": "Alex Bachman",
+      "gsis_id": "00-0035602",
+      "pos": "WR",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Alex Bachman (WR, LA) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.4
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040737|4",
+      "severity": "warning",
+      "player": "Terrance Ferguson",
+      "gsis_id": "00-0040737",
+      "pos": "TE",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Terrance Ferguson (TE, LA) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -221,6 +231,24 @@
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038930|4",
+      "severity": "warning",
+      "player": "Carlos Washington",
+      "gsis_id": "00-0038930",
+      "pos": "RB",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Carlos Washington (RB, MIA) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
         "ppr": 0.0
       }
     },
@@ -316,6 +344,42 @@
     },
     {
       "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041512|4",
+      "severity": "warning",
+      "player": "Jadarian Price",
+      "gsis_id": "00-0041512",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Jadarian Price (RB, SEA) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037745|4",
+      "severity": "warning",
+      "player": "Velus Jones Jr.",
+      "gsis_id": "00-0037745",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0031236|4",
       "severity": "warning",
       "player": "Brandin Cooks",
@@ -330,24 +394,6 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.4
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0034854|4",
-      "severity": "warning",
-      "player": "KhaDarel Hodge",
-      "gsis_id": "00-0034854",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 4,
-      "message": "KhaDarel Hodge (WR, SF) sheet Status is ACTIVE but roster says FA",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
       }
     },
     {
@@ -402,24 +448,6 @@
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
-      }
-    },
-    {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0035567|4",
-      "severity": "warning",
-      "player": "Craig Reynolds",
-      "gsis_id": "00-0035567",
-      "pos": "RB",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Craig Reynolds (RB, WAS) was elevated from the practice squad (2026-10-03) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-10-03"
-        ],
-        "elevations_used": 1
       }
     },
     {
@@ -650,11 +678,10 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "out_but_projected": 2,
-    "status_conflict": 1,
-    "missing_active": 2,
-    "sheet_status_stale": 13,
-    "elevated_not_projected": 4,
+    "missing_active": 1,
+    "out_but_projected": 1,
+    "sheet_status_stale": 17,
+    "elevated_not_projected": 5,
     "unconfirmed_report": 6,
     "ir_return_window": 1,
     "elevation_limit": 4
