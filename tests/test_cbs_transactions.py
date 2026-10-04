@@ -78,3 +78,14 @@ def test_fetch_failure_is_non_fatal():
 
     assert cbs.fetch_page(session=Boom()) == ""
     assert cbs.parse_page("") == []
+
+
+def test_nickname_resolves_to_the_one_ps_player_with_that_last_name_and_initial():
+    page = ('<h4 class="TableBase-title">Saturday, October 3, 2026</h4><table><tbody>'
+            + _row("ARI", "Cameron Robertson", "Active/prac. squad") + '</tbody></table>')
+    state = {"players": {"9": {"name": "Cam Robertson", "team": "ARI", "status": "PS", "pos": "DB"}},
+             "by_name": {"cam robertson": "9"}}
+    got = cbs.elevation_candidates(cbs.parse_page(page), state, [], cutoff="2026-10-01")
+    assert [(e["team"], e["name"]) for e in got] == [("ARI", "Cam Robertson")]
+    state["players"]["10"] = {"name": "Chris Robertson", "team": "ARI", "status": "PS", "pos": "WR"}
+    assert cbs.elevation_candidates(cbs.parse_page(page), state, [], cutoff="2026-10-01") == []

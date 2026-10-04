@@ -124,6 +124,20 @@ def espn_mentions(espn_rows: list[dict], cutoff: str) -> dict[str, str]:
     return out
 
 
+def _same_initial_on_ps(players: dict, team: str, key: str) -> dict:
+    """The one player on ``team``'s practice squad with this last name and
+    first initial — CBS writes "Cameron Robertson" where nflverse has "Cam"
+    (ARI, 2026-10-03). Ambiguous or absent -> {}."""
+    toks = key.split()
+    if len(toks) < 2:
+        return {}
+    hits = [p for p in players.values()
+            if str(p.get("status") or "").upper() == "PS" and to_news(p.get("team") or "") == team
+            and (pk := _name_key(p.get("name", "")).split()) and len(pk) >= 2
+            and pk[-1] == toks[-1] and pk[0][:1] == toks[0][:1]]
+    return hits[0] if len(hits) == 1 else {}
+
+
 def elevation_candidates(rows: list[dict], state: Optional[dict], espn_rows: Optional[list[dict]],
                          cutoff: str) -> list[dict]:
     """CBS move rows that can only be an elevation, in the ESPN row shape.
@@ -141,6 +155,10 @@ def elevation_candidates(rows: list[dict], state: Optional[dict], espn_rows: Opt
         if (r["team"], key) in seen or (key and key in mentioned.get(r["team"], "")):
             continue
         rec = players.get(by_name.get(key) or "") or players.get(f"name:{key}") or {}
+        if not rec:
+            rec = _same_initial_on_ps(players, r["team"], key)
+            if rec and _name_key(rec.get("name", "")) in mentioned.get(r["team"], ""):
+                continue
         if str(rec.get("status") or "").upper() != "PS" or to_news(rec.get("team") or "") != r["team"]:
             continue  # not on this club's practice squad: a promotion, a PS signing, or unknown
         seen.add((r["team"], key))
