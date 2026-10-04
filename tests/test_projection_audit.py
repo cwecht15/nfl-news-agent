@@ -326,6 +326,23 @@ def test_ourlads_position_label_cannot_suppress_a_rostered_player(isolated_dismi
     assert missing.get("Tyler Goodson") == "warning"
 
 
+def test_sheet_marked_ir_but_still_projected_is_a_conflict(isolated_dismissals):
+    """Julian Hill, Wk 3 2026: Status IR on the sheet, IR on the roster, and
+    1.6 PPR in Player_Projections. Status column and roster agree, so the old
+    checks were silent while his points still fed NE's game total."""
+    inputs = _inputs()
+    inputs["snapshot"]["players"]["00-0002"]["status"] = "IR"      # Ray Davis: roster IR, 6.0 PPR
+    res = pa.run_audit(_ctx(), "2026-09-08", run="test", inputs=inputs, write=False)
+    hits = [a for a in _by_type(res["alerts"]).get("status_conflict", []) if a["player"] == "Ray Davis"]
+    assert [(a["severity"], a["evidence"]["sheet_status"]) for a in hits] == [("error", "IR")]
+    assert "marked IR on the sheet but still projected" in hits[0]["message"]
+
+    # Zeroed out: the sheet is right, nothing to say.
+    inputs["snapshot"]["output"]["00-0002"]["ppr"] = 0.0
+    res = pa.run_audit(_ctx(), "2026-09-08", run="test", inputs=inputs, write=False)
+    assert not [a for a in res["alerts"] if a["player"] == "Ray Davis" and a["type"] == "status_conflict"]
+
+
 def test_promotion_nflverse_has_not_seen_is_still_missing_active(isolated_dismissals):
     """The 2026-09-26 regression: Jamaal Pritchett (NYJ) was signed off the
     practice squad that afternoon — ESPN had it, nflverse still said DEV — and

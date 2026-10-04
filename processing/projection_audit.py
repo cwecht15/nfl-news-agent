@@ -365,6 +365,21 @@ def check_sheet_vs_roster(rows: dict[str, dict], output: dict, state: Optional[d
                 evidence={"roster_status": roster_status, "status_source": source, "sheet_status": sheet_status,
                           "ppr": ppr, "slot": slot, "earliest_return_week": (st or {}).get("earliest_return_week")},
             ))
+        # 1b. The sheet itself says IR/PUP/NFI/SUS and still projects him. The
+        # Status column and the roster agree, so nothing above fires — but the
+        # points flow into the game total all the same (Julian Hill, NE TE,
+        # Wk 3 2026: Status IR, 1.6 PPR).
+        elif (SHEET_STATUS_FAMILY.get(sheet_status) in RESERVE_STATUSES
+                and roster_status in RESERVE_STATUSES
+                and ppr > 0 and sheet_team not in played):
+            alerts.append(_alert(
+                "status_conflict", SEVERITY_ERROR, player=name, gsis_id=gid, pos=pos, team=sheet_team,
+                sheet=sheet, week=week,
+                message=f"{name} ({pos}, {sheet_team}) is marked {sheet_status} on the sheet but still "
+                        f"projected ({ppr:.1f} PPR); roster status is {roster_status}",
+                evidence={"roster_status": roster_status, "status_source": source, "sheet_status": sheet_status,
+                          "ppr": ppr, "slot": slot, "earliest_return_week": (st or {}).get("earliest_return_week")},
+            ))
         # 2. Sheet Status column stale (PS promoted, IR activated, etc.)
         elif sheet_status and SHEET_STATUS_FAMILY.get(sheet_status) and SHEET_STATUS_FAMILY[sheet_status] != roster_status:
             fam = SHEET_STATUS_FAMILY[sheet_status]
