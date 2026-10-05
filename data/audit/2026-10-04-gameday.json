@@ -4,31 +4,14 @@
   "season": 2026,
   "week": 4,
   "sheet": "primary",
-  "generated_at": "2026-10-04T23:00:18+00:00",
+  "generated_at": "2026-10-05T02:28:15+00:00",
   "inputs": {
     "snapshot_date": "2026-10-04",
     "nflverse_date": "2026-10-04",
-    "injury_week_updated": "2026-10-04T12:44:50+00:00",
-    "roster_state_updated": "2026-10-04T23:00:17+00:00"
+    "injury_week_updated": "2026-10-05T00:10:13+00:00",
+    "roster_state_updated": "2026-10-05T02:28:13+00:00"
   },
   "alerts": [
-    {
-      "type": "inactive_but_projected",
-      "key": "inactive_but_projected|00-0032398|4",
-      "severity": "error",
-      "player": "Chris Moore",
-      "gsis_id": "00-0032398",
-      "pos": "WR",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Chris Moore (WR, BLT) is INACTIVE for TEN @ BAL (postgame) but projected for 2.5 PPR",
-      "evidence": {
-        "game": "TEN @ BAL",
-        "phase": "postgame",
-        "ppr": 2.5
-      }
-    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0039065|4",
@@ -39,31 +22,14 @@
       "team": "DET",
       "sheet": "primary",
       "week": 4,
-      "message": "Sam LaPorta (TE, DET) is projected Active (12.4 PPR) but roster status is FA (since 2026-10-04)",
+      "message": "Sam LaPorta (TE, DET) is projected Active (12.3 PPR) but roster status is FA (since 2026-10-04)",
       "evidence": {
         "roster_status": "FA",
         "status_source": "news",
         "sheet_status": "ACTIVE",
-        "ppr": 12.4,
+        "ppr": 12.3,
         "slot": 1,
         "earliest_return_week": null
-      }
-    },
-    {
-      "type": "inactive_but_projected",
-      "key": "inactive_but_projected|00-0041472|4",
-      "severity": "error",
-      "player": "Marlin Klein",
-      "gsis_id": "00-0041472",
-      "pos": "TE",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Marlin Klein (TE, HST) is INACTIVE for DAL @ HOU (postgame) but projected for 0.5 PPR",
-      "evidence": {
-        "game": "DAL @ HOU",
-        "phase": "postgame",
-        "ppr": 0.5
       }
     },
     {
@@ -84,43 +50,6 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "QB",
         "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0040509|4",
-      "severity": "error",
-      "player": "Ben Yurosek",
-      "gsis_id": "00-0040509",
-      "pos": "TE",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Ben Yurosek (TE, MIN) is marked IR on the sheet but still projected (0.3 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 0.3,
-        "slot": 3,
-        "earliest_return_week": 5
-      }
-    },
-    {
-      "type": "inactive_but_projected",
-      "key": "inactive_but_projected|00-0041314|4",
-      "severity": "error",
-      "player": "Tanner Arkin",
-      "gsis_id": "00-0041314",
-      "pos": "TE",
-      "team": "NE",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Tanner Arkin (TE, NE) is INACTIVE for NE @ BUF (postgame) but projected for 0.3 PPR",
-      "evidence": {
-        "game": "NE @ BUF",
-        "phase": "postgame",
-        "ppr": 0.3
       }
     },
     {
@@ -158,6 +87,127 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039732|4|ints",
+      "severity": "warning",
+      "player": "Bo Nix",
+      "gsis_id": "00-0039732",
+      "pos": "QB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Bo Nix (QB, DEN) INT: we project 0.80, the market implies 0.20 (also Pass TD, Rush Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "ints",
+        "stats": [
+          "ints",
+          "pass_tds",
+          "rush_yds"
+        ],
+        "ours": 0.8,
+        "market_mean": 0.1972321695,
+        "delta": -0.6027678305,
+        "pct": -0.7534597881,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0034348|4|rec_yds",
+      "severity": "warning",
+      "player": "Courtland Sutton",
+      "gsis_id": "00-0034348",
+      "pos": "WR",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Courtland Sutton (WR, DEN) Rec Yds: we project 49.3, the market implies 6.6 (also Rec) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 49.3,
+        "market_mean": 6.550827363,
+        "delta": -42.74917264,
+        "pct": -0.8671231772,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0033881|4|receptions",
+      "severity": "warning",
+      "player": "Evan Engram",
+      "gsis_id": "00-0033881",
+      "pos": "TE",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Evan Engram (TE, DEN) Rec: we project 2.2, the market implies 0.3 (also Rec Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 2.2,
+        "market_mean": 0.3473304837,
+        "delta": -1.852669516,
+        "pct": -0.8421225074,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036158|4|anytime_td",
+      "severity": "warning",
+      "player": "J.K. Dobbins",
+      "gsis_id": "00-0036158",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 4,
+      "message": "J.K. Dobbins (RB, DEN) Anytime TD rate: we project 0.47, the market implies 0.03 (also Rush Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td",
+          "rush_yds"
+        ],
+        "ours": 0.47,
+        "market_mean": 0.03300659917,
+        "delta": -0.4369934008,
+        "pct": -0.9297731933,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040730|4|receptions",
+      "severity": "warning",
+      "player": "RJ Harvey",
+      "gsis_id": "00-0040730",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 4,
+      "message": "RJ Harvey (RB, DEN) Rec: we project 3.7, the market implies 10.4 (also Rec Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 3.7,
+        "market_mean": 10.39434108,
+        "delta": 6.694341085,
+        "pct": 1.809281374,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "elevated_not_projected",
       "key": "elevated_not_projected|kenneth murray|4",
       "severity": "warning",
@@ -177,73 +227,6 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0035710|4|pass_tds",
-      "severity": "warning",
-      "player": "Daniel Jones",
-      "gsis_id": "00-0035710",
-      "pos": "QB",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Daniel Jones (QB, IND) Pass TD: we project 1.50, the market implies 0.46 (also Pass Yds) (odds pulled 2026-10-04 11:45-04:00)",
-      "evidence": {
-        "stat": "pass_tds",
-        "stats": [
-          "pass_tds",
-          "pass_yds"
-        ],
-        "ours": 1.5,
-        "market_mean": 0.4636240223,
-        "delta": -1.036375978,
-        "pct": -0.6909173185,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0035535|4",
-      "severity": "warning",
-      "player": "Darius Slayton",
-      "gsis_id": "00-0035535",
-      "pos": "WR",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Darius Slayton (WR, IND) is on the active roster but has no row on the sheet (OurLads LWR #2; signed 2026-09-23)",
-      "evidence": {
-        "ourlads_depth": 2,
-        "ourlads_pos": "LWR",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "WR",
-        "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0036223|4|rec_yds",
-      "severity": "warning",
-      "player": "Jonathan Taylor",
-      "gsis_id": "00-0036223",
-      "pos": "RB",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Jonathan Taylor (RB, IND) Rec Yds: we project 22.3, the market implies 7.9 (odds pulled 2026-10-04 11:45-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 22.3,
-        "market_mean": 7.90755109,
-        "delta": -14.39244891,
-        "pct": -0.6454012964,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
       "key": "market_proj_gap|00-0038997|4|anytime_td",
       "severity": "warning",
       "player": "Josh Downs",
@@ -252,7 +235,7 @@
       "team": "IND",
       "sheet": "primary",
       "week": 4,
-      "message": "Josh Downs (WR, IND) Anytime TD rate: we project 0.50, the market implies 0.14 (also Rec Yds) (odds pulled 2026-10-04 11:45-04:00)",
+      "message": "Josh Downs (WR, IND) Anytime TD rate: we project 0.50, the market implies 0.14 (also Rec Yds) (odds pulled 2026-10-04 19:30-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -268,29 +251,6 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0032951|4|receptions",
-      "severity": "warning",
-      "player": "Laquon Treadwell",
-      "gsis_id": "00-0032951",
-      "pos": "WR",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Laquon Treadwell (WR, IND) Rec: we project 2.3, the market implies 3.6 (odds pulled 2026-10-04 11:45-04:00)",
-      "evidence": {
-        "stat": "receptions",
-        "stats": [
-          "receptions"
-        ],
-        "ours": 2.3,
-        "market_mean": 3.574362331,
-        "delta": 1.274362331,
-        "pct": 0.5540705788,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
       "key": "market_proj_gap|00-0041125|4|rush_yds",
       "severity": "warning",
       "player": "Seth McGowan",
@@ -299,7 +259,7 @@
       "team": "IND",
       "sheet": "primary",
       "week": 4,
-      "message": "Seth McGowan (RB, IND) Rush Yds: we project 11.6, the market implies 28.6 (odds pulled 2026-10-04 11:45-04:00)",
+      "message": "Seth McGowan (RB, IND) Rush Yds: we project 11.6, the market implies 28.6 (odds pulled 2026-10-04 19:30-04:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -322,7 +282,7 @@
       "team": "IND",
       "sheet": "primary",
       "week": 4,
-      "message": "Tyler Warren (TE, IND) Anytime TD rate: we project 0.51, the market implies 0.14 (odds pulled 2026-10-04 11:45-04:00)",
+      "message": "Tyler Warren (TE, IND) Anytime TD rate: we project 0.51, the market implies 0.14 (odds pulled 2026-10-04 19:30-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -337,25 +297,120 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0040198|4|rush_att",
+      "key": "market_proj_gap|00-0030506|4|anytime_td",
       "severity": "warning",
-      "player": "Ollie Gordon II",
-      "gsis_id": "00-0040198",
-      "pos": "RB",
-      "team": "MIA",
+      "player": "Travis Kelce",
+      "gsis_id": "00-0030506",
+      "pos": "TE",
+      "team": "KC",
       "sheet": "primary",
       "week": 4,
-      "message": "Ollie Gordon II (RB, MIA) Rush Att: we project 11.2, the market implies 7.6 (also Rush Yds) (odds pulled 2026-10-04 11:45-04:00)",
+      "message": "Travis Kelce (TE, KC) Anytime TD rate: we project 0.46, the market implies 0.08 (odds pulled 2026-10-04 19:30-04:00)",
       "evidence": {
-        "stat": "rush_att",
+        "stat": "anytime_td",
         "stats": [
-          "rush_att",
+          "anytime_td"
+        ],
+        "ours": 0.46,
+        "market_mean": 0.07542995356,
+        "delta": -0.3845700464,
+        "pct": -0.8360218401,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036355|4|ints",
+      "severity": "warning",
+      "player": "Justin Herbert",
+      "gsis_id": "00-0036355",
+      "pos": "QB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Justin Herbert (QB, LAC) INT: we project 0.60, the market implies 1.89 (also Pass Yds, Rush Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "ints",
+        "stats": [
+          "ints",
+          "pass_yds",
           "rush_yds"
         ],
-        "ours": 11.2,
-        "market_mean": 7.642566731,
-        "delta": -3.557433269,
-        "pct": -0.3176279705,
+        "ours": 0.6,
+        "market_mean": 1.891554037,
+        "delta": 1.291554037,
+        "pct": 2.152590061,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038454|4|receptions",
+      "severity": "warning",
+      "player": "Keaton Mitchell",
+      "gsis_id": "00-0038454",
+      "pos": "RB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Keaton Mitchell (RB, LAC) Rec: we project 1.6, the market implies 4.7 (also Rec Yds, Rush Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "rec_yds",
+          "receptions",
+          "rush_yds"
+        ],
+        "ours": 1.6,
+        "market_mean": 4.65528397,
+        "delta": 3.05528397,
+        "pct": 1.909552481,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040189|4|receptions",
+      "severity": "warning",
+      "player": "Oronde Gadsden II",
+      "gsis_id": "00-0040189",
+      "pos": "TE",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Oronde Gadsden II (TE, LAC) Rec: we project 2.9, the market implies 5.2 (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "receptions"
+        ],
+        "ours": 2.9,
+        "market_mean": 5.179442594,
+        "delta": 2.279442594,
+        "pct": 0.7860146876,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040122|4|anytime_td",
+      "severity": "warning",
+      "player": "Ashton Jeanty",
+      "gsis_id": "00-0040122",
+      "pos": "RB",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Ashton Jeanty (RB, LV) Anytime TD rate: we project 0.71, the market implies 0.11 (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.71,
+        "market_mean": 0.1127075806,
+        "delta": -0.5972924194,
+        "pct": -0.8412569287,
         "flag": "RED"
       }
     },
@@ -378,6 +433,226 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039793|4|anytime_td",
+      "severity": "warning",
+      "player": "AJ Barner",
+      "gsis_id": "00-0039793",
+      "pos": "TE",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "AJ Barner (TE, SEA) Anytime TD rate: we project 0.47, the market implies 0.02 (also Rec Yds, Rec) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td",
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 0.47,
+        "market_mean": 0.01635234949,
+        "delta": -0.4536476505,
+        "pct": -0.965207767,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0033908|4|receptions",
+      "severity": "warning",
+      "player": "Cooper Kupp",
+      "gsis_id": "00-0033908",
+      "pos": "WR",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Cooper Kupp (WR, SEA) Rec: we project 2.4, the market implies 0.3 (also Rec Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 2.4,
+        "market_mean": 0.3082146727,
+        "delta": -2.091785327,
+        "pct": -0.8715772197,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039299|4|anytime_td",
+      "severity": "warning",
+      "player": "George Holani",
+      "gsis_id": "00-0039299",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "George Holani (RB, SEA) Anytime TD rate: we project 0.36, the market implies 0.02 (also Rush Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td",
+          "rush_yds"
+        ],
+        "ours": 0.36,
+        "market_mean": 0.01560504736,
+        "delta": -0.3443949526,
+        "pct": -0.9566526462,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038543|4|anytime_td",
+      "severity": "warning",
+      "player": "Jaxon Smith-Njigba",
+      "gsis_id": "00-0038543",
+      "pos": "WR",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Jaxon Smith-Njigba (WR, SEA) Anytime TD rate: we project 0.66, the market implies 0.02 (also Rec Yds, Rec) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td",
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 0.66,
+        "market_mean": 0.01857531058,
+        "delta": -0.6414246894,
+        "pct": -0.97185559,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037545|4|receptions",
+      "severity": "warning",
+      "player": "Rashid Shaheed",
+      "gsis_id": "00-0037545",
+      "pos": "WR",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Rashid Shaheed (WR, SEA) Rec: we project 2.2, the market implies 0.3 (also Rec Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 2.2,
+        "market_mean": 0.2913213171,
+        "delta": -1.908678683,
+        "pct": -0.8675812195,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037834|4|rush_yds",
+      "severity": "warning",
+      "player": "Brock Purdy",
+      "gsis_id": "00-0037834",
+      "pos": "QB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Brock Purdy (QB, SF) Rush Yds: we project 16.0, the market implies 38.1 (also INT, Pass TD, Pass Yds) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "ints",
+          "pass_tds",
+          "pass_yds",
+          "rush_yds"
+        ],
+        "ours": 16.0,
+        "market_mean": 38.07848981,
+        "delta": 22.07848981,
+        "pct": 1.379905613,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0033280|4|rec_yds",
+      "severity": "warning",
+      "player": "Christian McCaffrey",
+      "gsis_id": "00-0033280",
+      "pos": "RB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Christian McCaffrey (RB, SF) Rec Yds: we project 43.0, the market implies 8.3 (also Rec) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 43.0,
+        "market_mean": 8.293427469,
+        "delta": -34.70657253,
+        "pct": -0.8071295938,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0033288|4|anytime_td",
+      "severity": "warning",
+      "player": "George Kittle",
+      "gsis_id": "00-0033288",
+      "pos": "TE",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 4,
+      "message": "George Kittle (TE, SF) Anytime TD rate: we project 0.54, the market implies 0.03 (also Rec Yds, Rec) (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td",
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 0.54,
+        "market_mean": 0.02866634611,
+        "delta": -0.5113336539,
+        "pct": -0.9469141739,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0031408|4|anytime_td",
+      "severity": "warning",
+      "player": "Mike Evans",
+      "gsis_id": "00-0031408",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 4,
+      "message": "Mike Evans (WR, SF) Anytime TD rate: we project 0.45, the market implies 0.03 (odds pulled 2026-10-04 19:30-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.45,
+        "market_mean": 0.02974417113,
+        "delta": -0.4202558289,
+        "pct": -0.9339018419,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "elevated_not_projected",
       "key": "elevated_not_projected|00-0035282|4",
       "severity": "warning",
@@ -397,52 +672,6 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0041040|4|rec_yds",
-      "severity": "warning",
-      "player": "Antonio Williams",
-      "gsis_id": "00-0041040",
-      "pos": "WR",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Antonio Williams (WR, WAS) Rec Yds: we project 32.3, the market implies 17.9 (odds pulled 2026-10-04 11:45-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 32.3,
-        "market_mean": 17.94443668,
-        "delta": -14.35556332,
-        "pct": -0.4444446847,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0037809|4|rec_yds",
-      "severity": "warning",
-      "player": "Chig Okonkwo",
-      "gsis_id": "00-0037809",
-      "pos": "TE",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 4,
-      "message": "Chig Okonkwo (TE, WAS) Rec Yds: we project 31.0, the market implies 16.8 (odds pulled 2026-10-04 11:45-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 31.0,
-        "market_mean": 16.77057273,
-        "delta": -14.22942727,
-        "pct": -0.4590137829,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
       "key": "market_proj_gap|00-0040242|4|rec_yds",
       "severity": "warning",
       "player": "Jacory Croskey-Merritt",
@@ -451,7 +680,7 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 4,
-      "message": "Jacory Croskey-Merritt (RB, WAS) Rec Yds: we project 7.5, the market implies 31.9 (also Anytime TD rate, Rush Yds) (odds pulled 2026-10-04 11:45-04:00)",
+      "message": "Jacory Croskey-Merritt (RB, WAS) Rec Yds: we project 7.5, the market implies 31.9 (also Anytime TD rate, Rush Yds) (odds pulled 2026-10-04 19:30-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -476,7 +705,7 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 4,
-      "message": "Stefon Diggs (WR, WAS) Anytime TD rate: we project 0.44, the market implies 0.11 (also Rec) (odds pulled 2026-10-04 11:45-04:00)",
+      "message": "Stefon Diggs (WR, WAS) Anytime TD rate: we project 0.44, the market implies 0.11 (also Rec) (odds pulled 2026-10-04 19:30-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -500,7 +729,7 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 4,
-      "message": "Treylon Burks (WR, WAS) Rec Yds: we project 25.0, the market implies 46.7 (odds pulled 2026-10-04 11:45-04:00)",
+      "message": "Treylon Burks (WR, WAS) Rec Yds: we project 25.0, the market implies 46.7 (odds pulled 2026-10-04 19:30-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -701,11 +930,11 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "inactive_but_projected": 5,
-    "status_conflict": 2,
-    "missing_active": 2,
+    "status_conflict": 1,
+    "missing_active": 1,
+    "inactive_but_projected": 2,
+    "market_proj_gap": 25,
     "elevated_not_projected": 3,
-    "market_proj_gap": 12,
     "unconfirmed_report": 6,
     "ir_return_window": 1,
     "elevation_limit": 2
