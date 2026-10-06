@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 5,
   "sheet": "secondary",
-  "generated_at": "2026-10-06T15:32:01+00:00",
+  "generated_at": "2026-10-06T17:05:45+00:00",
   "inputs": {
     "snapshot_date": "2026-10-06",
     "nflverse_date": "2026-10-06",
     "injury_week_updated": "2026-10-06T11:36:09+00:00",
-    "roster_state_updated": "2026-10-06T11:36:05+00:00"
+    "roster_state_updated": "2026-10-06T17:05:44+00:00"
   },
   "alerts": [
     {
@@ -153,26 +153,6 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0038998|5",
-      "severity": "error",
-      "player": "Jake Haener",
-      "gsis_id": "00-0038998",
-      "pos": "QB",
-      "team": "NYG",
-      "sheet": "secondary",
-      "week": 5,
-      "message": "Jake Haener (QB, NYG) is on the active roster but has no row on the sheet (OurLads QB #1; elevated 2026-10-04; OurLads lists him as the starter)",
-      "evidence": {
-        "ourlads_depth": 1,
-        "ourlads_pos": "QB",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "QB",
-        "status_abbr": "A01"
-      }
-    },
-    {
       "type": "status_conflict",
       "key": "status_conflict|00-0038555|5",
       "severity": "error",
@@ -274,6 +254,26 @@
       }
     },
     {
+      "type": "missing_active",
+      "key": "missing_active|00-0035535|5",
+      "severity": "warning",
+      "player": "Darius Slayton",
+      "gsis_id": "00-0035535",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "secondary",
+      "week": 5,
+      "message": "Darius Slayton (WR, IND) is on the active roster but has no row on the sheet (OurLads LWR #3; signed 2026-09-23)",
+      "evidence": {
+        "ourlads_depth": 3,
+        "ourlads_pos": "LWR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "I01"
+      }
+    },
+    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0036223|5|anytime_td",
       "severity": "warning",
@@ -294,96 +294,6 @@
         "delta": 0.3067942441,
         "pct": 0.3609344048,
         "flag": "RED"
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036182|5",
-      "severity": "warning",
-      "player": "Nick Westbrook-Ikhine",
-      "gsis_id": "00-0036182",
-      "pos": "WR",
-      "team": "IND",
-      "sheet": "secondary",
-      "week": 5,
-      "message": "Nick Westbrook-Ikhine (WR, IND) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.6
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040331|5",
-      "severity": "warning",
-      "player": "Patrick Herbert",
-      "gsis_id": "00-0040331",
-      "pos": "TE",
-      "team": "LAC",
-      "sheet": "secondary",
-      "week": 5,
-      "message": "Patrick Herbert (TE, LAC) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.2
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0032385|5",
-      "severity": "warning",
-      "player": "Sterling Shepard",
-      "gsis_id": "00-0032385",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "secondary",
-      "week": 5,
-      "message": "Sterling Shepard (WR, NYJ) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 4.6
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036332|5",
-      "severity": "warning",
-      "player": "Josiah Deguara",
-      "gsis_id": "00-0036332",
-      "pos": "TE",
-      "team": "PHI",
-      "sheet": "secondary",
-      "week": 5,
-      "message": "Josiah Deguara (TE, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0030061|5",
-      "severity": "warning",
-      "player": "Zach Ertz",
-      "gsis_id": "00-0030061",
-      "pos": "TE",
-      "team": "PHI",
-      "sheet": "secondary",
-      "week": 5,
-      "message": "Zach Ertz (TE, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 4.6
       }
     },
     {
@@ -523,24 +433,6 @@
         "delta": 12.83155368,
         "pct": 0.316828486,
         "flag": "RED"
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0035567|5",
-      "severity": "warning",
-      "player": "Craig Reynolds",
-      "gsis_id": "00-0035567",
-      "pos": "RB",
-      "team": "WAS",
-      "sheet": "secondary",
-      "week": 5,
-      "message": "Craig Reynolds (RB, WAS) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.0
       }
     },
     {
@@ -860,6 +752,26 @@
         "earliest_return_week": null,
         "designated_return_date": "2026-10-05",
         "on_sheet": true
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040209|5",
+      "severity": "info",
+      "player": "Jalen McLeod",
+      "gsis_id": "00-0040209",
+      "pos": "LB",
+      "team": "JAX",
+      "sheet": "secondary",
+      "week": 5,
+      "message": "Jalen McLeod (LB, JAX) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-09-26",
+          "2026-10-03"
+        ]
       }
     },
     {
@@ -1222,6 +1134,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040318|5",
+      "severity": "info",
+      "player": "Ale Kaho",
+      "gsis_id": "00-0040318",
+      "pos": "LB",
+      "team": "WAS",
+      "sheet": "secondary",
+      "week": 5,
+      "message": "Ale Kaho (LB, WAS) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-09-26",
+          "2026-10-03"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0039906|5",
       "severity": "info",
@@ -1262,11 +1194,11 @@
   "errors": [],
   "counts": {
     "status_conflict": 10,
-    "missing_active": 2,
     "market_proj_gap": 8,
-    "sheet_status_stale": 7,
+    "sheet_status_stale": 1,
+    "missing_active": 2,
     "ir_return_window": 27,
     "unconfirmed_report": 8,
-    "elevation_limit": 2
+    "elevation_limit": 4
   }
 }
