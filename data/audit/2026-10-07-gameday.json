@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-08T00:36:24+00:00",
+  "generated_at": "2026-10-08T01:21:58+00:00",
   "inputs": {
     "snapshot_date": "2026-10-07",
     "nflverse_date": "2026-10-07",
-    "injury_week_updated": "2026-10-07T23:10:58+00:00",
-    "roster_state_updated": "2026-10-08T00:36:23+00:00"
+    "injury_week_updated": "2026-10-08T01:18:04+00:00",
+    "roster_state_updated": "2026-10-08T01:21:58+00:00"
   },
   "alerts": [
     {
@@ -22,7 +22,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 5,
-      "message": "Jake Haener (QB, NYG) is on the active roster but has no row on the sheet (OurLads QB #1; promoted from the practice squad 2026-10-07; OurLads lists him as the starter)",
+      "message": "Jake Haener (QB, NYG) is on the active roster but has no row on the sheet (OurLads QB #1; signed 2026-10-07; OurLads lists him as the starter)",
       "evidence": {
         "ourlads_depth": 1,
         "ourlads_pos": "QB",
@@ -66,6 +66,24 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 0.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0034798|5",
+      "severity": "warning",
+      "player": "Durham Smythe",
+      "gsis_id": "00-0034798",
+      "pos": "TE",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Durham Smythe (TE, BLT) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -123,6 +141,24 @@
       }
     },
     {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038977|5",
+      "severity": "warning",
+      "player": "Tank Dell",
+      "gsis_id": "00-0038977",
+      "pos": "WR",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Tank Dell (WR, HST) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 0.0
+      }
+    },
+    {
       "type": "missing_active",
       "key": "missing_active|00-0039816|5",
       "severity": "warning",
@@ -140,6 +176,24 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "WR",
         "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0034419|5",
+      "severity": "warning",
+      "player": "Braxton Berrios",
+      "gsis_id": "00-0034419",
+      "pos": "WR",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Braxton Berrios (WR, NYG) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -173,7 +227,7 @@
       "message": "Dameon Pierce (RB, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 3.4
       }
@@ -250,6 +304,26 @@
         "earliest_return_week": 5,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0032394|5",
+      "severity": "info",
+      "player": "Nick Vannett",
+      "gsis_id": "00-0032394",
+      "pos": "TE",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Nick Vannett (TE, BLT) is on the active roster but has no row on the sheet (OurLads TE #4; signed 2026-10-07)",
+      "evidence": {
+        "ourlads_depth": 4,
+        "ourlads_pos": "TE",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "TE",
+        "status_abbr": "P07"
       }
     },
     {
@@ -421,24 +495,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0034836|5",
-      "severity": "info",
-      "player": "Braden Smith",
-      "gsis_id": "00-0034836",
-      "pos": "OL",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Braden Smith (OL, HST) on IR - first eligible Week 5",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 5,
-        "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0034091|5",
       "severity": "info",
@@ -495,24 +551,6 @@
         "earliest_return_week": 5,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0038977|5",
-      "severity": "info",
-      "player": "Tank Dell",
-      "gsis_id": "00-0038977",
-      "pos": "WR",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Tank Dell (WR, HST) on IR - designated to return 2026-10-05 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-05",
-        "on_sheet": true
       }
     },
     {
@@ -597,42 +635,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0040581|5",
-      "severity": "info",
-      "player": "Dont'e Thornton Jr.",
-      "gsis_id": "00-0040581",
-      "pos": "WR",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Dont'e Thornton Jr. (WR, LV) on IR - first eligible Week 5",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 5,
-        "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040509|5",
-      "severity": "info",
-      "player": "Ben Yurosek",
-      "gsis_id": "00-0040509",
-      "pos": "TE",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Ben Yurosek (TE, MIN) on IR - first eligible Week 5",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 5,
-        "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0038610|5",
       "severity": "info",
       "player": "Bryce Baringer",
@@ -707,24 +709,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0041089|5",
-      "severity": "info",
-      "player": "Lorenzo Styles Jr.",
-      "gsis_id": "00-0041089",
-      "pos": "DB",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Lorenzo Styles Jr. (DB, NO) on IR - first eligible Week 5",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 5,
-        "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0036280|5",
       "severity": "info",
@@ -746,24 +730,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0033375|5",
-      "severity": "info",
-      "player": "Tim Patrick",
-      "gsis_id": "00-0033375",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Tim Patrick (WR, NYJ) on IR - first eligible Week 5",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 5,
-        "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0041483|5",
       "severity": "info",
       "player": "Eli Stowers",
@@ -778,6 +744,27 @@
         "earliest_return_week": 5,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040341|5",
+      "severity": "info",
+      "player": "Doneiko Slaughter",
+      "gsis_id": "00-0040341",
+      "pos": "DB",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Doneiko Slaughter (DB, PIT) has used 4/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 4,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26",
+          "2026-10-02"
+        ]
       }
     },
     {
@@ -949,34 +936,16 @@
         "designated_return_date": null,
         "on_sheet": false
       }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040731|5",
-      "severity": "info",
-      "player": "Trey Amos",
-      "gsis_id": "00-0040731",
-      "pos": "DB",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Trey Amos (DB, WAS) on IR - designated to return 2026-10-07",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-07",
-        "on_sheet": false
-      }
     }
   ],
   "dismissed": [],
   "errors": [],
   "counts": {
-    "missing_active": 3,
-    "sheet_status_stale": 6,
+    "missing_active": 4,
+    "sheet_status_stale": 9,
     "elevated_not_projected": 2,
-    "ir_return_window": 28,
+    "ir_return_window": 21,
     "unconfirmed_report": 8,
-    "elevation_limit": 4
+    "elevation_limit": 5
   }
 }
