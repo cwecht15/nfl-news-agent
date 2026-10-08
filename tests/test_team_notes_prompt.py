@@ -216,3 +216,40 @@ def test_opponent_injuries_never_raises(monkeypatch):
     lines = {"LAR": "Week 3: LAR visits NYG"}
     sm._append_opponent_injuries(lines, SeasonContext("in_season", 2026, 3, "primary", {}, "2026-09-23", "Wed", False))
     assert lines["LAR"] == "Week 3: LAR visits NYG"
+
+
+# ---------------------------------------------------------------------------
+# Market line in the game context: gated on the GAME LINES' freshness
+# ---------------------------------------------------------------------------
+
+
+def _odds_week(pull):
+    return {"season": 2026, "week": 5, "pull": pull,
+            "games": {"TB@DAL": {"away": "TB", "home": "DAL",
+                                 "current": {"spread_home": -8.5, "total": 48.0},
+                                 "opened": {"spread_home": -8.5, "total": 48.0}}}}
+
+
+def _ctx5():
+    return SeasonContext(phase="in_season", season=2026, week=5, active_sheet="primary",
+                         sheet_weeks={"primary": 5}, today="2026-10-08", weekday="Thu",
+                         read_secondary=False)
+
+
+def test_fresh_api_lines_reach_team_notes_while_props_are_stale(monkeypatch):
+    from collectors import odds_collector as oc
+    pull = {"pulled_at": "2026-10-06T09:04-04:00", "stale_reason": "last odds pull was 38h ago",
+            "games_at": "2026-10-08T10:12:00-04:00", "games_source": "api", "games_stale_reason": ""}
+    monkeypatch.setattr(oc, "load_week_file", lambda s, w: _odds_week(pull))
+    lines = {"DAL": "Week 5: TB visits DAL on Thursday"}
+    sm._append_market_context(lines, _ctx5())
+    assert "DAL -8.5, total 48" in lines["DAL"]
+
+
+def test_old_files_without_the_split_still_gate_on_stale_reason(monkeypatch):
+    from collectors import odds_collector as oc
+    pull = {"pulled_at": "2026-10-06T09:04-04:00", "stale_reason": "last odds pull was 38h ago"}
+    monkeypatch.setattr(oc, "load_week_file", lambda s, w: _odds_week(pull))
+    lines = {"DAL": "Week 5: TB visits DAL on Thursday"}
+    sm._append_market_context(lines, _ctx5())
+    assert lines["DAL"] == "Week 5: TB visits DAL on Thursday"

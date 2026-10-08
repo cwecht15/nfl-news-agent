@@ -123,6 +123,14 @@ def odds_week(season: int, week: int):
     return load_json(get_data_dir("odds") / str(season) / f"wk{week:02d}.json")
 
 
+def api_usage() -> dict:
+    """The Odds API ledger (``data/odds/api_usage.json``): ``{"pulls", "quota"}``."""
+    data = load_json(get_data_dir("odds") / "api_usage.json") or {}
+    data.setdefault("pulls", [])
+    data.setdefault("quota", {})
+    return data
+
+
 def source_stamps(season: int, week: int | None) -> dict[str, str]:
     """ISO "last updated" per refresh target, for the Refresh controls' captions.
 
@@ -156,6 +164,14 @@ def source_stamps(season: int, week: int | None) -> dict[str, str]:
         odds = odds_week(season, week) or {}
         if odds.get("updated_at"):
             stamps["odds"] = odds["updated_at"]
+        opull = odds.get("pull") or {}
+        if opull.get("games_source") == "api" and opull.get("games_at"):
+            stamps["odds_lines"] = opull["games_at"]
+
+    props_ok = [e for e in api_usage().get("pulls") or []
+                if e.get("kind") == "props" and e.get("ok") and e.get("at")]
+    if props_ok:
+        stamps["odds_props"] = max(e["at"] for e in props_ok)
 
     # NFL.com transactions have no file of their own — the newest official
     # roster event is when they were last read.

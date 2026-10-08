@@ -713,3 +713,135 @@ def test_report_window_keeps_yesterday_afternoons_pull_in_this_mornings_report()
     sec = osec.build_odds_section(wk, [], use_llm=False, window=True,
                                   since="2026-09-18T11:56:00+00:00")
     assert sec["count"] == 0 and "No new odds pull since the previous report" in sec["summary"]
+
+
+# ---------------------------------------------------------------------------
+# Game lines vs props freshness (direct Odds API lines pulls)
+# ---------------------------------------------------------------------------
+
+
+def test_merge_with_games_at_logs_a_sourced_pull_and_stamps_the_line():
+    data, _ = oc.merge_into_week(None, 2026, 1, [_game()], {}, _meta(), "2026-09-10T14:00:00+00:00")
+    meta = _meta(games_at="2026-09-11T10:12:00-04:00", games_source="api",
+                 games_age_hours=0.0, games_stale_reason="", pull_source="api",
+                 credits_used=9, credits_remaining=15388)
+    data, _ = oc.merge_into_week(data, 2026, 1, [_game(total=49.5)], {}, meta,
+                                 "2026-09-11T14:12:00+00:00")
+    entry = data["pull_log"][-1]
+    assert entry["source"] == "api" and entry["credits_used"] == 9
+    assert entry["games_at"] == "2026-09-11T10:12:00-04:00"
+    assert data["games"]["SF@LAR"]["current"]["at"] == "2026-09-11T10:12:00-04:00"
+    assert data["pull"]["games_source"] == "api"
+    assert data["pull"]["pulled_at"] == "2026-09-10T09:52-04:00"
+    assert any(c["type"] == "total_move" for c in entry["changes"])
+
+
+def test_old_meta_without_games_fields_keeps_the_old_pull_shape():
+    data, _ = oc.merge_into_week(None, 2026, 1, [_game()], {}, _meta(), "2026-09-10T14:00:00+00:00")
+    assert set(data["pull"]) == {"pulled_at", "props_pull_id", "week_reported", "stale_reason",
+                                 "age_hours"}
+    assert data["games"]["SF@LAR"]["current"]["at"] == "2026-09-10T09:52-04:00"
+    # A file written before games_at existed is not mistaken for a new pull.
+    again, _ = oc.merge_into_week(data, 2026, 1, [_game()], {},
+                                  _meta(games_at="2026-09-10T09:52-04:00", games_source="sheet"),
+                                  "2026-09-10T18:00:00+00:00")
+    assert len(again["pull_log"]) == len(data["pull_log"])
+    assert oc.games_stale_reason({"stale_reason": "x"}) == "x"
+    assert oc.games_stale_reason({"stale_reason": "x", "games_stale_reason": ""}) == ""
+
+
+def _sheet_env(monkeypatch, tmp_path, pulled_at, sheet_total=46.0, rows=None):
+    monkeypatch.setattr(oc, "_base_dir", lambda: tmp_path)
+    monkeypatch.setattr(oc.season_mod, "load_schedule", lambda **kw: [])
+    monkeypatch.setattr(oc, "read_pull_status",
+                        lambda gc, season, settings=None, now=None: {
+                            "pulled_at": pulled_at, "week_reported": 1, "detail": "", "status": "ok"})
+    monkeypatch.setattr(oc, "read_game_lines", lambda gc, settings=None: [_game(total=sheet_total)])
+    monkeypatch.setattr(oc, "read_prop_history", lambda gc, s, w, settings=None: rows or [])
+
+
+def _api_week(tmp_path, monkeypatch):
+    """A week file whose games came from a direct API pull at 10:12 on 09-11."""
+    monkeypatch.setattr(oc, "_base_dir", lambda: tmp_path)       # never the real data/odds
+    data, _ = oc.merge_into_week(None, 2026, 1, [_game(total=49.5)], {},
+                                 _meta(games_at="2026-09-11T10:12:00-04:00", games_source="api",
+                                       games_age_hours=0.0, games_stale_reason="",
+                                       pull_source="api"),
+                                 "2026-09-11T14:12:00+00:00")
+    oc.save_week_file(data)
+    return data
+
+
+def test_sheet_read_after_an_api_pull_keeps_the_api_lines_and_merges_props(tmp_path, monkeypatch):
+    _api_week(tmp_path, monkeypatch)
+    rows = _fixture_history()["rows"]
+    _sheet_env(monkeypatch, tmp_path, "2026-09-10T09:52-04:00", sheet_total=46.0, rows=rows)
+    now = datetime(2026, 9, 11, 16, 0, tzinfo=timezone.utc)
+    res = oc.collect_odds("2026-09-11", week=1, season=2026, gc=object(), now=now, write=True)
+    data = oc.load_week_file(2026, 1)
+    g = data["games"]["SF@LAR"]
+    # The sheet's older 46 did not rewind the API's 49.5, and logged no fake move back.
+    assert g["current"]["total"] == 49.5
+    assert g["current"]["at"] == "2026-09-11T10:12:00-04:00"
+    assert not [c for c in res["changes"] if c["type"] == "total_move"]
+    assert data["pull"]["games_source"] == "api"
+    assert data["pull"]["games_at"] == "2026-09-11T10:12:00-04:00"
+    assert data["pull"]["games_stale_reason"] == ""
+    assert data["props"]                                   # props still merged
+    assert data["pull_log"][-1]["source"] == "sheet"
+
+
+def test_a_newer_project_pull_takes_the_games_back(tmp_path, monkeypatch):
+    _api_week(tmp_path, monkeypatch)
+    _sheet_env(monkeypatch, tmp_path, "2026-09-11T16:00-04:00", sheet_total=50.5)
+    now = datetime(2026, 9, 11, 21, 0, tzinfo=timezone.utc)
+    oc.collect_odds("2026-09-11", week=1, season=2026, gc=object(), now=now, write=True)
+    data = oc.load_week_file(2026, 1)
+    assert data["games"]["SF@LAR"]["current"]["total"] == 50.5
+    assert data["pull"]["games_source"] == "sheet"
+
+
+def test_stale_props_read_preserves_fresh_api_lines(tmp_path, monkeypatch):
+    _api_week(tmp_path, monkeypatch)
+    _sheet_env(monkeypatch, tmp_path, "2026-09-09T20:00-04:00")
+    now = datetime(2026, 9, 11, 16, 0, tzinfo=timezone.utc)       # project pull 40h old
+    res = oc.collect_odds("2026-09-11", week=1, season=2026, gc=object(), now=now, write=True)
+    pull = oc.load_week_file(2026, 1)["pull"]
+    assert "ago" in pull["stale_reason"] and res["errors"]
+    assert pull["games_source"] == "api" and pull["games_stale_reason"] == ""
+    assert pull["games_at"] == "2026-09-11T10:12:00-04:00"
+
+
+def test_audit_fresh_lines_with_stale_props_fires_only_the_line_check():
+    odds = _audit_odds("RED", 20.0, 40.0, fp_flag="FP-BOTH")
+    odds["pull"].update({"stale_reason": "last odds pull was 38h ago",
+                         "games_at": "2026-09-11T10:12:00-04:00", "games_source": "api",
+                         "games_stale_reason": ""})
+    rows = {"00-9": {"name": "Test Player", "team": "NE", "pos": "WR"}}
+    types = {a["type"] for a in pa.check_market(rows, {}, odds, 1, "primary", cfg={})}
+    assert types == {"sheet_line_stale"}
+    # ...and the reverse: stale lines, fresh props.
+    odds["pull"].update({"stale_reason": "", "games_stale_reason": "game lines last read 40h ago"})
+    types = {a["type"] for a in pa.check_market(rows, {}, odds, 1, "primary", cfg={})}
+    assert types == {"market_proj_gap"}
+
+
+def test_latest_pull_moves_follows_games_at():
+    from processing import line_insights as li
+    wd = {"pull": {"pulled_at": "2026-09-10T09:52-04:00", "games_at": "2026-09-11T10:12:00-04:00"},
+          "games": {"SF@LAR": {"away": "SF", "home": "LAR", "opened": {},
+                               "history": [{"spread_home": -3.0, "total": 48.0, "home_ml": -180,
+                                            "away_ml": 155, "at": "2026-09-10T09:52-04:00"},
+                                           {"spread_home": -3.0, "total": 50.0, "home_ml": -180,
+                                            "away_ml": 155, "at": "2026-09-11T10:12:00-04:00"}]}},
+          "props": {}}
+    moves = li.latest_pull_moves(wd)
+    assert [m["type"] for m in moves] == ["total_move"]
+
+
+def test_stale_note_names_which_half_is_stale():
+    note = osec._stale_note({"pulled_at": "2026-10-06T09:04-04:00",
+                             "stale_reason": "last odds pull was 38h ago",
+                             "games_at": "2026-10-08T10:12:00-04:00", "games_source": "api",
+                             "games_stale_reason": ""})
+    assert "Props are stale" in note and "via the Odds API" in note and "Thu 10:12 AM" in note

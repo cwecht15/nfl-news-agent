@@ -816,7 +816,11 @@ def check_market(rows: dict[str, dict], output: dict, odds: Optional[dict],
 
     Nothing fires when the pull is stale: a line from the wrong week, or one
     that predates the last two days of news, would produce a wall of alerts
-    about a market that has simply not been re-read.
+    about a market that has simply not been re-read. The two halves are gated
+    separately: ``sheet_line_stale`` on the game lines' freshness
+    (``games_stale_reason`` — a direct Odds API lines pull can make them
+    current while props are old), the per-player checks on the props pull's
+    ``stale_reason``. Files without the split fall back to ``stale_reason``.
     """
     alerts: list[dict] = []
     if not odds:
@@ -825,14 +829,17 @@ def check_market(rows: dict[str, dict], output: dict, odds: Optional[dict],
     if not cfg.get("enabled", True):
         return alerts
     pull = odds.get("pull") or {}
-    if pull.get("stale_reason"):
+    lines_stale = (pull.get("games_stale_reason") if "games_stale_reason" in pull
+                   else pull.get("stale_reason"))
+    props_stale = pull.get("stale_reason")
+    if lines_stale and props_stale:
         return alerts
 
-    pulled = pull.get("pulled_at") or ""
+    pulled = pull.get("games_at") or pull.get("pulled_at") or ""
     as_of = f" (odds pulled {pulled.replace('T', ' ')})" if pulled else ""
 
     # 1. The sheet's own spread / total has drifted from the market.
-    for key, g in (odds.get("games") or {}).items():
+    for key, g in ({} if lines_stale else (odds.get("games") or {})).items():
         sh = g.get("sheet") or {}
         flag = str(sh.get("fp_flag") or "")
         if not flag:
@@ -851,6 +858,11 @@ def check_market(rows: dict[str, dict], output: dict, odds: Optional[dict],
                       "spread_delta": sh.get("fp_spread_delta"),
                       "total_delta": sh.get("fp_total_delta")},
         ))
+
+    if props_stale:
+        return alerts
+    pulled = pull.get("pulled_at") or ""
+    as_of = f" (odds pulled {pulled.replace('T', ' ')})" if pulled else ""
 
     # 2/3. Per-player verdicts. The market quotes a player across several
     # correlated stats (Rush Att / Rush Yds / Rush+Rec Yds all move together),

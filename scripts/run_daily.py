@@ -224,11 +224,62 @@ def _inactive_rows(season_ctx, inactives_week: dict | None) -> dict:
         return {}
 
 
+def pull_game_lines_step(
+    date_str: str,
+    season_ctx,
+    logger: logging.Logger,
+    week: int | None = None,
+    run: str = "refresh",
+    requested_by: str = "pipeline",
+) -> dict:
+    """Direct Odds API game-lines pull (9 credits), logged on one line. Non-fatal."""
+    try:
+        from collectors.odds_api import pull_game_lines
+
+        res = pull_game_lines(date_str, season=season_ctx.season, week=week or season_ctx.week,
+                              log=logger, run=run, requested_by=requested_by) or {}
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Game lines via API failed (non-fatal): %s", e)
+        return {"ok": False, "reason": str(e)}
+    if res.get("ok"):
+        logger.info("Game lines via API: %s credits, %s remaining (%s)",
+                    res.get("credits_used"), res.get("credits_remaining"), res.get("reason"))
+    else:
+        logger.info("Game lines via API skipped: %s", res.get("reason"))
+    return res
+
+
+def _auto_lines_due(api_cfg: dict, logger: logging.Logger) -> bool:
+    """Throttle for the AUTOMATIC lines pull only (buttons always pull).
+
+    The game-day dispatcher fires inactives.yml every 45 minutes on Sat/Sun/Wed
+    and the local + cloud morning runs can land minutes apart; 9 credits each
+    is cheap, but not for an identical line.
+    """
+    gap = float((api_cfg.get("game_lines") or {}).get("auto_min_gap_minutes", 0) or 0)
+    if gap <= 0:
+        return True
+    try:
+        from datetime import datetime, timezone
+
+        from collectors.odds_api import last_api_lines_at
+
+        last = last_api_lines_at()
+    except Exception:  # noqa: BLE001
+        return True
+    if last and (datetime.now(timezone.utc) - last).total_seconds() < gap * 60:
+        logger.info("Game lines via API skipped: last pulled %s (< %g min ago)",
+                    last.isoformat(timespec="minutes"), gap)
+        return False
+    return True
+
+
 def run_odds_step(
     date_str: str,
     season_ctx,
     logger: logging.Logger,
     week: int | None = None,
+    run: str = "am",
 ) -> dict | None:
     """Read the market lines the NFL Odds project publishes (in-season only).
 
@@ -238,9 +289,22 @@ def run_odds_step(
     (``data/odds/<season>/wkNN.json``) or None — non-fatal either way, and the
     file on disk stays the single source of truth for the summarizer, the
     audit and the dashboard.
+
+    When ``run`` is one of ``odds.api.game_lines.auto_runs`` the game lines
+    are first pulled straight from The Odds API (9 credits), so the report's
+    line is current even when the NFL Odds project last pulled a day and a
+    half ago. ``run="refresh"`` (the dashboard buttons) is never automatic —
+    a button names ``odds_lines`` explicitly.
     """
-    if not get_settings().get("odds", {}).get("enabled", True):
+    odds_cfg = get_settings().get("odds", {}) or {}
+    if not odds_cfg.get("enabled", True):
         return None
+    api = odds_cfg.get("api") or {}
+    if (api.get("enabled") and run in ((api.get("game_lines") or {}).get("auto_runs") or [])
+            and _auto_lines_due(api, logger)):
+        write_status("Step 2c", "running", "Pulling game lines (Odds API)")
+        pull_game_lines_step(date_str, season_ctx, logger, week=week, run=run,
+                             requested_by="schedule")
     write_status("Step 2c", "running", "Reading market lines")
     logger.info("Step 2c: Reading market lines...")
     try:
@@ -253,12 +317,14 @@ def run_odds_step(
         for c in res.get("changes") or []:
             by_type[c.get("type", "?")] = by_type.get(c.get("type", "?"), 0) + 1
         logger.info(
-            "Market lines: week %s, %d games, %d player-stats, %d changes (%s); odds pulled %s%s",
+            "Market lines: week %s, %d games, %d player-stats, %d changes (%s); odds pulled %s%s%s",
             res.get("week"), res.get("games", 0), res.get("props", 0),
             len(res.get("changes") or []),
             ", ".join(f"{k}={v}" for k, v in sorted(by_type.items())) or "none",
             pull.get("pulled_at") or "unknown",
             f" [{pull['stale_reason']}]" if pull.get("stale_reason") else "",
+            (f"; game lines via API {pull.get('games_at')}"
+             if pull.get("games_source") == "api" else ""),
         )
         for err in (res.get("errors") or [])[:5]:
             logger.warning("Odds source error: %s", err)
@@ -716,7 +782,7 @@ def run(
     # the dashboard, so nothing else has to be threaded through.
     odds_week: dict | None = None
     if in_season:
-        odds_week = run_odds_step(date_str, season_ctx, logger)
+        odds_week = run_odds_step(date_str, season_ctx, logger, run="am")
 
     write_status("Step 3", "running", f"Summarizing with {_summary_provider_label(summary_provider)}")
     logger.info(

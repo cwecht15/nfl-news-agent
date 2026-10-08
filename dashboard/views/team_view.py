@@ -113,10 +113,13 @@ if not in_season:
 # This week
 # ---------------------------------------------------------------------------
 
-rc.render_refresh(tuple(wd.TARGETS), key="team_view", label="Refresh all",
-                  stamps=isd.source_stamps(ctx.season, week),
+_stamps = isd.source_stamps(ctx.season, week)
+rc.render_refresh(wd.FREE_TARGETS, key="team_view", label="Refresh all",
+                  stamps=_stamps,
                   help_note="Re-collects rosters, transactions, elevations, injuries and "
-                            "inactives for every club, then re-runs the projection audit.")
+                            "inactives for every club, then re-runs the projection audit "
+                            "(no Odds API credits — those are the two buttons below).")
+rc.render_paid_odds_controls(ctx.season, week, key="team_view_paid", stamps=_stamps)
 
 game = season_mod.opponent(schedule, to_proj(team), week) if schedule and week else None
 odds = isd.odds_week(ctx.season, week) or {}
@@ -156,10 +159,10 @@ if card:
         f"sharp (Pinnacle) {card['sharp_spread']:+g} / {card['sharp_total']:g} · "
         f"your sheet {card['sheet_spread']:+g} / {card['sheet_total']:g}"
         + (f" · **{card['fp_flag']}**" if card["fp_flag"] else "")
-        + f" · odds pulled {str(pull.get('pulled_at') or '?').replace('T', ' ')}"
+        + f" · odds pulled {str(pull.get('games_at') or pull.get('pulled_at') or '?').replace('T', ' ')[:16]}"
         if None not in (card["spread_open"], card["sharp_spread"], card["sheet_spread"],
                         card["total_open"], card["sharp_total"], card["sheet_total"])
-        else f"Odds pulled {str(pull.get('pulled_at') or '?').replace('T', ' ')}"
+        else f"Odds pulled {str(pull.get('games_at') or pull.get('pulled_at') or '?').replace('T', ' ')[:16]}"
     )
 elif game:
     st.caption("No market line stored for this game yet.")

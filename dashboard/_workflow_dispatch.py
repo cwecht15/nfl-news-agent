@@ -79,7 +79,27 @@ TARGETS: dict[str, dict] = {
         "label": "Market lines",
         "blurb": "Re-reads the NFL Odds project's sheets (no Odds API call, 0 credits).",
     },
+    # Paid targets spend Odds API credits. Their durable limit is the ledger
+    # budget enforced server-side (collectors/odds_api.py); the cooldown here
+    # is only a UX throttle for one Streamlit process.
+    "odds_lines": {
+        "label": "Game lines (API)",
+        "blurb": "Calls The Odds API for this week's spreads / totals / moneylines — 9 credits.",
+        "paid": True,
+        "cooldown": 600,
+    },
+    "odds_props": {
+        "label": "Player props (API)",
+        "blurb": "Dispatches the NFL Odds project's full pull (~550 credits) and re-reads it; "
+                 "limited to 2/day, 4/week.",
+        "paid": True,
+        "cooldown": 3600,
+    },
 }
+
+#: Targets a "Refresh all / everything" button may dispatch — never a paid one.
+FREE_TARGETS: tuple[str, ...] = tuple(k for k, v in TARGETS.items() if not v.get("paid"))
+PAID_TARGETS: tuple[str, ...] = tuple(k for k, v in TARGETS.items() if v.get("paid"))
 
 
 # ---------------------------------------------------------------------------
@@ -89,6 +109,7 @@ TARGETS: dict[str, dict] = {
 _lock = threading.Lock()
 _last_dispatch_at: float = 0.0
 _last_dispatch: Optional[dict] = None       # {"nonce", "targets", "at", "html_url"}
+_last_by_target: dict[str, float] = {}      # target -> epoch of its last dispatch
 
 
 def _reset_for_tests() -> None:
@@ -97,17 +118,30 @@ def _reset_for_tests() -> None:
     with _lock:
         _last_dispatch_at = 0.0
         _last_dispatch = None
+        _last_by_target.clear()
 
 
 def last_dispatch() -> Optional[dict]:
     return dict(_last_dispatch) if _last_dispatch else None
 
 
-def cooldown_remaining() -> float:
-    """Seconds until another dispatch is allowed; 0.0 when clear."""
-    if not _last_dispatch_at:
-        return 0.0
-    return max(0.0, DISPATCH_COOLDOWN_SECONDS - (time.time() - _last_dispatch_at))
+def cooldown_remaining(targets: Optional[Iterable[str]] = None) -> float:
+    """Seconds until another dispatch (of ``targets``) is allowed; 0.0 when clear.
+
+    The global 180 s rule always applies; a target with its own ``cooldown``
+    (the paid Odds API ones) adds its own on top, measured from that target's
+    last dispatch.
+    """
+    now = time.time()
+    out = 0.0
+    if _last_dispatch_at:
+        out = max(0.0, DISPATCH_COOLDOWN_SECONDS - (now - _last_dispatch_at))
+    for t in (targets or ()):
+        cd = float((TARGETS.get(t) or {}).get("cooldown") or 0)
+        at = _last_by_target.get(t)
+        if cd and at:
+            out = max(out, cd - (now - at))
+    return max(0.0, out)
 
 
 # ---------------------------------------------------------------------------
@@ -215,9 +249,11 @@ def dispatch_refresh(targets: Sequence[str] | str, *, date: Optional[str] = None
     """
     global _last_dispatch_at, _last_dispatch
 
-    remaining = cooldown_remaining()
+    names = [t.strip() for t in (targets.split(",") if isinstance(targets, str) else targets)]
+    remaining = cooldown_remaining(names)
     if remaining > 0:
-        ago = int(time.time() - _last_dispatch_at)
+        last = max([_last_dispatch_at] + [_last_by_target.get(t, 0.0) for t in names])
+        ago = int(time.time() - last)
         return False, (f"A refresh was started {ago}s ago — available again in "
                        f"{int(remaining)}s."), ""
 
@@ -246,6 +282,8 @@ def dispatch_refresh(targets: Sequence[str] | str, *, date: Optional[str] = None
     if ok:
         with _lock:
             _last_dispatch_at = time.time()
+            for t in spec.split(","):
+                _last_by_target[t] = _last_dispatch_at
             _last_dispatch = {"nonce": nonce, "targets": spec, "at": _last_dispatch_at,
                               "html_url": actions_html_url()}
         return True, msg, nonce

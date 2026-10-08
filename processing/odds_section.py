@@ -378,9 +378,35 @@ def report_window_start(date_str: str) -> Optional[str]:
         return None
 
 
+def _short_et(iso: Optional[str]) -> str:
+    """'2026-10-08T10:12:05-04:00' -> 'Thu 10:12 AM' (ET)."""
+    if not iso:
+        return "?"
+    try:
+        from datetime import datetime as _dt
+
+        from processing.season import ET_ZONE
+        d = _dt.fromisoformat(str(iso).replace("Z", "+00:00"))
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=ET_ZONE)
+        return d.astimezone(ET_ZONE).strftime("%a %I:%M %p").replace(" 0", " ")
+    except ValueError:
+        return str(iso).replace("T", " ")[:16]
+
+
 def _stale_note(pull: dict) -> str:
     reason = (pull or {}).get("stale_reason")
     at = (pull or {}).get("pulled_at")
+    if (pull or {}).get("games_source") == "api" and pull.get("games_at"):
+        # A direct Odds API lines pull: say which half is which, so fresh
+        # lines are not reported as stale because the props are.
+        g_reason = pull.get("games_stale_reason")
+        lines = (f"lines stale — {g_reason}" if g_reason
+                 else f"lines from {_short_et(pull['games_at'])} via the Odds API")
+        if reason:
+            return f"_Props are stale — {reason}; {lines}._"
+        props = f"props from the {_short_et(at)} odds pull" if at else "props pull time unknown"
+        return f"_{props[0].upper() + props[1:]}; {lines}._"
     if reason:
         return f"_Lines are stale — {reason}._"
     if at:

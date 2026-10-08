@@ -24,6 +24,7 @@ Usage:
     python scripts/run_afternoon.py --inactives-only   # game-day: ESPN inactives + audit
     python scripts/run_afternoon.py --injuries-only    # injury report + audit (practice reports, designations)
     python scripts/run_afternoon.py --only roster,transactions   # on-demand refresh (see REFRESH_TARGETS)
+    python scripts/run_afternoon.py --only odds_lines            # 9-credit Odds API game-lines pull + sheet read
 
 ``--only`` is what the dashboard's Refresh buttons dispatch through
 .github/workflows/refresh.yml: pick the sources that have moved since the last
@@ -56,8 +57,8 @@ from reports.report_builder import (
     save_report,
 )
 from scripts.run_daily import (
-    _inactive_rows, clear_status, run_in_season_steps, run_odds_step, setup_logging,
-    write_status,
+    _inactive_rows, clear_status, pull_game_lines_step, run_in_season_steps, run_odds_step,
+    setup_logging, write_status,
 )
 
 
@@ -67,7 +68,11 @@ from scripts.run_daily import (
 # ---------------------------------------------------------------------------
 
 REFRESH_TARGETS: tuple[str, ...] = ("roster", "elevations", "injuries", "inactives", "transactions",
-                                   "odds")
+                                   "odds", "odds_lines", "odds_props")
+
+# Targets that spend Odds API credits. Never part of "all": a "Refresh
+# everything" click must not cost 550 credits; each has its own button.
+PAID_TARGETS: tuple[str, ...] = ("odds_lines", "odds_props")
 
 # Every step run_in_season_steps knows about except "audit", which every refresh
 # re-runs: it is pure-disk and it is what turns freshly collected data into the
@@ -90,6 +95,9 @@ _TARGET_STEPS: dict[str, set[str]] = {
     # Market lines are read by run_odds_step, outside run_in_season_steps; the
     # audit that always re-runs is what turns them into market alerts.
     "odds": set(),
+    # The paid pulls run before that same sheet read (collectors/odds_api.py).
+    "odds_lines": set(),
+    "odds_props": set(),
 }
 
 
@@ -107,7 +115,8 @@ def parse_targets(spec: str | list[str] | tuple[str, ...] | None) -> set[str]:
     if not tokens:
         return set()
     if "all" in tokens:
-        return set(REFRESH_TARGETS)
+        # "all" is every FREE target; paid ones must be named explicitly.
+        return set(REFRESH_TARGETS) - set(PAID_TARGETS)
     unknown = [t for t in tokens if t not in REFRESH_TARGETS]
     if unknown:
         raise ValueError(f"unknown refresh target(s) {', '.join(unknown)} — "
@@ -118,9 +127,10 @@ def parse_targets(spec: str | list[str] | tuple[str, ...] | None) -> set[str]:
 def plan_for_targets(targets: set[str]) -> dict:
     """Map refresh targets onto run_in_season_steps' knobs.
 
-    Returns ``{"skip", "run", "collect_transactions", "odds"}``. A step runs
-    when *any* requested target wants it, so the skip set is what nothing asked
-    for.
+    Returns ``{"skip", "run", "collect_transactions", "odds", "odds_lines",
+    "odds_props"}``. A step runs when *any* requested target wants it, so the
+    skip set is what nothing asked for. Either paid pull implies the sheet read
+    (``odds``) that folds it into the week file and the report.
     """
     wanted: set[str] = set()
     for t in targets:
@@ -130,7 +140,9 @@ def plan_for_targets(targets: set[str]) -> dict:
         "run": "refresh",
         "collect_transactions": "transactions" in targets,
         # Lines move hardest on game day, which is when inactives are polled.
-        "odds": bool({"inactives", "odds"} & targets),
+        "odds": bool({"inactives", "odds", "odds_lines", "odds_props"} & targets),
+        "odds_lines": "odds_lines" in targets,
+        "odds_props": "odds_props" in targets,
     }
 
 
@@ -338,6 +350,28 @@ def _merge_by_keys(existing: list[dict], new: list[dict], keys: tuple[str, ...])
     return out
 
 
+def _pull_props(date_str: str, ctx, logger: logging.Logger) -> dict:
+    """Dispatch the NFL Odds project's props pull and wait for it (non-fatal).
+
+    The budget (6h gap, 2/day, 4/week, credit reserve) is enforced inside
+    ``pull_props`` from the committed ledger -- this is the server side the
+    dashboard button cannot bypass.
+    """
+    write_status("PM 1", "running", "Pulling player props (NFL Odds workflow)")
+    try:
+        from collectors.odds_api import pull_props
+
+        res = pull_props(ctx.season, ctx.week, log=logger, run="refresh",
+                         requested_by="refresh", date_str=date_str) or {}
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Props pull failed (non-fatal): %s", e)
+        return {"ok": False, "reason": str(e)}
+    logger.info("Player props via NFL Odds: %s (credits used %s, %s remaining)%s",
+                res.get("reason"), res.get("credits_used"), res.get("credits_remaining"),
+                f" {res['run_url']}" if res.get("run_url") else "")
+    return res
+
+
 def _run_targets(date_str: str, ctx, targets: set[str], logger: logging.Logger) -> int:
     """On-demand refresh of a named subset of the in-season steps.
 
@@ -345,6 +379,9 @@ def _run_targets(date_str: str, ctx, targets: set[str], logger: logging.Logger) 
     for the sources that move faster than the crons: rosters, transactions,
     practice-squad elevations, the injury report, game-day inactives and the
     market lines the NFL Odds project publishes (a sheet read, no API credits).
+    ``odds_lines`` / ``odds_props`` spend Odds API credits first (a direct
+    game-lines pull; a dispatched NFL Odds props pull) and then take the same
+    sheet read; they are never part of ``all``.
 
     Deliberately NOT a refactor of ``--inactives-only`` / ``--injuries-only``.
     Those two are pinned by six cron schedules, three .bat dispatchers and
@@ -367,7 +404,13 @@ def _run_targets(date_str: str, ctx, targets: set[str], logger: logging.Logger) 
         except Exception as e:  # noqa: BLE001
             logger.warning("PM transactions failed (non-fatal): %s", e)
 
-    odds_week = run_odds_step(date_str, ctx, logger) if plan["odds"] else None
+    if plan["odds_props"]:
+        _pull_props(date_str, ctx, logger)
+    if plan["odds_lines"]:
+        write_status("PM 1", "running", "Pulling game lines (Odds API)")
+        pull_game_lines_step(date_str, ctx, logger, run="refresh", requested_by="refresh")
+
+    odds_week = run_odds_step(date_str, ctx, logger, run="refresh") if plan["odds"] else None
 
     roster_events, injury_changes, audit_alerts, inactives_week = run_in_season_steps(
         date_str=date_str, season_ctx=ctx, news_items=news_items, dc_status_changes=[],
@@ -416,7 +459,7 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
             # Game-day cron: poll ESPN for inactives near kickoff, re-run the
             # audit against the current sheet snapshot, refresh the report.
             # Lines move hardest on game day, so the inactives poll reads them too.
-            odds_week = run_odds_step(date_str, ctx, logger)
+            odds_week = run_odds_step(date_str, ctx, logger, run="gameday")
             roster_events, _, audit_alerts, inactives_week = run_in_season_steps(
                 date_str=date_str, season_ctx=ctx, news_items=[], dc_status_changes=[],
                 logger=logger, run="gameday", skip={"roster", "injuries"},
@@ -439,12 +482,21 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
             # the audit against the current snapshot (a new OUT is an alert) and
             # folds the changes into today's report. Dispatched from the local
             # NFL_News_Agent_Injuries task (scripts/run_injuries.bat).
+            # Market lines too (auto API lines pull when configured, then the
+            # sheet read): a Friday OUT moves a line, and the audit's market
+            # checks need a fresh one.
+            odds_week = run_odds_step(date_str, ctx, logger, run="injuries")
             _roster, injury_changes, audit_alerts, _inactives = run_in_season_steps(
                 date_str=date_str, season_ctx=ctx, news_items=[], dc_status_changes=[],
                 logger=logger, run="injuries", skip={"elevations", "roster", "inactives"},
             )
             write_status("PM 4", "running", "Updating daily report")
-            _update_report(date_str, ctx, None, injury_changes, audit_alerts, logger, create_missing=False)
+            _update_report(date_str, ctx, None, injury_changes, audit_alerts, logger, create_missing=False,
+                           line_movement=(_odds_section(odds_week, ctx, None, logger,
+                                                        injury_changes=injury_changes,
+                                                        date_str=date_str)
+                                          if odds_week else None),
+                           odds=odds_week)
             logger.info("Injury report refresh complete.")
             return 0
 
@@ -481,7 +533,7 @@ def run_pm(date_override: str | None = None, skip_ourlads: bool = False, skip_tr
         except Exception as e:  # noqa: BLE001
             logger.warning("Weekly sheet refresh failed (non-fatal): %s", e)
 
-        odds_week = run_odds_step(date_str, ctx, logger)
+        odds_week = run_odds_step(date_str, ctx, logger, run="pm")
 
         roster_events, injury_changes, audit_alerts, inactives_week = run_in_season_steps(
             date_str=date_str, season_ctx=ctx, news_items=news_items,
@@ -518,7 +570,8 @@ if __name__ == "__main__":
                       help="injury report + projection audit + report refresh only (practice reports, designations)")
     mode.add_argument("--only", default=None, metavar="TARGETS",
                       help="on-demand refresh: comma-separated subset of "
-                           f"{','.join(REFRESH_TARGETS)} (or 'all')")
+                           f"{','.join(REFRESH_TARGETS)} (or 'all' = every target except the "
+                           f"paid {','.join(PAID_TARGETS)})")
     args = ap.parse_args()
     try:
         sys.exit(run_pm(args.date, args.skip_ourlads, args.skip_transactions, args.backfill_from,

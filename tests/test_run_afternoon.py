@@ -159,16 +159,22 @@ def test_injuries_only_runs_just_the_injury_report_and_audit(monkeypatch):
     monkeypatch.setattr(run_afternoon, "clear_status", lambda: None)
     monkeypatch.setattr(run_afternoon, "run_in_season_steps", fake_steps)
     monkeypatch.setattr(run_afternoon, "_update_report", fake_update)
-    for heavy in ("_refresh_active_sheet", "_rescrape_depth_charts", "_collect_pm_transactions", "run_odds_step"):
+    for heavy in ("_refresh_active_sheet", "_rescrape_depth_charts", "_collect_pm_transactions"):
         monkeypatch.setattr(run_afternoon, heavy, lambda *a, **k: (_ for _ in ()).throw(AssertionError(heavy)))
+    # Since 2026-10 the injury refresh also reads the market (auto API lines
+    # when configured): a Friday OUT moves a line.
+    monkeypatch.setattr(run_afternoon, "run_odds_step",
+                        lambda *a, **k: calls.update(odds_run=k.get("run")) or None)
 
     assert run_afternoon.run_pm("2026-09-18", injuries_only=True) == 0
     assert calls["steps"]["skip"] == {"elevations", "roster", "inactives"}
     assert calls["steps"]["run"] == "injuries"
+    assert calls["odds_run"] == "injuries"
     roster_events, injury_changes, audit_alerts, kw = calls["update"]
     assert roster_events is None                      # "did not look" - roster section untouched
     assert injury_changes and audit_alerts
     assert kw.get("create_missing") is False
+    assert kw.get("odds") is None                     # no odds file -> report odds untouched
 
 
 # ---------------------------------------------------------------------------
@@ -180,7 +186,8 @@ def test_parse_targets_accepts_csv_whitespace_list_and_all():
     assert run_afternoon.parse_targets("roster") == {"roster"}
     assert run_afternoon.parse_targets(" roster , elevations ") == {"roster", "elevations"}
     assert run_afternoon.parse_targets(["injuries"]) == {"injuries"}
-    assert run_afternoon.parse_targets("all") == set(run_afternoon.REFRESH_TARGETS)
+    assert run_afternoon.parse_targets("all") == (set(run_afternoon.REFRESH_TARGETS)
+                                                  - set(run_afternoon.PAID_TARGETS))
     assert run_afternoon.parse_targets(None) == set()
     assert run_afternoon.parse_targets("") == set()
 
@@ -219,6 +226,27 @@ def test_plan_for_all_targets_skips_nothing():
     plan = run_afternoon.plan_for_targets(set(run_afternoon.REFRESH_TARGETS))
     assert plan["skip"] == set()
     assert plan["collect_transactions"] and plan["odds"]
+
+
+def test_all_never_includes_a_paid_target():
+    """A "Refresh everything" click must never spend Odds API credits."""
+    assert set(run_afternoon.PAID_TARGETS) == {"odds_lines", "odds_props"}
+    targets = run_afternoon.parse_targets("all")
+    assert not targets & set(run_afternoon.PAID_TARGETS)
+    plan = run_afternoon.plan_for_targets(targets)
+    assert plan["odds_lines"] is False and plan["odds_props"] is False
+    # ...but naming one explicitly works, alongside "all" or not.
+    assert run_afternoon.parse_targets("odds_props") == {"odds_props"}
+
+
+@pytest.mark.parametrize("target", ["odds_lines", "odds_props"])
+def test_paid_targets_skip_every_step_and_imply_the_sheet_read(target):
+    plan = run_afternoon.plan_for_targets({target})
+    assert plan["skip"] == {"roster", "elevations", "injuries", "inactives"}
+    assert plan["odds"] is True
+    assert plan[target] is True
+    other = ({"odds_lines", "odds_props"} - {target}).pop()
+    assert plan[other] is False
 
 
 def test_only_modes_match_the_existing_only_flags():
@@ -301,3 +329,67 @@ def test_only_rejects_a_bad_target_before_collecting_anything(monkeypatch):
         monkeypatch.setattr(run_afternoon, name, lambda *a, **k: (_ for _ in ()).throw(AssertionError(name)))
     with pytest.raises(ValueError):
         run_afternoon.run_pm("2026-09-22", only="nonsense")
+
+
+def test_only_odds_props_pulls_props_then_reads_the_sheet(monkeypatch):
+    calls = {"order": []}
+    _only_harness(monkeypatch, calls,
+                  heavy=("_refresh_active_sheet", "_rescrape_depth_charts", "_collect_pm_transactions",
+                         "pull_game_lines_step"))
+    monkeypatch.setattr(run_afternoon, "_pull_props",
+                        lambda *a, **k: calls["order"].append("props") or {"ok": True})
+    monkeypatch.setattr(run_afternoon, "run_odds_step",
+                        lambda *a, **k: calls["order"].append(("read", k.get("run"))) or {"season": 2026})
+    monkeypatch.setattr(run_afternoon, "_odds_section", lambda *a, **k: {"summary": "x"})
+    assert run_afternoon.run_pm("2026-10-08", only="odds_props") == 0
+    assert calls["order"] == ["props", ("read", "refresh")]
+    assert calls["steps"]["skip"] == {"roster", "elevations", "injuries", "inactives"}
+    assert calls["update"][3].get("odds") == {"season": 2026}
+
+
+def test_only_odds_lines_pulls_lines_then_reads_the_sheet(monkeypatch):
+    calls = {"order": []}
+    _only_harness(monkeypatch, calls,
+                  heavy=("_refresh_active_sheet", "_rescrape_depth_charts", "_collect_pm_transactions",
+                         "_pull_props"))
+    monkeypatch.setattr(run_afternoon, "pull_game_lines_step",
+                        lambda *a, **k: calls["order"].append(("lines", k.get("run"))) or {"ok": True})
+    monkeypatch.setattr(run_afternoon, "run_odds_step",
+                        lambda *a, **k: calls["order"].append(("read", k.get("run"))) or {"season": 2026})
+    monkeypatch.setattr(run_afternoon, "_odds_section", lambda *a, **k: {"summary": "x"})
+    assert run_afternoon.run_pm("2026-10-08", only="odds_lines") == 0
+    assert calls["order"] == [("lines", "refresh"), ("read", "refresh")]
+
+
+def test_only_roster_touches_no_paid_pull(monkeypatch):
+    calls = {}
+    _only_harness(monkeypatch, calls,
+                  heavy=("_refresh_active_sheet", "_rescrape_depth_charts", "_collect_pm_transactions",
+                         "run_odds_step", "_pull_props", "pull_game_lines_step"))
+    assert run_afternoon.run_pm("2026-10-08", only="roster") == 0
+
+
+def test_run_odds_step_auto_pulls_lines_only_for_scheduled_runs(monkeypatch):
+    """run="refresh" (buttons) never auto-pulls; am/pm/injuries/gameday do."""
+    from scripts import run_daily
+
+    seen = []
+    settings = {"odds": {"enabled": True, "api": {
+        "enabled": True, "game_lines": {"auto_runs": ["am", "pm", "injuries", "gameday"],
+                                        "auto_min_gap_minutes": 0}}}}
+    monkeypatch.setattr(run_daily, "get_settings", lambda: settings)
+    monkeypatch.setattr(run_daily, "write_status", lambda *a, **k: None)
+    monkeypatch.setattr(run_daily, "pull_game_lines_step",
+                        lambda *a, **k: seen.append(k.get("run")) or {"ok": True})
+    import collectors.odds_collector as oc
+    monkeypatch.setattr(oc, "collect_odds", lambda *a, **k: {"pull": {}, "data": {"x": 1}})
+    import logging
+    log = logging.getLogger("t")
+    for run in ("am", "pm", "injuries", "gameday", "refresh"):
+        assert run_daily.run_odds_step("2026-10-08", _ctx(), log, run=run) == {"x": 1}
+    assert seen == ["am", "pm", "injuries", "gameday"]
+
+    settings["odds"]["api"]["enabled"] = False
+    seen.clear()
+    run_daily.run_odds_step("2026-10-08", _ctx(), log, run="am")
+    assert seen == []

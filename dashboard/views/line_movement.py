@@ -4,7 +4,10 @@ Reads ``data/odds/<season>/wkNN.json``, written by
 ``collectors.odds_collector`` from the sheets the NFL Odds project publishes.
 Never touches Google Sheets itself: a page rerun must not spend a Sheets read.
 The Refresh button dispatches ``refresh.yml --only odds``, which does the
-sheet read on GitHub Actions and commits the week file.
+sheet read on GitHub Actions and commits the week file. The two paid buttons
+dispatch ``--only odds_lines`` (a 9-credit Odds API game-lines pull) and
+``--only odds_props`` (the NFL Odds project's own ~550-credit pull); their
+gates come from the committed ledger, and the server re-checks the budget.
 
 "What moved" and "is my sheet off the market" are separate sections on
 purpose: folded into one "notable" list, a team could be listed without having
@@ -44,6 +47,8 @@ rc.render_refresh(
               "New prices exist only after that project pulls (Tue 9a · Thu 4p · Sat 9p · "
               "Sun 11:45a + 7:30p · Mon 7:30p ET).",
 )
+_stamps = isd.source_stamps(ctx.season, ctx.week)
+rc.render_paid_odds_controls(ctx.season, ctx.week, key="line_movement_paid", stamps=_stamps)
 
 weeks = isd.odds_weeks(ctx.season)
 if not weeks:
@@ -70,13 +75,31 @@ if baseline == "window":
     from processing.odds_section import report_window_start
     since = report_window_start(ctx.today)
 
-if pull.get("stale_reason"):
+# The week file's pull block has two halves: the NFL Odds project's pull
+# (props + its game lines) and, when this repo pulled game lines itself, the
+# API lines. Say which is which, so fresh lines are not called stale.
+_api_lines = pull.get("games_source") == "api" and pull.get("games_at")
+_lines_note = ""
+if _api_lines:
+    _g_age = pull.get("games_age_hours")
+    _lines_note = (f"game lines from {to_et_display(pull['games_at'])} via the Odds API"
+                   + (f" ({_g_age:g}h ago)" if _g_age else ""))
+if pull.get("games_stale_reason") and pull.get("stale_reason"):
+    st.warning(f"Lines and props are stale — {pull['games_stale_reason']}; {pull['stale_reason']}.")
+elif pull.get("stale_reason") and _api_lines:
+    st.warning(f"Props are stale — {pull['stale_reason']}. {_lines_note[0].upper() + _lines_note[1:]}.")
+elif pull.get("stale_reason") and "games_stale_reason" not in pull:
     st.warning(f"Lines are stale — {pull['stale_reason']}.")
+elif pull.get("stale_reason"):
+    st.warning(f"Props are stale — {pull['stale_reason']}.")
+elif pull.get("games_stale_reason"):
+    st.warning(f"Game lines are stale — {pull['games_stale_reason']}.")
 else:
     age = pull.get("age_hours")
     st.caption(
         f"Odds pulled {pull.get('pulled_at') or 'unknown'}"
         + (f" ({age:g}h ago)" if age is not None else "")
+        + (f" · {_lines_note}" if _lines_note else "")
         + f" · updated {to_et_display(data.get('updated_at'))}"
     )
 
@@ -426,7 +449,12 @@ def _render_recent_pulls() -> None:
     if batches:
         for i, b in enumerate(batches):
             chg = b.get("changes") or []
-            label = (f"Pull {str(b.get('pulled_at') or '?').replace('T', ' ')} · first seen "
+            if b.get("source") == "api":
+                head = (f"Game lines via Odds API {str(b.get('games_at') or '?').replace('T', ' ')[:16]}"
+                        + (f" ({b['credits_used']} credits)" if b.get("credits_used") else ""))
+            else:
+                head = f"Pull {str(b.get('pulled_at') or '?').replace('T', ' ')}"
+            label = (f"{head} · first seen "
                      f"{to_et_display(b.get('seen_at'))} · {len(chg)} change{'s' if len(chg) != 1 else ''}")
             with st.expander(label, expanded=(i == 0)):
                 if chg:
@@ -439,7 +467,7 @@ def _render_recent_pulls() -> None:
     # A week file from before pulls were logged: derive the latest pull's moves
     # from stored state instead of showing nothing.
     moves = li.latest_pull_moves(data, _settings)
-    at = str(pull.get("pulled_at") or "?").replace("T", " ")
+    at = str(pull.get("games_at") or pull.get("pulled_at") or "?").replace("T", " ")[:16]
     if moves:
         st.markdown(f"**Latest pull ({at})** vs the pull before it — {len(moves)} moves")
         st.dataframe(_change_rows(moves), use_container_width=True, hide_index=True)

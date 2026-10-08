@@ -3,8 +3,12 @@
 Read-only view of the **NFL Odds** project (`Projects/NFL Odds`, repo
 `cwecht15/nfl-odds`). That project pulls The Odds API, prices every market
 against these same weekly projection sheets, and publishes the result to
-Google Sheets. Nothing here calls a betting API — no key, no credits. The
-news agent's own service account already has read access to both books.
+Google Sheets. Nothing in THIS module calls a betting API — no key, no
+credits. The news agent's own service account already has read access to both
+books. (``collectors/odds_api.py`` adds direct 9-credit game-lines pulls and
+dispatches the project's own props pull; it writes into the same week file
+through :func:`merge_into_week`, and ``collect_odds`` never rewinds fresher
+API lines — see the freshness guard.)
 
 Three reads, all gspread:
 
@@ -726,7 +730,8 @@ def merge_into_week(data: Optional[dict], season: int, week: int, games: list[di
         changes.extend(_diff_game(prev, g, thresholds))
         current = {"spread_home": g["spread_home"], "total": g["total"],
                    "home_ml": g["home_ml"], "away_ml": g["away_ml"],
-                   "n_books": g["n_books"], "at": meta.get("pulled_at") or now_iso}
+                   "n_books": g["n_books"],
+                   "at": meta.get("games_at") or meta.get("pulled_at") or now_iso}
         history = list((prev or {}).get("history") or [])
         # Content dedupe: a re-price reuses the odds' timestamp and an
         # anytime-TD pull does not rewrite this tab at all.
@@ -775,22 +780,84 @@ def merge_into_week(data: Optional[dict], season: int, week: int, games: list[di
     # 4 PM's moves by 9:30 PM. A run with no new pull keeps the last pull's
     # changes; every new pull is logged with when it was first seen, which is
     # what the report's "since the previous report" window reads.
+    #
+    # A direct game-lines pull (collectors/odds_api.py) is a pull too: it moves
+    # ``games_at`` while the NFL Odds project's ``pulled_at`` stays put. A file
+    # written before ``games_at`` existed compares as its ``pulled_at``, so the
+    # first read after the upgrade is not mistaken for a new pull.
     stored = data.get("pull") or {}
-    new_pull = ((meta.get("pulled_at"), meta.get("props_pull_id"))
-                != (stored.get("pulled_at"), stored.get("props_pull_id")))
+    new_pull = ((meta.get("pulled_at"), meta.get("props_pull_id"),
+                 meta.get("games_at") or meta.get("pulled_at"))
+                != (stored.get("pulled_at"), stored.get("props_pull_id"),
+                    stored.get("games_at") or stored.get("pulled_at")))
     if new_pull or changes:
         data["changes"] = changes
         data["changes_seen_at"] = now_iso
         log = list(data.get("pull_log") or [])
-        log.append({"pulled_at": meta.get("pulled_at"), "props_pull_id": meta.get("props_pull_id"),
-                    "seen_at": now_iso, "changes": changes})
+        entry = {"pulled_at": meta.get("pulled_at"), "props_pull_id": meta.get("props_pull_id"),
+                 "seen_at": now_iso, "changes": changes}
+        if meta.get("pull_source") or meta.get("games_source"):
+            entry["source"] = meta.get("pull_source") or "sheet"
+        if meta.get("games_at"):
+            entry["games_at"] = meta.get("games_at")
+        for k in ("credits_used", "credits_remaining"):
+            if meta.get(k) is not None:
+                entry[k] = meta.get(k)
+        log.append(entry)
         data["pull_log"] = log[-PULL_LOG_KEEP:]
     else:
         data.setdefault("changes", [])
-    data["pull"] = {k: meta.get(k) for k in
-                    ("pulled_at", "props_pull_id", "week_reported", "stale_reason", "age_hours")}
+    data["pull"] = _pull_block(meta)
     data["updated_at"] = now_iso
     return data, changes
+
+
+PULL_KEYS = ("pulled_at", "props_pull_id", "week_reported", "stale_reason", "age_hours")
+# The game-lines half of the pull block. ``pulled_at`` / ``stale_reason``
+# describe the NFL Odds project's pull (props + its own game lines); these
+# describe whichever source last wrote the games -- the sheet, or a direct
+# Odds API pull that made them fresher than the props.
+GAMES_PULL_KEYS = ("games_at", "games_source", "games_age_hours", "games_stale_reason")
+
+
+def _pull_block(meta: dict) -> dict:
+    out = {k: meta.get(k) for k in PULL_KEYS}
+    out.update({k: meta[k] for k in GAMES_PULL_KEYS if k in meta})
+    return out
+
+
+def games_stale_reason(pull: Optional[dict]) -> str:
+    """Why the game lines are stale ("" when fresh).
+
+    Files written before the games/props split carry only ``stale_reason``,
+    which then covers both halves -- exactly how they behaved before.
+    """
+    pull = pull or {}
+    if "games_stale_reason" in pull:
+        return str(pull.get("games_stale_reason") or "")
+    return str(pull.get("stale_reason") or "")
+
+
+def games_at(pull: Optional[dict]) -> Optional[str]:
+    """When the stored game lines were priced (falls back to the project's pull)."""
+    pull = pull or {}
+    return pull.get("games_at") or pull.get("pulled_at")
+
+
+def _later(a: Optional[str], b: Optional[str]) -> bool:
+    """ISO ``a`` strictly after ISO ``b`` (``b`` missing counts as earlier)."""
+    def _p(v):
+        if not v:
+            return None
+        try:
+            dt = datetime.fromisoformat(str(v).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        return dt if dt.tzinfo else dt.replace(tzinfo=ET_ZONE)
+    da, db = _p(a), _p(b)
+    if da is None:
+        return False
+    return db is None or da > db
 
 
 # ---------------------------------------------------------------------------
@@ -846,18 +913,54 @@ def collect_odds(date_str: Optional[str] = None, week: Optional[int] = None,
             "stale_reason": stale_reason,
             "age_hours": round(age, 1) if age is not None else None,
             "thresholds": cfg.get("thresholds") or DEFAULT_THRESHOLDS,
+            "pull_source": "sheet",
         }
 
         prev = load_week_file(season, week)
+        stored_pull = (prev or {}).get("pull") or {}
+        # Freshness guard: a direct Odds API pull (collectors/odds_api.py)
+        # newer than the project's last pull owns the game lines. Merging the
+        # sheet's older SB_GameLines over it would rewind every line and log a
+        # fake "move" back; the stored games (and their sheet_drift flags,
+        # carried by merge_into_week on an empty read) survive instead.
+        api_fresh = (stored_pull.get("games_source") == "api"
+                     and _later(stored_pull.get("games_at"), status.get("pulled_at")))
+        if api_fresh:
+            g_age = _age_hours(stored_pull.get("games_at"), now_dt)
+            meta.update({
+                "games_at": stored_pull.get("games_at"),
+                "games_source": "api",
+                "games_age_hours": round(g_age, 1) if g_age is not None else None,
+                "games_stale_reason": (f"game lines last pulled {g_age:.0f}h ago"
+                                       if g_age is not None and g_age > max_age else ""),
+            })
+            games = []
+        else:
+            g_stale = ""
+            if reported is not None and reported != week:
+                g_stale = stale_reason
+            elif age is not None and age > max_age:
+                g_stale = f"game lines last read {age:.0f}h ago"
+            meta.update({
+                # A wrong-week read merges nothing, so the stored games keep their own time.
+                "games_at": (games_at(stored_pull) if reported is not None and reported != week
+                             else status.get("pulled_at")),
+                "games_source": "sheet",
+                "games_age_hours": round(age, 1) if age is not None else None,
+                "games_stale_reason": g_stale,
+            })
+
         now_iso = now_dt.astimezone(timezone.utc).isoformat(timespec="seconds")
-        pull_meta = {k: meta.get(k) for k in
-                     ("pulled_at", "props_pull_id", "week_reported", "stale_reason", "age_hours")}
+        pull_meta = _pull_block(meta)
         if stale_reason:
             # SB_GameLines holds only the newest pull, so a wrong-week read is
             # next week's slate. Merging it would write games that do not
             # belong to this week — new keys, opening lines, history rows — and
             # every flag computed off it would be about the wrong matchups.
             # Keep what is stored, record why nothing moved, write nothing new.
+            # The games_* fields above already carry a fresher API pull
+            # through unchanged (api_fresh), so a stale props read never
+            # re-labels lines this repo pulled itself.
             result["pull"] = pull_meta
             result["errors"].append(stale_reason)
             if prev is None:

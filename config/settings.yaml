@@ -343,10 +343,11 @@ inactives:
   enabled: true
 
 odds:
-  # Read-only view of the NFL Odds project (Projects/NFL Odds), which pulls The
-  # Odds API and prices it against these same weekly sheets. The news agent
-  # never calls a betting API — no key, no credits. The same fp-data service
-  # account already reads both books.
+  # Mostly a read-only view of the NFL Odds project (Projects/NFL Odds), which
+  # pulls The Odds API and prices it against these same weekly sheets; the same
+  # fp-data service account reads both books. `api:` below adds the two direct
+  # pulls (collectors/odds_api.py): 9-credit game lines, and dispatching that
+  # project's own props pull under a budget.
   enabled: true
   odds_sheet_id: "1VOziAer_tNTlcvsHsmvY1M04-y0dx_D2lXhAYNkdw2w"
   game_lines_tab: SB_GameLines
@@ -386,6 +387,36 @@ odds:
       rush_tds: 0.20
       rec_tds: 0.20
       pass_tds: 0.50
+  # Direct Odds API use (collectors/odds_api.py). Key: env ODDS_API_KEY (the
+  # NFL Odds project's 20,000-credit/month key). Every call is logged in the
+  # committed ledger data/odds/api_usage.json, which the budget reads.
+  api:
+    enabled: true
+    base_url: "https://api.the-odds-api.com/v4"
+    sport: americanfootball_nfl
+    key_env: ODDS_API_KEY
+    min_remaining_credits: 1000          # any direct call refuses below this
+    game_lines:
+      regions: [us, us2, eu]             # eu = Pinnacle; 3 markets x 3 regions = 9 credits
+      markets: [h2h, spreads, totals]
+      sharp_book: pinnacle
+      fp_flag: {spread: 1.0, total: 1.5} # mirrors NFL Odds game_line_flags.fp_*
+      auto_runs: [am, pm, injuries, gameday]
+      # Automatic pulls only (buttons always pull): skip when the last API
+      # lines pull is younger than this. The game-day dispatcher fires every
+      # 45 min Sat/Sun/Wed and local + cloud mornings land minutes apart.
+      auto_min_gap_minutes: 60
+    props:
+      repo: cwecht15/nfl-odds
+      workflow: pull-sportsbook.yml
+      ref: main
+      mode: refresh                      # or anytime_td (~40 credits)
+      token_env: NFL_ODDS_GH_TOKEN       # fine-grained PAT, Actions: Read and write on nfl-odds
+      wait_minutes: 15                   # their job times out at 12
+      min_gap_hours: 6                   # since ours OR the project's own last pull
+      max_per_day: 2
+      max_per_week: 4
+      min_remaining_credits: 7000
   report:
     max_games: 16
     max_props: 15

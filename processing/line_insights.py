@@ -287,7 +287,9 @@ def latest_pull_moves(week_data: Optional[dict], settings: Optional[dict] = None
     out: list[dict] = []
     for g in (week_data.get("games") or {}).values():
         hist = g.get("history") or []
-        if len(hist) < 2 or hist[-1].get("at") != pull.get("pulled_at"):
+        # games_at: a direct API lines pull is "the latest pull" for games
+        # even when the project's props pull is older.
+        if len(hist) < 2 or hist[-1].get("at") != (pull.get("games_at") or pull.get("pulled_at")):
             continue
         before, after = hist[-2], hist[-1]
         fresh = {"away": g.get("away"), "home": g.get("home"),

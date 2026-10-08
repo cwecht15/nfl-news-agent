@@ -315,3 +315,48 @@ def test_the_api_and_gh_paths_label_themselves_differently(monkeypatch):
 def test_run_name_carries_the_transport_label():
     spec = yaml.safe_load(WORKFLOW_PATH.read_text(encoding="utf-8"))
     assert "inputs.requested_by" in spec["run-name"]
+
+
+# ---------------------------------------------------------------------------
+# Paid Odds API targets
+# ---------------------------------------------------------------------------
+
+
+def test_free_targets_exclude_the_paid_ones_and_match_all():
+    assert set(wd.PAID_TARGETS) == {"odds_lines", "odds_props"} == set(run_afternoon.PAID_TARGETS)
+    assert not set(wd.FREE_TARGETS) & set(wd.PAID_TARGETS)
+    # "Refresh all/everything" buttons dispatch FREE_TARGETS; the server's
+    # "all" means the same set, so the two can never disagree about money.
+    assert set(wd.FREE_TARGETS) == run_afternoon.parse_targets("all")
+    for t in wd.PAID_TARGETS:
+        assert wd.TARGETS[t]["paid"] is True and wd.TARGETS[t]["cooldown"] > wd.DISPATCH_COOLDOWN_SECONDS
+        assert "credits" in wd.TARGETS[t]["blurb"]
+
+
+def test_paid_target_keeps_its_own_cooldown_after_the_global_one(api, monkeypatch):
+    t0 = 1_000_000.0
+    monkeypatch.setattr(wd.time, "time", lambda: t0)
+    ok, _msg, _n = wd.dispatch_refresh(["odds_props"])
+    assert ok
+    # Past the global 180 s rule: a free target is clear, the props button is not.
+    monkeypatch.setattr(wd.time, "time", lambda: t0 + 200)
+    assert wd.cooldown_remaining(["roster"]) == 0.0
+    assert wd.cooldown_remaining(["odds_props"]) == pytest.approx(3600 - 200)
+    ok, msg, _n = wd.dispatch_refresh(["odds_props"])
+    assert not ok and "available again" in msg
+    ok, _msg, _n = wd.dispatch_refresh(["roster"])
+    assert ok
+
+
+def test_yml_description_names_the_paid_targets_and_the_all_exclusion():
+    spec = yaml.safe_load(WORKFLOW_PATH.read_text(encoding="utf-8"))
+    described = spec[True]["workflow_dispatch"]["inputs"]["targets"]["description"]
+    assert "odds_lines" in described and "odds_props" in described
+    assert "except" in described
+
+
+def test_refresh_step_carries_the_two_secrets():
+    spec = yaml.safe_load(WORKFLOW_PATH.read_text(encoding="utf-8"))
+    step = next(s for s in spec["jobs"]["refresh"]["steps"] if s["name"] == "Run refresh")
+    assert step["env"]["ODDS_API_KEY"] == "${{ secrets.ODDS_API_KEY }}"
+    assert step["env"]["NFL_ODDS_GH_TOKEN"] == "${{ secrets.NFL_ODDS_GH_TOKEN }}"

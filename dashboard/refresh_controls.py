@@ -79,9 +79,17 @@ def _stamp_caption(targets: Sequence[str], stamps: Optional[Mapping[str, str]]) 
 
 def render_refresh(targets: Sequence[str], *, key: str, label: str = "Refresh",
                    stamps: Optional[Mapping[str, str]] = None, help_note: str = "",
-                   layout: tuple[int, int] = (4, 1)) -> None:
-    """Draw the Refresh control for ``targets`` (keys of ``_workflow_dispatch.TARGETS``)."""
+                   layout: tuple[int, int] = (4, 1),
+                   gate: Optional[tuple[bool, str]] = None) -> None:
+    """Draw the Refresh control for ``targets`` (keys of ``_workflow_dispatch.TARGETS``).
+
+    ``gate=(False, reason)`` disables the button and captions why — the paid
+    Odds API buttons pass the ledger budget here. It mirrors, never replaces,
+    the server-side check in ``collectors/odds_api.py``.
+    """
     targets = list(targets)
+    gated = bool(gate) and not gate[0]
+    paid = [t for t in targets if (wd.TARGETS.get(t) or {}).get("paid")]
     nonce_key, at_key, msg_key = f"_rf_{key}_nonce", f"_rf_{key}_at", f"_rf_{key}_msg"
 
     left, right = st.columns(list(layout))
@@ -97,9 +105,9 @@ def render_refresh(targets: Sequence[str], *, key: str, label: str = "Refresh",
     if nonce and since and (time.time() - since) < 900:
         run = _run_status(nonce, since)
         state, line = wd.describe_run(run)
-    cooling = wd.cooldown_remaining()
+    cooling = wd.cooldown_remaining(targets)
     busy = state in ("queued", "running", "pending")
-    disabled = (not transport_ok) or (not _unlocked()) or busy or cooling > 0
+    disabled = (not transport_ok) or (not _unlocked()) or busy or cooling > 0 or gated
 
     with left:
         caption = _stamp_caption(targets, stamps)
@@ -116,15 +124,19 @@ def render_refresh(targets: Sequence[str], *, key: str, label: str = "Refresh",
             st.caption(f"{line} [Open the run]({url})")
         elif st.session_state.get(msg_key):
             st.caption(st.session_state[msg_key])
+        elif gated:
+            st.caption(f"Unavailable — {gate[1]}.")
         elif cooling > 0:
             st.caption(f"Just refreshed — available again in {int(cooling)}s.")
         elif help_note:
             st.caption(help_note)
 
     with right:
+        cost = " ".join(wd.TARGETS[t].get("blurb", "") for t in paid)
         if st.button(f"🔄 {label}", key=f"{key}_btn", disabled=disabled,
                      use_container_width=True,
-                     help="Runs the collectors on GitHub Actions and commits the result. "
+                     help=("Spends Odds API credits. " + cost + " " if paid else "")
+                          + "Runs the collectors on GitHub Actions and commits the result. "
                           "The site reloads itself when it lands (2-4 minutes); the "
                           "timestamp on the left is what moves."):
             ok, message, new_nonce = wd.dispatch_refresh(targets)
@@ -143,3 +155,48 @@ def render_refresh(targets: Sequence[str], *, key: str, label: str = "Refresh",
     if not _unlocked():
         with left:
             _render_unlock()
+
+
+def render_paid_odds_controls(season: int, week: Optional[int], *, key: str,
+                              stamps: Optional[Mapping[str, str]] = None) -> None:
+    """The two credit-spending buttons: game lines (9 credits) and player props (~550).
+
+    Both gates are computed from committed files only — the ledger
+    (``data/odds/api_usage.json``) and the week file — so a page rerun makes
+    no network call. They mirror the server-side budget in
+    ``collectors/odds_api.py``, which is what actually decides: a stale page
+    can at worst dispatch a run that then declines and says why in its log.
+    """
+    from collectors import odds_api
+    from dashboard import in_season_data as isd
+
+    ledger = isd.api_usage()
+    quota = ledger.get("quota") or {}
+    week_data = (isd.odds_week(season, week) or {}) if week else {}
+    lines_gate = odds_api.lines_budget(quota)
+    budget = odds_api.props_budget(
+        ledger, (week_data.get("pull") or {}).get("pulled_at"),
+        season_week=(season, week) if week else None,
+    )
+
+    bits = []
+    if quota.get("remaining") is not None:
+        bits.append(f"{int(quota['remaining']):,} Odds API credits left"
+                    + (f" (as of {to_et_display(quota.get('at'))})" if quota.get("at") else ""))
+    bits.append(f"props pulls: {budget['today']} of {budget['max_per_day']} today, "
+                f"{budget['this_week']} of {budget['max_per_week']} this week")
+    st.caption(" · ".join(bits))
+
+    c_lines, c_props = st.columns(2)
+    with c_lines:
+        render_refresh(("odds_lines",), key=f"{key}_lines", label="Pull game lines (9 credits)",
+                       stamps=stamps, layout=(3, 2), gate=lines_gate,
+                       help_note="Spreads / totals / moneylines straight from The Odds API; "
+                                 "props stay as last published.")
+    with c_props:
+        render_refresh(("odds_props",), key=f"{key}_props",
+                       label="Pull player props (~550 credits)",
+                       stamps=stamps, layout=(3, 2),
+                       gate=(budget["allowed"], budget["reason"]),
+                       help_note=f"Runs the NFL Odds project's full pull, then re-reads it. "
+                                 f"{budget['reason']}.")

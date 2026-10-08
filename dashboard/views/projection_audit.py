@@ -43,7 +43,7 @@ if audit.get("errors"):
 # The audit is only as current as the data under it, so this page offers the
 # whole set — re-collect everything, then re-run the audit against it.
 _settings, _ctx, _schedule, _week = isd.context()
-rc.render_refresh(tuple(wd.TARGETS), key="projection_audit", label="Refresh everything",
+rc.render_refresh(wd.FREE_TARGETS, key="projection_audit", label="Refresh everything",
                   stamps=isd.source_stamps(_ctx.season, _week),
                   help_note="Re-collects rosters, transactions, elevations, injuries and "
                             "inactives, then re-runs this audit against them.")

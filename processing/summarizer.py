@@ -1663,10 +1663,12 @@ def _append_market_context(lines: dict[str, str], ctx) -> None:
     prompt is told not to restate.
     """
     try:
-        from collectors.odds_collector import load_week_file, game_line_for_team
+        from collectors.odds_collector import game_line_for_team, games_stale_reason, load_week_file
 
         week_data = load_week_file(ctx.season, ctx.week)
-        if not week_data or (week_data.get("pull") or {}).get("stale_reason"):
+        # Gated on the GAME LINES' freshness, not the props pull's: a direct
+        # API lines pull makes the line current while props can be 38h old.
+        if not week_data or games_stale_reason(week_data.get("pull")):
             return
         for abbr in list(lines):
             g = game_line_for_team(week_data, abbr)

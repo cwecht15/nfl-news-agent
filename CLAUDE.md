@@ -77,6 +77,11 @@ C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\espn_transactions_
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\inactives_collector.py --all
 # Market lines + prop movement (reads the NFL Odds project's sheets; no betting API)
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m collectors.odds_collector --dry-run
+# Direct Odds API (key ODDS_API_KEY in .env): quota (free), game lines (9 credits; --dry-run = 0),
+# and the NFL Odds props pull (dispatches cwecht15/nfl-odds pull-sportsbook.yml; budget-gated)
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\odds_api.py --quota
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\odds_api.py --lines --dry-run
+C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe collectors\odds_api.py --props --dry-run
 # Positional attrition: freeze the Week-1 slot baseline (once; commit data/attrition/), then inspect
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe scripts\build_attrition_baseline.py
 C:\Users\cwech\anaconda3\envs\nfl_agent\python.exe -m processing.attrition --team CAR
@@ -201,15 +206,38 @@ the offseason path.
   no-op without games).
 - **Market lines (Step 2c):** `collectors/odds_collector.py` — a **read-only** view of the
   `NFL Odds` project (`Projects/NFL Odds`), which pulls The Odds API and prices it against these
-  same weekly sheets. Nothing here calls a betting API: no key, no credits, and the same fp-data
-  service account already reads both books. Three gspread reads — `SB_GameLines` on the odds sheet
+  same weekly sheets. The collector itself calls no betting API (the same fp-data service account
+  reads both books); the direct pulls live in `collectors/odds_api.py` (below). Three gspread reads — `SB_GameLines` on the odds sheet
   (consensus spread/total/ML, Pinnacle as the sharp reference, plus the already-computed
   `FP Flag` = market vs the projection sheet's own line), the "NFL Market History" workbook's
   `<season>_W<ww>` tab (per-pull player x stat rows: `ours`, `mkt_mu`, `cons_line`, `flag`), and
   `Pull_Status` row 3 for freshness + which week was priced. Accumulates
   `data/odds/<season>/wkNN.json` and diffs day-over-day into the **Line Movement** section.
   Runs at **2c**, before summarization, so the Team Notes prompt can carry the week's line;
-  everything downstream reads the file, never the sheet. Three source facts drive the design:
+  everything downstream reads the file, never the sheet.
+  **Direct Odds API pulls (`collectors/odds_api.py`, since 2026-10):** (1) **game lines** — one
+  `/odds` call, `h2h,spreads,totals` x `us,us2,eu` = **9 credits** for the week, built into exactly
+  `read_game_lines`' dict shape (median consensus, best line strings, Pinnacle de-vigged
+  `home_p`, the sheet's own Spread/O-U from the active weekly snapshot → `FP-SPREAD/TOTAL/BOTH`)
+  and folded in through `merge_into_week`. Runs automatically first thing in `run_odds_step` for
+  `run in odds.api.game_lines.auto_runs` (am / pm / injuries / gameday; skipped when the last API
+  lines pull is under `auto_min_gap_minutes`, 60) and from the **Pull game lines** button.
+  (2) **player props** are NOT priced here: `pull_props` dispatches the NFL Odds project's own
+  `pull-sportsbook.yml` (`mode` refresh ≈ 550 credits, or anytime_td ≈ 40), polls it to completion
+  (≤ 15 min; that workflow's `concurrency: pull-sportsbook` queues it behind a scheduled pull),
+  and the ordinary sheet read then picks the new pull up. Budget (`odds.api.props`, pure
+  `props_budget`, enforced server-side from the committed ledger `data/odds/api_usage.json`):
+  ≥ 6 h since ours *or* the project's last pull, ≤ 2/day (ET), ≤ 4 per NFL week, and ≥ 7,000
+  credits left after a ~600-credit pull; a failed run that still spent ≥ 100 credits counts.
+  **The week file's `pull` block has two halves:** `pulled_at` / `stale_reason` = the project's
+  pull (props + its game lines); `games_at` / `games_source` (`sheet`|`api`) / `games_age_hours`
+  / `games_stale_reason` = whoever last wrote the games. A sheet read never overwrites API lines
+  newer than the project's pull (`collect_odds` freshness guard: `games=[]`, stored games and
+  their sheet-drift flags survive, props still merge), and a stale props read preserves them.
+  Consumers gate on the right half: Team Notes' game line and the audit's `sheet_line_stale` on
+  `games_stale_reason`; `market_proj_gap` / `market_only_player` on `stale_reason`; old files
+  without the split fall back to `stale_reason`. `pull_log` entries carry `source` (+ credits).
+  Three source facts drive the design:
   a `--merge` (anytime-TD-only) pull means "the previous pull" is resolved **per (gsis_id, stat)**;
   game lines have **no** history upstream (`market_history` is player x stat only) so the per-game
   series is kept here, deduped on content because a re-price reuses the odds' timestamp; and
@@ -329,7 +357,10 @@ the offseason path.
   `pm_updated_at`, and the in-season dashboard pages (Home week hub / Roster State / Injury
   Report / Inactives / Projection Audit / Line Movement — shared loaders in `dashboard/in_season_data.py`).
 - **On-demand refresh (cloud):** `run_afternoon.py --only <targets>` where targets are any of
-  `roster, elevations, injuries, inactives, transactions, odds` (or `all`), mapped onto
+  `roster, elevations, injuries, inactives, transactions, odds, odds_lines, odds_props` (or `all`
+  — every target **except the paid `odds_lines` / `odds_props`** (`PAID_TARGETS`): a "Refresh
+  everything" click must never spend credits). `odds_props` runs `pull_props`, `odds_lines`
+  `pull_game_lines`, both before the same `run_odds_step(run="refresh")` sheet read. Mapped onto
   `run_in_season_steps`' `skip` set by `plan_for_targets`. `odds` re-reads the NFL Odds project's
   sheets via `run_odds_step` (no Odds API call, 0 credits — a new *price* still needs that
   project's own pull) and skips every in-season step; the audit it always re-runs is what turns
@@ -386,12 +417,14 @@ X/Twitter insider lists are read via the **TwitterAPI.io** REST API (a cheap thi
 
 ## Key Design Decisions
 
-- **Odds are read, never pulled:** the `NFL Odds` project runs on a 500-credit/month Odds API
-  key (a full refresh is ~500 credits), so the news agent adds zero API calls — it reads the
-  Google Sheets that project already writes, with the service account it already has. The
-  cost of that choice is freshness (movement resolution = the odds repo's ~6 pulls/week),
-  which the collector makes explicit rather than hiding: every surface labels the pull time
-  and a stale pull suppresses the audit's market alerts.
+- **Odds: props are read, game lines may be pulled:** the `NFL Odds` project's key is the
+  **20,000-credit/month** plan (~16,800 budgeted for its seven weekly pulls). The sheet read
+  stays the source of props and all pricing (Market_Check flags, history). On top of it the news
+  agent pulls **game lines directly** (9 credits — cheap enough to run in every scheduled run)
+  and can **dispatch the project's own props pull** (~550 credits) under a ledger budget, so a
+  Wednesday report is not silenced by a 38-hour-old Tuesday pull. Every call is logged in
+  `data/odds/api_usage.json`; every surface labels which half (lines / props) is how old, and a
+  stale half only suppresses the checks that depend on it.
 - **Reuse the market verdicts, don't re-derive them:** `FP Flag` (market vs the sheet's
   spread/total) and `flag` (AMBER/RED/MKT-ONLY/THIN, market vs our projection) are already
   computed upstream against calibrated per-stat bands. Only *movement* thresholds — how big
@@ -430,13 +463,13 @@ FantasyPoints only when a non-empty `data/raw/<date>/fantasypoints.json` exists 
 |---------|------|---------|
 | This Week | Home | In-season week hub: week / day role / working sheet, today's AM + evening run times, counts (roster moves, injury changes, inactives, audit alerts) linking to their pages, this week's games + byes. Offseason: info line + PDF export. Local pipeline runner lives in this page's sidebar (`dashboard/pipeline_runner.py`). |
 | This Week | Daily Report | Report sections + Team Notes with clickable `[N]` citations; search, flagging. Caption shows week / day role / AM + evening run times; sections with 0 items open collapsed. Projection Alerts (transaction reconciler) only in the offseason. Line Movement pairs each market move with the day's news for that team/player. YouTube subsection appears only on locally-generated reports (`run_daily.py --include-yt-section`). |
-| This Week | Team | Everything about one team (`?team=BUF` deep-links; still `team_view.py` so bookmarks hold). In-season: this week's game — spread / total / implied team total now vs open and your sheet's implied total vs the market (`line_insights.game_card`), line history — then the team's audit alerts, latest team notes with linked `[N]`, injury grid on the team's own report days, inactives, weekly projections with Δ PPR since the week's previous snapshot, player lines (market open → now, Move %, market vs you %; anytime TD in implied TDs, the sheet's unit; filter All / Moved 5%+ / 10%+ / 20%+), off-the-53 list + this week's roster moves, **practice-squad elevations** (this week's, with each player's n/3 season count; a club whose game is still ahead and has none simply elevated nobody), OurLads depth, earlier notes. A **Refresh all** control at the top dispatches every collector. Offseason: notes history only. Loaders in `dashboard/team_data.py` normalize every source's team dialect. |
+| This Week | Team | Everything about one team (`?team=BUF` deep-links; still `team_view.py` so bookmarks hold). In-season: this week's game — spread / total / implied team total now vs open and your sheet's implied total vs the market (`line_insights.game_card`), line history — then the team's audit alerts, latest team notes with linked `[N]`, injury grid on the team's own report days, inactives, weekly projections with Δ PPR since the week's previous snapshot, player lines (market open → now, Move %, market vs you %; anytime TD in implied TDs, the sheet's unit; filter All / Moved 5%+ / 10%+ / 20%+), off-the-53 list + this week's roster moves, **practice-squad elevations** (this week's, with each player's n/3 season count; a club whose game is still ahead and has none simply elevated nobody), OurLads depth, earlier notes. A **Refresh all** control at the top dispatches every free collector (`FREE_TARGETS`), with the two paid odds buttons beside it. Offseason: notes history only. Loaders in `dashboard/team_data.py` normalize every source's team dialect. |
 | This Week | Injury Report *(in-season)* | Weekly practice grid (Wed/Thu/Fri) + game status per listed player, source conflicts, **Refresh injuries** button. |
 | This Week | Depth Attrition *(in-season)* | 32 teams × QB/RB/WR/TE/OL/DT/EDGE/LB/CB/S heat map of which Week-1 depth-chart slots are down (IR from earlier weeks included; Q/D/DNP partial), sorted by total depletion; click a row for the slot-by-slot detail (status, since, back-by week, missed weeks, next man up) with this week's opponent side by side. |
 | This Week | Inactives *(in-season)* | Game-day inactives from ESPN per-game rosters, skill-position filter, **Refresh inactives** button. |
 | This Week | Roster State *(in-season)* | **Practice-squad elevations** first — a **Refresh rosters** button (rosters + elevations) carrying the last-collected time, this week's count, how many were declared today, clubs reported, and which clubs whose game is still to come have none yet (`team_data.elevation_status`; a club may simply have elevated nobody), filterable by team and position. Then IR/PUP/NFI/SUS/PS standing per player (return eligibility, elevations used) + recent roster-event feed. |
 | This Week | Projection Audit *(in-season)* | Latest audit alerts with severity/type filters, per-alert dismiss + note, restore; cloud "Save dismissals to repo"; **Refresh everything** (re-collect every source, then re-run the audit against it). |
-| This Week | Line Movement *(in-season)* | **Refresh lines** button (re-reads the odds sheets, 0 credits) and a **Moved since** selector (Open / Yesterday's report / Latest pull) that every tab follows. **Movement** first: a diverging bar chart + table of every team's implied-total move with why (total vs spread part), your sheet vs the market as its own table, and player lines that moved — one row per player, stats grouped, ▲/▼, toward/away from your projection (played games left out). Then game lines vs the baseline / sharp / your sheet, all player lines (Move % and market-vs-you % so receptions and yards compare; ranked by move ÷ stat threshold; anytime TD in implied TDs; per-row precision via `dashboard/prop_view.py`), market-vs-projection flags, and **Recent pulls** (each odds pull's changes). Reads `data/odds/` only — never spends a Sheets read on a rerun. |
+| This Week | Line Movement *(in-season)* | **Refresh lines** button (re-reads the odds sheets, 0 credits), then **Pull game lines (9 credits)** and **Pull player props (~550 credits)** — disabled with the reason when the ledger budget says no (credits left, today's / this week's props count shown above them); the stale banner says which half is stale ("props stale …; game lines from … via the Odds API"). Then a **Moved since** selector (Open / Yesterday's report / Latest pull) that every tab follows. **Movement** first: a diverging bar chart + table of every team's implied-total move with why (total vs spread part), your sheet vs the market as its own table, and player lines that moved — one row per player, stats grouped, ▲/▼, toward/away from your projection (played games left out). Then game lines vs the baseline / sharp / your sheet, all player lines (Move % and market-vs-you % so receptions and yards compare; ranked by move ÷ stat threshold; anytime TD in implied TDs; per-row precision via `dashboard/prop_view.py`), market-vs-projection flags, and **Recent pulls** (each odds pull's changes). Reads `data/odds/` only — never spends a Sheets read on a rerun. |
 | Sources | Twitter Report | Date-range picker → on-demand LLM summary of insider-list tweets: LLM team attribution (places tweets even with no team named), same-story clustering, `[N]` citations to the tweet account, plus a pop-open raw tweet list. Cached. |
 | Sources | YouTube Report | Date-range picker → on-demand LLM summary of pushed transcripts (press-conf summary + per-team bullets). Cached per-session. |
 | Sources | Podcast Report | Date-range picker → checkbox episode table → on-demand LLM summary of pushed podcast episodes (Episode Highlights + per-team bullets). Transcript-tag-first, show-notes fallback. Cached. |
@@ -479,9 +512,14 @@ Tab bodies on Projections and Depth Charts are wrapped in `_render_*()` function
 - GitHub Actions: `.github/workflows/in_season_pm.yml` cron 21:34 UTC (in-season only; reads `season.phase` first and exits when offseason). Runs `scripts/run_afternoon.py` and commits `data/roster data/injuries data/audit data/weekly_projections data/schedule data/reports data/depth_charts data/raw data/logs`. `daily.yml` force-adds the same new dirs.
 - Odds: **no schedule of its own.** `collectors/odds_collector.py` reads the sheets the
   `NFL Odds` project already publishes, inside the daily pipeline (Step 2c), the afternoon
-  run and the game-day inactives cron. That project pulls Tue 9a / Thu 4p / Sat 9p /
-  Sun 11:45a + 7:30p / Mon 7:30p ET, so movement resolution is *its* cadence, not ours —
-  on a quiet Wednesday the section correctly says "no new pull since Tuesday".
+  run, the injuries refresh and the game-day inactives cron. That project pulls Tue 9a / Thu 4p /
+  Sat 9p / Sun 11:45a + 7:30p / Mon 7:30p ET, so *props* movement resolution is its cadence.
+  Game lines are fresher: each of those runs first pulls them from The Odds API (9 credits,
+  `odds.api.game_lines.auto_runs`, at most once per `auto_min_gap_minutes`) — needs the
+  `ODDS_API_KEY` repo secret on `daily.yml`, `in_season_pm.yml`, `inactives.yml`, `injuries.yml`
+  and `refresh.yml` (without it the pull logs "no ODDS_API_KEY" and the sheet read proceeds).
+  The props button additionally needs `NFL_ODDS_GH_TOKEN` (fine-grained PAT on
+  `cwecht15/nfl-odds`, Actions: Read and write) on `refresh.yml`.
 - GitHub Actions: `.github/workflows/podcasts.yml` cron 11:26 UTC (after the daily pipeline). Runs `scripts/collect_podcasts.py` on CI — RSS-only, no Whisper/yt-dlp, so it needs no local machine and no API keys — then force-adds only `data/raw/<date>/podcast.json` + `data/podcast_seen.json` and pushes to master (`[skip ci]`, rebase-retry). `workflow_dispatch` allows a manual run with an optional `lookback_hours`. (Unlike YouTube, which can't run on CI, so it stays a local scheduled task.)
 - Twitter: collected inside the **cloud** daily pipeline (`daily.yml`) — `run_daily.py` gates it to CI-only (`GITHUB_ACTIONS`) so the local task doesn't also pull/bill. `.github/workflows/twitter.yml` is `workflow_dispatch`-only (manual backfill), NOT a scheduled cron. Needs the `TWITTERAPI_IO_KEY` repo secret.
 - `daily.yml` cron is **10:41 UTC and a fallback only** — it covers days the local machine is off. Its first step skips the whole run when today's Eastern-dated report already exists, so the cron never re-spends ~$0.46 of tokens overwriting what the 5:30 AM dispatch built. A manual `workflow_dispatch` is never skipped.
@@ -533,6 +571,7 @@ data/
   injuries/<season>/wk<NN>.json
   inactives/<season>/wk<NN>.json, inactives/espn_athletes.json
   odds/<season>/wkNN.json                accumulating market lines + prop movement
+  odds/api_usage.json                    Odds API ledger (every direct pull + last quota; drives the props budget)
   attrition/<season>/baseline.json       frozen Week-1 depth slots (+ optional baseline_overrides.json)
   audit/<date>-<am|pm|gameday>.json
   projections/audit_dismissals.json
