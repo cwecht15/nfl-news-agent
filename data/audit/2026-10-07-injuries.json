@@ -4,34 +4,32 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-07T23:10:59+00:00",
+  "generated_at": "2026-10-08T01:02:58+00:00",
   "inputs": {
     "snapshot_date": "2026-10-07",
     "nflverse_date": "2026-10-07",
-    "injury_week_updated": "2026-10-07T23:10:58+00:00",
-    "roster_state_updated": "2026-10-07T17:54:44+00:00"
+    "injury_week_updated": "2026-10-08T01:02:57+00:00",
+    "roster_state_updated": "2026-10-08T00:36:23+00:00"
   },
   "alerts": [
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|ARZ|5|DET@ARI",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "ARZ",
+      "type": "missing_active",
+      "key": "missing_active|00-0038998|5",
+      "severity": "error",
+      "player": "Jake Haener",
+      "gsis_id": "00-0038998",
+      "pos": "QB",
+      "team": "NYG",
       "sheet": "primary",
       "week": 5,
-      "message": "DET@ARI: the sheet has 5.5 / 54.5, the market 4.5 / 54.5 (FP-SPREAD) (odds pulled 2026-10-06 09:04-04:00)",
+      "message": "Jake Haener (QB, NYG) is on the active roster but has no row on the sheet (OurLads QB #1; promoted from the practice squad 2026-10-07; OurLads lists him as the starter)",
       "evidence": {
-        "game": "DET@ARI",
-        "fp_flag": "FP-SPREAD",
-        "sheet_spread": 5.5,
-        "sheet_ou": 54.5,
-        "market_spread": 4.5,
-        "market_total": 54.5,
-        "spread_delta": -1.0,
-        "total_delta": 0.0
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "QB",
+        "status_abbr": "P06"
       }
     },
     {
@@ -53,29 +51,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0041027|5|anytime_td",
-      "severity": "warning",
-      "player": "Jeremiyah Love",
-      "gsis_id": "00-0041027",
-      "pos": "RB",
-      "team": "ARZ",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Jeremiyah Love (RB, ARZ) Anytime TD rate: we project 0.46, the market implies 0.77 (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 0.46,
-        "market_mean": 0.7651675349,
-        "delta": 0.3051675349,
-        "pct": 0.6634076845,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0037277|5",
       "severity": "warning",
@@ -94,25 +69,21 @@
       }
     },
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|ATL|5|BAL@ATL",
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0032394|5",
       "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "ATL",
+      "player": "Nick Vannett",
+      "gsis_id": "00-0032394",
+      "pos": "TE",
+      "team": "BLT",
       "sheet": "primary",
       "week": 5,
-      "message": "BAL@ATL: the sheet has -3.5 / 43.5, the market 2.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-06 09:04-04:00)",
+      "message": "Nick Vannett (TE, BLT) was elevated from the practice squad (2026-10-07) but has no row on the sheet",
       "evidence": {
-        "game": "BAL@ATL",
-        "fp_flag": "FP-BOTH",
-        "sheet_spread": -3.5,
-        "sheet_ou": 43.5,
-        "market_spread": 2.5,
-        "market_total": 45.5,
-        "spread_delta": 6.0,
-        "total_delta": 2.0
+        "elevation_dates": [
+          "2026-10-07"
+        ],
+        "elevations_used": 0
       }
     },
     {
@@ -172,51 +143,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0036223|5|anytime_td",
-      "severity": "warning",
-      "player": "Jonathan Taylor",
-      "gsis_id": "00-0036223",
-      "pos": "RB",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Jonathan Taylor (RB, IND) Anytime TD rate: we project 0.85, the market implies 1.16 (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 0.85,
-        "market_mean": 1.156794244,
-        "delta": 0.3067942441,
-        "pct": 0.3609344048,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|JAX|5|PHI@JAX",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "JAX",
-      "sheet": "primary",
-      "week": 5,
-      "message": "PHI@JAX: the sheet has -7.5 / 41.5, the market -6.5 / 42.5 (FP-SPREAD) (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "game": "PHI@JAX",
-        "fp_flag": "FP-SPREAD",
-        "sheet_spread": -7.5,
-        "sheet_ou": 41.5,
-        "market_spread": -6.5,
-        "market_total": 42.5,
-        "spread_delta": 1.0,
-        "total_delta": 1.0
-      }
-    },
-    {
       "type": "elevated_not_projected",
       "key": "elevated_not_projected|00-0038998|5",
       "severity": "warning",
@@ -247,7 +173,7 @@
       "message": "Dameon Pierce (RB, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "news",
+        "status_source": "espn",
         "sheet_status": "PS",
         "ppr": 3.4
       }
@@ -271,98 +197,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0033908|5|rec_yds",
-      "severity": "warning",
-      "player": "Cooper Kupp",
-      "gsis_id": "00-0033908",
-      "pos": "WR",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Cooper Kupp (WR, SEA) Rec Yds: we project 48.2, the market implies 29.7 (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 48.2,
-        "market_mean": 29.65521463,
-        "delta": -18.54478537,
-        "pct": -0.3847465845,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038797|5|anytime_td",
-      "severity": "warning",
-      "player": "Emanuel Wilson",
-      "gsis_id": "00-0038797",
-      "pos": "RB",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Emanuel Wilson (RB, SEA) Anytime TD rate: we project 0.38, the market implies 0.78 (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 0.38,
-        "market_mean": 0.7778835844,
-        "delta": 0.3978835844,
-        "pct": 1.047062064,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038543|5|rec_yds",
-      "severity": "warning",
-      "player": "Jaxon Smith-Njigba",
-      "gsis_id": "00-0038543",
-      "pos": "WR",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Jaxon Smith-Njigba (WR, SEA) Rec Yds: we project 59.4, the market implies 98.9 (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 59.4,
-        "market_mean": 98.89821724,
-        "delta": 39.49821724,
-        "pct": 0.6649531523,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0037545|5|rec_yds",
-      "severity": "warning",
-      "player": "Rashid Shaheed",
-      "gsis_id": "00-0037545",
-      "pos": "WR",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Rashid Shaheed (WR, SEA) Rec Yds: we project 35.5, the market implies 22.1 (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 35.5,
-        "market_mean": 22.09248313,
-        "delta": -13.40751687,
-        "pct": -0.3776765316,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "missing_active",
       "key": "missing_active|00-0041178|5",
       "severity": "warning",
@@ -380,75 +214,6 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "RB",
         "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0033288|5|rec_yds",
-      "severity": "warning",
-      "player": "George Kittle",
-      "gsis_id": "00-0033288",
-      "pos": "TE",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 5,
-      "message": "George Kittle (TE, SF) Rec Yds: we project 41.0, the market implies 62.0 (also Rec) (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds",
-          "receptions"
-        ],
-        "ours": 41.0,
-        "market_mean": 61.96353285,
-        "delta": 20.96353285,
-        "pct": 0.5113056793,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0031408|5|rec_yds",
-      "severity": "warning",
-      "player": "Mike Evans",
-      "gsis_id": "00-0031408",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Mike Evans (WR, SF) Rec Yds: we project 40.5, the market implies 53.3 (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 40.5,
-        "market_mean": 53.33155368,
-        "delta": 12.83155368,
-        "pct": 0.316828486,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|TEN|5|HOU@TEN",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 5,
-      "message": "HOU@TEN: the sheet has 7.5 / 37.5, the market 7.0 / 39.5 (FP-TOTAL) (odds pulled 2026-10-06 09:04-04:00)",
-      "evidence": {
-        "game": "HOU@TEN",
-        "fp_flag": "FP-TOTAL",
-        "sheet_spread": 7.5,
-        "sheet_ou": 37.5,
-        "market_spread": 7.0,
-        "market_total": 39.5,
-        "spread_delta": -0.5,
-        "total_delta": 2.0
       }
     },
     {
@@ -1207,11 +972,9 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "sheet_line_stale": 4,
+    "missing_active": 3,
     "sheet_status_stale": 6,
-    "market_proj_gap": 8,
-    "missing_active": 2,
-    "elevated_not_projected": 1,
+    "elevated_not_projected": 2,
     "ir_return_window": 28,
     "unconfirmed_report": 8,
     "elevation_limit": 4
