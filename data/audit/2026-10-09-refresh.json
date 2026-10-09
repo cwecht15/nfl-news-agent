@@ -4,14 +4,58 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-09T20:13:34+00:00",
+  "generated_at": "2026-10-09T21:38:12+00:00",
   "inputs": {
     "snapshot_date": "2026-10-09",
     "nflverse_date": "2026-10-09",
-    "injury_week_updated": "2026-10-09T13:15:23+00:00",
+    "injury_week_updated": "2026-10-09T21:38:12+00:00",
     "roster_state_updated": "2026-10-09T20:13:33+00:00"
   },
   "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040236|5|OUT",
+      "severity": "error",
+      "player": "Kyle Monangai",
+      "gsis_id": "00-0040236",
+      "pos": "RB",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Kyle Monangai (RB, CHI) is OUT (Thumb/Toe) but projected for 10.2 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Thumb/Toe",
+        "practice": {
+          "2026-10-07": "DNP",
+          "2026-10-08": "DNP",
+          "2026-10-09": "DNP"
+        },
+        "ppr": 10.2
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0038544|5|OUT",
+      "severity": "error",
+      "player": "Quentin Johnston",
+      "gsis_id": "00-0038544",
+      "pos": "WR",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Quentin Johnston (WR, LAC) is OUT (Chest) but projected for 11.7 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Chest",
+        "practice": {
+          "2026-10-07": "LP",
+          "2026-10-08": "LP",
+          "2026-10-09": "LP"
+        },
+        "ppr": 11.7
+      }
+    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040581|5",
@@ -33,6 +77,50 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040581|5|OUT",
+      "severity": "error",
+      "player": "Dont'e Thornton Jr.",
+      "gsis_id": "00-0040581",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Dont'e Thornton Jr. (WR, LV) is OUT (Hamstring *) but projected for 0.6 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hamstring *",
+        "practice": {
+          "2026-10-07": "FP",
+          "2026-10-08": "FP",
+          "2026-10-09": "FP"
+        },
+        "ppr": 0.6
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0036187|5|OUT",
+      "severity": "error",
+      "player": "Reggie Gilliam",
+      "gsis_id": "00-0036187",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Reggie Gilliam (RB, NE) is OUT (Ankle/Knee) but projected for 0.3 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle/Knee",
+        "practice": {
+          "2026-10-07": "LP",
+          "2026-10-08": "DNP",
+          "2026-10-09": "DNP"
+        },
+        "ppr": 0.3
+      }
+    },
+    {
       "type": "missing_active",
       "key": "missing_active|00-0038998|5",
       "severity": "error",
@@ -50,6 +138,27 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "QB",
         "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0031588|5|OUT",
+      "severity": "error",
+      "player": "Stefon Diggs",
+      "gsis_id": "00-0031588",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Stefon Diggs (WR, WAS) is OUT (Hamstring) but projected for 10.9 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hamstring",
+        "practice": {
+          "2026-10-07": "DNP",
+          "2026-10-08": "DNP"
+        },
+        "ppr": 10.9
       }
     },
     {
@@ -475,26 +584,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040236|5",
-      "severity": "info",
-      "player": "Kyle Monangai",
-      "gsis_id": "00-0040236",
-      "pos": "RB",
-      "team": "CHI",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Kyle Monangai (RB, CHI) did not practice on the latest report (Thumb/Toe); projected 10.2 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-07": "DNP",
-          "2026-10-08": "DNP"
-        },
-        "injury": "Thumb/Toe",
-        "ppr": 10.2
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0038111|5",
       "severity": "info",
@@ -834,26 +923,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036187|5",
-      "severity": "info",
-      "player": "Reggie Gilliam",
-      "gsis_id": "00-0036187",
-      "pos": "RB",
-      "team": "NE",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Reggie Gilliam (RB, NE) did not practice on the latest report (Ankle/Knee); projected 0.3 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-07": "LP",
-          "2026-10-08": "DNP"
-        },
-        "injury": "Ankle/Knee",
-        "ppr": 0.3
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|audric estime|5",
       "severity": "info",
@@ -1048,26 +1117,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0031408|5",
-      "severity": "info",
-      "player": "Mike Evans",
-      "gsis_id": "00-0031408",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs); projected 12.1 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-07": "LP",
-          "2026-10-08": "DNP"
-        },
-        "injury": "Ribs",
-        "ppr": 12.1
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0036871|5",
       "severity": "info",
@@ -1143,26 +1192,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0039648|5",
-      "severity": "info",
-      "player": "David Martin-Robinson",
-      "gsis_id": "00-0039648",
-      "pos": "TE",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 5,
-      "message": "David Martin-Robinson (TE, TEN) did not practice on the latest report (Hamstring); projected 0.1 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-07": "FP",
-          "2026-10-08": "DNP"
-        },
-        "injury": "Hamstring",
-        "ppr": 0.1
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0040318|5",
       "severity": "info",
@@ -1219,26 +1248,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0031588|5",
-      "severity": "info",
-      "player": "Stefon Diggs",
-      "gsis_id": "00-0031588",
-      "pos": "WR",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Stefon Diggs (WR, WAS) did not practice on the latest report (Hamstring); projected 10.9 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-07": "DNP",
-          "2026-10-08": "DNP"
-        },
-        "injury": "Hamstring",
-        "ppr": 10.9
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0040731|5",
       "severity": "info",
@@ -1260,6 +1269,7 @@
   "dismissed": [],
   "errors": [],
   "counts": {
+    "out_but_projected": 5,
     "status_conflict": 1,
     "missing_active": 4,
     "sheet_status_stale": 8,
@@ -1268,7 +1278,6 @@
     "elevated_not_projected": 2,
     "ir_return_window": 27,
     "unconfirmed_report": 9,
-    "dnp_but_projected": 5,
     "elevation_limit": 6
   }
 }
