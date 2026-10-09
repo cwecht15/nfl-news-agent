@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-09T10:56:51+00:00",
+  "generated_at": "2026-10-09T13:15:24+00:00",
   "inputs": {
-    "snapshot_date": "2026-10-08",
-    "nflverse_date": "2026-10-08",
-    "injury_week_updated": "2026-10-09T01:25:47+00:00",
-    "roster_state_updated": "2026-10-09T03:08:13+00:00"
+    "snapshot_date": "2026-10-09",
+    "nflverse_date": "2026-10-09",
+    "injury_week_updated": "2026-10-09T13:15:23+00:00",
+    "roster_state_updated": "2026-10-09T13:15:21+00:00"
   },
   "alerts": [
     {
@@ -50,26 +50,6 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "QB",
         "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0041096|5",
-      "severity": "error",
-      "player": "Kaytron Allen",
-      "gsis_id": "00-0041096",
-      "pos": "RB",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Kaytron Allen (RB, WAS) is projected Active (3.4 PPR) but roster status is FA (since 2026-10-08)",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 3.4,
-        "slot": 5,
-        "earliest_return_week": null
       }
     },
     {
@@ -136,7 +116,7 @@
       "team": "DAL",
       "sheet": "primary",
       "week": 5,
-      "message": "TB@DAL: the sheet has -9.5 / 48.5, the market 3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-09 06:56:46-04:00)",
+      "message": "TB@DAL: the sheet has -9.5 / 48.5, the market 3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-09 06:52-04:00)",
       "evidence": {
         "game": "TB@DAL",
         "fp_flag": "FP-BOTH",
@@ -146,42 +126,6 @@
         "market_total": 45.5,
         "spread_delta": 13.0,
         "total_delta": -3.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038705|5",
-      "severity": "warning",
-      "player": "Emari Demercado",
-      "gsis_id": "00-0038705",
-      "pos": "RB",
-      "team": "DAL",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Emari Demercado (RB, DAL) sheet Status is ACTIVE but roster says FA",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040134|5",
-      "severity": "warning",
-      "player": "Pat Bryant",
-      "gsis_id": "00-0040134",
-      "pos": "WR",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Pat Bryant (WR, DEN) sheet Status is ACTIVE but roster says IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "news",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
       }
     },
     {
@@ -255,7 +199,7 @@
       "message": "Carlos Washington (RB, MIA) sheet Status is ACTIVE but roster says PS",
       "evidence": {
         "roster_status": "PS",
-        "status_source": "nflverse",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -270,39 +214,16 @@
       "team": "NE",
       "sheet": "primary",
       "week": 5,
-      "message": "TreVeyon Henderson (RB, NE) Anytime TD rate: we project 0.41, the market implies 0.79 (odds pulled 2026-10-08 16:12-04:00)",
+      "message": "TreVeyon Henderson (RB, NE) Anytime TD rate: we project 0.41, the market implies 0.79 (odds pulled 2026-10-09 06:52-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
           "anytime_td"
         ],
         "ours": 0.41,
-        "market_mean": 0.7929998255,
-        "delta": 0.3829998255,
-        "pct": 0.9341459158,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038551|5|anytime_td",
-      "severity": "warning",
-      "player": "Kendre Miller",
-      "gsis_id": "00-0038551",
-      "pos": "RB",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Kendre Miller (RB, NO) Anytime TD rate: we project 0.17, the market implies 0.56 (odds pulled 2026-10-08 16:12-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 0.17,
-        "market_mean": 0.5643979247,
-        "delta": 0.3943979247,
-        "pct": 2.319987793,
+        "market_mean": 0.792226224,
+        "delta": 0.382226224,
+        "pct": 0.9322590829,
         "flag": "RED"
       }
     },
@@ -357,7 +278,30 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 3.3
+        "ppr": 3.2
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040867|5|rec_yds",
+      "severity": "warning",
+      "player": "Makai Lemon",
+      "gsis_id": "00-0040867",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Makai Lemon (WR, PHI) Rec Yds: we project 29.1, the market implies 41.5 (odds pulled 2026-10-09 06:52-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 29.1,
+        "market_mean": 41.49236654,
+        "delta": 12.39236654,
+        "pct": 0.4258545204,
+        "flag": "RED"
       }
     },
     {
@@ -373,55 +317,9 @@
       "message": "Tank Bigsby (RB, PHI) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "news",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0041489|5|rec_yds",
-      "severity": "warning",
-      "player": "Germie Bernard",
-      "gsis_id": "00-0041489",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Germie Bernard (WR, PIT) Rec Yds: we project 11.1, the market implies 23.2 (odds pulled 2026-10-08 16:12-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 11.1,
-        "market_mean": 23.1606115,
-        "delta": 12.0606115,
-        "pct": 1.086541577,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0039739|5|rec_yds",
-      "severity": "warning",
-      "player": "Roman Wilson",
-      "gsis_id": "00-0039739",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Roman Wilson (WR, PIT) Rec Yds: we project 32.3, the market implies 46.2 (odds pulled 2026-10-08 16:12-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 32.3,
-        "market_mean": 46.24893235,
-        "delta": 13.94893235,
-        "pct": 0.4318554908,
-        "flag": "RED"
       }
     },
     {
@@ -459,7 +357,7 @@
         "elevation_dates": [
           "2026-10-08"
         ],
-        "elevations_used": 1
+        "elevations_used": 2
       }
     },
     {
@@ -586,14 +484,14 @@
       "team": "CHI",
       "sheet": "primary",
       "week": 5,
-      "message": "Kyle Monangai (RB, CHI) did not practice on the latest report (Thumb/Toe); projected 10.0 PPR",
+      "message": "Kyle Monangai (RB, CHI) did not practice on the latest report (Thumb/Toe); projected 10.2 PPR",
       "evidence": {
         "practice": {
           "2026-10-07": "DNP",
           "2026-10-08": "DNP"
         },
         "injury": "Thumb/Toe",
-        "ppr": 10.0
+        "ppr": 10.2
       }
     },
     {
@@ -651,21 +549,23 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0037243|5",
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0039465|5",
       "severity": "info",
-      "player": "Tyler Smith",
-      "gsis_id": "00-0037243",
-      "pos": "OL",
+      "player": "Reddy Steward",
+      "gsis_id": "00-0039465",
+      "pos": "DB",
       "team": "DAL",
       "sheet": "primary",
       "week": 5,
-      "message": "Tyler Smith (OL, DAL) on IR - first eligible Week 5",
+      "message": "Reddy Steward (DB, DAL) has used 3/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "status": "IR",
-        "earliest_return_week": 5,
-        "designated_return_date": null,
-        "on_sheet": false
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-26",
+          "2026-10-03",
+          "2026-10-08"
+        ]
       }
     },
     {
@@ -1109,26 +1009,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036252|5",
-      "severity": "info",
-      "player": "Michael Pittman",
-      "gsis_id": "00-0036252",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Michael Pittman (WR, PIT) did not practice on the latest report (Foot); projected 6.5 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-07": "LP",
-          "2026-10-08": "DNP"
-        },
-        "injury": "Foot",
-        "ppr": 6.5
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|joe mixon|5|ps_signed",
       "severity": "info",
@@ -1177,14 +1057,14 @@
       "team": "SF",
       "sheet": "primary",
       "week": 5,
-      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs); projected 12.4 PPR",
+      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs); projected 12.1 PPR",
       "evidence": {
         "practice": {
           "2026-10-07": "LP",
           "2026-10-08": "DNP"
         },
         "injury": "Ribs",
-        "ppr": 12.4
+        "ppr": 12.1
       }
     },
     {
@@ -1348,14 +1228,14 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 5,
-      "message": "Stefon Diggs (WR, WAS) did not practice on the latest report (Hamstring); projected 11.5 PPR",
+      "message": "Stefon Diggs (WR, WAS) did not practice on the latest report (Hamstring); projected 10.9 PPR",
       "evidence": {
         "practice": {
           "2026-10-07": "DNP",
           "2026-10-08": "DNP"
         },
         "injury": "Hamstring",
-        "ppr": 11.5
+        "ppr": 10.9
       }
     },
     {
@@ -1380,15 +1260,15 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 2,
+    "status_conflict": 1,
     "missing_active": 4,
-    "sheet_status_stale": 10,
+    "sheet_status_stale": 8,
     "sheet_line_stale": 1,
-    "market_proj_gap": 4,
+    "market_proj_gap": 2,
     "elevated_not_projected": 2,
-    "ir_return_window": 28,
+    "ir_return_window": 27,
     "unconfirmed_report": 9,
-    "dnp_but_projected": 6,
-    "elevation_limit": 5
+    "dnp_but_projected": 5,
+    "elevation_limit": 6
   }
 }
