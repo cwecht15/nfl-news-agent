@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-08T21:01:49+00:00",
+  "generated_at": "2026-10-09T01:14:02+00:00",
   "inputs": {
     "snapshot_date": "2026-10-08",
     "nflverse_date": "2026-10-08",
-    "injury_week_updated": "2026-10-08T21:01:49+00:00",
-    "roster_state_updated": "2026-10-08T19:47:55+00:00"
+    "injury_week_updated": "2026-10-09T01:14:02+00:00",
+    "roster_state_updated": "2026-10-08T23:27:42+00:00"
   },
   "alerts": [
     {
@@ -30,6 +30,26 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "QB",
         "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0041096|5",
+      "severity": "error",
+      "player": "Kaytron Allen",
+      "gsis_id": "00-0041096",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Kaytron Allen (RB, WAS) is projected Active (3.4 PPR) but roster status is FA (since 2026-10-08)",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 3.4,
+        "slot": 5,
+        "earliest_return_week": null
       }
     },
     {
@@ -114,9 +134,9 @@
       "team": "CAR",
       "sheet": "primary",
       "week": 5,
-      "message": "Anthony Tyus III (RB, CAR) sheet Status is ACTIVE but roster says FA",
+      "message": "Anthony Tyus III (RB, CAR) sheet Status is ACTIVE but roster says PS",
       "evidence": {
-        "roster_status": "FA",
+        "roster_status": "PS",
         "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
@@ -141,6 +161,46 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|DAL|5|TB@DAL",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 5,
+      "message": "TB@DAL: the sheet has -8.5 / 47.5, the market -3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-08 21:13:53-04:00)",
+      "evidence": {
+        "game": "TB@DAL",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": -8.5,
+        "sheet_ou": 47.5,
+        "market_spread": -3.5,
+        "market_total": 45.5,
+        "spread_delta": 5.0,
+        "total_delta": -2.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038705|5",
+      "severity": "warning",
+      "player": "Emari Demercado",
+      "gsis_id": "00-0038705",
+      "pos": "RB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Emari Demercado (RB, DAL) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040134|5",
       "severity": "warning",
@@ -156,6 +216,44 @@
         "status_source": "news",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038098|5",
+      "severity": "warning",
+      "player": "Pierre Strong",
+      "gsis_id": "00-0038098",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Pierre Strong (RB, GB) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 1.2
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0039650|5",
+      "severity": "warning",
+      "player": "Bryce Oliver",
+      "gsis_id": "00-0039650",
+      "pos": "WR",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Bryce Oliver (WR, HST) is on the active roster but has no row on the sheet (signed 2026-10-08)",
+      "evidence": {
+        "ourlads_depth": null,
+        "ourlads_pos": "",
+        "ourlads_stale": false,
+        "nflverse_status": "CUT",
+        "depth_chart_position": "WR",
+        "status_abbr": "P06"
       }
     },
     {
@@ -363,25 +461,21 @@
       }
     },
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|WAS|5|NYG@WAS",
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0035282|5",
       "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "WAS",
+      "player": "Easton Stick",
+      "gsis_id": "00-0035282",
+      "pos": "QB",
+      "team": "TB",
       "sheet": "primary",
       "week": 5,
-      "message": "NYG@WAS: the sheet has -3.5 / 43.0, the market -4.0 / 41.5 (FP-TOTAL) (odds pulled 2026-10-08 17:01:40-04:00)",
+      "message": "Easton Stick (QB, TB) was elevated from the practice squad (2026-10-08) but has no row on the sheet",
       "evidence": {
-        "game": "NYG@WAS",
-        "fp_flag": "FP-TOTAL",
-        "sheet_spread": -3.5,
-        "sheet_ou": 43.0,
-        "market_spread": -4.0,
-        "market_total": 41.5,
-        "spread_delta": -0.5,
-        "total_delta": -1.5
+        "elevation_dates": [
+          "2026-10-08"
+        ],
+        "elevations_used": 1
       }
     },
     {
@@ -840,26 +934,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0038994|5",
-      "severity": "info",
-      "player": "Jordan Addison",
-      "gsis_id": "00-0038994",
-      "pos": "WR",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Jordan Addison (WR, MIN) did not practice on the latest report (Hamstring); projected 14.6 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-07": "DNP",
-          "2026-10-08": "DNP"
-        },
-        "injury": "Hamstring",
-        "ppr": 14.6
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0038610|5",
       "severity": "info",
@@ -893,6 +967,26 @@
         "earliest_return_week": 5,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036187|5",
+      "severity": "info",
+      "player": "Reggie Gilliam",
+      "gsis_id": "00-0036187",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Reggie Gilliam (RB, NE) did not practice on the latest report (Ankle/Knee); projected 0.3 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-07": "LP",
+          "2026-10-08": "DNP"
+        },
+        "injury": "Ankle/Knee",
+        "ppr": 0.3
       }
     },
     {
@@ -1110,6 +1204,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0031408|5",
+      "severity": "info",
+      "player": "Mike Evans",
+      "gsis_id": "00-0031408",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs); projected 12.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-07": "LP",
+          "2026-10-08": "DNP"
+        },
+        "injury": "Ribs",
+        "ppr": 12.4
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0036871|5",
       "severity": "info",
@@ -1302,14 +1416,15 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "missing_active": 4,
-    "sheet_status_stale": 9,
-    "elevated_not_projected": 2,
-    "market_proj_gap": 4,
+    "missing_active": 5,
+    "status_conflict": 1,
+    "sheet_status_stale": 11,
+    "elevated_not_projected": 3,
     "sheet_line_stale": 1,
+    "market_proj_gap": 4,
     "ir_return_window": 28,
     "unconfirmed_report": 9,
-    "dnp_but_projected": 5,
+    "dnp_but_projected": 6,
     "elevation_limit": 5
   }
 }
