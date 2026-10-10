@@ -59,3 +59,22 @@
 2026-10-10 11:29:48,898 [INFO] afternoon: Projection audit: 66 open alerts (error=5, info=43, warning=18), 0 dismissed
 2026-10-10 11:29:48,910 [WARNING] afternoon: No report for 2026-10-10 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-10-10 to produce the morning report.
 2026-10-10 11:29:48,910 [INFO] afternoon: Refresh complete (odds_lines).
+2026-10-10 11:51:08,235 [INFO] afternoon: ============================================================
+2026-10-10 11:51:08,235 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-10-10 (week 5, Sat)
+2026-10-10 11:51:08,235 [INFO] afternoon: ============================================================
+2026-10-10 11:51:08,275 [INFO] afternoon: Game lines via API skipped: last pulled 2026-10-10T11:29+00:00 (< 60 min ago)
+2026-10-10 11:51:08,275 [INFO] afternoon: Step 2c: Reading market lines...
+2026-10-10 11:51:13,396 [INFO] afternoon: Market lines: week 5, 15 games, 1038 player-stats, 0 changes (none); odds pulled 2026-10-09T10:53-04:00; game lines via API 2026-10-10T07:29:44-04:00
+2026-10-10 11:51:13,500 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-10-10 11:51:15,588 [INFO] collectors.injury_report_collector: Team-site injury reports: 30 with a table, 2 not posted, 0 mismatched, 0 failed; 702 rows
+2026-10-10 11:51:16,117 [INFO] collectors.injury_report_collector: RotoWire practice report: 356 rows
+2026-10-10 11:51:16,444 [INFO] collectors.injury_report_collector: NFL.com injuries: week 5, 357 rows (practice status dated 2026-10-09)
+2026-10-10 11:51:16,449 [WARNING] collectors.injury_report_collector: TB Josiah Trotter: same-source practice disagreement on 2026-10-06: DNP vs FP (team_site)
+2026-10-10 11:51:16,450 [INFO] collectors.injury_report_collector: Injury report: 7 source conflicts
+2026-10-10 11:51:16,470 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk05.json (30 teams)
+2026-10-10 11:51:16,471 [INFO] collectors.injury_report_collector: Injury report week 5: 363 players, 0 changes
+2026-10-10 11:51:16,479 [INFO] afternoon: Injury report: week 5, 363 rows (nflcom=357, rotowire=356, team_site=351), 0 changes, 7 conflicts, team sites with a table: 30
+2026-10-10 11:51:16,490 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-10-10 11:51:16,696 [INFO] afternoon: Projection audit: 66 open alerts (error=5, info=43, warning=18), 0 dismissed
+2026-10-10 11:51:16,720 [WARNING] afternoon: No report for 2026-10-10 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-10-10 to produce the morning report.
+2026-10-10 11:51:16,720 [INFO] afternoon: Injury report refresh complete.

@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-10T11:25:47+00:00",
+  "generated_at": "2026-10-10T11:51:16+00:00",
   "inputs": {
     "snapshot_date": "2026-10-09",
-    "nflverse_date": "2026-10-09",
-    "injury_week_updated": "2026-10-10T11:25:46+00:00",
-    "roster_state_updated": "2026-10-10T02:49:54+00:00"
+    "nflverse_date": "2026-10-10",
+    "injury_week_updated": "2026-10-10T11:51:16+00:00",
+    "roster_state_updated": "2026-10-10T11:27:01+00:00"
   },
   "alerts": [
     {
@@ -146,7 +146,7 @@
       "team": "DAL",
       "sheet": "primary",
       "week": 5,
-      "message": "TB@DAL: the sheet has -9.5 / 48.5, the market 3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-10 07:25:32-04:00)",
+      "message": "TB@DAL: the sheet has -9.5 / 48.5, the market 3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-10 07:29:44-04:00)",
       "evidence": {
         "game": "TB@DAL",
         "fp_flag": "FP-BOTH",
@@ -171,7 +171,7 @@
       "message": "Lil'Jordan Humphrey (WR, DEN) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.5
       }
@@ -189,7 +189,7 @@
       "message": "Pat Bryant (WR, DEN) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -262,14 +262,14 @@
       "team": "MIA",
       "sheet": "primary",
       "week": 5,
-      "message": "Kaytron Allen (RB, MIA) is on the active roster but has no row on the sheet (claimed off waivers 2026-10-09)",
+      "message": "Kaytron Allen (RB, MIA) is on the active roster but has no row on the sheet (signed 2026-10-10)",
       "evidence": {
         "ourlads_depth": null,
         "ourlads_pos": "",
         "ourlads_stale": false,
-        "nflverse_status": "CUT",
+        "nflverse_status": "ACT",
         "depth_chart_position": "RB",
-        "status_abbr": "W03"
+        "status_abbr": "A01"
       }
     },
     {
@@ -341,14 +341,14 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 5,
-      "message": "Carson Steele (RB, PHI) is on the active roster but has no row on the sheet (OurLads RB #1; signed 2026-10-09)",
+      "message": "Carson Steele (RB, PHI) is on the active roster but has no row on the sheet (OurLads RB #1; promoted from the practice squad 2026-10-10)",
       "evidence": {
         "ourlads_depth": 1,
         "ourlads_pos": "RB",
         "ourlads_stale": false,
-        "nflverse_status": "DEV",
+        "nflverse_status": "ACT",
         "depth_chart_position": "RB",
-        "status_abbr": "P06"
+        "status_abbr": "A01"
       }
     },
     {
@@ -423,6 +423,24 @@
       "message": "Robert Henry Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0034860|5",
+      "severity": "warning",
+      "player": "Dante Pettis",
+      "gsis_id": "00-0034860",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Dante Pettis (WR, SF) sheet Status is PS but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 0.0
@@ -1270,7 +1288,7 @@
     "out_but_projected": 3,
     "status_conflict": 1,
     "missing_active": 5,
-    "sheet_status_stale": 8,
+    "sheet_status_stale": 9,
     "sheet_line_stale": 1,
     "market_proj_gap": 2,
     "elevated_not_projected": 2,
