@@ -1,83 +1,3 @@
-2026-10-10 11:26:46,441 [INFO] afternoon: ============================================================
-2026-10-10 11:26:46,441 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-10-10 (week 5, Sat)
-2026-10-10 11:26:46,441 [INFO] afternoon: ============================================================
-2026-10-10 11:26:46,468 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/10
-2026-10-10 11:26:46,690 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/10
-2026-10-10 11:26:46,952 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/10
-2026-10-10 11:26:47,080 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/10
-2026-10-10 11:26:47,213 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/10
-2026-10-10 11:26:47,485 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/10
-2026-10-10 11:26:47,732 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/9
-2026-10-10 11:26:48,086 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/9
-2026-10-10 11:26:48,578 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/9
-2026-10-10 11:26:49,104 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/9
-2026-10-10 11:26:49,608 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/9
-2026-10-10 11:26:49,890 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/9
-2026-10-10 11:26:50,097 [INFO] collectors.web_scraper: Found 19 transactions.
-2026-10-10 11:26:50,098 [INFO] afternoon: PM transactions: 19 rows -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-10-10/web_pm.json
-2026-10-10 11:26:50,100 [INFO] afternoon: Step 2c: Reading market lines...
-2026-10-10 11:26:53,480 [INFO] afternoon: Market lines: week 5, 15 games, 1038 player-stats, 0 changes (none); odds pulled 2026-10-09T10:53-04:00; game lines via API 2026-10-09T22:49:48-04:00
-2026-10-10 11:26:53,789 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-09 is older than 2026-10-10 — refetching (attempt 1/3)
-2026-10-10 11:26:56,847 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-09 is older than 2026-10-10 — refetching (attempt 2/3)
-2026-10-10 11:26:59,870 [INFO] collectors.espn_transactions_collector: ESPN elevations: 0 in the last 4 days (20 parsed from 100 rows, newest row 2026-10-09); practice-squad promotions: 6
-2026-10-10 11:26:59,870 [INFO] afternoon: Step 5f: no practice-squad elevations in the window.
-2026-10-10 11:26:59,870 [INFO] afternoon: Step 5f: 6 practice-squad promotions from ESPN (ARI, NYG, NYJ, PHI, PIT, SEA)
-2026-10-10 11:27:00,583 [INFO] collectors.cbs_transactions_collector: CBS elevations: 4 not yet in ESPN (9 move rows since 2026-10-08, 531 rows on the page, newest 2026-10-09)
-2026-10-10 11:27:00,585 [INFO] afternoon: Step 5f: 4 more elevations from CBS, pending ESPN confirmation (DAL, TB)
-2026-10-10 11:27:00,586 [INFO] afternoon: Step 5b: Updating roster events/state...
-2026-10-10 11:27:00,627 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
-2026-10-10 11:27:00,977 [INFO] collectors.nflverse_roster_collector: nflverse roster: 3033 rows (966024 bytes)
-2026-10-10 11:27:00,994 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 1 rows without gsis_id skipped, 0 duplicate gsis rows
-2026-10-10 11:27:01,017 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 3032 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-10-10.json
-2026-10-10 11:27:01,042 [INFO] processing.roster_events: Roster ledger: 4 reported events confirmed
-2026-10-10 11:27:01,097 [INFO] processing.roster_events: Saved roster state: 3059 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
-2026-10-10 11:27:01,115 [INFO] processing.roster_events: Roster step 2026-10-10: {"nflverse_transitions": 34, "nflverse_events": 32, "nflcom_events": 19, "news_events": 0, "espn_elevations": 10, "appended": 32, "ledger": 2312, "confirmed_new": 3}
-2026-10-10 11:27:01,117 [INFO] afternoon: Roster events: 32 new (appended=32, confirmed_new=3, espn_elevations=10, ledger=2312, news_events=0, nflcom_events=19, nflverse_events=32, nflverse_transitions=34, status={'ACT': 1695, 'EXE': 3, 'FA': 419, 'IR': 300, 'NFI': 6, 'PS': 569, 'PUP': 30, 'RET': 23, 'SUS': 2, 'UNKNOWN': 12}); state covers 3059 players
-2026-10-10 11:27:01,117 [INFO] afternoon: Step 5c: Collecting injury reports...
-2026-10-10 11:27:04,516 [INFO] collectors.injury_report_collector: Team-site injury reports: 30 with a table, 2 not posted, 0 mismatched, 0 failed; 702 rows
-2026-10-10 11:27:05,046 [INFO] collectors.injury_report_collector: RotoWire practice report: 356 rows
-2026-10-10 11:27:05,332 [INFO] collectors.injury_report_collector: NFL.com injuries: week 5, 357 rows (practice status dated 2026-10-09)
-2026-10-10 11:27:05,338 [WARNING] collectors.injury_report_collector: TB Josiah Trotter: same-source practice disagreement on 2026-10-06: DNP vs FP (team_site)
-2026-10-10 11:27:05,339 [INFO] collectors.injury_report_collector: Injury report: 9 source conflicts
-2026-10-10 11:27:05,349 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk05.json (30 teams)
-2026-10-10 11:27:05,350 [INFO] collectors.injury_report_collector: Injury report week 5: 363 players, 0 changes
-2026-10-10 11:27:05,357 [INFO] afternoon: Injury report: week 5, 363 rows (nflcom=357, rotowire=356, team_site=351), 0 changes, 9 conflicts, team sites with a table: 30
-2026-10-10 11:27:05,357 [INFO] afternoon: Step 5e: Checking game-day inactives...
-2026-10-10 11:27:05,441 [INFO] collectors.inactives_collector: Inactives week 5: 0 games polled, 0 teams published, 0 changed
-2026-10-10 11:27:05,443 [INFO] afternoon: Inactives: week 5, 0 games polled, 0 teams published, 0 newly published/changed
-2026-10-10 11:27:05,443 [INFO] afternoon: Step 5d: Auditing weekly projections...
-2026-10-10 11:27:05,656 [INFO] afternoon: Projection audit: 66 open alerts (error=5, info=43, warning=18), 0 dismissed
-2026-10-10 11:27:05,671 [WARNING] afternoon: No report for 2026-10-10 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-10-10 to produce the morning report.
-2026-10-10 11:27:05,671 [INFO] afternoon: Refresh complete (elevations, inactives, injuries, odds, roster, transactions).
-2026-10-10 11:29:44,201 [INFO] afternoon: ============================================================
-2026-10-10 11:29:44,201 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-10-10 (week 5, Sat)
-2026-10-10 11:29:44,201 [INFO] afternoon: ============================================================
-2026-10-10 11:29:45,521 [INFO] afternoon: Game lines via API: 9 credits, 13447 remaining (14 games, 0 changes)
-2026-10-10 11:29:45,521 [INFO] afternoon: Step 2c: Reading market lines...
-2026-10-10 11:29:48,633 [INFO] afternoon: Market lines: week 5, 15 games, 1038 player-stats, 0 changes (none); odds pulled 2026-10-09T10:53-04:00; game lines via API 2026-10-10T07:29:44-04:00
-2026-10-10 11:29:48,634 [INFO] afternoon: Step 5d: Auditing weekly projections...
-2026-10-10 11:29:48,898 [INFO] afternoon: Projection audit: 66 open alerts (error=5, info=43, warning=18), 0 dismissed
-2026-10-10 11:29:48,910 [WARNING] afternoon: No report for 2026-10-10 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-10-10 to produce the morning report.
-2026-10-10 11:29:48,910 [INFO] afternoon: Refresh complete (odds_lines).
-2026-10-10 11:51:08,235 [INFO] afternoon: ============================================================
-2026-10-10 11:51:08,235 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-10-10 (week 5, Sat)
-2026-10-10 11:51:08,235 [INFO] afternoon: ============================================================
-2026-10-10 11:51:08,275 [INFO] afternoon: Game lines via API skipped: last pulled 2026-10-10T11:29+00:00 (< 60 min ago)
-2026-10-10 11:51:08,275 [INFO] afternoon: Step 2c: Reading market lines...
-2026-10-10 11:51:13,396 [INFO] afternoon: Market lines: week 5, 15 games, 1038 player-stats, 0 changes (none); odds pulled 2026-10-09T10:53-04:00; game lines via API 2026-10-10T07:29:44-04:00
-2026-10-10 11:51:13,500 [INFO] afternoon: Step 5c: Collecting injury reports...
-2026-10-10 11:51:15,588 [INFO] collectors.injury_report_collector: Team-site injury reports: 30 with a table, 2 not posted, 0 mismatched, 0 failed; 702 rows
-2026-10-10 11:51:16,117 [INFO] collectors.injury_report_collector: RotoWire practice report: 356 rows
-2026-10-10 11:51:16,444 [INFO] collectors.injury_report_collector: NFL.com injuries: week 5, 357 rows (practice status dated 2026-10-09)
-2026-10-10 11:51:16,449 [WARNING] collectors.injury_report_collector: TB Josiah Trotter: same-source practice disagreement on 2026-10-06: DNP vs FP (team_site)
-2026-10-10 11:51:16,450 [INFO] collectors.injury_report_collector: Injury report: 7 source conflicts
-2026-10-10 11:51:16,470 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk05.json (30 teams)
-2026-10-10 11:51:16,471 [INFO] collectors.injury_report_collector: Injury report week 5: 363 players, 0 changes
-2026-10-10 11:51:16,479 [INFO] afternoon: Injury report: week 5, 363 rows (nflcom=357, rotowire=356, team_site=351), 0 changes, 7 conflicts, team sites with a table: 30
-2026-10-10 11:51:16,490 [INFO] afternoon: Step 5d: Auditing weekly projections...
-2026-10-10 11:51:16,696 [INFO] afternoon: Projection audit: 66 open alerts (error=5, info=43, warning=18), 0 dismissed
-2026-10-10 11:51:16,720 [WARNING] afternoon: No report for 2026-10-10 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-10-10 to produce the morning report.
-2026-10-10 11:51:16,720 [INFO] afternoon: Injury report refresh complete.
 2026-10-10 11:55:39,793 [INFO] orchestrator: ============================================================
 2026-10-10 11:55:39,794 [INFO] orchestrator: NFL News Agent - Daily Run: 2026-10-10
 2026-10-10 11:55:39,794 [INFO] orchestrator: ============================================================
@@ -167,6 +87,7 @@
 2026-10-10 12:00:20,628 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
 2026-10-10 12:00:20,634 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/modules.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2Fmodules.json=&etag=%22952a9b81c0bfd99800fabf352f69c7ccd46c5e43%22 "HTTP/1.1 200 OK"
 2026-10-10 12:00:20,703 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 2026-10-10 12:00:20,703 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 2026-10-10 12:00:20,708 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/config_sentence_transformers.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2Fconfig_sentence_transformers.json=&etag=%22fd1b291129c607e5d49799f87cb219b27f98acdf%22 "HTTP/1.1 200 OK"
 2026-10-10 12:00:20,708 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
@@ -181,6 +102,7 @@
 2026-10-10 12:00:21,070 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
 2026-10-10 12:00:21,141 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
 2026-10-10 12:00:21,213 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 5856.38it/s]
 2026-10-10 12:00:21,571 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
 2026-10-10 12:00:21,645 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
 2026-10-10 12:00:21,718 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
@@ -188,10 +110,12 @@
 2026-10-10 12:00:21,813 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/1_Pooling%2Fconfig.json?%2Fsentence-transformers%2Fall-MiniLM-L6-v2%2Fresolve%2Fmain%2F1_Pooling%2Fconfig.json=&etag=%22d1514c3162bbe87b343f565fadc62e6c06f04f03%22 "HTTP/1.1 200 OK"
 2026-10-10 12:00:21,882 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/2_Normalize/config.json "HTTP/1.1 404 Not Found"
 2026-10-10 12:00:21,953 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
+Batches:   0%|          | 0/21 [00:00<?, ?it/s]Batches:   5%|▍         | 1/21 [00:00<00:05,  3.82it/s]Batches:  14%|█▍        | 3/21 [00:00<00:02,  7.21it/s]Batches:  24%|██▍       | 5/21 [00:00<00:01,  9.06it/s]Batches:  33%|███▎      | 7/21 [00:00<00:01, 10.45it/s]Batches:  43%|████▎     | 9/21 [00:00<00:01, 11.34it/s]Batches:  52%|█████▏    | 11/21 [00:01<00:00, 12.02it/s]Batches:  62%|██████▏   | 13/21 [00:01<00:00, 12.76it/s]Batches:  71%|███████▏  | 15/21 [00:01<00:00, 13.28it/s]Batches:  81%|████████  | 17/21 [00:01<00:00, 13.69it/s]Batches:  90%|█████████ | 19/21 [00:01<00:00, 14.42it/s]Batches: 100%|██████████| 21/21 [00:01<00:00, 15.72it/s]Batches: 100%|██████████| 21/21 [00:01<00:00, 12.31it/s]
 2026-10-10 12:00:23,664 [INFO] processing.deduplicator: Using embedding-based deduplication (all-MiniLM-L6-v2).
 2026-10-10 12:00:23,847 [INFO] processing.deduplicator: Deduplicated 664 items into 517 story groups.
 2026-10-10 12:00:23,849 [INFO] orchestrator: Deduplicated: 664 items -> 517 unique stories
 2026-10-10 12:00:23,849 [INFO] orchestrator: Step 2b: Filtering cross-day duplicates...
+Batches:   0%|          | 0/60 [00:00<?, ?it/s]Batches:   2%|▏         | 1/60 [00:00<00:14,  3.98it/s]Batches:   3%|▎         | 2/60 [00:00<00:12,  4.57it/s]Batches:   5%|▌         | 3/60 [00:00<00:09,  6.06it/s]Batches:   7%|▋         | 4/60 [00:00<00:07,  7.07it/s]Batches:  10%|█         | 6/60 [00:00<00:06,  8.61it/s]Batches:  13%|█▎        | 8/60 [00:01<00:05,  9.38it/s]Batches:  17%|█▋        | 10/60 [00:01<00:04, 10.29it/s]Batches:  20%|██        | 12/60 [00:01<00:04, 10.67it/s]Batches:  23%|██▎       | 14/60 [00:01<00:04, 10.87it/s]Batches:  27%|██▋       | 16/60 [00:01<00:03, 11.53it/s]Batches:  30%|███       | 18/60 [00:01<00:03, 11.81it/s]Batches:  33%|███▎      | 20/60 [00:02<00:03, 12.12it/s]Batches:  37%|███▋      | 22/60 [00:02<00:03, 12.28it/s]Batches:  40%|████      | 24/60 [00:02<00:02, 12.56it/s]Batches:  43%|████▎     | 26/60 [00:02<00:02, 12.93it/s]Batches:  47%|████▋     | 28/60 [00:02<00:02, 12.90it/s]Batches:  50%|█████     | 30/60 [00:02<00:02, 13.07it/s]Batches:  53%|█████▎    | 32/60 [00:02<00:02, 13.37it/s]Batches:  57%|█████▋    | 34/60 [00:03<00:01, 13.59it/s]Batches:  60%|██████    | 36/60 [00:03<00:01, 13.75it/s]Batches:  63%|██████▎   | 38/60 [00:03<00:01, 13.99it/s]Batches:  67%|██████▋   | 40/60 [00:03<00:01, 14.27it/s]Batches:  70%|███████   | 42/60 [00:03<00:01, 14.48it/s]Batches:  73%|███████▎  | 44/60 [00:03<00:01, 14.73it/s]Batches:  77%|███████▋  | 46/60 [00:03<00:00, 14.69it/s]Batches:  80%|████████  | 48/60 [00:03<00:00, 14.87it/s]Batches:  83%|████████▎ | 50/60 [00:04<00:00, 14.68it/s]Batches:  87%|████████▋ | 52/60 [00:04<00:00, 15.01it/s]Batches:  90%|█████████ | 54/60 [00:04<00:00, 15.66it/s]Batches:  93%|█████████▎| 56/60 [00:04<00:00, 15.98it/s]Batches:  97%|█████████▋| 58/60 [00:04<00:00, 16.57it/s]Batches: 100%|██████████| 60/60 [00:04<00:00, 12.84it/s]
 2026-10-10 12:00:29,142 [INFO] processing.cross_day_filter: Cross-day filter: 517 -> 352 items (165 suppressed, lookback=2 days, threshold=0.82).
 2026-10-10 12:00:29,142 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NFL Week 5 preview: Picks, predictions, schedule, betting odds, fantasy tips
 2026-10-10 12:00:29,143 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): 49ers News: Connor Colby might be faster than the Blue Angels
