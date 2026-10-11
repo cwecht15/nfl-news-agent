@@ -4,98 +4,32 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-10T23:19:41+00:00",
+  "generated_at": "2026-10-11T02:15:18+00:00",
   "inputs": {
     "snapshot_date": "2026-10-10",
     "nflverse_date": "2026-10-10",
-    "injury_week_updated": "2026-10-10T12:11:17+00:00",
-    "roster_state_updated": "2026-10-10T23:19:41+00:00"
+    "injury_week_updated": "2026-10-11T00:27:04+00:00",
+    "roster_state_updated": "2026-10-11T02:15:18+00:00"
   },
   "alerts": [
     {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0038544|5|OUT",
-      "severity": "error",
-      "player": "Quentin Johnston",
-      "gsis_id": "00-0038544",
-      "pos": "WR",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Quentin Johnston (WR, LAC) is OUT (Chest) but projected for 0.2 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Chest",
-        "practice": {
-          "2026-10-07": "LP",
-          "2026-10-08": "LP",
-          "2026-10-09": "LP"
-        },
-        "ppr": 0.2
-      }
-    },
-    {
       "type": "status_conflict",
-      "key": "status_conflict|00-0040581|5",
+      "key": "status_conflict|00-0037231|5",
       "severity": "error",
-      "player": "Dont'e Thornton Jr.",
-      "gsis_id": "00-0040581",
+      "player": "Kevin Austin Jr.",
+      "gsis_id": "00-0037231",
       "pos": "WR",
-      "team": "LV",
+      "team": "NO",
       "sheet": "primary",
       "week": 5,
-      "message": "Dont'e Thornton Jr. (WR, LV) is marked IR on the sheet but still projected (0.6 PPR); roster status is IR",
+      "message": "Kevin Austin Jr. (WR, NO) is projected Active (0.2 PPR) but roster status is FA (since 2026-10-10)",
       "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 0.6,
-        "slot": 6,
-        "earliest_return_week": 5
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0040581|5|OUT",
-      "severity": "error",
-      "player": "Dont'e Thornton Jr.",
-      "gsis_id": "00-0040581",
-      "pos": "WR",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Dont'e Thornton Jr. (WR, LV) is OUT (Hamstring *) but projected for 0.6 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Hamstring *",
-        "practice": {
-          "2026-10-07": "FP",
-          "2026-10-08": "FP",
-          "2026-10-09": "FP"
-        },
-        "ppr": 0.6
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0036187|5|OUT",
-      "severity": "error",
-      "player": "Reggie Gilliam",
-      "gsis_id": "00-0036187",
-      "pos": "RB",
-      "team": "NE",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Reggie Gilliam (RB, NE) is OUT (Ankle/Knee) but projected for 0.3 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Ankle/Knee",
-        "practice": {
-          "2026-10-07": "LP",
-          "2026-10-08": "DNP",
-          "2026-10-09": "DNP"
-        },
-        "ppr": 0.3
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.2,
+        "slot": 5,
+        "earliest_return_week": null
       }
     },
     {
@@ -119,6 +53,26 @@
       }
     },
     {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0040405|5",
+      "severity": "error",
+      "player": "Jamaal Pritchett",
+      "gsis_id": "00-0040405",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Jamaal Pritchett (WR, NYJ) is projected Active (0.1 PPR) but roster status is FA (since 2026-10-10)",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.1,
+        "slot": 6,
+        "earliest_return_week": null
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040265|5",
       "severity": "warning",
@@ -137,24 +91,6 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0038440|5",
-      "severity": "warning",
-      "player": "Zavier Scott",
-      "gsis_id": "00-0038440",
-      "pos": "RB",
-      "team": "CHI",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Zavier Scott (RB, CHI) was elevated from the practice squad (2026-10-10) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-10-10"
-        ],
-        "elevations_used": 0
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0038839|5|anytime_td",
       "severity": "warning",
@@ -164,7 +100,7 @@
       "team": "CIN",
       "sheet": "primary",
       "week": 5,
-      "message": "Mitchell Tinsley (WR, CIN) Anytime TD rate: we project 0.01, the market implies 0.33 (odds pulled 2026-10-10 09:49-04:00)",
+      "message": "Mitchell Tinsley (WR, CIN) Anytime TD rate: we project 0.01, the market implies 0.33 (odds pulled 2026-10-10 21:12-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -187,7 +123,7 @@
       "team": "DAL",
       "sheet": "primary",
       "week": 5,
-      "message": "TB@DAL: the sheet has -9.5 / 48.5, the market 3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-10 19:19:33-04:00)",
+      "message": "TB@DAL: the sheet has -9.5 / 48.5, the market 3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-10 22:15:12-04:00)",
       "evidence": {
         "game": "TB@DAL",
         "fp_flag": "FP-BOTH",
@@ -201,20 +137,20 @@
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0035406|5",
+      "key": "sheet_status_stale|00-0034348|5",
       "severity": "warning",
-      "player": "Lil'Jordan Humphrey",
-      "gsis_id": "00-0035406",
+      "player": "Courtland Sutton",
+      "gsis_id": "00-0034348",
       "pos": "WR",
       "team": "DEN",
       "sheet": "primary",
       "week": 5,
-      "message": "Lil'Jordan Humphrey (WR, DEN) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "message": "Courtland Sutton (WR, DEN) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 1.5
+        "ppr": 9.5
       }
     },
     {
@@ -230,7 +166,25 @@
       "message": "Pat Bryant (WR, DEN) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "nflverse",
+        "status_source": "ourlads",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038685|5",
+      "severity": "warning",
+      "player": "Chris Brooks",
+      "gsis_id": "00-0038685",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Chris Brooks (RB, GB) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -254,26 +208,6 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0039650|5",
-      "severity": "warning",
-      "player": "Bryce Oliver",
-      "gsis_id": "00-0039650",
-      "pos": "WR",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Bryce Oliver (WR, HST) is on the active roster but has no row on the sheet (OurLads RWR #2; signed 2026-10-09)",
-      "evidence": {
-        "ourlads_depth": 2,
-        "ourlads_pos": "RWR",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "WR",
-        "status_abbr": "A01"
-      }
-    },
-    {
       "type": "elevated_not_projected",
       "key": "elevated_not_projected|kenneth murray|5",
       "severity": "warning",
@@ -293,22 +227,42 @@
     },
     {
       "type": "missing_active",
-      "key": "missing_active|00-0039816|5",
+      "key": "missing_active|00-0035535|5",
       "severity": "warning",
-      "player": "Anthony Gould",
-      "gsis_id": "00-0039816",
+      "player": "Darius Slayton",
+      "gsis_id": "00-0035535",
       "pos": "WR",
       "team": "IND",
       "sheet": "primary",
       "week": 5,
-      "message": "Anthony Gould (WR, IND) is on the active roster but has no row on the sheet (OurLads KR #2; promoted from the practice squad 2026-09-27)",
+      "message": "Darius Slayton (WR, IND) is on the active roster but has no row on the sheet (OurLads LWR #3; signed 2026-09-23)",
       "evidence": {
-        "ourlads_depth": 2,
-        "ourlads_pos": "KR",
+        "ourlads_depth": 3,
+        "ourlads_pos": "LWR",
         "ourlads_stale": false,
         "nflverse_status": "ACT",
         "depth_chart_position": "WR",
         "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0040311|5",
+      "severity": "warning",
+      "player": "Theo Wease Jr.",
+      "gsis_id": "00-0040311",
+      "pos": "WR",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Theo Wease Jr. (WR, LAC) is on the active roster but has no row on the sheet (OurLads WR #1; signed 2026-10-10)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "WR",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "WR",
+        "status_abbr": "P01"
       }
     },
     {
@@ -326,7 +280,7 @@
         "elevation_dates": [
           "2026-10-10"
         ],
-        "elevations_used": 0
+        "elevations_used": 1
       }
     },
     {
@@ -344,7 +298,7 @@
         "elevation_dates": [
           "2026-10-10"
         ],
-        "elevations_used": 0
+        "elevations_used": 1
       }
     },
     {
@@ -382,25 +336,43 @@
         "elevation_dates": [
           "2026-10-10"
         ],
-        "elevations_used": 0
+        "elevations_used": 1
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0031235|5",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0033555|5",
       "severity": "warning",
-      "player": "Odell Beckham Jr.",
-      "gsis_id": "00-0031235",
+      "player": "Mack Hollins",
+      "gsis_id": "00-0033555",
       "pos": "WR",
-      "team": "MIN",
+      "team": "NE",
       "sheet": "primary",
       "week": 5,
-      "message": "Odell Beckham Jr. (WR, MIN) was elevated from the practice squad (2026-10-10) but has no row on the sheet",
+      "message": "Mack Hollins (WR, NE) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "elevation_dates": [
-          "2026-10-10"
-        ],
-        "elevations_used": 0
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036187|5",
+      "severity": "warning",
+      "player": "Reggie Gilliam",
+      "gsis_id": "00-0036187",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Reggie Gilliam (RB, NE) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -454,7 +426,7 @@
         "elevation_dates": [
           "2026-10-10"
         ],
-        "elevations_used": 0
+        "elevations_used": 1
       }
     },
     {
@@ -476,8 +448,8 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0039325|5",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039325|5",
       "severity": "warning",
       "player": "Carson Steele",
       "gsis_id": "00-0039325",
@@ -485,14 +457,12 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 5,
-      "message": "Carson Steele (RB, PHI) is on the active roster but has no row on the sheet (OurLads RB #1; promoted from the practice squad 2026-10-10)",
+      "message": "Carson Steele (RB, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
-        "ourlads_depth": 1,
-        "ourlads_pos": "RB",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "RB",
-        "status_abbr": "A01"
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.2
       }
     },
     {
@@ -546,7 +516,25 @@
         "elevation_dates": [
           "2026-10-10"
         ],
-        "elevations_used": 0
+        "elevations_used": 1
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036252|5",
+      "severity": "warning",
+      "player": "Michael Pittman",
+      "gsis_id": "00-0036252",
+      "pos": "WR",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Michael Pittman (WR, PIT) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -564,7 +552,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.0
+        "ppr": 0.5
       }
     },
     {
@@ -636,25 +624,27 @@
         "elevation_dates": [
           "2026-10-10"
         ],
-        "elevations_used": 0
+        "elevations_used": 1
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0036415|5",
-      "severity": "warning",
-      "player": "Van Jefferson",
-      "gsis_id": "00-0036415",
-      "pos": "WR",
-      "team": "WAS",
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0039837|5",
+      "severity": "info",
+      "player": "Bralen Trice",
+      "gsis_id": "00-0039837",
+      "pos": "LB",
+      "team": "ATL",
       "sheet": "primary",
       "week": 5,
-      "message": "Van Jefferson (WR, WAS) was elevated from the practice squad (2026-10-10) but has no row on the sheet",
+      "message": "Bralen Trice (LB, ATL) has used 3/3 elevations - must be signed to the 53 to play again",
       "evidence": {
+        "elevations_used": 3,
         "elevation_dates": [
+          "2026-09-12",
+          "2026-09-25",
           "2026-10-10"
-        ],
-        "elevations_used": 0
+        ]
       }
     },
     {
@@ -864,6 +854,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0032803|5",
+      "severity": "info",
+      "player": "Jalen Mills",
+      "gsis_id": "00-0032803",
+      "pos": "DB",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Jalen Mills (DB, DET) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-26",
+          "2026-10-03",
+          "2026-10-10"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0034836|5",
       "severity": "info",
@@ -960,19 +970,18 @@
     },
     {
       "type": "elevation_limit",
-      "key": "elevation_limit|00-0040209|5",
+      "key": "elevation_limit|00-0036182|5",
       "severity": "info",
-      "player": "Jalen McLeod",
-      "gsis_id": "00-0040209",
-      "pos": "LB",
-      "team": "JAX",
+      "player": "Nick Westbrook-Ikhine",
+      "gsis_id": "00-0036182",
+      "pos": "WR",
+      "team": "IND",
       "sheet": "primary",
       "week": 5,
-      "message": "Jalen McLeod (LB, JAX) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Nick Westbrook-Ikhine (WR, IND) has used 3/3 elevations - must be signed to the 53 to play again",
       "evidence": {
         "elevations_used": 3,
         "elevation_dates": [
-          "2026-09-19",
           "2026-09-26",
           "2026-10-03",
           "2026-10-10"
@@ -1247,22 +1256,20 @@
     },
     {
       "type": "elevation_limit",
-      "key": "elevation_limit|00-0040341|5",
+      "key": "elevation_limit|00-0030061|5",
       "severity": "info",
-      "player": "Doneiko Slaughter",
-      "gsis_id": "00-0040341",
-      "pos": "DB",
-      "team": "PIT",
+      "player": "Zach Ertz",
+      "gsis_id": "00-0030061",
+      "pos": "TE",
+      "team": "PHI",
       "sheet": "primary",
       "week": 5,
-      "message": "Doneiko Slaughter (DB, PIT) has used 4/3 elevations - must be signed to the 53 to play again",
+      "message": "Zach Ertz (TE, PHI) has used 3/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 4,
+        "elevations_used": 3,
         "elevation_dates": [
-          "2026-09-12",
-          "2026-09-19",
-          "2026-09-26",
-          "2026-10-02",
+          "2026-09-28",
+          "2026-10-03",
           "2026-10-10"
         ]
       }
@@ -1286,6 +1293,26 @@
           "source": "news:SBN Steelers (Behind the Steel Curtain)"
         },
         "days_pending": 7
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0038409|5",
+      "severity": "info",
+      "player": "Lew Nichols III",
+      "gsis_id": "00-0038409",
+      "pos": "RB",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Lew Nichols III (RB, PIT) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-26",
+          "2026-10-01",
+          "2026-10-10"
+        ]
       }
     },
     {
@@ -1480,15 +1507,14 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "out_but_projected": 3,
-    "status_conflict": 1,
-    "missing_active": 5,
-    "sheet_status_stale": 9,
-    "elevated_not_projected": 14,
+    "status_conflict": 2,
+    "missing_active": 4,
+    "sheet_status_stale": 14,
     "market_proj_gap": 1,
     "sheet_line_stale": 1,
+    "elevated_not_projected": 11,
+    "elevation_limit": 9,
     "ir_return_window": 27,
-    "unconfirmed_report": 10,
-    "elevation_limit": 6
+    "unconfirmed_report": 10
   }
 }
