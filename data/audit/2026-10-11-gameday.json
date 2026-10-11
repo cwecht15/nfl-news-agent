@@ -4,14 +4,31 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-11T20:16:06+00:00",
+  "generated_at": "2026-10-11T20:43:40+00:00",
   "inputs": {
     "snapshot_date": "2026-10-11",
     "nflverse_date": "2026-10-11",
     "injury_week_updated": "2026-10-11T16:44:57+00:00",
-    "roster_state_updated": "2026-10-11T20:16:04+00:00"
+    "roster_state_updated": "2026-10-11T20:43:38+00:00"
   },
   "alerts": [
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0040390|5",
+      "severity": "error",
+      "player": "Jackson Meeks",
+      "gsis_id": "00-0040390",
+      "pos": "TE",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Jackson Meeks (TE, DET) is INACTIVE for DET @ ARI (postgame) but projected for 0.4 PPR",
+      "evidence": {
+        "game": "DET @ ARI",
+        "phase": "postgame",
+        "ppr": 0.4
+      }
+    },
     {
       "type": "missing_active",
       "key": "missing_active|00-0038998|5",
@@ -30,6 +47,23 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "QB",
         "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0041178|5",
+      "severity": "error",
+      "player": "Robert Henry Jr.",
+      "gsis_id": "00-0041178",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Robert Henry Jr. (RB, SEA) is INACTIVE for SF @ SEA (postgame) but projected for 0.5 PPR",
+      "evidence": {
+        "game": "SF @ SEA",
+        "phase": "postgame",
+        "ppr": 0.5
       }
     },
     {
@@ -1681,6 +1715,7 @@
   "dismissed": [],
   "errors": [],
   "counts": {
+    "inactive_but_projected": 2,
     "missing_active": 4,
     "sheet_status_stale": 21,
     "sheet_line_stale": 9,
