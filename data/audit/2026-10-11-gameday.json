@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 5,
   "sheet": "primary",
-  "generated_at": "2026-10-11T15:28:39+00:00",
+  "generated_at": "2026-10-11T16:13:40+00:00",
   "inputs": {
     "snapshot_date": "2026-10-10",
     "nflverse_date": "2026-10-10",
     "injury_week_updated": "2026-10-11T00:27:04+00:00",
-    "roster_state_updated": "2026-10-11T15:28:38+00:00"
+    "roster_state_updated": "2026-10-11T16:13:39+00:00"
   },
   "alerts": [
     {
@@ -91,29 +91,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038839|5|anytime_td",
-      "severity": "warning",
-      "player": "Mitchell Tinsley",
-      "gsis_id": "00-0038839",
-      "pos": "WR",
-      "team": "CIN",
-      "sheet": "primary",
-      "week": 5,
-      "message": "Mitchell Tinsley (WR, CIN) Anytime TD rate: we project 0.01, the market implies 0.33 (odds pulled 2026-10-10 21:08-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 0.01,
-        "market_mean": 0.3279023506,
-        "delta": 0.3179023506,
-        "pct": 31.79023506,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|DAL|5|TB@DAL",
       "severity": "warning",
@@ -123,7 +100,7 @@
       "team": "DAL",
       "sheet": "primary",
       "week": 5,
-      "message": "TB@DAL: the sheet has -9.5 / 48.5, the market 3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-11 10:49:27-04:00)",
+      "message": "TB@DAL: the sheet has -9.5 / 48.5, the market 3.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-11 12:13:23-04:00)",
       "evidence": {
         "game": "TB@DAL",
         "fp_flag": "FP-BOTH",
@@ -255,16 +232,179 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 5,
-      "message": "PHI@JAX: the sheet has -7.5 / 41.5, the market 1.5 / 45.5 (FP-BOTH) (odds pulled 2026-10-11 10:49:27-04:00)",
+      "message": "PHI@JAX: the sheet has -7.5 / 41.5, the market 1.5 / 36.5 (FP-BOTH) (odds pulled 2026-10-11 12:13:23-04:00)",
       "evidence": {
         "game": "PHI@JAX",
         "fp_flag": "FP-BOTH",
         "sheet_spread": -7.5,
         "sheet_ou": 41.5,
         "market_spread": 1.5,
-        "market_total": 45.5,
+        "market_total": 36.5,
         "spread_delta": 9.0,
-        "total_delta": 4.0
+        "total_delta": -5.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040719|5|rec_yds",
+      "severity": "warning",
+      "player": "Bhayshul Tuten",
+      "gsis_id": "00-0040719",
+      "pos": "RB",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Bhayshul Tuten (RB, JAX) Rec Yds: we project 14.1, the market implies 30.0 (also Anytime TD rate) (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "anytime_td",
+          "rec_yds"
+        ],
+        "ours": 14.1,
+        "market_mean": 30.04641497,
+        "delta": 15.94641497,
+        "pct": 1.130951417,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038935|5|receptions",
+      "severity": "warning",
+      "player": "Brenton Strange",
+      "gsis_id": "00-0038935",
+      "pos": "TE",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Brenton Strange (TE, JAX) Rec: we project 3.9, the market implies 6.9 (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "receptions"
+        ],
+        "ours": 3.9,
+        "market_mean": 6.926138994,
+        "delta": 3.026138994,
+        "pct": 0.7759330753,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039893|5|rec_yds",
+      "severity": "warning",
+      "player": "Brian Thomas Jr.",
+      "gsis_id": "00-0039893",
+      "pos": "WR",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Brian Thomas Jr. (WR, JAX) Rec Yds: we project 34.5, the market implies 13.8 (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 34.5,
+        "market_mean": 13.82688494,
+        "delta": -20.67311506,
+        "pct": -0.5992207264,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038611|5|rush_yds",
+      "severity": "warning",
+      "player": "Chris Rodriguez Jr.",
+      "gsis_id": "00-0038611",
+      "pos": "RB",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Chris Rodriguez Jr. (RB, JAX) Rush Yds: we project 30.5, the market implies 17.3 (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_yds"
+        ],
+        "ours": 30.5,
+        "market_mean": 17.28738761,
+        "delta": -13.21261239,
+        "pct": -0.4332004063,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041100|5|rec_yds",
+      "severity": "warning",
+      "player": "Josh Cameron",
+      "gsis_id": "00-0041100",
+      "pos": "WR",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Josh Cameron (WR, JAX) Rec Yds: we project 13.2, the market implies 42.6 (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 13.2,
+        "market_mean": 42.55490735,
+        "delta": 29.35490735,
+        "pct": 2.223856618,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038606|5|rec_yds",
+      "severity": "warning",
+      "player": "Parker Washington",
+      "gsis_id": "00-0038606",
+      "pos": "WR",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Parker Washington (WR, JAX) Rec Yds: we project 69.0, the market implies 108.4 (also Rush+Rec Yds) (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "rush_rec_yds"
+        ],
+        "ours": 69.0,
+        "market_mean": 108.4389708,
+        "delta": 39.43897083,
+        "pct": 0.5715792874,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036971|5|pass_yds",
+      "severity": "warning",
+      "player": "Trevor Lawrence",
+      "gsis_id": "00-0036971",
+      "pos": "QB",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Trevor Lawrence (QB, JAX) Pass Yds: we project 243.9, the market implies 320.7 (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "pass_yds",
+        "stats": [
+          "pass_yds"
+        ],
+        "ours": 243.9,
+        "market_mean": 320.6958429,
+        "delta": 76.79584287,
+        "pct": 0.3148661044,
+        "flag": "RED"
       }
     },
     {
@@ -506,6 +646,76 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037258|5|rush_yds",
+      "severity": "warning",
+      "player": "Dameon Pierce",
+      "gsis_id": "00-0037258",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Dameon Pierce (RB, PHI) Rush Yds: we project 19.3, the market implies 33.3 (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_yds"
+        ],
+        "ours": 19.3,
+        "market_mean": 33.25048707,
+        "delta": 13.95048707,
+        "pct": 0.7228231645,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040024|5|rec_yds",
+      "severity": "warning",
+      "player": "Darius Cooper",
+      "gsis_id": "00-0040024",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Darius Cooper (WR, PHI) Rec Yds: we project 26.8, the market implies 73.4 (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 26.8,
+        "market_mean": 73.43037639,
+        "delta": 46.63037639,
+        "pct": 1.739939417,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0036389|5|ints",
+      "severity": "warning",
+      "player": "Jalen Hurts",
+      "gsis_id": "00-0036389",
+      "pos": "QB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 5,
+      "message": "Jalen Hurts (QB, PHI) INT: we project 0.80, the market implies 0.34 (also Rush Yds) (odds pulled 2026-10-11 11:48-04:00)",
+      "evidence": {
+        "stat": "ints",
+        "stats": [
+          "ints",
+          "rush_yds"
+        ],
+        "ours": 0.8,
+        "market_mean": 0.3382738586,
+        "delta": -0.4617261414,
+        "pct": -0.5771576768,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0038555|5",
       "severity": "warning",
@@ -533,16 +743,16 @@
       "team": "PIT",
       "sheet": "primary",
       "week": 5,
-      "message": "IND@PIT: the sheet has -2.5 / 43.5, the market -3.0 / 42.0 (FP-TOTAL) (odds pulled 2026-10-11 10:49:27-04:00)",
+      "message": "IND@PIT: the sheet has -2.5 / 43.5, the market -3.0 / 41.5 (FP-TOTAL) (odds pulled 2026-10-11 12:13:23-04:00)",
       "evidence": {
         "game": "IND@PIT",
         "fp_flag": "FP-TOTAL",
         "sheet_spread": -2.5,
         "sheet_ou": 43.5,
         "market_spread": -3.0,
-        "market_total": 42.0,
+        "market_total": 41.5,
         "spread_delta": -0.5,
-        "total_delta": -1.5
+        "total_delta": -2.0
       }
     },
     {
@@ -1554,9 +1764,9 @@
     "status_conflict": 2,
     "missing_active": 4,
     "sheet_status_stale": 14,
-    "market_proj_gap": 1,
     "sheet_line_stale": 3,
     "elevated_not_projected": 11,
+    "market_proj_gap": 10,
     "elevation_limit": 9,
     "ir_return_window": 27,
     "unconfirmed_report": 10
