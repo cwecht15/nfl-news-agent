@@ -15,38 +15,38 @@
         "at": "2026-10-06T09:04-04:00"
       },
       "current": {
-        "spread_home": 1.5,
-        "total": 54.5,
-        "home_ml": -103.0,
-        "away_ml": -128.0,
-        "n_books": 33,
-        "at": "2026-10-12T22:44:45-04:00"
+        "spread_home": 2.5,
+        "total": 70.5,
+        "home_ml": 1100.0,
+        "away_ml": -3335.0,
+        "n_books": 29,
+        "at": "2026-10-12T23:56:08-04:00"
       },
       "best": {
-        "home_spread": "+3 (-117)",
-        "away_spread": "+1.5 (+100)",
-        "over": "51.5 (-125)",
-        "under": "57.5 (-118)",
-        "home_ml": "156",
-        "away_ml": "160"
+        "home_spread": "+2.5 (+666)",
+        "away_spread": "-0.5 (-800)",
+        "over": "70.5 (-1660)",
+        "under": "70.5 (+790)",
+        "home_ml": "2500",
+        "away_ml": "-300"
       },
       "sharp": {
-        "book": "pinnacle",
+        "book": "",
         "spread_home": null,
-        "total": 57.5,
-        "home_ml": 134.0,
-        "home_p": 0.406
+        "total": null,
+        "home_ml": null,
+        "home_p": null
       },
       "sheet": {
         "spread_home": -3.5,
         "ou": 54.0,
-        "fp_spread_delta": 5.0,
-        "fp_total_delta": 0.5,
-        "fp_flag": "FP-SPREAD"
+        "fp_spread_delta": 6.0,
+        "fp_total_delta": 16.5,
+        "fp_flag": "FP-BOTH"
       },
       "implied": {
-        "home": 26.5,
-        "away": 28.0
+        "home": 34.0,
+        "away": 36.5
       },
       "history": [
         {
@@ -184,6 +184,14 @@
           "away_ml": -128.0,
           "n_books": 33,
           "at": "2026-10-12T22:44:45-04:00"
+        },
+        {
+          "spread_home": 2.5,
+          "total": 70.5,
+          "home_ml": 1100.0,
+          "away_ml": -3335.0,
+          "n_books": 29,
+          "at": "2026-10-12T23:56:08-04:00"
         }
       ]
     },
@@ -70918,7 +70926,7 @@
     }
   },
   "flags_seen": {
-    "sheet_drift|BUF@LAR": "FP-SPREAD",
+    "sheet_drift|BUF@LAR": "FP-BOTH",
     "market_only|00-0038685|anytime_td": true,
     "market_only|00-0039915|anytime_td": true,
     "market_only|00-0038544|anytime_td": true,
@@ -70939,10 +70947,26 @@
       "game": "BUF@LAR",
       "basis": "since the previous pull",
       "ours": null,
-      "old": -3.5,
-      "new": 1.5,
-      "magnitude": 10.0,
-      "message": "**BUF@LAR** LAR +1.5 (was -3.5, opened -3) — 5 toward BUF"
+      "old": 1.5,
+      "new": 2.5,
+      "magnitude": 2.0,
+      "message": "**BUF@LAR** LAR +2.5 (was +1.5, opened -3) — 1 toward BUF"
+    },
+    {
+      "type": "total_move",
+      "team": "LAR",
+      "player": "",
+      "gsis_id": "",
+      "pos": "",
+      "stat": "",
+      "stat_label": "",
+      "game": "BUF@LAR",
+      "basis": "since the previous pull",
+      "ours": null,
+      "old": 54.5,
+      "new": 70.5,
+      "magnitude": 16.0,
+      "message": "**BUF@LAR** total 70.5, up 16 from 54.5"
     },
     {
       "type": "ml_move",
@@ -70955,10 +70979,10 @@
       "game": "BUF@LAR",
       "basis": "since the previous pull",
       "ours": null,
-      "old": 150.0,
-      "new": -128.0,
-      "magnitude": 18.533,
-      "message": "**BUF** moneyline -128 (was +150)"
+      "old": -128.0,
+      "new": -3335.0,
+      "magnitude": 213.8,
+      "message": "**BUF** moneyline -3335 (was -128)"
     },
     {
       "type": "ml_move",
@@ -70971,10 +70995,10 @@
       "game": "BUF@LAR",
       "basis": "since the previous pull",
       "ours": null,
-      "old": -175.0,
-      "new": -103.0,
-      "magnitude": 4.8,
-      "message": "**LAR** moneyline -103 (was -175)"
+      "old": -103.0,
+      "new": 1100.0,
+      "magnitude": 80.2,
+      "message": "**LAR** moneyline +1100 (was -103)"
     },
     {
       "type": "sheet_drift",
@@ -70988,23 +71012,13 @@
       "basis": "vs the sheet",
       "ours": null,
       "old": -3.5,
-      "new": 1.5,
-      "magnitude": 5.5,
-      "message": "**BUF@LAR**: your sheet has -3.5 / 54, market +1.5 / 54.5 (FP-SPREAD)"
+      "new": 2.5,
+      "magnitude": 22.5,
+      "message": "**BUF@LAR**: your sheet has -3.5 / 54, market +2.5 / 70.5 (FP-BOTH)"
     }
   ],
-  "changes_seen_at": "2026-10-13T02:44:45+00:00",
+  "changes_seen_at": "2026-10-13T03:56:08+00:00",
   "pull_log": [
-    {
-      "pulled_at": "2026-10-08T16:12-04:00",
-      "props_pull_id": "2026-10-08T20:06:30+00:00",
-      "seen_at": "2026-10-09T10:56:46+00:00",
-      "changes": [],
-      "source": "api",
-      "games_at": "2026-10-09T06:56:46-04:00",
-      "credits_used": 9,
-      "credits_remaining": 13557
-    },
     {
       "pulled_at": "2026-10-09T06:58-04:00",
       "props_pull_id": "2026-10-09T10:52:56+00:00",
@@ -76871,6 +76885,97 @@
       "games_at": "2026-10-12T22:44:45-04:00",
       "credits_used": 9,
       "credits_remaining": 10777
+    },
+    {
+      "pulled_at": "2026-10-12T19:23-04:00",
+      "props_pull_id": "2026-10-12T23:23:54+00:00",
+      "seen_at": "2026-10-13T03:56:08+00:00",
+      "changes": [
+        {
+          "type": "spread_move",
+          "team": "LAR",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "BUF@LAR",
+          "basis": "since the previous pull",
+          "ours": null,
+          "old": 1.5,
+          "new": 2.5,
+          "magnitude": 2.0,
+          "message": "**BUF@LAR** LAR +2.5 (was +1.5, opened -3) — 1 toward BUF"
+        },
+        {
+          "type": "total_move",
+          "team": "LAR",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "BUF@LAR",
+          "basis": "since the previous pull",
+          "ours": null,
+          "old": 54.5,
+          "new": 70.5,
+          "magnitude": 16.0,
+          "message": "**BUF@LAR** total 70.5, up 16 from 54.5"
+        },
+        {
+          "type": "ml_move",
+          "team": "BUF",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "BUF@LAR",
+          "basis": "since the previous pull",
+          "ours": null,
+          "old": -128.0,
+          "new": -3335.0,
+          "magnitude": 213.8,
+          "message": "**BUF** moneyline -3335 (was -128)"
+        },
+        {
+          "type": "ml_move",
+          "team": "LAR",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "BUF@LAR",
+          "basis": "since the previous pull",
+          "ours": null,
+          "old": -103.0,
+          "new": 1100.0,
+          "magnitude": 80.2,
+          "message": "**LAR** moneyline +1100 (was -103)"
+        },
+        {
+          "type": "sheet_drift",
+          "team": "LAR",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "BUF@LAR",
+          "basis": "vs the sheet",
+          "ours": null,
+          "old": -3.5,
+          "new": 2.5,
+          "magnitude": 22.5,
+          "message": "**BUF@LAR**: your sheet has -3.5 / 54, market +2.5 / 70.5 (FP-BOTH)"
+        }
+      ],
+      "source": "api",
+      "games_at": "2026-10-12T23:56:08-04:00",
+      "credits_used": 9,
+      "credits_remaining": 10768
     }
   ],
   "pull": {
@@ -76878,11 +76983,11 @@
     "props_pull_id": "2026-10-12T23:23:54+00:00",
     "week_reported": 5,
     "stale_reason": "",
-    "age_hours": 3.4,
-    "games_at": "2026-10-12T22:44:45-04:00",
+    "age_hours": 4.6,
+    "games_at": "2026-10-12T23:56:08-04:00",
     "games_source": "api",
     "games_age_hours": 0.0,
     "games_stale_reason": ""
   },
-  "updated_at": "2026-10-13T02:44:45+00:00"
+  "updated_at": "2026-10-13T03:56:09+00:00"
 }
