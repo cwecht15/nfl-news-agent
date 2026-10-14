@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-14T22:40:51+00:00",
+  "generated_at": "2026-10-14T23:57:12+00:00",
   "inputs": {
     "snapshot_date": "2026-10-14",
     "nflverse_date": "2026-10-14",
-    "injury_week_updated": "2026-10-14T22:40:50+00:00",
-    "roster_state_updated": "2026-10-14T11:49:41+00:00"
+    "injury_week_updated": "2026-10-14T23:57:11+00:00",
+    "roster_state_updated": "2026-10-14T23:24:14+00:00"
   },
   "alerts": [
     {
@@ -110,6 +110,26 @@
       }
     },
     {
+      "type": "missing_active",
+      "key": "missing_active|00-0039550|6",
+      "severity": "warning",
+      "player": "Shawn Bowman",
+      "gsis_id": "00-0039550",
+      "pos": "TE",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Shawn Bowman (TE, ARZ) is on the active roster but has no row on the sheet (OurLads TE #1; promoted from the practice squad 2026-10-14)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "TE",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "TE",
+        "status_abbr": "P01"
+      }
+    },
+    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|ATL|6|CHI@ATL",
       "severity": "warning",
@@ -119,7 +139,7 @@
       "team": "ATL",
       "sheet": "primary",
       "week": 6,
-      "message": "CHI@ATL: the sheet has 3.0 / 49.5, the market 1.5 / 50.5 (FP-SPREAD) (odds pulled 2026-10-14 18:40:43-04:00)",
+      "message": "CHI@ATL: the sheet has 3.0 / 49.5, the market 1.5 / 50.5 (FP-SPREAD) (odds pulled 2026-10-14 19:57:01-04:00)",
       "evidence": {
         "game": "CHI@ATL",
         "fp_flag": "FP-SPREAD",
@@ -327,7 +347,7 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 6,
-      "message": "CAR@PHI: the sheet has -1.0 / 40.5, the market 1.0 / 39.5 (FP-SPREAD) (odds pulled 2026-10-14 18:40:43-04:00)",
+      "message": "CAR@PHI: the sheet has -1.0 / 40.5, the market 1.0 / 39.5 (FP-SPREAD) (odds pulled 2026-10-14 19:57:01-04:00)",
       "evidence": {
         "game": "CAR@PHI",
         "fp_flag": "FP-SPREAD",
@@ -369,10 +389,10 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 6,
-      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says FA",
+      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
+        "roster_status": "ACT",
+        "status_source": "espn",
         "sheet_status": "PS",
         "ppr": 0.3
       }
@@ -1132,7 +1152,7 @@
   "counts": {
     "status_conflict": 3,
     "wrong_team": 1,
-    "missing_active": 7,
+    "missing_active": 8,
     "sheet_line_stale": 2,
     "sheet_status_stale": 4,
     "market_proj_gap": 3,
