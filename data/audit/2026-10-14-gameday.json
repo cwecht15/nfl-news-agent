@@ -4,34 +4,14 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-14T23:24:14+00:00",
+  "generated_at": "2026-10-15T00:09:12+00:00",
   "inputs": {
     "snapshot_date": "2026-10-14",
     "nflverse_date": "2026-10-14",
-    "injury_week_updated": "2026-10-14T22:40:50+00:00",
-    "roster_state_updated": "2026-10-14T23:24:14+00:00"
+    "injury_week_updated": "2026-10-15T00:06:08+00:00",
+    "roster_state_updated": "2026-10-15T00:09:12+00:00"
   },
   "alerts": [
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0032398|6",
-      "severity": "error",
-      "player": "Chris Moore",
-      "gsis_id": "00-0032398",
-      "pos": "WR",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Chris Moore (WR, BLT) is projected Active (0.5 PPR) but roster status is FA (since 2026-10-13)",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.5,
-        "slot": 4,
-        "earliest_return_week": null
-      }
-    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040644|6",
@@ -110,26 +90,6 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0039550|6",
-      "severity": "warning",
-      "player": "Shawn Bowman",
-      "gsis_id": "00-0039550",
-      "pos": "TE",
-      "team": "ARZ",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Shawn Bowman (TE, ARZ) is on the active roster but has no row on the sheet (OurLads TE #1; promoted from the practice squad 2026-10-14)",
-      "evidence": {
-        "ourlads_depth": 1,
-        "ourlads_pos": "TE",
-        "ourlads_stale": false,
-        "nflverse_status": "DEV",
-        "depth_chart_position": "TE",
-        "status_abbr": "P01"
-      }
-    },
-    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|ATL|6|CHI@ATL",
       "severity": "warning",
@@ -139,7 +99,7 @@
       "team": "ATL",
       "sheet": "primary",
       "week": 6,
-      "message": "CHI@ATL: the sheet has 3.0 / 49.5, the market 1.5 / 50.5 (FP-SPREAD) (odds pulled 2026-10-14 18:40:43-04:00)",
+      "message": "CHI@ATL: the sheet has 3.0 / 49.5, the market 1.5 / 50.5 (FP-SPREAD) (odds pulled 2026-10-14 19:57:01-04:00)",
       "evidence": {
         "game": "CHI@ATL",
         "fp_flag": "FP-SPREAD",
@@ -149,6 +109,44 @@
         "market_total": 50.5,
         "spread_delta": -1.5,
         "total_delta": 1.0
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0032398|6",
+      "severity": "warning",
+      "player": "Chris Moore",
+      "gsis_id": "00-0032398",
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Chris Moore (WR, BLT) is projected Active (0.5 PPR) but roster status is PS (since 2026-10-14)",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.5,
+        "slot": 4,
+        "earliest_return_week": null
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040870|6",
+      "severity": "warning",
+      "player": "Ja'Kobi Lane",
+      "gsis_id": "00-0040870",
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Ja'Kobi Lane (WR, BLT) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 0.0
       }
     },
     {
@@ -320,6 +318,26 @@
       }
     },
     {
+      "type": "missing_active",
+      "key": "missing_active|00-0038905|6",
+      "severity": "warning",
+      "player": "Blake Grupe",
+      "gsis_id": "00-0038905",
+      "pos": "K",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Blake Grupe (K, LA) is on the active roster but has no row on the sheet (OurLads PK #1; signed 2026-10-14)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "PK",
+        "ourlads_stale": false,
+        "nflverse_status": "CUT",
+        "depth_chart_position": "K",
+        "status_abbr": "P07"
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0038824|6",
       "severity": "warning",
@@ -338,6 +356,24 @@
       }
     },
     {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035676|6",
+      "severity": "warning",
+      "player": "A.J. Brown",
+      "gsis_id": "00-0035676",
+      "pos": "WR",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 6,
+      "message": "A.J. Brown (WR, NE) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 0.0
+      }
+    },
+    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|PHI|6|CAR@PHI",
       "severity": "warning",
@@ -347,7 +383,7 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 6,
-      "message": "CAR@PHI: the sheet has -1.0 / 40.5, the market 1.0 / 39.5 (FP-SPREAD) (odds pulled 2026-10-14 18:40:43-04:00)",
+      "message": "CAR@PHI: the sheet has -1.0 / 40.5, the market 1.0 / 39.5 (FP-SPREAD) (odds pulled 2026-10-14 19:57:01-04:00)",
       "evidence": {
         "game": "CAR@PHI",
         "fp_flag": "FP-SPREAD",
@@ -357,44 +393,6 @@
         "market_total": 39.5,
         "spread_delta": 2.0,
         "total_delta": -1.0
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0037156|6",
-      "severity": "warning",
-      "player": "Irvin Charles",
-      "gsis_id": "00-0037156",
-      "pos": "WR",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Irvin Charles (WR, SEA) is on the active roster but has no row on the sheet (OurLads RWR #2; activated off IR 2026-10-14)",
-      "evidence": {
-        "ourlads_depth": 2,
-        "ourlads_pos": "RWR",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "WR",
-        "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0037745|6",
-      "severity": "warning",
-      "player": "Velus Jones Jr.",
-      "gsis_id": "00-0037745",
-      "pos": "RB",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Velus Jones Jr. (RB, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "espn",
-        "sheet_status": "PS",
-        "ppr": 0.3
       }
     },
     {
@@ -418,21 +416,23 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040230|6",
+      "type": "missing_active",
+      "key": "missing_active|00-0039550|6",
       "severity": "info",
-      "player": "Kitan Crawford",
-      "gsis_id": "00-0040230",
-      "pos": "DB",
+      "player": "Shawn Bowman",
+      "gsis_id": "00-0039550",
+      "pos": "TE",
       "team": "ARZ",
       "sheet": "primary",
       "week": 6,
-      "message": "Kitan Crawford (DB, ARZ) on IR - first eligible Week 6",
+      "message": "Shawn Bowman (TE, ARZ) is on the active roster but has no row on the sheet (OurLads TE #4; signed 2026-10-14)",
       "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": null,
-        "on_sheet": false
+        "ourlads_depth": 4,
+        "ourlads_pos": "TE",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "TE",
+        "status_abbr": "P01"
       }
     },
     {
@@ -471,24 +471,6 @@
         "earliest_return_week": 6,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040870|6",
-      "severity": "info",
-      "player": "Ja'Kobi Lane",
-      "gsis_id": "00-0040870",
-      "pos": "WR",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Ja'Kobi Lane (WR, BLT) on IR - first eligible Week 6 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": null,
-        "on_sheet": true
       }
     },
     {
@@ -588,24 +570,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040162|6",
-      "severity": "info",
-      "player": "Dylan Sampson",
-      "gsis_id": "00-0040162",
-      "pos": "RB",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Dylan Sampson (RB, CLV) on IR - first eligible Week 6",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0039465|6",
       "severity": "info",
@@ -643,24 +607,6 @@
           "2026-09-19",
           "2026-09-26"
         ]
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0038599|6",
-      "severity": "info",
-      "player": "Henry To'oTo'o",
-      "gsis_id": "00-0038599",
-      "pos": "LB",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Henry To'oTo'o (LB, HST) on IR - first eligible Week 6",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": null,
-        "on_sheet": false
       }
     },
     {
@@ -880,24 +826,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0035676|6",
-      "severity": "info",
-      "player": "A.J. Brown",
-      "gsis_id": "00-0035676",
-      "pos": "WR",
-      "team": "NE",
-      "sheet": "primary",
-      "week": 6,
-      "message": "A.J. Brown (WR, NE) on IR - first eligible Week 6 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": null,
-        "on_sheet": true
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|audric estime|6|ir_placed",
       "severity": "info",
@@ -919,6 +847,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037231|6",
+      "severity": "info",
+      "player": "Kevin Austin Jr.",
+      "gsis_id": "00-0037231",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Kevin Austin Jr. (WR, NO) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0036937|6",
       "severity": "info",
@@ -929,42 +877,6 @@
       "sheet": "primary",
       "week": 6,
       "message": "Paulson Adebo (DB, NYG) on IR - first eligible Week 6",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0041511|6",
-      "severity": "info",
-      "player": "Omar Cooper Jr.",
-      "gsis_id": "00-0041511",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Omar Cooper Jr. (WR, NYJ) on IR - first eligible Week 6",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0037002|6",
-      "severity": "info",
-      "player": "Landon Dickerson",
-      "gsis_id": "00-0037002",
-      "pos": "OL",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Landon Dickerson (OL, PHI) on IR - first eligible Week 6",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
@@ -1154,10 +1066,10 @@
     "wrong_team": 1,
     "missing_active": 8,
     "sheet_line_stale": 2,
-    "sheet_status_stale": 4,
+    "sheet_status_stale": 5,
     "market_proj_gap": 3,
-    "ir_return_window": 20,
-    "elevation_limit": 8,
+    "elevation_limit": 9,
+    "ir_return_window": 13,
     "unconfirmed_report": 9
   }
 }
