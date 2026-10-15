@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-15T20:25:56+00:00",
+  "generated_at": "2026-10-15T23:05:00+00:00",
   "inputs": {
     "snapshot_date": "2026-10-15",
     "nflverse_date": "2026-10-15",
-    "injury_week_updated": "2026-10-15T20:25:56+00:00",
-    "roster_state_updated": "2026-10-15T20:25:53+00:00"
+    "injury_week_updated": "2026-10-15T21:01:03+00:00",
+    "roster_state_updated": "2026-10-15T23:04:59+00:00"
   },
   "alerts": [
     {
@@ -105,6 +105,28 @@
         "status_source": "news",
         "sheet_status": "PS",
         "ppr": 0.5
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|CLV|6|BAL@CLE",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 6,
+      "message": "BAL@CLE: the sheet has 5.0 / 42.5, the market 4.0 / 41.0 (FP-BOTH) (odds pulled 2026-10-15 17:00:52-04:00)",
+      "evidence": {
+        "game": "BAL@CLE",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 5.0,
+        "sheet_ou": 42.5,
+        "market_spread": 4.0,
+        "market_total": 41.0,
+        "spread_delta": -1.0,
+        "total_delta": -1.5
       }
     },
     {
@@ -368,24 +390,24 @@
     },
     {
       "type": "sheet_line_stale",
-      "key": "sheet_line_stale|NYG|6|NO@NYG",
+      "key": "sheet_line_stale|PHI|6|CAR@PHI",
       "severity": "warning",
       "player": "",
       "gsis_id": null,
       "pos": "",
-      "team": "NYG",
+      "team": "PHI",
       "sheet": "primary",
       "week": 6,
-      "message": "NO@NYG: the sheet has 0.0 / 45.5, the market 1.0 / 45.5 (FP-SPREAD) (odds pulled 2026-10-15 16:12-04:00)",
+      "message": "CAR@PHI: the sheet has -0.5 / 39.5, the market 3.5 / 39.0 (FP-SPREAD) (odds pulled 2026-10-15 17:00:52-04:00)",
       "evidence": {
-        "game": "NO@NYG",
+        "game": "CAR@PHI",
         "fp_flag": "FP-SPREAD",
-        "sheet_spread": 0.0,
-        "sheet_ou": 45.5,
-        "market_spread": 1.0,
-        "market_total": 45.5,
-        "spread_delta": 1.0,
-        "total_delta": 0.0
+        "sheet_spread": -0.5,
+        "sheet_ou": 39.5,
+        "market_spread": 3.5,
+        "market_total": 39.0,
+        "spread_delta": 4.0,
+        "total_delta": -0.5
       }
     },
     {
@@ -500,6 +522,46 @@
         "earliest_return_week": 6,
         "designated_return_date": null,
         "on_sheet": true
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040879|6",
+      "severity": "info",
+      "player": "Matthew Hibner",
+      "gsis_id": "00-0040879",
+      "pos": "TE",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Matthew Hibner (TE, BLT) did not practice on the latest report (Hand); projected 2.9 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-14": "DNP",
+          "2026-10-15": "DNP"
+        },
+        "injury": "Hand",
+        "ppr": 2.9
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036550|6",
+      "severity": "info",
+      "player": "Rashod Bateman",
+      "gsis_id": "00-0036550",
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Rashod Bateman (WR, BLT) did not practice on the latest report (Shoulder); projected 6.5 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-14": "LP",
+          "2026-10-15": "DNP"
+        },
+        "injury": "Shoulder",
+        "ppr": 6.5
       }
     },
     {
@@ -1245,11 +1307,11 @@
     "wrong_team": 1,
     "missing_active": 8,
     "sheet_status_stale": 7,
+    "sheet_line_stale": 2,
     "market_proj_gap": 3,
-    "sheet_line_stale": 1,
     "ir_return_window": 20,
     "elevation_limit": 9,
-    "unconfirmed_report": 9,
-    "dnp_but_projected": 3
+    "dnp_but_projected": 5,
+    "unconfirmed_report": 9
   }
 }
