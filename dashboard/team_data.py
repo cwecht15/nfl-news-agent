@@ -207,6 +207,39 @@ def event_rows(events: list[dict], team: str, since: Optional[str] = None,
     return rows
 
 
+def _short_at(at: Any) -> str:
+    """``2026-10-13T07:14:59-04:00`` -> ``10-13 07:14``."""
+    s = str(at or "").replace("T", " ")
+    return s[5:16] if len(s) >= 16 else s
+
+
+def condense_line_history(history: list[dict], limit: int = 5) -> list[dict]:
+    """Line history (oldest first) -> up to ``limit`` rows, newest first, one
+    per run of pulls with the same spread and total.
+
+    Most pulls re-post the same number with a moneyline wiggle, so eight rows
+    of "+7 / 43.5" become one "Same line 10-13 07:14 → 10-15 16:12 (8 pulls)".
+    """
+    runs: list[list[dict]] = []
+    for h in history or []:
+        if runs and (runs[-1][-1].get("spread"), runs[-1][-1].get("total")) == (h.get("spread"), h.get("total")):
+            runs[-1].append(h)
+        else:
+            runs.append([h])
+    rows = []
+    for run in reversed(runs[-limit:] if limit else runs):
+        first, last = run[0], run[-1]
+        mls = [h.get("ml") for h in run if h.get("ml") is not None]
+        lo, hi = (min(mls), max(mls)) if mls else (None, None)
+        ml = "" if lo is None else (f"{lo:+g}" if lo == hi else f"{lo:+g} to {hi:+g}")
+        when = (_short_at(first.get("at")) if len(run) == 1
+                else f"Same line {_short_at(first.get('at'))} → {_short_at(last.get('at'))} ({len(run)} pulls)")
+        rows.append({"When": when, "Spread": last.get("spread"), "Total": last.get("total"),
+                     "Implied": last.get("implied"), "Opp implied": last.get("opp_implied"),
+                     "Moneyline": ml})
+    return rows
+
+
 ELEVATION_DEADLINE = ("Standard elevations are declared by **4:00 PM ET the day before the game** "
                       "(Saturday for Sunday, Wednesday for Thursday, Sunday for Monday) and an "
                       "elevated player is active for it. Each club may elevate up to two a game, "

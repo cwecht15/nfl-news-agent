@@ -307,3 +307,18 @@ def test_espn_team_dialect_is_healed_on_read(tmp_path, monkeypatch):
     events = re_mod.load_events()
     assert [e["team"] for e in events] == ["WAS", "JAX"]
     assert events[1]["from_team"] == "LAR"
+
+
+def test_condense_line_history_merges_unchanged_pulls_newest_first():
+    h = [{"at": "2026-10-13T07:14:59-04:00", "spread": 7.0, "total": 43.5, "implied": 18.2,
+          "opp_implied": 25.2, "ml": 270.0},
+         {"at": "2026-10-14T07:36:16-04:00", "spread": 7.0, "total": 43.5, "implied": 18.2,
+          "opp_implied": 25.2, "ml": 275.0},
+         {"at": "2026-10-15T12:02-04:00", "spread": 6.5, "total": 43.5, "implied": 18.5,
+          "opp_implied": 25.0, "ml": 260.0}]
+    rows = td.condense_line_history(h)
+    assert [r["Spread"] for r in rows] == [6.5, 7.0]
+    assert rows[0]["When"] == "10-15 12:02"
+    assert rows[1]["When"] == "Same line 10-13 07:14 → 10-14 07:36 (2 pulls)"
+    assert rows[1]["Moneyline"] == "+270 to +275"
+    assert len(td.condense_line_history(h, limit=1)) == 1

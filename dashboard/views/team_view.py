@@ -183,11 +183,72 @@ if alerts:
     st.caption(f"From the {audit.get('date')} {audit.get('run')} audit · dismiss on the Projection Audit page.")
 
 # ---------------------------------------------------------------------------
-# Latest news
+# Roster + depth chart
 # ---------------------------------------------------------------------------
 
-st.subheader("Team notes")
-_team_notes(7, first_expanded=True, limit=1)   # the newest report that has notes for this team
+st.subheader("Roster")
+_state = isd.roster_state() or {}
+if _state.get("updated_at"):
+    st.caption(f"From the nflverse roster collected **{to_et_display(_state['updated_at'])}** — "
+               "the Refresh control at the top of the page re-reads it.")
+skill_only = st.checkbox("Skill positions only", value=True, key="team_roster_skill")
+
+left, right = st.columns(2)
+with left:
+    active = td.active_roster_rows(_state, team, skill_only=skill_only)
+    st.markdown(f"**Active roster** ({len(active)})")
+    if active:
+        st.dataframe(active, use_container_width=True, hide_index=True)
+    else:
+        st.caption("No active-roster players recorded for this team.")
+with right:
+    off53 = td.roster_rows(_state, team, skill_only=skill_only)
+    st.markdown(f"**Off the active roster** ({len(off53)})")
+    st.dataframe(off53, use_container_width=True, hide_index=True)
+
+from processing.projection_audit import _week_window  # noqa: E402
+
+week_start, _end = _week_window(schedule, week) if schedule else (None, None)
+moves = td.event_rows(isd.events(1500), team, since=week_start, state=_state)
+st.markdown(f"**Moves this week** ({len(moves)})")
+st.dataframe(moves, use_container_width=True, hide_index=True)
+
+# ---------------------------------------------------------------------------
+# Practice-squad elevations
+#
+# Week-scoped, not run-scoped: an elevation is declared at 4 PM ET the day
+# before the game, so Saturday's batch has to still be here on Sunday. An empty
+# list for a club whose game is still to come means "nobody elevated yet", not
+# "nothing collected" — elevation_status knows which clubs are still waiting.
+# ---------------------------------------------------------------------------
+
+from processing.roster_events import elevations_for_week  # noqa: E402
+
+_week_elev = elevations_for_week(week) if week else []
+_elev = [e for e in _week_elev if e.get("team") == team]
+# Empty most of the week (they land the afternoon before the game), so it
+# stays collapsed until there is something in it.
+with st.expander(f"Practice-squad elevations ({len(_elev)})", expanded=bool(_elev)):
+    if _elev:
+        st.dataframe(td.elevation_rows(_elev, _state), use_container_width=True, hide_index=True)
+    else:
+        _status = td.elevation_status(_week_elev, schedule, week, today) if week else {"waiting": []}
+        if team in _status.get("waiting", []):
+            st.caption(f"No elevation recorded for {team} yet — its game is still to come, and a club "
+                       "may simply have elevated nobody.")
+        else:
+            st.caption("No elevations this week.")
+    st.caption(td.ELEVATION_DEADLINE)
+
+from collectors.depth_chart_collector import get_depth_chart_dates, load_depth_chart_by_date  # noqa: E402
+
+dc_dates = get_depth_chart_dates()
+with st.expander(f"Depth chart (OurLads{', ' + dc_dates[0] if dc_dates else ''})"):
+    depth_rows = td.depth_chart(load_depth_chart_by_date(dc_dates[0]) if dc_dates else None, team)
+    if depth_rows:
+        st.dataframe(depth_rows, use_container_width=True, hide_index=True)
+    else:
+        st.caption("No depth chart snapshot.")
 
 # ---------------------------------------------------------------------------
 # Injuries + inactives
@@ -232,7 +293,16 @@ if attr and team in attr:
 # ---------------------------------------------------------------------------
 
 if card and card["history"]:
-    with st.expander(f"Line history — {len(card['history'])} posted changes", expanded=False):
+    st.subheader("Line history")
+    st.dataframe(
+        [{"When": r["When"], "Spread": r["Spread"], "Total": r["Total"],
+          f"{team} implied": r["Implied"], f"{card['opp']} implied": r["Opp implied"],
+          "Moneyline": r["Moneyline"]}
+         for r in td.condense_line_history(card["history"], limit=5)],
+        use_container_width=True, hide_index=True,
+    )
+    st.caption("Newest first; pulls that re-posted the same spread and total are merged into one row.")
+    with st.expander(f"Every pull ({len(card['history'])})", expanded=False):
         st.dataframe(
             [{"Pull": str(h["at"] or "").replace("T", " "), "Spread": h["spread"], "Total": h["total"],
               f"{team} implied": h["implied"], f"{card['opp']} implied": h["opp_implied"],
@@ -241,12 +311,12 @@ if card and card["history"]:
         )
 
 # ---------------------------------------------------------------------------
-# Projections
+# Projections — loaded here because Player lines sorts by them; the table
+# itself renders at the bottom of the page.
 # ---------------------------------------------------------------------------
 
 from dashboard.projection_data import get_projection_source  # noqa: E402
 
-st.subheader("Projections")
 src = get_projection_source(settings)
 proj_rows: list[dict] = []
 dates = [d for d in src.dates() if src.week_for_date(d) == week] if hasattr(src, "week_for_date") else []
@@ -255,16 +325,6 @@ if dates:
     earlier = [d for d in src.dates_same_week(latest) if d < latest]
     prev_out = src.load(earlier[-1], "fantasy") if earlier else None
     proj_rows = td.projection_rows(src.load(latest, "fantasy"), src.load(latest, "players"), team, prev_out)
-if proj_rows:
-    st.dataframe(
-        proj_rows, use_container_width=True, hide_index=True,
-        column_config={"PPR": NUM(format="%.1f"),
-                       "Δ PPR": NUM(format="%+.1f", help="Change since the week's previous sheet snapshot")},
-    )
-    st.caption(f"Your {src.sheet_for_date(latest) if hasattr(src, 'sheet_for_date') else ''} sheet, "
-               f"snapshot {latest}" + (f" · Δ vs {earlier[-1]}" if earlier else ""))
-else:
-    st.caption("No weekly projection snapshot for this week yet.")
 
 # ---------------------------------------------------------------------------
 # Player lines
@@ -291,75 +351,28 @@ else:
                else f"No line has moved {MOVE_CHOICES[show]:g}% or more since open.")
 
 # ---------------------------------------------------------------------------
-# Practice-squad elevations
-#
-# Week-scoped, not run-scoped: an elevation is declared at 4 PM ET the day
-# before the game, so Saturday's batch has to still be here on Sunday. An empty
-# list for a club whose game is still to come means "nobody elevated yet", not
-# "nothing collected" — elevation_status knows which clubs are still waiting.
+# Team notes (latest, then earlier)
 # ---------------------------------------------------------------------------
 
-from processing.roster_events import elevations_for_week  # noqa: E402
+st.subheader("Team notes")
+_team_notes(7, first_expanded=True, limit=1)   # the newest report that has notes for this team
 
-st.subheader("Practice-squad elevations")
-_week_elev = elevations_for_week(week) if week else []
-_elev = [e for e in _week_elev if e.get("team") == team]
-if _elev:
-    st.dataframe(td.elevation_rows(_elev, isd.roster_state()),
-                 use_container_width=True, hide_index=True)
-else:
-    _status = td.elevation_status(_week_elev, schedule, week, today) if week else {"waiting": []}
-    if team in _status.get("waiting", []):
-        st.caption(f"No elevation recorded for {team} yet — its game is still to come, and a club "
-                   "may simply have elevated nobody.")
-    else:
-        st.caption("No elevations this week.")
-st.caption(td.ELEVATION_DEADLINE)
-
-# ---------------------------------------------------------------------------
-# Roster + depth chart
-# ---------------------------------------------------------------------------
-
-st.subheader("Roster")
-_state = isd.roster_state() or {}
-if _state.get("updated_at"):
-    st.caption(f"From the nflverse roster collected **{to_et_display(_state['updated_at'])}** — "
-               "the Refresh control at the top of the page re-reads it.")
-skill_only = st.checkbox("Skill positions only", value=True, key="team_roster_skill")
-
-active = td.active_roster_rows(_state, team, skill_only=skill_only)
-st.markdown(f"**Active roster** ({len(active)})")
-if active:
-    st.dataframe(active, use_container_width=True, hide_index=True)
-else:
-    st.caption("No active-roster players recorded for this team.")
-
-left, right = st.columns(2)
-with left:
-    off53 = td.roster_rows(_state, team, skill_only=skill_only)
-    st.markdown(f"**Off the active roster** ({len(off53)})")
-    st.dataframe(off53, use_container_width=True, hide_index=True)
-with right:
-    from processing.projection_audit import _week_window  # noqa: E402
-    week_start, _end = _week_window(schedule, week) if schedule else (None, None)
-    moves = td.event_rows(isd.events(1500), team, since=week_start, state=_state)
-    st.markdown(f"**Moves this week** ({len(moves)})")
-    st.dataframe(moves, use_container_width=True, hide_index=True)
-
-from collectors.depth_chart_collector import get_depth_chart_dates, load_depth_chart_by_date  # noqa: E402
-
-dc_dates = get_depth_chart_dates()
-with st.expander(f"Depth chart (OurLads{', ' + dc_dates[0] if dc_dates else ''})"):
-    depth_rows = td.depth_chart(load_depth_chart_by_date(dc_dates[0]) if dc_dates else None, team)
-    if depth_rows:
-        st.dataframe(depth_rows, use_container_width=True, hide_index=True)
-    else:
-        st.caption("No depth chart snapshot.")
-
-# ---------------------------------------------------------------------------
-# Earlier notes
-# ---------------------------------------------------------------------------
-
-st.subheader("Earlier team notes")
+st.markdown("**Earlier team notes**")
 days_back = st.slider("Days to show", 2, 30, 7, key="team_days")
 _team_notes(days_back, first_expanded=False, skip_latest=True)
+
+# ---------------------------------------------------------------------------
+# Projections
+# ---------------------------------------------------------------------------
+
+st.subheader("Projections")
+if proj_rows:
+    st.dataframe(
+        proj_rows, use_container_width=True, hide_index=True,
+        column_config={"PPR": NUM(format="%.1f"),
+                       "Δ PPR": NUM(format="%+.1f", help="Change since the week's previous sheet snapshot")},
+    )
+    st.caption(f"Your {src.sheet_for_date(latest) if hasattr(src, 'sheet_for_date') else ''} sheet, "
+               f"snapshot {latest}" + (f" · Δ vs {earlier[-1]}" if earlier else ""))
+else:
+    st.caption("No weekly projection snapshot for this week yet.")
