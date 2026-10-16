@@ -4,11 +4,11 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-16T19:46:16+00:00",
+  "generated_at": "2026-10-16T20:31:12+00:00",
   "inputs": {
     "snapshot_date": "2026-10-16",
     "nflverse_date": "2026-10-16",
-    "injury_week_updated": "2026-10-16T19:46:16+00:00",
+    "injury_week_updated": "2026-10-16T20:31:12+00:00",
     "roster_state_updated": "2026-10-16T11:32:45+00:00"
   },
   "alerts": [
@@ -30,6 +30,28 @@
         "ppr": 3.9,
         "slot": 7,
         "earliest_return_week": 6
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040879|6|OUT",
+      "severity": "error",
+      "player": "Matthew Hibner",
+      "gsis_id": "00-0040879",
+      "pos": "TE",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Matthew Hibner (TE, BLT) is OUT (Hand) but projected for 2.8 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hand",
+        "practice": {
+          "2026-10-14": "DNP",
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP"
+        },
+        "ppr": 2.8
       }
     },
     {
@@ -95,6 +117,28 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040162|6|OUT",
+      "severity": "error",
+      "player": "Dylan Sampson",
+      "gsis_id": "00-0040162",
+      "pos": "RB",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Dylan Sampson (RB, CLV) is OUT (Knee) but projected for 0.1 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Knee",
+        "practice": {
+          "2026-10-14": "DNP",
+          "2026-10-15": "LP",
+          "2026-10-16": "LP"
+        },
+        "ppr": 0.1
+      }
+    },
+    {
       "type": "status_conflict",
       "key": "status_conflict|00-0040009|6",
       "severity": "error",
@@ -152,25 +196,25 @@
       }
     },
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|CLV|6|BAL@CLE",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "CLV",
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0039847|6|OUT",
+      "severity": "error",
+      "player": "Theo Johnson",
+      "gsis_id": "00-0039847",
+      "pos": "TE",
+      "team": "NYG",
       "sheet": "primary",
       "week": 6,
-      "message": "BAL@CLE: the sheet has 4.0 / 41.0, the market 3.0 / 40.0 (FP-SPREAD) (odds pulled 2026-10-16 15:45:56-04:00)",
+      "message": "Theo Johnson (TE, NYG) is OUT (Neck) but projected for 2.8 PPR",
       "evidence": {
-        "game": "BAL@CLE",
-        "fp_flag": "FP-SPREAD",
-        "sheet_spread": 4.0,
-        "sheet_ou": 41.0,
-        "market_spread": 3.0,
-        "market_total": 40.0,
-        "spread_delta": -1.0,
-        "total_delta": -1.0
+        "game_status": "OUT",
+        "injury": "Neck",
+        "practice": {
+          "2026-10-14": "LP",
+          "2026-10-15": "LP",
+          "2026-10-16": "DNP"
+        },
+        "ppr": 2.8
       }
     },
     {
@@ -201,7 +245,7 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 6,
-      "message": "Dylan Sampson (RB, CLV) Anytime TD rate: we project 0.01, the market implies 0.38 (odds pulled 2026-10-16 15:25-04:00)",
+      "message": "Dylan Sampson (RB, CLV) Anytime TD rate: we project 0.01, the market implies 0.38 (odds pulled 2026-10-16 15:51-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -224,7 +268,7 @@
       "team": "DEN",
       "sheet": "primary",
       "week": 6,
-      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-16 15:45:56-04:00)",
+      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-16 15:51-04:00)",
       "evidence": {
         "game": "SEA@DEN",
         "fp_flag": "FP-BOTH",
@@ -494,46 +538,6 @@
         "earliest_return_week": 6,
         "designated_return_date": null,
         "on_sheet": true
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040879|6",
-      "severity": "info",
-      "player": "Matthew Hibner",
-      "gsis_id": "00-0040879",
-      "pos": "TE",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Matthew Hibner (TE, BLT) did not practice on the latest report (Hand); projected 2.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "DNP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Hand",
-        "ppr": 2.8
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036550|6",
-      "severity": "info",
-      "player": "Rashod Bateman",
-      "gsis_id": "00-0036550",
-      "pos": "WR",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Rashod Bateman (WR, BLT) did not practice on the latest report (Shoulder); projected 6.0 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "LP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Shoulder",
-        "ppr": 6.0
       }
     },
     {
@@ -1082,26 +1086,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0038393|6",
-      "severity": "info",
-      "player": "Dontayvion Wicks",
-      "gsis_id": "00-0038393",
-      "pos": "WR",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Dontayvion Wicks (WR, PHI) did not practice on the latest report (Hamstring); projected 9.1 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "LP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Hamstring",
-        "ppr": 9.1
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0037002|6",
       "severity": "info",
@@ -1238,26 +1222,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0039032|6",
-      "severity": "info",
-      "player": "Tyjae Spears",
-      "gsis_id": "00-0039032",
-      "pos": "RB",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Tyjae Spears (RB, TEN) did not practice on the latest report (Knee); projected 6.7 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "LP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Knee",
-        "ppr": 6.7
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0040318|6",
       "severity": "info",
@@ -1318,14 +1282,14 @@
   "errors": [],
   "counts": {
     "status_conflict": 4,
-    "out_but_projected": 1,
+    "out_but_projected": 4,
     "wrong_team": 1,
     "missing_active": 3,
-    "sheet_line_stale": 2,
     "sheet_status_stale": 7,
     "market_proj_gap": 1,
+    "sheet_line_stale": 1,
     "elevated_not_projected": 1,
-    "dnp_but_projected": 7,
+    "dnp_but_projected": 3,
     "ir_return_window": 20,
     "elevation_limit": 9,
     "unconfirmed_report": 11
