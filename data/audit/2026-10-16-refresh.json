@@ -4,14 +4,36 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-16T22:48:07+00:00",
+  "generated_at": "2026-10-16T23:12:33+00:00",
   "inputs": {
     "snapshot_date": "2026-10-16",
     "nflverse_date": "2026-10-16",
-    "injury_week_updated": "2026-10-16T20:31:12+00:00",
-    "roster_state_updated": "2026-10-16T22:48:07+00:00"
+    "injury_week_updated": "2026-10-16T23:12:32+00:00",
+    "roster_state_updated": "2026-10-16T23:12:30+00:00"
   },
   "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0041027|6|OUT",
+      "severity": "error",
+      "player": "Jeremiyah Love",
+      "gsis_id": "00-0041027",
+      "pos": "RB",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jeremiyah Love (RB, ARZ) is OUT (Ankle) but projected for 10.2 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-10-14": "DNP",
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP"
+        },
+        "ppr": 10.2
+      }
+    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040870|6",
@@ -176,6 +198,26 @@
       }
     },
     {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0035535|6",
+      "severity": "error",
+      "player": "Darius Slayton",
+      "gsis_id": "00-0035535",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Darius Slayton (WR, IND) is projected Active (1.9 PPR) but roster status is FA (since 2026-10-16)",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 1.9,
+        "slot": 1,
+        "earliest_return_week": null
+      }
+    },
+    {
       "type": "missing_active",
       "key": "missing_active|00-0038998|6",
       "severity": "error",
@@ -215,6 +257,28 @@
           "2026-10-16": "DNP"
         },
         "ppr": 2.8
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|CLV|6|BAL@CLE",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 6,
+      "message": "BAL@CLE: the sheet has 4.0 / 41.0, the market 3.0 / 39.5 (FP-BOTH) (odds pulled 2026-10-16 19:02:20-04:00)",
+      "evidence": {
+        "game": "BAL@CLE",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 4.0,
+        "sheet_ou": 41.0,
+        "market_spread": 3.0,
+        "market_total": 39.5,
+        "spread_delta": -1.0,
+        "total_delta": -1.5
       }
     },
     {
@@ -268,7 +332,7 @@
       "team": "DEN",
       "sheet": "primary",
       "week": 6,
-      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-16 15:51-04:00)",
+      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-16 19:02:20-04:00)",
       "evidence": {
         "game": "SEA@DEN",
         "fp_flag": "FP-BOTH",
@@ -278,6 +342,24 @@
         "market_total": 37.5,
         "spread_delta": -9.75,
         "total_delta": -3.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035544|6",
+      "severity": "warning",
+      "player": "Tom Kennedy",
+      "gsis_id": "00-0035544",
+      "pos": "WR",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Tom Kennedy (WR, DET) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -389,6 +471,24 @@
       }
     },
     {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039746|6",
+      "severity": "warning",
+      "player": "Will Shipley",
+      "gsis_id": "00-0039746",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Will Shipley (RB, PHI) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
       "type": "elevated_not_projected",
       "key": "elevated_not_projected|00-0037156|6",
       "severity": "warning",
@@ -424,26 +524,6 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "RB",
         "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0041027|6",
-      "severity": "info",
-      "player": "Jeremiyah Love",
-      "gsis_id": "00-0041027",
-      "pos": "RB",
-      "team": "ARZ",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Jeremiyah Love (RB, ARZ) did not practice on the latest report (Ankle); projected 10.2 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "DNP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Ankle",
-        "ppr": 10.2
       }
     },
     {
@@ -577,26 +657,6 @@
         "earliest_return_week": 6,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0034827|6",
-      "severity": "info",
-      "player": "DJ Moore",
-      "gsis_id": "00-0034827",
-      "pos": "WR",
-      "team": "BUF",
-      "sheet": "primary",
-      "week": 6,
-      "message": "DJ Moore (WR, BUF) did not practice on the latest report (Shoulder - AC Joint); projected 12.5 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "DNP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Shoulder - AC Joint",
-        "ppr": 12.5
       }
     },
     {
@@ -1046,26 +1106,6 @@
           "source": "news:SBN Rams (Turf Show Times)"
         },
         "days_pending": 3
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0039074|6",
-      "severity": "info",
-      "player": "Davis Allen",
-      "gsis_id": "00-0039074",
-      "pos": "TE",
-      "team": "LA",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Davis Allen (TE, LA) did not practice on the latest report (Foot); projected 2.3 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "DNP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Foot",
-        "ppr": 2.3
       }
     },
     {
@@ -1615,6 +1655,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0031408|6",
+      "severity": "info",
+      "player": "Mike Evans",
+      "gsis_id": "00-0031408",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs, Achilles); projected 17.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP"
+        },
+        "injury": "Ribs, Achilles",
+        "ppr": 17.2
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|xavier thomas|6|suspended",
       "severity": "info",
@@ -1692,6 +1752,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040242|6",
+      "severity": "info",
+      "player": "Jacory Croskey-Merritt",
+      "gsis_id": "00-0040242",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jacory Croskey-Merritt (RB, WAS) did not practice on the latest report (Groin); projected 8.0 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP"
+        },
+        "injury": "Groin",
+        "ppr": 8.0
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0033955|6",
       "severity": "info",
@@ -1728,6 +1808,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0035659|6",
+      "severity": "info",
+      "player": "Terry McLaurin",
+      "gsis_id": "00-0035659",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Terry McLaurin (WR, WAS) did not practice on the latest report (Hamstring); projected 12.0 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-15": "LP",
+          "2026-10-16": "DNP"
+        },
+        "injury": "Hamstring",
+        "ppr": 12.0
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0040731|6",
       "severity": "info",
@@ -1749,17 +1849,17 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 4,
-    "out_but_projected": 4,
+    "out_but_projected": 5,
+    "status_conflict": 5,
     "wrong_team": 1,
     "missing_active": 3,
-    "sheet_status_stale": 7,
+    "sheet_line_stale": 2,
+    "sheet_status_stale": 9,
     "market_proj_gap": 1,
-    "sheet_line_stale": 1,
     "elevated_not_projected": 1,
-    "dnp_but_projected": 3,
     "ir_return_window": 46,
     "elevation_limit": 9,
-    "unconfirmed_report": 11
+    "unconfirmed_report": 11,
+    "dnp_but_projected": 3
   }
 }
