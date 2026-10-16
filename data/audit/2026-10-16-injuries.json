@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-16T23:02:30+00:00",
+  "generated_at": "2026-10-16T23:31:02+00:00",
   "inputs": {
     "snapshot_date": "2026-10-16",
     "nflverse_date": "2026-10-16",
-    "injury_week_updated": "2026-10-16T23:02:29+00:00",
-    "roster_state_updated": "2026-10-16T22:48:07+00:00"
+    "injury_week_updated": "2026-10-16T23:31:02+00:00",
+    "roster_state_updated": "2026-10-16T23:12:30+00:00"
   },
   "alerts": [
     {
@@ -198,6 +198,26 @@
       }
     },
     {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0035535|6",
+      "severity": "error",
+      "player": "Darius Slayton",
+      "gsis_id": "00-0035535",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Darius Slayton (WR, IND) is projected Active (1.9 PPR) but roster status is FA (since 2026-10-16)",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 1.9,
+        "slot": 1,
+        "earliest_return_week": null
+      }
+    },
+    {
       "type": "missing_active",
       "key": "missing_active|00-0038998|6",
       "severity": "error",
@@ -326,6 +346,24 @@
     },
     {
       "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035544|6",
+      "severity": "warning",
+      "player": "Tom Kennedy",
+      "gsis_id": "00-0035544",
+      "pos": "WR",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Tom Kennedy (WR, DET) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0033439|6",
       "severity": "warning",
       "player": "Pharaoh Brown",
@@ -429,6 +467,24 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039746|6",
+      "severity": "warning",
+      "player": "Will Shipley",
+      "gsis_id": "00-0039746",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Will Shipley (RB, PHI) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
@@ -1794,11 +1850,11 @@
   "errors": [],
   "counts": {
     "out_but_projected": 5,
-    "status_conflict": 4,
+    "status_conflict": 5,
     "wrong_team": 1,
     "missing_active": 3,
     "sheet_line_stale": 2,
-    "sheet_status_stale": 7,
+    "sheet_status_stale": 9,
     "market_proj_gap": 1,
     "elevated_not_projected": 1,
     "ir_return_window": 46,
