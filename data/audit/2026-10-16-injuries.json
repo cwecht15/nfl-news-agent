@@ -4,14 +4,36 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-16T20:31:12+00:00",
+  "generated_at": "2026-10-16T23:02:30+00:00",
   "inputs": {
     "snapshot_date": "2026-10-16",
     "nflverse_date": "2026-10-16",
-    "injury_week_updated": "2026-10-16T20:31:12+00:00",
-    "roster_state_updated": "2026-10-16T11:32:45+00:00"
+    "injury_week_updated": "2026-10-16T23:02:29+00:00",
+    "roster_state_updated": "2026-10-16T22:48:07+00:00"
   },
   "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0041027|6|OUT",
+      "severity": "error",
+      "player": "Jeremiyah Love",
+      "gsis_id": "00-0041027",
+      "pos": "RB",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jeremiyah Love (RB, ARZ) is OUT (Ankle) but projected for 10.2 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-10-14": "DNP",
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP"
+        },
+        "ppr": 10.2
+      }
+    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040870|6",
@@ -218,6 +240,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|CLV|6|BAL@CLE",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 6,
+      "message": "BAL@CLE: the sheet has 4.0 / 41.0, the market 3.0 / 39.5 (FP-BOTH) (odds pulled 2026-10-16 19:02:20-04:00)",
+      "evidence": {
+        "game": "BAL@CLE",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 4.0,
+        "sheet_ou": 41.0,
+        "market_spread": 3.0,
+        "market_total": 39.5,
+        "spread_delta": -1.0,
+        "total_delta": -1.5
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0039373|6",
       "severity": "warning",
@@ -268,7 +312,7 @@
       "team": "DEN",
       "sheet": "primary",
       "week": 6,
-      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-16 15:51-04:00)",
+      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-16 19:02:20-04:00)",
       "evidence": {
         "game": "SEA@DEN",
         "fp_flag": "FP-BOTH",
@@ -427,26 +471,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0041027|6",
-      "severity": "info",
-      "player": "Jeremiyah Love",
-      "gsis_id": "00-0041027",
-      "pos": "RB",
-      "team": "ARZ",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Jeremiyah Love (RB, ARZ) did not practice on the latest report (Ankle); projected 10.2 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "DNP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Ankle",
-        "ppr": 10.2
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0040230|6",
       "severity": "info",
@@ -456,11 +480,11 @@
       "team": "ARZ",
       "sheet": "primary",
       "week": 6,
-      "message": "Kitan Crawford (DB, ARZ) on IR - first eligible Week 6",
+      "message": "Kitan Crawford (DB, ARZ) on IR - designated to return 2026-10-14 - first eligible Week 6",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-14",
         "on_sheet": false
       }
     },
@@ -532,11 +556,11 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 6,
-      "message": "Ja'Kobi Lane (WR, BLT) on IR - first eligible Week 6 (already on the sheet)",
+      "message": "Ja'Kobi Lane (WR, BLT) on IR - designated to return 2026-10-14 - first eligible Week 6 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-14",
         "on_sheet": true
       }
     },
@@ -580,26 +604,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0034827|6",
-      "severity": "info",
-      "player": "DJ Moore",
-      "gsis_id": "00-0034827",
-      "pos": "WR",
-      "team": "BUF",
-      "sheet": "primary",
-      "week": 6,
-      "message": "DJ Moore (WR, BUF) did not practice on the latest report (Shoulder - AC Joint); projected 12.5 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-14": "DNP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Shoulder - AC Joint",
-        "ppr": 12.5
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|nintendo wii|6|released",
       "severity": "info",
@@ -640,6 +644,60 @@
     },
     {
       "type": "ir_return_window",
+      "key": "ir_return_window|00-0033284|6",
+      "severity": "info",
+      "player": "Taylor Moton",
+      "gsis_id": "00-0033284",
+      "pos": "OL",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Taylor Moton (OL, CAR) on IR - designated to return 2026-10-13",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-13",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0035890|6",
+      "severity": "info",
+      "player": "Tershawn Wharton",
+      "gsis_id": "00-0035890",
+      "pos": "DL",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Tershawn Wharton (DL, CAR) on PUP - designated to return 2026-10-13",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-13",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040644|6",
+      "severity": "info",
+      "player": "Trevor Etienne",
+      "gsis_id": "00-0040644",
+      "pos": "RB",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Trevor Etienne (RB, CAR) on IR - designated to return 2026-10-13 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-13",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
       "key": "ir_return_window|00-0038111|6",
       "severity": "info",
       "player": "Kyler Gordon",
@@ -658,6 +716,24 @@
     },
     {
       "type": "ir_return_window",
+      "key": "ir_return_window|00-0040704|6",
+      "severity": "info",
+      "player": "Dillon Gabriel",
+      "gsis_id": "00-0040704",
+      "pos": "QB",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Dillon Gabriel (QB, CLV) on IR - designated to return 2026-10-06",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-06",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
       "key": "ir_return_window|00-0040162|6",
       "severity": "info",
       "player": "Dylan Sampson",
@@ -666,12 +742,30 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 6,
-      "message": "Dylan Sampson (RB, CLV) on IR - first eligible Week 6 (already on the sheet)",
+      "message": "Dylan Sampson (RB, CLV) on IR - designated to return 2026-10-14 - first eligible Week 6 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-14",
         "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037832|6",
+      "severity": "info",
+      "player": "Kalia Davis",
+      "gsis_id": "00-0037832",
+      "pos": "DL",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Kalia Davis (DL, CLV) on IR - designated to return 2026-10-06 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-10-06",
+        "on_sheet": false
       }
     },
     {
@@ -692,6 +786,78 @@
           "2026-10-03",
           "2026-10-08"
         ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039141|6",
+      "severity": "info",
+      "player": "Brian Branch",
+      "gsis_id": "00-0039141",
+      "pos": "DB",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Brian Branch (DB, DET) on PUP - designated to return 2026-10-07",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-07",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037297|6",
+      "severity": "info",
+      "player": "Cade Mays",
+      "gsis_id": "00-0037297",
+      "pos": "OL",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Cade Mays (OL, DET) on IR - designated to return 2026-10-07",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-07",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038506|6",
+      "severity": "info",
+      "player": "Jordon Riley",
+      "gsis_id": "00-0038506",
+      "pos": "DL",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jordon Riley (DL, GB) on PUP - designated to return 2026-10-14",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-14",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040009|6",
+      "severity": "info",
+      "player": "Savion Williams",
+      "gsis_id": "00-0040009",
+      "pos": "WR",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Savion Williams (WR, GB) on IR - designated to return 2026-10-07 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-07",
+        "on_sheet": true
       }
     },
     {
@@ -724,11 +890,29 @@
       "team": "HST",
       "sheet": "primary",
       "week": 6,
-      "message": "Henry To'oTo'o (LB, HST) on IR - first eligible Week 6",
+      "message": "Henry To'oTo'o (LB, HST) on IR - designated to return 2026-10-14 - first eligible Week 6",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-14",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037661|6",
+      "severity": "info",
+      "player": "Ja'Marcus Ingram",
+      "gsis_id": "00-0037661",
+      "pos": "DB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Ja'Marcus Ingram (DB, HST) on IR - designated to return 2026-10-14",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-14",
         "on_sheet": false
       }
     },
@@ -763,11 +947,11 @@
       "team": "HST",
       "sheet": "primary",
       "week": 6,
-      "message": "Tank Dell (WR, HST) on IR - designated to return 2026-10-05 (already on the sheet)",
+      "message": "Tank Dell (WR, HST) on IR - designated to return 2026-10-07 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": null,
-        "designated_return_date": "2026-10-05",
+        "designated_return_date": "2026-10-07",
         "on_sheet": true
       }
     },
@@ -789,6 +973,24 @@
           "2026-10-03",
           "2026-10-10"
         ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038394|6",
+      "severity": "info",
+      "player": "Will Mallory",
+      "gsis_id": "00-0038394",
+      "pos": "TE",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Will Mallory (TE, IND) on IR - designated to return 2026-10-07 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-07",
+        "on_sheet": true
       }
     },
     {
@@ -851,23 +1053,21 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0039074|6",
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0041394|6",
       "severity": "info",
-      "player": "Davis Allen",
-      "gsis_id": "00-0039074",
-      "pos": "TE",
+      "player": "Keagen Trost",
+      "gsis_id": "00-0041394",
+      "pos": "OL",
       "team": "LA",
       "sheet": "primary",
       "week": 6,
-      "message": "Davis Allen (TE, LA) did not practice on the latest report (Foot); projected 2.3 PPR",
+      "message": "Keagen Trost (OL, LA) on IR - designated to return 2026-10-15",
       "evidence": {
-        "practice": {
-          "2026-10-14": "DNP",
-          "2026-10-15": "DNP"
-        },
-        "injury": "Foot",
-        "ppr": 2.3
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-15",
+        "on_sheet": false
       }
     },
     {
@@ -919,11 +1119,11 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 6,
-      "message": "KeAndre Lambert-Smith (WR, LAC) on IR - first eligible Week 6",
+      "message": "KeAndre Lambert-Smith (WR, LAC) on IR - designated to return 2026-10-13 - first eligible Week 6",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-13",
         "on_sheet": false
       }
     },
@@ -970,6 +1170,60 @@
       }
     },
     {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040488|6",
+      "severity": "info",
+      "player": "Carter Runyon",
+      "gsis_id": "00-0040488",
+      "pos": "TE",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Carter Runyon (TE, LV) on IR - designated to return 2026-10-14",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-14",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040581|6",
+      "severity": "info",
+      "player": "Dont'e Thornton Jr.",
+      "gsis_id": "00-0040581",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Dont'e Thornton Jr. (WR, LV) on IR - designated to return 2026-10-07 - first eligible Week 5 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-10-07",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039481|6",
+      "severity": "info",
+      "player": "Storm Duck",
+      "gsis_id": "00-0039481",
+      "pos": "DB",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Storm Duck (DB, MIA) on PUP - designated to return 2026-09-30",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-09-30",
+        "on_sheet": false
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|kevin o'connell|6|ps_signed",
       "severity": "info",
@@ -1000,12 +1254,30 @@
       "team": "NE",
       "sheet": "primary",
       "week": 6,
-      "message": "A.J. Brown (WR, NE) on IR - first eligible Week 6 (already on the sheet)",
+      "message": "A.J. Brown (WR, NE) on IR - designated to return 2026-10-14 - first eligible Week 6 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-14",
         "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040226|6",
+      "severity": "info",
+      "player": "Marcus Bryant",
+      "gsis_id": "00-0040226",
+      "pos": "OL",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Marcus Bryant (OL, NE) on IR - designated to return 2026-10-14",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-14",
+        "on_sheet": false
       }
     },
     {
@@ -1051,6 +1323,24 @@
     },
     {
       "type": "ir_return_window",
+      "key": "ir_return_window|00-0033063|6",
+      "severity": "info",
+      "player": "Zach Wood",
+      "gsis_id": "00-0033063",
+      "pos": "LS",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Zach Wood (LS, NO) on IR - designated to return 2026-10-14 - first eligible Week 7",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 7,
+        "designated_return_date": "2026-10-14",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
       "key": "ir_return_window|00-0036937|6",
       "severity": "info",
       "player": "Paulson Adebo",
@@ -1077,11 +1367,65 @@
       "team": "NYJ",
       "sheet": "primary",
       "week": 6,
-      "message": "Omar Cooper Jr. (WR, NYJ) on IR - first eligible Week 6",
+      "message": "Omar Cooper Jr. (WR, NYJ) on IR - designated to return 2026-10-14 - first eligible Week 6",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-14",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0041483|6",
+      "severity": "info",
+      "player": "Eli Stowers",
+      "gsis_id": "00-0041483",
+      "pos": "TE",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Eli Stowers (TE, PHI) on IR - designated to return 2026-10-14 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-10-14",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037086|6",
+      "severity": "info",
+      "player": "Grant Calcaterra",
+      "gsis_id": "00-0037086",
+      "pos": "TE",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Grant Calcaterra (TE, PHI) on IR - designated to return 2026-10-14",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-14",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039072|6",
+      "severity": "info",
+      "player": "Jakorian Bennett",
+      "gsis_id": "00-0039072",
+      "pos": "DB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jakorian Bennett (DB, PHI) on IR - designated to return 2026-10-14",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-14",
         "on_sheet": false
       }
     },
@@ -1095,11 +1439,11 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 6,
-      "message": "Landon Dickerson (OL, PHI) on IR - first eligible Week 6",
+      "message": "Landon Dickerson (OL, PHI) on IR - designated to return 2026-10-14 - first eligible Week 6",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-14",
         "on_sheet": false
       }
     },
@@ -1121,6 +1465,24 @@
           "2026-10-03",
           "2026-10-10"
         ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0034277|6",
+      "severity": "info",
+      "player": "DeShon Elliott",
+      "gsis_id": "00-0034277",
+      "pos": "DB",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 6,
+      "message": "DeShon Elliott (DB, PIT) on IR - designated to return 2026-10-08",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-08",
+        "on_sheet": false
       }
     },
     {
@@ -1166,6 +1528,42 @@
     },
     {
       "type": "ir_return_window",
+      "key": "ir_return_window|00-0039165|6",
+      "severity": "info",
+      "player": "Zach Charbonnet",
+      "gsis_id": "00-0039165",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Zach Charbonnet (RB, SEA) on PUP - designated to return 2026-10-01",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-01",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0034775|6",
+      "severity": "info",
+      "player": "Christian Kirk",
+      "gsis_id": "00-0034775",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Christian Kirk (WR, SF) on IR - designated to return 2026-10-15",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-15",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
       "key": "ir_return_window|00-0041035|6",
       "severity": "info",
       "player": "De'Zhaun Stribling",
@@ -1201,6 +1599,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0031408|6",
+      "severity": "info",
+      "player": "Mike Evans",
+      "gsis_id": "00-0031408",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs, Achilles); projected 17.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP"
+        },
+        "injury": "Ribs, Achilles",
+        "ppr": 17.2
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|xavier thomas|6|suspended",
       "severity": "info",
@@ -1219,6 +1637,42 @@
           "source": "news:Pro Football Talk"
         },
         "days_pending": 35
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0035359|6",
+      "severity": "info",
+      "player": "David Sills",
+      "gsis_id": "00-0035359",
+      "pos": "WR",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 6,
+      "message": "David Sills (WR, TB) on IR - designated to return 2026-10-13",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-13",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038043|6",
+      "severity": "info",
+      "player": "Joshua Williams",
+      "gsis_id": "00-0038043",
+      "pos": "DB",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Joshua Williams (DB, TEN) on IR - designated to return 2026-10-07",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-07",
+        "on_sheet": false
       }
     },
     {
@@ -1242,6 +1696,44 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040242|6",
+      "severity": "info",
+      "player": "Jacory Croskey-Merritt",
+      "gsis_id": "00-0040242",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jacory Croskey-Merritt (RB, WAS) did not practice on the latest report (Groin); projected 8.0 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP"
+        },
+        "injury": "Groin",
+        "ppr": 8.0
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0033955|6",
+      "severity": "info",
+      "player": "Jeremy McNichols",
+      "gsis_id": "00-0033955",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jeremy McNichols (RB, WAS) on IR - designated to return 2026-10-07",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-07",
+        "on_sheet": false
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0039368|6",
       "severity": "info",
@@ -1251,12 +1743,32 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 6,
-      "message": "Jordan Magee (LB, WAS) on IR - first eligible Week 6",
+      "message": "Jordan Magee (LB, WAS) on IR - designated to return 2026-10-15 - first eligible Week 6",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 6,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-15",
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0035659|6",
+      "severity": "info",
+      "player": "Terry McLaurin",
+      "gsis_id": "00-0035659",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Terry McLaurin (WR, WAS) did not practice on the latest report (Hamstring); projected 12.0 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-15": "LP",
+          "2026-10-16": "DNP"
+        },
+        "injury": "Hamstring",
+        "ppr": 12.0
       }
     },
     {
@@ -1281,17 +1793,17 @@
   "dismissed": [],
   "errors": [],
   "counts": {
+    "out_but_projected": 5,
     "status_conflict": 4,
-    "out_but_projected": 4,
     "wrong_team": 1,
     "missing_active": 3,
+    "sheet_line_stale": 2,
     "sheet_status_stale": 7,
     "market_proj_gap": 1,
-    "sheet_line_stale": 1,
     "elevated_not_projected": 1,
-    "dnp_but_projected": 3,
-    "ir_return_window": 20,
+    "ir_return_window": 46,
     "elevation_limit": 9,
-    "unconfirmed_report": 11
+    "unconfirmed_report": 11,
+    "dnp_but_projected": 3
   }
 }
