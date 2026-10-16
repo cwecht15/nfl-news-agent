@@ -731,3 +731,20 @@ def test_baseline_elevated_player_reads_as_practice_squad():
     state = re_.build_state([], roster, _sched(), settings=SETTINGS,
                             baseline_date="2026-09-13", as_of="2026-09-13")
     assert state["players"]["00-3"]["status"] == "ACT"
+
+
+def test_normalize_ourlads_dfr_is_a_designation_not_an_activation():
+    from collectors.depth_chart_collector import split_reserve_changes
+    _depth, status = split_reserve_changes([
+        {"type": "position_change", "name": "Omar Cooper Jr.", "team": "NYJ",
+         "old_pos": "IR", "new_pos": "DFR", "generic_pos": "DFR"},
+        {"type": "position_change", "name": "Tank Dell", "team": "HOU",
+         "old_pos": "DFR", "new_pos": "WR", "generic_pos": "WR"},
+        {"type": "promoted", "name": "X", "team": "HOU", "pos": "DFR"},
+    ])
+    evs = re_.normalize_ourlads(status, "2026-10-14")
+    by = {e["name"]: e for e in evs}
+    assert by["Omar Cooper Jr."]["event_type"] == "ir_designated_return"
+    assert by["Omar Cooper Jr."]["pos"] == ""
+    assert by["Tank Dell"]["event_type"] == "ir_activated"
+    assert "X" not in by

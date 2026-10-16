@@ -897,7 +897,16 @@ def normalize_news(
 
 
 _OURLADS_PLACED = {"IR": "ir_placed", "PUP": "pup_placed", "NFI": "nfi_placed", "SUS": "suspended"}
-_OURLADS_ACTIVATED = {"IR": "ir_activated", "PUP": "pup_activated", "NFI": "nfi_activated", "SUS": "reinstated"}
+_OURLADS_ACTIVATED = {"IR": "ir_activated", "PUP": "pup_activated", "NFI": "nfi_activated", "SUS": "reinstated",
+                      "DFR": "ir_activated"}
+
+
+# OurLads reserve-list labels - a status, never a position.
+_BUCKET_LABELS = {"IR", "PUP", "NFI", "SUS", "DFR", "PS/IR"}
+
+
+def _non_bucket_pos(pos: str) -> str:
+    return "" if str(pos or "").strip().upper() in _BUCKET_LABELS else pos
 
 
 def normalize_ourlads(status_changes: list[dict], date_str: str, schedule: Optional[list[dict]] = None) -> list[dict]:
@@ -915,9 +924,13 @@ def normalize_ourlads(status_changes: list[dict], date_str: str, schedule: Optio
             continue
         old_s = (c.get("old_status") or "").upper() or None
         new_s = (c.get("new_status") or "").upper() or None
-        old_b = old_s if old_s in _OURLADS_PLACED else None
+        old_b = old_s if old_s in _OURLADS_ACTIVATED else None
         new_b = new_s if new_s in _OURLADS_PLACED else None
-        if new_b and old_s is not None:
+        if new_s == "DFR" and old_s in _OURLADS_PLACED:
+            etype = "ir_designated_return"      # still on the list - the practice window opened
+        elif old_s == "DFR" and new_b:
+            etype = "status_change"             # window lapsed back onto the list: not a new placement
+        elif new_b and old_s is not None:
             etype = _OURLADS_PLACED[new_b]
         elif old_b and new_s == "ACTIVE":
             etype = _OURLADS_ACTIVATED[old_b]
@@ -934,7 +947,7 @@ def normalize_ourlads(status_changes: list[dict], date_str: str, schedule: Optio
             source_kind="ourlads",
             confidence="confirmed",
             team=to_news(c.get("team") or "", "ourlads"),
-            pos=(c.get("generic_pos") or c.get("pos") or ""),
+            pos=_non_bucket_pos(c.get("generic_pos") or c.get("pos") or ""),
             detail=c.get("message") or f"{old_s or '-'} -> {new_s or '-'}",
             schedule=schedule,
         ))
@@ -1161,6 +1174,28 @@ def _heal_event_team(ev: dict) -> dict:
     return ev
 
 
+def _heal_ourlads_dfr(ev: dict) -> dict:
+    """Relabel an OurLads "IR -> Active" that was really IR -> DFR.
+
+    Until 2026-10-16 OurLads' DFR (designated for return) list was not a
+    reserve bucket, so the move onto it was logged as an activation with
+    ``pos: "DFR"``. Healed on load, like ``_heal_event_team``.
+    """
+    if (ev.get("source_kind") == "ourlads" and str(ev.get("pos") or "").upper() == "DFR"
+            and ev.get("event_type") in ("ir_activated", "pup_activated", "nfi_activated")):
+        ev["event_type"] = "ir_designated_return"
+        ev["pos"] = ""
+        ev["detail"] = str(ev.get("detail") or "").replace("-> Active", "-> DFR (designated to return)")
+    elif ev.get("source_kind") == "ourlads":
+        ev["pos"] = _non_bucket_pos(ev.get("pos") or "")
+    return ev
+
+
+def heal_event(ev: dict) -> dict:
+    """Every load-time repair, for readers outside this module."""
+    return _heal_ourlads_dfr(_heal_event_team(ev))
+
+
 def load_events() -> list[dict]:
     path = _events_path()
     if not path.exists():
@@ -1172,7 +1207,7 @@ def load_events() -> list[dict]:
             if not line:
                 continue
             try:
-                events.append(_heal_event_team(json.loads(line)))
+                events.append(heal_event(json.loads(line)))
             except json.JSONDecodeError:
                 logger.warning("Skipping bad ledger line: %s", line[:80])
     return events

@@ -131,8 +131,10 @@ the offseason path.
   baseline, `data/roster/nflverse/<date>.json`) + `processing/roster_events.py` merge four sources
   into `data/roster/events.jsonl` and `data/roster/state.json` — NFL.com transactions (now carry
   structured fields in `NewsItem.extra`; official), nflverse status flips, OurLads reserve-bucket
-  crossings (`depth_chart_collector.split_reserve_changes` — IR/PUP/NFI/SUS are status in-season,
-  not positions, so within-IR "promotions" are dropped), and insider tweets/news via a
+  crossings (`depth_chart_collector.split_reserve_changes` — IR/PUP/NFI/SUS/DFR/PS-IR are status
+  in-season, not positions, so within-IR "promotions" are dropped; IR -> DFR is
+  `ir_designated_return`, not an activation — until 2026-10-16 it was logged as one, healed on
+  load by `roster_events.heal_event`), and insider tweets/news via a
   precision-first regex classifier (`confidence: reported` until confirmed). State tracks
   IR date → `earliest_return_week` (4 games, byes skipped) and practice-squad `elevations_used`
   (max 3). NFL.com's feed has no elevation / IR-activation rows — those come from nflverse flips

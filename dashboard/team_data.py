@@ -130,13 +130,41 @@ def active_roster_rows(state: Optional[dict], team: str, skill_only: bool = Fals
     return rows
 
 
-def event_rows(events: list[dict], team: str, since: Optional[str] = None) -> list[dict]:
+# Which copy of a move the Moves table keeps when several sources report it.
+_SOURCE_RANK = {"official": 0, "espn": 1, "cbs": 2, "nflverse": 3, "ourlads": 4, "news": 5}
+_BUCKET_POS = {"IR", "PUP", "NFI", "SUS", "DFR", "PS/IR", ""}
+_SOURCE_LABEL = {"official": "NFL.com", "espn": "ESPN", "cbs": "CBS", "nflverse": "nflverse",
+                 "ourlads": "OurLads"}
+
+
+def _days_apart(a: str, b: str) -> int:
+    from datetime import date
+    try:
+        return abs((date.fromisoformat(a) - date.fromisoformat(b)).days)
+    except ValueError:
+        return 0 if a == b else 99
+
+
+def event_rows(events: list[dict], team: str, since: Optional[str] = None,
+               state: Optional[dict] = None) -> list[dict]:
     """Roster events for ``team`` on/after ``since`` (ISO date), newest first.
 
     OurLads rows that only say a name left or joined a list are left out —
     the official, nflverse and news rows carry the same moves with a type.
+
+    One move, one row: NFL.com, nflverse (a day later) and news each log the
+    same signing, so copies of a move (same player + event family within two
+    days) collapse onto the most authoritative one, the others named in
+    Source. A move that only *came from* this club (a cut player signed
+    elsewhere) reads "signed by LAR", not "signed". Position comes from the
+    event unless it is a reserve-list label (OurLads' IR / DFR), then from
+    roster state.
     """
-    rows = []
+    from processing.roster_events import _family
+
+    players = (state or {}).get("players") or {}
+    by_name = (state or {}).get("by_name") or {}
+    picked: list[dict] = []
     for e in events or []:
         if team not in (e.get("team"), e.get("to_team"), e.get("from_team")):
             continue
@@ -144,13 +172,38 @@ def event_rows(events: list[dict], team: str, since: Optional[str] = None) -> li
             continue
         if e.get("source_kind") == "ourlads" and e.get("event_type") == "status_change":
             continue
-        rows.append({
-            "Date": e.get("date", ""), "Player": e.get("name", ""), "Pos": e.get("pos", ""),
-            "Move": (e.get("event_type") or "").replace("_", " "),
+        picked.append(e)
+
+    rank = lambda e: _SOURCE_RANK.get(e.get("source_kind") or "", 9)  # noqa: E731
+    kept: list[tuple[dict, dict]] = []      # (event, row)
+    for e in sorted(picked, key=rank):
+        elsewhere = team not in (e.get("team"), e.get("to_team"))
+        dest = (e.get("to_team") or e.get("team") or "") if elsewhere else ""
+        key = (e.get("name_key") or (e.get("name") or "").lower(), _family(e.get("event_type") or ""), dest)
+        src = (e.get("source") or "").replace("news:", "")
+        label = _SOURCE_LABEL.get(e.get("source_kind") or "", src)
+        dup = next((r for k, r in kept if k == key
+                    and _days_apart(str(r["Date"]), str(e.get("date") or "")) <= 2), None)
+        if dup is not None:
+            if label and label not in dup["Source"]:
+                dup["Source"] += f" + {label}"
+            if dup["Pos"] in _BUCKET_POS and str(e.get("pos") or "").upper() not in _BUCKET_POS:
+                dup["Pos"] = e["pos"]
+            continue
+        pos = e.get("pos") or ""
+        if pos.upper() in _BUCKET_POS:
+            gid = e.get("gsis_id") or by_name.get(e.get("name_key") or "")
+            pos = (players.get(gid) or {}).get("pos", "") if gid else ""
+        move = (e.get("event_type") or "").replace("_", " ")
+        kept.append((key, {
+            "Date": e.get("date", ""), "Player": e.get("name", ""), "Pos": pos,
+            "Move": f"{move} by {dest}" if dest else move,
             "Detail": (e.get("detail") or "")[:80],
-            "Source": (e.get("source") or "").replace("news:", ""),
+            "Source": label,
             "Confidence": e.get("confidence", ""),
-        })
+        }))
+    rows = [r for _k, r in kept]
+    rows.sort(key=lambda r: str(r["Date"]), reverse=True)
     return rows
 
 

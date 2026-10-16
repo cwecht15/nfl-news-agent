@@ -342,7 +342,7 @@ with left:
 with right:
     from processing.projection_audit import _week_window  # noqa: E402
     week_start, _end = _week_window(schedule, week) if schedule else (None, None)
-    moves = td.event_rows(isd.events(1500), team, since=week_start)
+    moves = td.event_rows(isd.events(1500), team, since=week_start, state=_state)
     st.markdown(f"**Moves this week** ({len(moves)})")
     st.dataframe(moves, use_container_width=True, hide_index=True)
 

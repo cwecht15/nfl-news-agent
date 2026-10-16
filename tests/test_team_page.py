@@ -177,6 +177,31 @@ def test_event_rows_skip_ourlads_name_only_rows_and_old_events():
     assert [r["Player"] for r in rows] == ["Greg Dortch", "Claimed"]
 
 
+def test_event_rows_collapse_copies_label_departures_and_fix_bucket_pos():
+    events = [
+        {"date": "2026-10-15", "team": "NYJ", "name": "Troy Reeder", "name_key": "troy reeder", "pos": "LB",
+         "event_type": "ps_signed", "source_kind": "nflverse", "source": "nflverse"},
+        {"date": "2026-10-14", "team": "NYJ", "name": "Troy Reeder", "name_key": "troy reeder", "pos": "LB",
+         "event_type": "ps_signed", "source_kind": "official", "source": "nflcom_transactions"},
+        {"date": "2026-10-15", "team": "LAR", "from_team": "NYJ", "to_team": "LAR", "name": "Blake Grupe",
+         "name_key": "blake grupe", "pos": "K", "event_type": "signed", "source_kind": "nflverse",
+         "source": "nflverse"},
+        {"date": "2026-10-14", "team": "NYJ", "name": "Omar Cooper Jr.", "name_key": "omar cooper",
+         "gsis_id": "00-1", "pos": "DFR", "event_type": "ir_activated", "source_kind": "ourlads",
+         "source": "ourlads", "detail": "Omar Cooper Jr. (NYJ) IR -> Active"},
+    ]
+    from processing.roster_events import heal_event
+    events = [heal_event(dict(e)) for e in events]
+    state = {"players": {"00-1": {"pos": "WR"}}, "by_name": {}}
+    rows = td.event_rows(events, "NYJ", state=state)
+    assert len(rows) == 3
+    reeder = next(r for r in rows if r["Player"] == "Troy Reeder")
+    assert reeder["Date"] == "2026-10-14" and reeder["Source"] == "NFL.com + nflverse"
+    assert next(r for r in rows if r["Player"] == "Blake Grupe")["Move"] == "signed by LAR"
+    cooper = next(r for r in rows if r["Player"] == "Omar Cooper Jr.")
+    assert cooper["Pos"] == "WR" and cooper["Move"] == "ir designated return"
+
+
 def test_elevation_rows_carry_the_season_count():
     events = [
         {"date": "2026-09-19", "team": "PIT", "name": "Travis Homer", "name_key": "travis homer",

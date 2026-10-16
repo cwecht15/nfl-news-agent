@@ -66,13 +66,15 @@ def events(limit: int = 400) -> list[dict]:
     p = get_data_dir("roster") / "events.jsonl"
     if not p.exists():
         return []
+    from processing.roster_events import heal_event
+
     rows: list[dict] = []
     for line in p.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line:
             continue
         try:
-            rows.append(json.loads(line))
+            rows.append(heal_event(json.loads(line)))
         except json.JSONDecodeError:
             continue
     rows.sort(key=lambda e: (e.get("date", ""), e.get("observed_at", "")), reverse=True)

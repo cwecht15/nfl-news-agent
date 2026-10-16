@@ -391,7 +391,11 @@ def diff_depth_charts(current: dict, previous: dict) -> list[dict]:
 # OurLads renders the reserve lists as pseudo-positions. In-season these
 # are roster *status* buckets, not depth-chart slots — see
 # split_reserve_changes(). Offseason callers never touch this.
-RESERVE_BUCKETS = {"IR", "PUP", "NFI", "SUS"}
+# DFR = designated for return: still on IR/PUP (the 21-day practice window),
+# NOT activated. Until 2026-10-16 it was missing here, so every IR -> DFR move
+# read as "IR -> Active" and 52 players were logged as activated. PS/IR is the
+# practice squad's injured list.
+RESERVE_BUCKETS = {"IR", "PUP", "NFI", "SUS", "DFR", "PS/IR"}
 
 
 def _bucket(pos: str | None) -> str | None:
