@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-17T23:09:05+00:00",
+  "generated_at": "2026-10-18T01:15:50+00:00",
   "inputs": {
     "snapshot_date": "2026-10-17",
     "nflverse_date": "2026-10-17",
-    "injury_week_updated": "2026-10-17T23:09:05+00:00",
-    "roster_state_updated": "2026-10-17T22:00:46+00:00"
+    "injury_week_updated": "2026-10-18T01:15:50+00:00",
+    "roster_state_updated": "2026-10-18T01:10:12+00:00"
   },
   "alerts": [
     {
@@ -42,33 +42,33 @@
       "team": "CAR",
       "sheet": "primary",
       "week": 6,
-      "message": "Trevor Etienne (RB, CAR) is projected Active (3.0 PPR) but roster status is IR (since 2026-10-17)",
+      "message": "Trevor Etienne (RB, CAR) is projected Active (3.1 PPR) but roster status is IR (since 2026-10-17)",
       "evidence": {
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
-        "ppr": 3.0,
+        "ppr": 3.1,
         "slot": 3,
         "earliest_return_week": null
       }
     },
     {
       "type": "status_conflict",
-      "key": "status_conflict|00-0040009|6",
+      "key": "status_conflict|00-0034272|6",
       "severity": "error",
-      "player": "Savion Williams",
-      "gsis_id": "00-0040009",
+      "player": "Marquez Valdes-Scantling",
+      "gsis_id": "00-0034272",
       "pos": "WR",
-      "team": "GB",
+      "team": "LAC",
       "sheet": "primary",
       "week": 6,
-      "message": "Savion Williams (WR, GB) is marked IR on the sheet but still projected (2.9 PPR); roster status is IR",
+      "message": "Marquez Valdes-Scantling (WR, LAC) is projected Active (3.9 PPR) but roster status is FA (since 2026-10-17)",
       "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 2.9,
-        "slot": 5,
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 3.9,
+        "slot": 7,
         "earliest_return_week": null
       }
     },
@@ -93,23 +93,25 @@
       }
     },
     {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0041511|6",
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040242|6|OUT",
       "severity": "error",
-      "player": "Omar Cooper Jr.",
-      "gsis_id": "00-0041511",
-      "pos": "WR",
-      "team": "NYJ",
+      "player": "Jacory Croskey-Merritt",
+      "gsis_id": "00-0040242",
+      "pos": "RB",
+      "team": "WAS",
       "sheet": "primary",
       "week": 6,
-      "message": "Omar Cooper Jr. (WR, NYJ) is marked IR on the sheet but still projected (3.6 PPR); roster status is IR",
+      "message": "Jacory Croskey-Merritt (RB, WAS) is OUT (Groin) but projected for 8.0 PPR",
       "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 3.6,
-        "slot": 4,
-        "earliest_return_week": 6
+        "game_status": "OUT",
+        "injury": "Groin",
+        "practice": {
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP",
+          "2026-10-17": "DNP"
+        },
+        "ppr": 8.0
       }
     },
     {
@@ -122,7 +124,7 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 6,
-      "message": "Dylan Sampson (RB, CLV) Anytime TD rate: we project 0.01, the market implies 0.38 (odds pulled 2026-10-16 15:51-04:00)",
+      "message": "Dylan Sampson (RB, CLV) Anytime TD rate: we project 0.01, the market implies 0.38 (odds pulled 2026-10-17 21:08-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -145,7 +147,7 @@
       "team": "DEN",
       "sheet": "primary",
       "week": 6,
-      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-17 19:08:51-04:00)",
+      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-17 21:15:43-04:00)",
       "evidence": {
         "game": "SEA@DEN",
         "fp_flag": "FP-BOTH",
@@ -170,7 +172,7 @@
       "message": "Tom Kennedy (WR, DET) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "official",
+        "status_source": "ourlads",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -191,6 +193,68 @@
           "2026-10-17"
         ],
         "elevations_used": 0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039811|6|rush_yds",
+      "severity": "warning",
+      "player": "MarShawn Lloyd",
+      "gsis_id": "00-0039811",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 6,
+      "message": "MarShawn Lloyd (RB, GB) Rush Yds: we project 24.1, the market implies 47.4 (also Anytime TD rate, Rush Att, Rush+Rec Yds) (odds pulled 2026-10-17 21:08-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "anytime_td",
+          "rush_att",
+          "rush_rec_yds",
+          "rush_yds"
+        ],
+        "ours": 24.1,
+        "market_mean": 47.38775252,
+        "delta": 23.28775252,
+        "pct": 0.9662967852,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040009|6",
+      "severity": "warning",
+      "player": "Savion Williams",
+      "gsis_id": "00-0040009",
+      "pos": "WR",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Savion Williams (WR, GB) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 2.9
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038090|6",
+      "severity": "warning",
+      "player": "Skyy Moore",
+      "gsis_id": "00-0038090",
+      "pos": "WR",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Skyy Moore (WR, GB) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -269,6 +333,101 @@
     },
     {
       "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035676|6",
+      "severity": "warning",
+      "player": "A.J. Brown",
+      "gsis_id": "00-0035676",
+      "pos": "WR",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 6,
+      "message": "A.J. Brown (WR, NE) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037816|6|rec_yds",
+      "severity": "warning",
+      "player": "Romeo Doubs",
+      "gsis_id": "00-0037816",
+      "pos": "WR",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Romeo Doubs (WR, NE) Rec Yds: we project 56.9, the market implies 36.0 (odds pulled 2026-10-17 21:08-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 56.9,
+        "market_mean": 35.95897095,
+        "delta": -20.94102905,
+        "pct": -0.368032145,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041511|6",
+      "severity": "warning",
+      "player": "Omar Cooper Jr.",
+      "gsis_id": "00-0041511",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Omar Cooper Jr. (WR, NYJ) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 3.6
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036389|6",
+      "severity": "warning",
+      "player": "Jalen Hurts",
+      "gsis_id": "00-0036389",
+      "pos": "QB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jalen Hurts (QB, PHI) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040586|6",
+      "severity": "warning",
+      "player": "Jaydon Blue",
+      "gsis_id": "00-0040586",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jaydon Blue (RB, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 2.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0039746|6",
       "severity": "warning",
       "player": "Will Shipley",
@@ -280,7 +439,7 @@
       "message": "Will Shipley (RB, PHI) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "nflverse",
+        "status_source": "ourlads",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -301,6 +460,42 @@
           "2026-10-17"
         ],
         "elevations_used": 0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038409|6",
+      "severity": "warning",
+      "player": "Lew Nichols III",
+      "gsis_id": "00-0038409",
+      "pos": "RB",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Lew Nichols III (RB, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039739|6",
+      "severity": "warning",
+      "player": "Roman Wilson",
+      "gsis_id": "00-0039739",
+      "pos": "WR",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Roman Wilson (WR, PIT) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -360,6 +555,55 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041040|6|rec_yds",
+      "severity": "warning",
+      "player": "Antonio Williams",
+      "gsis_id": "00-0041040",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Antonio Williams (WR, WAS) Rec Yds: we project 38.1, the market implies 25.3 (also Rec) (odds pulled 2026-10-17 21:08-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 38.1,
+        "market_mean": 25.27609278,
+        "delta": -12.82390722,
+        "pct": -0.3365854912,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037256|6|rush_att",
+      "severity": "warning",
+      "player": "Rachaad White",
+      "gsis_id": "00-0037256",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Rachaad White (RB, WAS) Rush Att: we project 6.8, the market implies 13.9 (also Rush+Rec Yds, Rush Yds) (odds pulled 2026-10-17 21:08-04:00)",
+      "evidence": {
+        "stat": "rush_att",
+        "stats": [
+          "rush_att",
+          "rush_rec_yds",
+          "rush_yds"
+        ],
+        "ours": 6.8,
+        "market_mean": 13.92478675,
+        "delta": 7.124786747,
+        "pct": 1.047762757,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0040230|6",
       "severity": "info",
@@ -375,26 +619,6 @@
         "earliest_return_week": 6,
         "designated_return_date": "2026-10-14",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0039837|6",
-      "severity": "info",
-      "player": "Bralen Trice",
-      "gsis_id": "00-0039837",
-      "pos": "LB",
-      "team": "ATL",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Bralen Trice (LB, ATL) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-09-12",
-          "2026-09-25",
-          "2026-10-10"
-        ]
       }
     },
     {
@@ -513,42 +737,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0033284|6",
-      "severity": "info",
-      "player": "Taylor Moton",
-      "gsis_id": "00-0033284",
-      "pos": "OL",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Taylor Moton (OL, CAR) on IR - designated to return 2026-10-13",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-13",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0035890|6",
-      "severity": "info",
-      "player": "Tershawn Wharton",
-      "gsis_id": "00-0035890",
-      "pos": "DL",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Tershawn Wharton (DL, CAR) on PUP - designated to return 2026-10-13",
-      "evidence": {
-        "status": "PUP",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-13",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0040644|6",
       "severity": "info",
       "player": "Trevor Etienne",
@@ -563,24 +751,6 @@
         "earliest_return_week": null,
         "designated_return_date": "2026-10-13",
         "on_sheet": true
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0038111|6",
-      "severity": "info",
-      "player": "Kyler Gordon",
-      "gsis_id": "00-0038111",
-      "pos": "DB",
-      "team": "CHI",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Kyler Gordon (DB, CHI) on PUP - designated to return 2026-10-01",
-      "evidence": {
-        "status": "PUP",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-01",
-        "on_sheet": false
       }
     },
     {
@@ -709,24 +879,6 @@
         "earliest_return_week": null,
         "designated_return_date": "2026-10-14",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040009|6",
-      "severity": "info",
-      "player": "Savion Williams",
-      "gsis_id": "00-0040009",
-      "pos": "WR",
-      "team": "GB",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Savion Williams (WR, GB) on IR - designated to return 2026-10-07 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-07",
-        "on_sheet": true
       }
     },
     {
@@ -922,24 +1074,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0041394|6",
-      "severity": "info",
-      "player": "Keagen Trost",
-      "gsis_id": "00-0041394",
-      "pos": "OL",
-      "team": "LA",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Keagen Trost (OL, LA) on IR - designated to return 2026-10-15",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-15",
-        "on_sheet": false
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|lt alaric|6|suspended",
       "severity": "info",
@@ -1048,7 +1182,7 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 6,
-      "message": "Tre Harris (WR, LAC) is quoted by the market (Anytime TD rate 0.29) but has no row on the sheet (odds pulled 2026-10-16 15:51-04:00)",
+      "message": "Tre Harris (WR, LAC) is quoted by the market (Anytime TD rate 0.29) but has no row on the sheet (odds pulled 2026-10-17 21:08-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "market_mean": 0.2949306856,
@@ -1153,24 +1287,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0035676|6",
-      "severity": "info",
-      "player": "A.J. Brown",
-      "gsis_id": "00-0035676",
-      "pos": "WR",
-      "team": "NE",
-      "sheet": "primary",
-      "week": 6,
-      "message": "A.J. Brown (WR, NE) on IR - designated to return 2026-10-14 - first eligible Week 6 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": "2026-10-14",
-        "on_sheet": true
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|aj brown’s|6|ir_designated_return",
       "severity": "info",
@@ -1252,24 +1368,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0033063|6",
-      "severity": "info",
-      "player": "Zach Wood",
-      "gsis_id": "00-0033063",
-      "pos": "LS",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Zach Wood (LS, NO) on IR - designated to return 2026-10-14 - first eligible Week 7",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 7,
-        "designated_return_date": "2026-10-14",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0036937|6",
       "severity": "info",
       "player": "Paulson Adebo",
@@ -1284,24 +1382,6 @@
         "earliest_return_week": 6,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0041511|6",
-      "severity": "info",
-      "player": "Omar Cooper Jr.",
-      "gsis_id": "00-0041511",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Omar Cooper Jr. (WR, NYJ) on IR - designated to return 2026-10-14 - first eligible Week 6 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": "2026-10-14",
-        "on_sheet": true
       }
     },
     {
@@ -1415,26 +1495,6 @@
       }
     },
     {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0038409|6",
-      "severity": "info",
-      "player": "Lew Nichols III",
-      "gsis_id": "00-0038409",
-      "pos": "RB",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Lew Nichols III (RB, PIT) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-09-26",
-          "2026-10-01",
-          "2026-10-10"
-        ]
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|joe mixon|6|ps_signed",
       "severity": "info",
@@ -1528,26 +1588,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0031408|6",
-      "severity": "info",
-      "player": "Mike Evans",
-      "gsis_id": "00-0031408",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs, Achilles); projected 17.1 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-15": "DNP",
-          "2026-10-16": "DNP"
-        },
-        "injury": "Ribs, Achilles",
-        "ppr": 17.1
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|xavier thomas|6|suspended",
       "severity": "info",
@@ -1587,24 +1627,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0038043|6",
-      "severity": "info",
-      "player": "Joshua Williams",
-      "gsis_id": "00-0038043",
-      "pos": "DB",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Joshua Williams (DB, TEN) on IR - designated to return 2026-10-07",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-07",
-        "on_sheet": false
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0040318|6",
       "severity": "info",
@@ -1622,27 +1644,6 @@
           "2026-09-26",
           "2026-10-03"
         ]
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040242|6",
-      "severity": "info",
-      "player": "Jacory Croskey-Merritt",
-      "gsis_id": "00-0040242",
-      "pos": "RB",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Jacory Croskey-Merritt (RB, WAS) did not practice on the latest report (Groin); projected 8.0 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-15": "DNP",
-          "2026-10-16": "DNP",
-          "2026-10-17": "DNP"
-        },
-        "injury": "Groin",
-        "ppr": 8.0
       }
     },
     {
@@ -1703,16 +1704,16 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 4,
+    "status_conflict": 3,
     "missing_active": 3,
-    "market_proj_gap": 1,
+    "out_but_projected": 1,
+    "market_proj_gap": 5,
     "sheet_line_stale": 1,
-    "sheet_status_stale": 5,
+    "sheet_status_stale": 13,
     "elevated_not_projected": 4,
-    "ir_return_window": 46,
-    "elevation_limit": 9,
+    "ir_return_window": 37,
     "unconfirmed_report": 13,
-    "market_only_player": 1,
-    "dnp_but_projected": 2
+    "elevation_limit": 7,
+    "market_only_player": 1
   }
 }
