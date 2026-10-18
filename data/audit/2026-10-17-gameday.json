@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-18T01:14:55+00:00",
+  "generated_at": "2026-10-18T01:34:56+00:00",
   "inputs": {
     "snapshot_date": "2026-10-17",
     "nflverse_date": "2026-10-17",
-    "injury_week_updated": "2026-10-17T23:24:09+00:00",
-    "roster_state_updated": "2026-10-18T01:14:54+00:00"
+    "injury_week_updated": "2026-10-18T01:15:50+00:00",
+    "roster_state_updated": "2026-10-18T01:34:56+00:00"
   },
   "alerts": [
     {
@@ -93,6 +93,28 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040242|6|OUT",
+      "severity": "error",
+      "player": "Jacory Croskey-Merritt",
+      "gsis_id": "00-0040242",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jacory Croskey-Merritt (RB, WAS) is OUT (Groin) but projected for 8.0 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Groin",
+        "practice": {
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP",
+          "2026-10-17": "DNP"
+        },
+        "ppr": 8.0
+      }
+    },
+    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0040162|6|anytime_td",
       "severity": "warning",
@@ -125,7 +147,7 @@
       "team": "DEN",
       "sheet": "primary",
       "week": 6,
-      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-17 21:14:50-04:00)",
+      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-17 21:15:43-04:00)",
       "evidence": {
         "game": "SEA@DEN",
         "fp_flag": "FP-BOTH",
@@ -1566,26 +1588,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0031408|6",
-      "severity": "info",
-      "player": "Mike Evans",
-      "gsis_id": "00-0031408",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs, Achilles); projected 17.1 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-15": "DNP",
-          "2026-10-16": "DNP"
-        },
-        "injury": "Ribs, Achilles",
-        "ppr": 17.1
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|xavier thomas|6|suspended",
       "severity": "info",
@@ -1642,27 +1644,6 @@
           "2026-09-26",
           "2026-10-03"
         ]
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040242|6",
-      "severity": "info",
-      "player": "Jacory Croskey-Merritt",
-      "gsis_id": "00-0040242",
-      "pos": "RB",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Jacory Croskey-Merritt (RB, WAS) did not practice on the latest report (Groin); projected 8.0 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-15": "DNP",
-          "2026-10-16": "DNP",
-          "2026-10-17": "DNP"
-        },
-        "injury": "Groin",
-        "ppr": 8.0
       }
     },
     {
@@ -1725,6 +1706,7 @@
   "counts": {
     "status_conflict": 3,
     "missing_active": 3,
+    "out_but_projected": 1,
     "market_proj_gap": 5,
     "sheet_line_stale": 1,
     "sheet_status_stale": 13,
@@ -1732,7 +1714,6 @@
     "ir_return_window": 37,
     "unconfirmed_report": 13,
     "elevation_limit": 7,
-    "market_only_player": 1,
-    "dnp_but_projected": 2
+    "market_only_player": 1
   }
 }
