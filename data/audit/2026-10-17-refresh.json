@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 6,
   "sheet": "primary",
-  "generated_at": "2026-10-18T01:10:13+00:00",
+  "generated_at": "2026-10-18T01:39:23+00:00",
   "inputs": {
     "snapshot_date": "2026-10-17",
     "nflverse_date": "2026-10-17",
-    "injury_week_updated": "2026-10-17T23:24:09+00:00",
-    "roster_state_updated": "2026-10-18T01:10:12+00:00"
+    "injury_week_updated": "2026-10-18T01:15:50+00:00",
+    "roster_state_updated": "2026-10-18T01:39:21+00:00"
   },
   "alerts": [
     {
@@ -93,6 +93,28 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040242|6|OUT",
+      "severity": "error",
+      "player": "Jacory Croskey-Merritt",
+      "gsis_id": "00-0040242",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Jacory Croskey-Merritt (RB, WAS) is OUT (Groin) but projected for 8.0 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Groin",
+        "practice": {
+          "2026-10-15": "DNP",
+          "2026-10-16": "DNP",
+          "2026-10-17": "DNP"
+        },
+        "ppr": 8.0
+      }
+    },
+    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0040162|6|anytime_td",
       "severity": "warning",
@@ -102,7 +124,7 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 6,
-      "message": "Dylan Sampson (RB, CLV) Anytime TD rate: we project 0.01, the market implies 0.38 (odds pulled 2026-10-16 15:51-04:00)",
+      "message": "Dylan Sampson (RB, CLV) Anytime TD rate: we project 0.01, the market implies 0.38 (odds pulled 2026-10-17 21:08-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -125,7 +147,7 @@
       "team": "DEN",
       "sheet": "primary",
       "week": 6,
-      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-17 19:08:51-04:00)",
+      "message": "SEA@DEN: the sheet has 2.5 / 40.5, the market -7.25 / 37.5 (FP-BOTH) (odds pulled 2026-10-17 21:15:43-04:00)",
       "evidence": {
         "game": "SEA@DEN",
         "fp_flag": "FP-BOTH",
@@ -171,6 +193,32 @@
           "2026-10-17"
         ],
         "elevations_used": 0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039811|6|rush_yds",
+      "severity": "warning",
+      "player": "MarShawn Lloyd",
+      "gsis_id": "00-0039811",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 6,
+      "message": "MarShawn Lloyd (RB, GB) Rush Yds: we project 24.1, the market implies 47.4 (also Anytime TD rate, Rush Att, Rush+Rec Yds) (odds pulled 2026-10-17 21:08-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "anytime_td",
+          "rush_att",
+          "rush_rec_yds",
+          "rush_yds"
+        ],
+        "ours": 24.1,
+        "market_mean": 47.38775252,
+        "delta": 23.28775252,
+        "pct": 0.9662967852,
+        "flag": "RED"
       }
     },
     {
@@ -299,6 +347,29 @@
         "status_source": "ourlads",
         "sheet_status": "IR",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037816|6|rec_yds",
+      "severity": "warning",
+      "player": "Romeo Doubs",
+      "gsis_id": "00-0037816",
+      "pos": "WR",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Romeo Doubs (WR, NE) Rec Yds: we project 56.9, the market implies 36.0 (odds pulled 2026-10-17 21:08-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 56.9,
+        "market_mean": 35.95897095,
+        "delta": -20.94102905,
+        "pct": -0.368032145,
+        "flag": "RED"
       }
     },
     {
@@ -481,6 +552,55 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "RB",
         "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041040|6|rec_yds",
+      "severity": "warning",
+      "player": "Antonio Williams",
+      "gsis_id": "00-0041040",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Antonio Williams (WR, WAS) Rec Yds: we project 38.1, the market implies 25.3 (also Rec) (odds pulled 2026-10-17 21:08-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 38.1,
+        "market_mean": 25.27609278,
+        "delta": -12.82390722,
+        "pct": -0.3365854912,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037256|6|rush_att",
+      "severity": "warning",
+      "player": "Rachaad White",
+      "gsis_id": "00-0037256",
+      "pos": "RB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 6,
+      "message": "Rachaad White (RB, WAS) Rush Att: we project 6.8, the market implies 13.9 (also Rush+Rec Yds, Rush Yds) (odds pulled 2026-10-17 21:08-04:00)",
+      "evidence": {
+        "stat": "rush_att",
+        "stats": [
+          "rush_att",
+          "rush_rec_yds",
+          "rush_yds"
+        ],
+        "ours": 6.8,
+        "market_mean": 13.92478675,
+        "delta": 7.124786747,
+        "pct": 1.047762757,
+        "flag": "RED"
       }
     },
     {
@@ -1062,7 +1182,7 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 6,
-      "message": "Tre Harris (WR, LAC) is quoted by the market (Anytime TD rate 0.29) but has no row on the sheet (odds pulled 2026-10-16 15:51-04:00)",
+      "message": "Tre Harris (WR, LAC) is quoted by the market (Anytime TD rate 0.29) but has no row on the sheet (odds pulled 2026-10-17 21:08-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "market_mean": 0.2949306856,
@@ -1468,26 +1588,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0031408|6",
-      "severity": "info",
-      "player": "Mike Evans",
-      "gsis_id": "00-0031408",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Mike Evans (WR, SF) did not practice on the latest report (Ribs, Achilles); projected 17.1 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-15": "DNP",
-          "2026-10-16": "DNP"
-        },
-        "injury": "Ribs, Achilles",
-        "ppr": 17.1
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|xavier thomas|6|suspended",
       "severity": "info",
@@ -1544,27 +1644,6 @@
           "2026-09-26",
           "2026-10-03"
         ]
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040242|6",
-      "severity": "info",
-      "player": "Jacory Croskey-Merritt",
-      "gsis_id": "00-0040242",
-      "pos": "RB",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 6,
-      "message": "Jacory Croskey-Merritt (RB, WAS) did not practice on the latest report (Groin); projected 8.0 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-15": "DNP",
-          "2026-10-16": "DNP",
-          "2026-10-17": "DNP"
-        },
-        "injury": "Groin",
-        "ppr": 8.0
       }
     },
     {
@@ -1627,14 +1706,14 @@
   "counts": {
     "status_conflict": 3,
     "missing_active": 3,
-    "market_proj_gap": 1,
+    "out_but_projected": 1,
+    "market_proj_gap": 5,
     "sheet_line_stale": 1,
     "sheet_status_stale": 13,
     "elevated_not_projected": 4,
     "ir_return_window": 37,
     "unconfirmed_report": 13,
     "elevation_limit": 7,
-    "market_only_player": 1,
-    "dnp_but_projected": 2
+    "market_only_player": 1
   }
 }
