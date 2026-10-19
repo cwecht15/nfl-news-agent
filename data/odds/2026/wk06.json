@@ -15,20 +15,20 @@
         "at": "2026-10-13T07:14:59-04:00"
       },
       "current": {
-        "spread_home": -4.5,
-        "total": 53.5,
-        "home_ml": -225.0,
-        "away_ml": 170.0,
-        "n_books": 33,
-        "at": "2026-10-18T20:44:42-04:00"
+        "spread_home": -14.0,
+        "total": 44.5,
+        "home_ml": -1752.5,
+        "away_ml": 830.0,
+        "n_books": 32,
+        "at": "2026-10-18T21:52:20-04:00"
       },
       "best": {
-        "home_spread": "+1 (-110)",
-        "away_spread": "+5.5 (-120)",
-        "over": "52.5 (-111)",
-        "under": "54.5 (-118)",
-        "home_ml": "-105",
-        "away_ml": "191"
+        "home_spread": "-9.5 (-125)",
+        "away_spread": "+14.5 (-115)",
+        "over": "42.5 (-111)",
+        "under": "45 (-117)",
+        "home_ml": "-714",
+        "away_ml": "1000"
       },
       "sharp": {
         "book": "",
@@ -40,13 +40,13 @@
       "sheet": {
         "spread_home": -0.5,
         "ou": 53.0,
-        "fp_spread_delta": -4.0,
-        "fp_total_delta": 0.5,
-        "fp_flag": "FP-SPREAD"
+        "fp_spread_delta": -13.5,
+        "fp_total_delta": -8.5,
+        "fp_flag": "FP-BOTH"
       },
       "implied": {
-        "home": 29.0,
-        "away": 24.5
+        "home": 29.2,
+        "away": 15.2
       },
       "history": [
         {
@@ -184,6 +184,14 @@
           "away_ml": 170.0,
           "n_books": 33,
           "at": "2026-10-18T20:44:42-04:00"
+        },
+        {
+          "spread_home": -14.0,
+          "total": 44.5,
+          "home_ml": -1752.5,
+          "away_ml": 830.0,
+          "n_books": 32,
+          "at": "2026-10-18T21:52:20-04:00"
         }
       ]
     },
@@ -202,10 +210,10 @@
       "current": {
         "spread_home": -7.5,
         "total": 52.0,
-        "home_ml": -429.5,
+        "home_ml": -429.0,
         "away_ml": 325.0,
-        "n_books": 39,
-        "at": "2026-10-18T20:44:42-04:00"
+        "n_books": 40,
+        "at": "2026-10-18T21:52:20-04:00"
       },
       "best": {
         "home_spread": "-7.5 (+100)",
@@ -219,8 +227,8 @@
         "book": "pinnacle",
         "spread_home": -7.5,
         "total": 52.5,
-        "home_ml": -410.0,
-        "home_p": 0.775
+        "home_ml": -411.0,
+        "home_p": 0.776
       },
       "sheet": {
         "spread_home": -7.5,
@@ -409,6 +417,14 @@
           "away_ml": 325.0,
           "n_books": 39,
           "at": "2026-10-18T20:44:42-04:00"
+        },
+        {
+          "spread_home": -7.5,
+          "total": 52.0,
+          "home_ml": -429.0,
+          "away_ml": 325.0,
+          "n_books": 40,
+          "at": "2026-10-18T21:52:20-04:00"
         }
       ]
     },
@@ -87251,7 +87267,7 @@
     }
   },
   "flags_seen": {
-    "sheet_drift|DAL@GB": "FP-SPREAD",
+    "sheet_drift|DAL@GB": "FP-BOTH",
     "market_only|00-0041027|anytime_td": true,
     "market_only|00-0034796|anytime_td": true,
     "market_only|00-0038416|anytime_td": true,
@@ -87277,14 +87293,14 @@
       "game": "DAL@GB",
       "basis": "since the previous pull",
       "ours": null,
-      "old": 1.0,
-      "new": -4.5,
-      "magnitude": 11.0,
-      "message": "**DAL@GB** GB -4.5 (was +1, opened -1) — 5.5 toward GB"
+      "old": -4.5,
+      "new": -14.0,
+      "magnitude": 19.0,
+      "message": "**DAL@GB** GB -14 (was -4.5, opened -1) — 9.5 toward GB"
     },
     {
-      "type": "ml_move",
-      "team": "DAL",
+      "type": "total_move",
+      "team": "GB",
       "player": "",
       "gsis_id": "",
       "pos": "",
@@ -87293,10 +87309,10 @@
       "game": "DAL@GB",
       "basis": "since the previous pull",
       "ours": null,
-      "old": -112.0,
-      "new": 170.0,
-      "magnitude": 18.8,
-      "message": "**DAL** moneyline +170 (was -112)"
+      "old": 53.5,
+      "new": 44.5,
+      "magnitude": 9.0,
+      "message": "**DAL@GB** total 44.5, down 9 from 53.5, opened 52.5"
     },
     {
       "type": "ml_move",
@@ -87309,57 +87325,46 @@
       "game": "DAL@GB",
       "basis": "since the previous pull",
       "ours": null,
-      "old": -105.0,
-      "new": -225.0,
-      "magnitude": 8.0,
-      "message": "**GB** moneyline -225 (was -105)"
+      "old": -225.0,
+      "new": -1752.5,
+      "magnitude": 101.833,
+      "message": "**GB** moneyline -1752 (was -225)"
+    },
+    {
+      "type": "ml_move",
+      "team": "DAL",
+      "player": "",
+      "gsis_id": "",
+      "pos": "",
+      "stat": "",
+      "stat_label": "",
+      "game": "DAL@GB",
+      "basis": "since the previous pull",
+      "ours": null,
+      "old": 170.0,
+      "new": 830.0,
+      "magnitude": 44.0,
+      "message": "**DAL** moneyline +830 (was +170)"
+    },
+    {
+      "type": "sheet_drift",
+      "team": "GB",
+      "player": "",
+      "gsis_id": "",
+      "pos": "",
+      "stat": "",
+      "stat_label": "",
+      "game": "DAL@GB",
+      "basis": "vs the sheet",
+      "ours": null,
+      "old": -0.5,
+      "new": -14.0,
+      "magnitude": 22.0,
+      "message": "**DAL@GB**: your sheet has -0.5 / 53, market -14 / 44.5 (FP-BOTH)"
     }
   ],
-  "changes_seen_at": "2026-10-19T00:44:42+00:00",
+  "changes_seen_at": "2026-10-19T01:52:20+00:00",
   "pull_log": [
-    {
-      "pulled_at": "2026-10-14T15:05-04:00",
-      "props_pull_id": "2026-10-14T19:02:24+00:00",
-      "seen_at": "2026-10-15T01:38:52+00:00",
-      "changes": [
-        {
-          "type": "spread_move",
-          "team": "ATL",
-          "player": "",
-          "gsis_id": "",
-          "pos": "",
-          "stat": "",
-          "stat_label": "",
-          "game": "CHI@ATL",
-          "basis": "since the previous pull",
-          "ours": null,
-          "old": 1.5,
-          "new": 1.0,
-          "magnitude": 1.0,
-          "message": "**CHI@ATL** ATL +1 (was +1.5, opened +3.5) — 0.5 toward ATL"
-        },
-        {
-          "type": "ml_move",
-          "team": "ATL",
-          "player": "",
-          "gsis_id": "",
-          "pos": "",
-          "stat": "",
-          "stat_label": "",
-          "game": "CHI@ATL",
-          "basis": "since the previous pull",
-          "ours": null,
-          "old": 100.0,
-          "new": -103.0,
-          "magnitude": 13.533,
-          "message": "**ATL** moneyline -103 (was +100)"
-        }
-      ],
-      "source": "api",
-      "games_at": "2026-10-14T21:38:52-04:00",
-      "credits_used": 9,
-      "credits_remaining": 9732
-    },
     {
       "pulled_at": "2026-10-14T15:05-04:00",
       "props_pull_id": "2026-10-14T19:02:24+00:00",
@@ -97632,6 +97637,97 @@
       "games_at": "2026-10-18T20:44:42-04:00",
       "credits_used": 9,
       "credits_remaining": 4498
+    },
+    {
+      "pulled_at": "2026-10-18T19:34-04:00",
+      "props_pull_id": "2026-10-18T23:32:49+00:00",
+      "seen_at": "2026-10-19T01:52:20+00:00",
+      "changes": [
+        {
+          "type": "spread_move",
+          "team": "GB",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "DAL@GB",
+          "basis": "since the previous pull",
+          "ours": null,
+          "old": -4.5,
+          "new": -14.0,
+          "magnitude": 19.0,
+          "message": "**DAL@GB** GB -14 (was -4.5, opened -1) — 9.5 toward GB"
+        },
+        {
+          "type": "total_move",
+          "team": "GB",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "DAL@GB",
+          "basis": "since the previous pull",
+          "ours": null,
+          "old": 53.5,
+          "new": 44.5,
+          "magnitude": 9.0,
+          "message": "**DAL@GB** total 44.5, down 9 from 53.5, opened 52.5"
+        },
+        {
+          "type": "ml_move",
+          "team": "GB",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "DAL@GB",
+          "basis": "since the previous pull",
+          "ours": null,
+          "old": -225.0,
+          "new": -1752.5,
+          "magnitude": 101.833,
+          "message": "**GB** moneyline -1752 (was -225)"
+        },
+        {
+          "type": "ml_move",
+          "team": "DAL",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "DAL@GB",
+          "basis": "since the previous pull",
+          "ours": null,
+          "old": 170.0,
+          "new": 830.0,
+          "magnitude": 44.0,
+          "message": "**DAL** moneyline +830 (was +170)"
+        },
+        {
+          "type": "sheet_drift",
+          "team": "GB",
+          "player": "",
+          "gsis_id": "",
+          "pos": "",
+          "stat": "",
+          "stat_label": "",
+          "game": "DAL@GB",
+          "basis": "vs the sheet",
+          "ours": null,
+          "old": -0.5,
+          "new": -14.0,
+          "magnitude": 22.0,
+          "message": "**DAL@GB**: your sheet has -0.5 / 53, market -14 / 44.5 (FP-BOTH)"
+        }
+      ],
+      "source": "api",
+      "games_at": "2026-10-18T21:52:20-04:00",
+      "credits_used": 9,
+      "credits_remaining": 4489
     }
   ],
   "pull": {
@@ -97639,11 +97735,11 @@
     "props_pull_id": "2026-10-18T23:32:49+00:00",
     "week_reported": 6,
     "stale_reason": "",
-    "age_hours": 1.9,
-    "games_at": "2026-10-18T20:44:42-04:00",
+    "age_hours": 2.3,
+    "games_at": "2026-10-18T21:52:20-04:00",
     "games_source": "api",
-    "games_age_hours": 0.8,
+    "games_age_hours": 0.0,
     "games_stale_reason": ""
   },
-  "updated_at": "2026-10-19T01:29:44+00:00"
+  "updated_at": "2026-10-19T01:52:22+00:00"
 }
