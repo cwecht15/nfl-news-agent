@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-21T21:01:10+00:00",
+  "generated_at": "2026-10-22T00:01:55+00:00",
   "inputs": {
     "snapshot_date": "2026-10-21",
     "nflverse_date": "2026-10-21",
-    "injury_week_updated": "2026-10-21T21:01:09+00:00",
-    "roster_state_updated": "2026-10-21T20:21:14+00:00"
+    "injury_week_updated": "2026-10-22T00:01:55+00:00",
+    "roster_state_updated": "2026-10-21T23:18:57+00:00"
   },
   "alerts": [
     {
@@ -102,7 +102,7 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 7,
-      "message": "CIN@BAL: the sheet has -2.5 / 51.0, the market 1.0 / 48.5 (FP-BOTH) (odds pulled 2026-10-21 16:19:03-04:00)",
+      "message": "CIN@BAL: the sheet has -2.5 / 51.0, the market 1.0 / 48.5 (FP-BOTH) (odds pulled 2026-10-21 19:18:47-04:00)",
       "evidence": {
         "game": "CIN@BAL",
         "fp_flag": "FP-BOTH",
@@ -112,6 +112,24 @@
         "market_total": 48.5,
         "spread_delta": 3.5,
         "total_delta": -2.5
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040394|7",
+      "severity": "warning",
+      "player": "Anthony Tyus III",
+      "gsis_id": "00-0040394",
+      "pos": "RB",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Anthony Tyus III (RB, CAR) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "espn",
+        "sheet_status": "PS",
+        "ppr": 0.0
       }
     },
     {
@@ -401,26 +419,6 @@
           "source": "news:SBN Bills (Buffalo Rumblings)"
         },
         "days_pending": 41
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0040394|7",
-      "severity": "info",
-      "player": "Anthony Tyus III",
-      "gsis_id": "00-0040394",
-      "pos": "RB",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Anthony Tyus III (RB, CAR) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-09-26",
-          "2026-10-17",
-          "2026-10-21"
-        ]
       }
     },
     {
@@ -1719,9 +1717,9 @@
     "status_conflict": 3,
     "missing_active": 4,
     "sheet_line_stale": 1,
-    "sheet_status_stale": 5,
+    "sheet_status_stale": 6,
     "ir_return_window": 44,
-    "elevation_limit": 18,
+    "elevation_limit": 17,
     "unconfirmed_report": 14
   }
 }
