@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-21T23:18:57+00:00",
+  "generated_at": "2026-10-22T01:59:18+00:00",
   "inputs": {
     "snapshot_date": "2026-10-21",
     "nflverse_date": "2026-10-21",
-    "injury_week_updated": "2026-10-21T21:01:09+00:00",
-    "roster_state_updated": "2026-10-21T23:18:57+00:00"
+    "injury_week_updated": "2026-10-22T00:12:24+00:00",
+    "roster_state_updated": "2026-10-22T01:59:18+00:00"
   },
   "alerts": [
     {
@@ -74,6 +74,26 @@
     },
     {
       "type": "status_conflict",
+      "key": "status_conflict|00-0040586|7",
+      "severity": "error",
+      "player": "Jaydon Blue",
+      "gsis_id": "00-0040586",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Jaydon Blue (RB, PHI) is projected Active (0.3 PPR) but roster status is FA (since 2026-10-21)",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.3,
+        "slot": 3,
+        "earliest_return_week": null
+      }
+    },
+    {
+      "type": "status_conflict",
       "key": "status_conflict|00-0034775|7",
       "severity": "error",
       "player": "Christian Kirk",
@@ -93,25 +113,21 @@
       }
     },
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|BLT|7|CIN@BAL",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039550|7",
       "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "BLT",
+      "player": "Shawn Bowman",
+      "gsis_id": "00-0039550",
+      "pos": "TE",
+      "team": "ARZ",
       "sheet": "primary",
       "week": 7,
-      "message": "CIN@BAL: the sheet has -2.5 / 51.0, the market 1.0 / 48.5 (FP-BOTH) (odds pulled 2026-10-21 19:18:47-04:00)",
+      "message": "Shawn Bowman (TE, ARZ) sheet Status is ACTIVE but roster says FA",
       "evidence": {
-        "game": "CIN@BAL",
-        "fp_flag": "FP-BOTH",
-        "sheet_spread": -2.5,
-        "sheet_ou": 51.0,
-        "market_spread": 1.0,
-        "market_total": 48.5,
-        "spread_delta": 3.5,
-        "total_delta": -2.5
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -127,9 +143,56 @@
       "message": "Anthony Tyus III (RB, CAR) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039021|7|rush_att",
+      "severity": "warning",
+      "player": "Roschon Johnson",
+      "gsis_id": "00-0039021",
+      "pos": "RB",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Roschon Johnson (RB, CHI) Rush Att: we project 11.4, the market implies 6.7 (also Rush Yds) (odds pulled 2026-10-21 20:54-04:00)",
+      "evidence": {
+        "stat": "rush_att",
+        "stats": [
+          "rush_att",
+          "rush_yds"
+        ],
+        "ours": 11.4,
+        "market_mean": 6.68632015,
+        "delta": -4.71367985,
+        "pct": -0.4134806886,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038098|7|rush_yds",
+      "severity": "warning",
+      "player": "Pierre Strong",
+      "gsis_id": "00-0038098",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Pierre Strong (RB, GB) Rush Yds: we project 3.5, the market implies 15.8 (odds pulled 2026-10-21 20:54-04:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_yds"
+        ],
+        "ours": 3.5,
+        "market_mean": 15.75817047,
+        "delta": 12.25817047,
+        "pct": 3.50233442,
+        "flag": "RED"
       }
     },
     {
@@ -171,6 +234,29 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0033293|7|anytime_td",
+      "severity": "warning",
+      "player": "Aaron Jones",
+      "gsis_id": "00-0033293",
+      "pos": "RB",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Aaron Jones (RB, MIN) Anytime TD rate: we project 1.01, the market implies 0.67 (odds pulled 2026-10-21 20:54-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 1.01,
+        "market_mean": 0.6696438439,
+        "delta": -0.3403561561,
+        "pct": -0.3369862932,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0037816|7",
       "severity": "warning",
@@ -209,6 +295,33 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039923|7|pass_att",
+      "severity": "warning",
+      "player": "J.J. McCarthy",
+      "gsis_id": "00-0039923",
+      "pos": "QB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 7,
+      "message": "J.J. McCarthy (QB, NYG) Pass Att: we project 3.3, the market implies 34.1 (also Completions, Pass TD, Pass Yds, Rush Yds) (odds pulled 2026-10-21 20:54-04:00)",
+      "evidence": {
+        "stat": "pass_att",
+        "stats": [
+          "completions",
+          "pass_att",
+          "pass_tds",
+          "pass_yds",
+          "rush_yds"
+        ],
+        "ours": 3.3,
+        "market_mean": 34.11280866,
+        "delta": 30.81280866,
+        "pct": 9.337214747,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0039325|7",
       "severity": "warning",
@@ -218,48 +331,35 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 7,
-      "message": "Carson Steele (RB, PHI) sheet Status is ACTIVE but roster says UNKNOWN",
+      "message": "Carson Steele (RB, PHI) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "roster_status": "UNKNOWN",
-        "status_source": "nflverse",
+        "roster_status": "IR",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040586|7",
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037258|7|anytime_td",
       "severity": "warning",
-      "player": "Jaydon Blue",
-      "gsis_id": "00-0040586",
+      "player": "Dameon Pierce",
+      "gsis_id": "00-0037258",
       "pos": "RB",
       "team": "PHI",
       "sheet": "primary",
       "week": 7,
-      "message": "Jaydon Blue (RB, PHI) sheet Status is PS but roster says FA",
+      "message": "Dameon Pierce (RB, PHI) Anytime TD rate: we project 0.13, the market implies 0.56 (odds pulled 2026-10-21 20:54-04:00)",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.3
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038409|7",
-      "severity": "warning",
-      "player": "Lew Nichols III",
-      "gsis_id": "00-0038409",
-      "pos": "RB",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Lew Nichols III (RB, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.0
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.13,
+        "market_mean": 0.5608655511,
+        "delta": 0.4308655511,
+        "pct": 3.314350393,
+        "flag": "RED"
       }
     },
     {
@@ -310,11 +410,11 @@
       "team": "ATL",
       "sheet": "primary",
       "week": 7,
-      "message": "A.J. Terrell (DB, ATL) on IR - first eligible Week 7",
+      "message": "A.J. Terrell (DB, ATL) on IR - designated to return 2026-10-21 - first eligible Week 7",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 7,
-        "designated_return_date": null,
+        "designated_return_date": "2026-10-21",
         "on_sheet": false
       }
     },
@@ -1087,6 +1187,24 @@
       }
     },
     {
+      "type": "market_only_player",
+      "key": "market_only_player|00-0037525|7|anytime_td",
+      "severity": "info",
+      "player": "Jordan Mason",
+      "gsis_id": "00-0037525",
+      "pos": "RB",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Jordan Mason (RB, MIN) is quoted by the market (Anytime TD rate 0.47) but has no row on the sheet (odds pulled 2026-10-21 20:54-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "market_mean": 0.4689901868,
+        "flag": "MKT-ONLY",
+        "n_books": 3
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|kevin o'connell|7|ps_signed",
       "severity": "info",
@@ -1260,6 +1378,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037231|7",
+      "severity": "info",
+      "player": "Kevin Austin Jr.",
+      "gsis_id": "00-0037231",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Kevin Austin Jr. (WR, NO) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0040691|7",
       "severity": "info",
@@ -1274,6 +1412,24 @@
         "status": "IR",
         "earliest_return_week": 7,
         "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0036937|7",
+      "severity": "info",
+      "player": "Paulson Adebo",
+      "gsis_id": "00-0036937",
+      "pos": "DB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Paulson Adebo (DB, NYG) on IR - designated to return 2026-10-21 - first eligible Week 6",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 6,
+        "designated_return_date": "2026-10-21",
         "on_sheet": false
       }
     },
@@ -1558,6 +1714,24 @@
       }
     },
     {
+      "type": "market_only_player",
+      "key": "market_only_player|00-0039165|7|anytime_td",
+      "severity": "info",
+      "player": "Zach Charbonnet",
+      "gsis_id": "00-0039165",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Zach Charbonnet (RB, SEA) is quoted by the market (Anytime TD rate 0.59) but has no row on the sheet (odds pulled 2026-10-21 20:54-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "market_mean": 0.5923081496,
+        "flag": "MKT-ONLY",
+        "n_books": 3
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0040711|7",
       "severity": "info",
@@ -1714,12 +1888,13 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 3,
+    "status_conflict": 4,
     "missing_active": 4,
-    "sheet_line_stale": 1,
-    "sheet_status_stale": 6,
-    "ir_return_window": 44,
-    "elevation_limit": 17,
-    "unconfirmed_report": 14
+    "sheet_status_stale": 5,
+    "market_proj_gap": 5,
+    "ir_return_window": 45,
+    "elevation_limit": 18,
+    "unconfirmed_report": 14,
+    "market_only_player": 2
   }
 }
