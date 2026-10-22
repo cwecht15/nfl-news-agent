@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-22T17:23:55+00:00",
+  "generated_at": "2026-10-22T23:12:18+00:00",
   "inputs": {
     "snapshot_date": "2026-10-22",
     "nflverse_date": "2026-10-22",
-    "injury_week_updated": "2026-10-22T11:46:04+00:00",
-    "roster_state_updated": "2026-10-22T11:46:01+00:00"
+    "injury_week_updated": "2026-10-22T23:12:17+00:00",
+    "roster_state_updated": "2026-10-22T23:12:13+00:00"
   },
   "alerts": [
     {
@@ -74,26 +74,6 @@
     },
     {
       "type": "status_conflict",
-      "key": "status_conflict|00-0040586|7",
-      "severity": "error",
-      "player": "Jaydon Blue",
-      "gsis_id": "00-0040586",
-      "pos": "RB",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jaydon Blue (RB, PHI) is projected Active (0.3 PPR) but roster status is FA (since 2026-10-20)",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.3,
-        "slot": 3,
-        "earliest_return_week": null
-      }
-    },
-    {
-      "type": "status_conflict",
       "key": "status_conflict|00-0034775|7",
       "severity": "error",
       "player": "Christian Kirk",
@@ -131,71 +111,25 @@
       }
     },
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|BLT|7|CIN@BAL",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 7,
-      "message": "CIN@BAL: the sheet has 1.0 / 48.5, the market -1.5 / 48.5 (FP-SPREAD) (odds pulled 2026-10-22 13:23:50-04:00)",
-      "evidence": {
-        "game": "CIN@BAL",
-        "fp_flag": "FP-SPREAD",
-        "sheet_spread": 1.0,
-        "sheet_ou": 48.5,
-        "market_spread": -1.5,
-        "market_total": 48.5,
-        "spread_delta": -2.5,
-        "total_delta": 0.0
-      }
-    },
-    {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0039021|7|rush_att",
+      "key": "market_proj_gap|00-0038794|7|anytime_td",
       "severity": "warning",
-      "player": "Roschon Johnson",
-      "gsis_id": "00-0039021",
+      "player": "Jaleel McLaughlin",
+      "gsis_id": "00-0038794",
       "pos": "RB",
-      "team": "CHI",
+      "team": "CLV",
       "sheet": "primary",
       "week": 7,
-      "message": "Roschon Johnson (RB, CHI) Rush Att: we project 11.4, the market implies 6.7 (also Rush Yds) (odds pulled 2026-10-22 11:48-04:00)",
+      "message": "Jaleel McLaughlin (RB, CLV) Anytime TD rate: we project 0.02, the market implies 0.40 (odds pulled 2026-10-22 16:07-04:00)",
       "evidence": {
-        "stat": "rush_att",
+        "stat": "anytime_td",
         "stats": [
-          "rush_att",
-          "rush_yds"
+          "anytime_td"
         ],
-        "ours": 11.4,
-        "market_mean": 6.68632015,
-        "delta": -4.71367985,
-        "pct": -0.4134806886,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038098|7|rush_yds",
-      "severity": "warning",
-      "player": "Pierre Strong",
-      "gsis_id": "00-0038098",
-      "pos": "RB",
-      "team": "GB",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Pierre Strong (RB, GB) Rush Yds: we project 3.5, the market implies 15.8 (odds pulled 2026-10-22 11:48-04:00)",
-      "evidence": {
-        "stat": "rush_yds",
-        "stats": [
-          "rush_yds"
-        ],
-        "ours": 3.5,
-        "market_mean": 15.75817047,
-        "delta": 12.25817047,
-        "pct": 3.50233442,
+        "ours": 0.02,
+        "market_mean": 0.4045085757,
+        "delta": 0.3845085757,
+        "pct": 19.22542878,
         "flag": "RED"
       }
     },
@@ -238,29 +172,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0033293|7|anytime_td",
-      "severity": "warning",
-      "player": "Aaron Jones",
-      "gsis_id": "00-0033293",
-      "pos": "RB",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Aaron Jones (RB, MIN) Anytime TD rate: we project 1.01, the market implies 0.67 (odds pulled 2026-10-22 11:48-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 1.01,
-        "market_mean": 0.6696438439,
-        "delta": -0.3403561561,
-        "pct": -0.3369862932,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0037816|7",
       "severity": "warning",
@@ -299,33 +210,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0039923|7|pass_att",
-      "severity": "warning",
-      "player": "J.J. McCarthy",
-      "gsis_id": "00-0039923",
-      "pos": "QB",
-      "team": "NYG",
-      "sheet": "primary",
-      "week": 7,
-      "message": "J.J. McCarthy (QB, NYG) Pass Att: we project 3.3, the market implies 34.1 (also Completions, Pass TD, Pass Yds, Rush Yds) (odds pulled 2026-10-22 11:48-04:00)",
-      "evidence": {
-        "stat": "pass_att",
-        "stats": [
-          "completions",
-          "pass_att",
-          "pass_tds",
-          "pass_yds",
-          "rush_yds"
-        ],
-        "ours": 3.3,
-        "market_mean": 34.11280866,
-        "delta": 30.81280866,
-        "pct": 9.337214747,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0039325|7",
       "severity": "warning",
@@ -344,25 +228,128 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0037258|7|anytime_td",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038498|7",
       "severity": "warning",
-      "player": "Dameon Pierce",
-      "gsis_id": "00-0037258",
+      "player": "E.J. Jenkins",
+      "gsis_id": "00-0038498",
+      "pos": "TE",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 7,
+      "message": "E.J. Jenkins (TE, PHI) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0040586|7",
+      "severity": "warning",
+      "player": "Jaydon Blue",
+      "gsis_id": "00-0040586",
       "pos": "RB",
       "team": "PHI",
       "sheet": "primary",
       "week": 7,
-      "message": "Dameon Pierce (RB, PHI) Anytime TD rate: we project 0.13, the market implies 0.46 (odds pulled 2026-10-22 11:48-04:00)",
+      "message": "Jaydon Blue (RB, PHI) is projected Active (0.3 PPR) but roster status is PS (since 2026-10-22)",
       "evidence": {
-        "stat": "anytime_td",
+        "roster_status": "PS",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.3,
+        "slot": 3,
+        "earliest_return_week": null
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040739|7",
+      "severity": "warning",
+      "player": "Elijah Arroyo",
+      "gsis_id": "00-0040739",
+      "pos": "TE",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Elijah Arroyo (TE, SEA) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038129|7|rec_yds",
+      "severity": "warning",
+      "player": "Cade Otton",
+      "gsis_id": "00-0038129",
+      "pos": "TE",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Cade Otton (TE, TB) Rec Yds: we project 32.2, the market implies 45.2 (odds pulled 2026-10-22 16:07-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
         "stats": [
-          "anytime_td"
+          "rec_yds"
         ],
-        "ours": 0.13,
-        "market_mean": 0.4642523858,
-        "delta": 0.3342523858,
-        "pct": 2.571172198,
+        "ours": 32.2,
+        "market_mean": 45.22820339,
+        "delta": 13.02820339,
+        "pct": 0.4046025898,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041048|7|receptions",
+      "severity": "warning",
+      "player": "Ted Hurst III",
+      "gsis_id": "00-0041048",
+      "pos": "WR",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Ted Hurst III (WR, TB) Rec: we project 1.8, the market implies 3.2 (also Rec Yds) (odds pulled 2026-10-22 16:07-04:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 1.8,
+        "market_mean": 3.206164778,
+        "delta": 1.406164778,
+        "pct": 0.7812026544,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040237|7|rec_yds",
+      "severity": "warning",
+      "player": "Tez Johnson",
+      "gsis_id": "00-0040237",
+      "pos": "WR",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Tez Johnson (WR, TB) Rec Yds: we project 18.8, the market implies 33.1 (odds pulled 2026-10-22 16:07-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 18.8,
+        "market_mean": 33.05654062,
+        "delta": 14.25654062,
+        "pct": 0.7583266289,
         "flag": "RED"
       }
     },
@@ -420,6 +407,26 @@
         "earliest_return_week": 7,
         "designated_return_date": "2026-10-21",
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0037746|7",
+      "severity": "info",
+      "player": "Brian Robinson",
+      "gsis_id": "00-0037746",
+      "pos": "RB",
+      "team": "ATL",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Brian Robinson (RB, ATL) did not practice on the latest report (Hamstring); projected 5.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-21": "LP",
+          "2026-10-22": "DNP"
+        },
+        "injury": "Hamstring",
+        "ppr": 5.4
       }
     },
     {
@@ -535,13 +542,14 @@
       "team": "CHI",
       "sheet": "primary",
       "week": 7,
-      "message": "Zavier Scott (RB, CHI) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Zavier Scott (RB, CHI) has used 4/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 3,
+        "elevations_used": 4,
         "elevation_dates": [
           "2026-10-10",
           "2026-10-17",
-          "2026-10-19"
+          "2026-10-19",
+          "2026-10-22"
         ]
       }
     },
@@ -673,6 +681,46 @@
         "earliest_return_week": 7,
         "designated_return_date": "2026-10-21",
         "on_sheet": true
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0031763|7",
+      "severity": "info",
+      "player": "DeAndre Carter",
+      "gsis_id": "00-0031763",
+      "pos": "WR",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 7,
+      "message": "DeAndre Carter (WR, DET) is on the active roster but has no row on the sheet (OurLads WR #4; signed 2026-10-22)",
+      "evidence": {
+        "ourlads_depth": 4,
+        "ourlads_pos": "WR",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "WR",
+        "status_abbr": "P07"
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0037091|7",
+      "severity": "info",
+      "player": "Bo Melton",
+      "gsis_id": "00-0037091",
+      "pos": "WR",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Bo Melton (WR, GB) did not practice on the latest report (Back); projected 1.9 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-21": "DNP",
+          "2026-10-22": "DNP"
+        },
+        "injury": "Back",
+        "ppr": 1.9
       }
     },
     {
@@ -824,6 +872,26 @@
         "earliest_return_week": 7,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039816|7",
+      "severity": "info",
+      "player": "Anthony Gould",
+      "gsis_id": "00-0039816",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Anthony Gould (WR, IND) did not practice on the latest report (Concussion); projected 0.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-21": "DNP",
+          "2026-10-22": "DNP"
+        },
+        "injury": "Concussion",
+        "ppr": 0.2
       }
     },
     {
@@ -1101,6 +1169,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040878|7",
+      "severity": "info",
+      "player": "Mike Washington Jr.",
+      "gsis_id": "00-0040878",
+      "pos": "RB",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Mike Washington Jr. (RB, LV) did not practice on the latest report (Foot/Back); projected 5.6 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-21": "LP",
+          "2026-10-22": "DNP"
+        },
+        "injury": "Foot/Back",
+        "ppr": 5.6
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0041527|7",
       "severity": "info",
@@ -1152,24 +1240,6 @@
         "earliest_return_week": 7,
         "designated_return_date": "2026-10-19",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "market_only_player",
-      "key": "market_only_player|00-0037525|7|anytime_td",
-      "severity": "info",
-      "player": "Jordan Mason",
-      "gsis_id": "00-0037525",
-      "pos": "RB",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jordan Mason (RB, MIN) is quoted by the market (Anytime TD rate 0.47) but has no row on the sheet (odds pulled 2026-10-22 11:48-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "market_mean": 0.4738275074,
-        "flag": "MKT-ONLY",
-        "n_books": 3
       }
     },
     {
@@ -1691,10 +1761,10 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 7,
-      "message": "Zach Charbonnet (RB, SEA) is quoted by the market (Anytime TD rate 0.59) but has no row on the sheet (odds pulled 2026-10-22 11:48-04:00)",
+      "message": "Zach Charbonnet (RB, SEA) is quoted by the market (Anytime TD rate 0.58) but has no row on the sheet (odds pulled 2026-10-22 16:07-04:00)",
       "evidence": {
         "stat": "anytime_td",
-        "market_mean": 0.5923081496,
+        "market_mean": 0.5784589695,
         "flag": "MKT-ONLY",
         "n_books": 3
       }
@@ -1813,6 +1883,46 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040129|7",
+      "severity": "info",
+      "player": "Emeka Egbuka",
+      "gsis_id": "00-0040129",
+      "pos": "WR",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Emeka Egbuka (WR, TB) did not practice on the latest report (Concussion/Foot); projected 11.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-21": "DNP",
+          "2026-10-22": "DNP"
+        },
+        "injury": "Concussion/Foot",
+        "ppr": 11.4
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0034837|7",
+      "severity": "info",
+      "player": "Calvin Ridley",
+      "gsis_id": "00-0034837",
+      "pos": "WR",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Calvin Ridley (WR, TEN) did not practice on the latest report (Hip); projected 3.0 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-21": "LP",
+          "2026-10-22": "DNP"
+        },
+        "injury": "Hip",
+        "ppr": 3.0
+      }
+    },
+    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0034357|7",
       "severity": "info",
@@ -1857,13 +1967,13 @@
   "errors": [],
   "counts": {
     "status_conflict": 4,
-    "missing_active": 4,
-    "sheet_status_stale": 4,
-    "sheet_line_stale": 1,
-    "market_proj_gap": 5,
+    "missing_active": 5,
+    "sheet_status_stale": 6,
+    "market_proj_gap": 4,
     "ir_return_window": 43,
+    "dnp_but_projected": 6,
     "elevation_limit": 18,
     "unconfirmed_report": 14,
-    "market_only_player": 2
+    "market_only_player": 1
   }
 }
