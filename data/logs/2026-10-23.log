@@ -48,3 +48,262 @@
 2026-10-23 10:51:43,071 [INFO] afternoon: Projection audit: 112 open alerts (error=7, info=89, warning=16), 0 dismissed
 2026-10-23 10:51:43,088 [WARNING] afternoon: No report for 2026-10-23 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-10-23 to produce the morning report.
 2026-10-23 10:51:43,088 [INFO] afternoon: Refresh complete (elevations, inactives, injuries, odds, roster, transactions).
+2026-10-23 11:19:00,099 [INFO] orchestrator: ============================================================
+2026-10-23 11:19:00,099 [INFO] orchestrator: NFL News Agent - Daily Run: 2026-10-23
+2026-10-23 11:19:00,100 [INFO] orchestrator: ============================================================
+2026-10-23 11:19:00,112 [INFO] orchestrator: Season phase: in_season (week 7, Fri, secondary sheet skipped)
+2026-10-23 11:19:00,112 [INFO] orchestrator: Step 1: Collecting from all sources (parallel)...
+2026-10-23 11:19:00,137 [INFO] collectors.rss_collector: Collecting ESPN team-specific news for 32 teams...
+2026-10-23 11:19:00,172 [INFO] collectors.fantasypoints_collector: Fetching FantasyPoints articles (lookback=24h, cap=15)
+2026-10-23 11:19:00,188 [INFO] collectors.rss_collector: Polling 36 RSS feeds (lookback=28h)...
+2026-10-23 11:19:00,204 [INFO] collectors.web_scraper: Scraping 35 web sources...
+2026-10-23 11:19:00,209 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/10
+2026-10-23 11:19:00,226 [INFO] collectors.beat_writer_collector: No beat writers configured.
+2026-10-23 11:19:00,231 [INFO] collectors.twitter_collector: Scanning 1 Twitter list(s) (lookback=28h, max=1000, replies=False)...
+2026-10-23 11:19:00,485 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/10
+2026-10-23 11:19:00,528 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/10
+2026-10-23 11:19:00,588 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/10
+2026-10-23 11:19:00,629 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/10
+2026-10-23 11:19:00,639 [ERROR] collectors.twitter_collector: TwitterAPI.io returned HTTP 402 (Payment Required) — the account is out of credits. Add a balance at twitterapi.io.
+2026-10-23 11:19:00,674 [INFO] collectors.reddit_collector: Fetched 25 posts from r/nfl/new.
+2026-10-23 11:19:00,676 [INFO] collectors.reddit_collector: Collected 8 news items from r/nfl (skipped 17 highlights/threads).
+2026-10-23 11:19:00,700 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/10
+2026-10-23 11:19:00,733 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/9
+2026-10-23 11:19:00,914 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/9
+2026-10-23 11:19:01,146 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/9
+2026-10-23 11:19:01,401 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/9
+2026-10-23 11:19:01,671 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/9
+2026-10-23 11:19:01,877 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/9
+2026-10-23 11:19:02,103 [INFO] collectors.web_scraper: Found 12 transactions.
+2026-10-23 11:19:02,365 [INFO] collectors.fantasypoints_collector: FantasyPoints: 0 articles within window.
+2026-10-23 11:19:04,104 [INFO] collectors.web_scraper: Scraping NFL.com injuries: https://www.nfl.com/injuries/
+2026-10-23 11:19:04,229 [INFO] collectors.web_scraper: Found injury reports for 0 teams.
+2026-10-23 11:19:06,239 [INFO] collectors.web_scraper: Scraping The Athletic NFL: https://www.nytimes.com/athletic/nfl/
+2026-10-23 11:19:39,534 [INFO] collectors.rss_collector: Collected 49 unique articles from ESPN team feeds.
+2026-10-23 11:19:39,534 [INFO] collectors.rss_collector: ESPN bodies: 14 via content API, 0 via page scrape, 27 empty.
+2026-10-23 11:19:40,328 [INFO] collectors.web_scraper: Found 11 recent Athletic NFL stories across 32 team pages.
+2026-10-23 11:19:46,286 [INFO] collectors.web_scraper: SI team ARI: 10 items (avg body 2565 chars) from https://www.si.com/nfl/cardinals
+2026-10-23 11:19:53,128 [INFO] collectors.web_scraper: SI team ATL: 10 items (avg body 3378 chars) from https://www.si.com/nfl/falcons
+2026-10-23 11:19:59,523 [INFO] collectors.web_scraper: SI team BAL: 10 items (avg body 5104 chars) from https://www.si.com/nfl/ravens
+2026-10-23 11:20:08,900 [INFO] collectors.web_scraper: SI team BUF: 10 items (avg body 4211 chars) from https://www.si.com/nfl/bills
+2026-10-23 11:20:15,975 [INFO] collectors.web_scraper: SI team CAR: 10 items (avg body 3672 chars) from https://www.si.com/nfl/panthers
+2026-10-23 11:20:21,799 [INFO] collectors.web_scraper: SI team CHI: 10 items (avg body 3713 chars) from https://www.si.com/nfl/bears
+2026-10-23 11:20:24,047 [INFO] collectors.rss_collector: Collected 274 items from RSS feeds.
+2026-10-23 11:20:28,007 [INFO] collectors.web_scraper: SI team CIN: 10 items (avg body 2778 chars) from https://www.si.com/nfl/bengals
+2026-10-23 11:20:33,553 [INFO] collectors.web_scraper: SI team CLE: 10 items (avg body 3855 chars) from https://www.si.com/nfl/browns
+2026-10-23 11:20:39,688 [INFO] collectors.web_scraper: SI team DAL: 10 items (avg body 2979 chars) from https://www.si.com/nfl/cowboys
+2026-10-23 11:20:46,196 [INFO] collectors.web_scraper: SI team DEN: 10 items (avg body 5014 chars) from https://www.si.com/nfl/broncos
+2026-10-23 11:20:52,337 [INFO] collectors.web_scraper: SI team DET: 10 items (avg body 3197 chars) from https://www.si.com/nfl/lions
+2026-10-23 11:20:58,905 [INFO] collectors.web_scraper: SI team GB: 10 items (avg body 6810 chars) from https://www.si.com/nfl/packers
+2026-10-23 11:21:04,883 [INFO] collectors.web_scraper: SI team HOU: 10 items (avg body 4463 chars) from https://www.si.com/nfl/texans
+2026-10-23 11:21:10,318 [INFO] collectors.web_scraper: SI team IND: 10 items (avg body 4091 chars) from https://www.si.com/nfl/colts
+2026-10-23 11:21:15,116 [INFO] collectors.web_scraper: SI team JAX: 10 items (avg body 4161 chars) from https://www.si.com/nfl/jaguars
+2026-10-23 11:21:20,491 [INFO] collectors.web_scraper: SI team KC: 10 items (avg body 4531 chars) from https://www.si.com/nfl/chiefs
+2026-10-23 11:21:26,039 [INFO] collectors.web_scraper: SI team LAC: 10 items (avg body 3512 chars) from https://www.si.com/nfl/chargers
+2026-10-23 11:21:31,976 [INFO] collectors.web_scraper: SI team LAR: 10 items (avg body 5676 chars) from https://www.si.com/nfl/rams
+2026-10-23 11:21:38,764 [INFO] collectors.web_scraper: SI team LV: 10 items (avg body 4807 chars) from https://www.si.com/nfl/raiders
+2026-10-23 11:21:43,389 [INFO] collectors.web_scraper: SI team MIA: 10 items (avg body 5793 chars) from https://www.si.com/nfl/dolphins
+2026-10-23 11:21:49,378 [INFO] collectors.web_scraper: SI team MIN: 10 items (avg body 3649 chars) from https://www.si.com/nfl/vikings
+2026-10-23 11:21:56,036 [INFO] collectors.web_scraper: SI team NE: 10 items (avg body 4464 chars) from https://www.si.com/nfl/patriots
+2026-10-23 11:22:00,542 [INFO] collectors.web_scraper: SI team NO: 10 items (avg body 5118 chars) from https://www.si.com/nfl/saints
+2026-10-23 11:22:07,135 [INFO] collectors.web_scraper: SI team NYG: 10 items (avg body 4341 chars) from https://www.si.com/nfl/giants
+2026-10-23 11:22:14,428 [INFO] collectors.web_scraper: SI team NYJ: 10 items (avg body 4399 chars) from https://www.si.com/nfl/jets
+2026-10-23 11:22:20,647 [INFO] collectors.web_scraper: SI team PHI: 10 items (avg body 4202 chars) from https://www.si.com/nfl/eagles
+2026-10-23 11:22:27,165 [INFO] collectors.web_scraper: SI team PIT: 10 items (avg body 2992 chars) from https://www.si.com/nfl/steelers
+2026-10-23 11:22:33,515 [INFO] collectors.web_scraper: SI team SEA: 10 items (avg body 2882 chars) from https://www.si.com/nfl/seahawks
+2026-10-23 11:22:39,917 [INFO] collectors.web_scraper: SI team SF: 10 items (avg body 3362 chars) from https://www.si.com/nfl/49ers
+2026-10-23 11:22:45,433 [INFO] collectors.web_scraper: SI team TB: 10 items (avg body 2909 chars) from https://www.si.com/nfl/buccaneers
+2026-10-23 11:22:51,558 [INFO] collectors.web_scraper: SI team TEN: 10 items (avg body 2999 chars) from https://www.si.com/nfl/titans
+2026-10-23 11:22:57,435 [INFO] collectors.web_scraper: SI team WAS: 10 items (avg body 4346 chars) from https://www.si.com/nfl/commanders
+2026-10-23 11:22:59,435 [INFO] collectors.web_scraper: Collected 343 items from web scraping.
+2026-10-23 11:22:59,438 [ERROR] orchestrator: Twitter collector failed: TwitterAPI.io returned HTTP 402 (Payment Required) — the account is out of credits. Add a balance at twitterapi.io.
+2026-10-23 11:22:59,451 [INFO] collectors.rss_collector: Saved 323 RSS items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-10-23/rss.json
+2026-10-23 11:22:59,465 [INFO] collectors.web_scraper: Saved 343 web items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-10-23/web.json
+2026-10-23 11:22:59,466 [INFO] collectors.reddit_collector: Saved 8 Reddit items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-10-23/reddit.json
+2026-10-23 11:22:59,466 [INFO] collectors.beat_writer_collector: Saved 0 beat writer news items + 0 transcripts to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-10-23/beat_writers.json
+2026-10-23 11:22:59,466 [INFO] collectors.fantasypoints_collector: Saved 0 FantasyPoints items to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-10-23/fantasypoints.json
+2026-10-23 11:22:59,466 [INFO] collectors.twitter_collector: Saved 0 tweet records (0 new this run) to /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-10-23/twitter.json
+2026-10-23 11:22:59,474 [WARNING] orchestrator: Source alert [ERROR] Twitter Collector: Twitter collection failed: TwitterAPI.io returned HTTP 402 (Payment Required) — the account is out of credits. Add a balance at twitterapi.io.
+2026-10-23 11:22:59,474 [WARNING] orchestrator: Source alert [WARNING] Twitter: Twitter has failed 48 consecutive times. Last success: 2026-09-08 14:12. Last error: Twitter collection failed: TwitterAPI.io returned HTTP 402 (Payment Required) — the account is out of credits. Add a balance at twitterapi.io.
+2026-10-23 11:22:59,474 [INFO] orchestrator: Collection complete: 674 news items
+2026-10-23 11:22:59,479 [INFO] processing.quality_filter: Quality filter dropped 2 items
+2026-10-23 11:22:59,479 [INFO] orchestrator: Quality filter: dropped 2 items (e.g. This Week in Sports Trivia: Oct. 22, 2026)
+2026-10-23 11:22:59,490 [INFO] processing.quality_filter: Injury classifier retagged 7 items
+2026-10-23 11:22:59,490 [INFO] orchestrator: Injury classifier: retagged 7 items as injuries (e.g. Bears TE Kmet carted off with a knee injury)
+2026-10-23 11:22:59,490 [INFO] orchestrator: Step 2: Deduplicating stories...
+2026-10-23 11:23:04,582 [INFO] processing.deduplicator: Loading embedding model 'all-MiniLM-L6-v2' for deduplication...
+2026-10-23 11:23:04,583 [INFO] sentence_transformers.base.model: No device provided, using cpu
+2026-10-23 11:23:04,723 [INFO] httpx2: HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-10-23 11:23:04,771 [INFO] httpx2: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2 "HTTP/1.1 200 OK"
+2026-10-23 11:23:04,773 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+2026-10-23 11:23:04,892 [INFO] httpx2: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-10-23 11:23:04,940 [INFO] httpx2: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-10-23 11:23:05,005 [INFO] httpx2: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/2_Normalize/config.json "HTTP/1.1 404 Not Found"
+2026-10-23 11:23:05,005 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-10-23 11:23:06,585 [INFO] processing.deduplicator: Using embedding-based deduplication (all-MiniLM-L6-v2).
+2026-10-23 11:23:06,715 [INFO] processing.deduplicator: Deduplicated 672 items into 512 story groups.
+2026-10-23 11:23:06,716 [INFO] orchestrator: Deduplicated: 672 items -> 512 unique stories
+2026-10-23 11:23:06,717 [INFO] orchestrator: Step 2b: Filtering cross-day duplicates...
+2026-10-23 11:23:11,397 [INFO] processing.cross_day_filter: Cross-day filter: 512 -> 342 items (170 suppressed, lookback=2 days, threshold=0.82).
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): 49ers News: We’re on to Atlanta
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NFL Week 7 ATS picks: Throw the NFC East's bad records (and the teams, too) in the trash
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Welcome to Strands: Sports Edition, The Athletic's newest daily game
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): How to play Strands: Sports Edition, step-by-step
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NFL trade deadline 2026 big board: 50 players who could be dealt before Nov. 10
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NFL players must walk a tightrope between aggressive and reckless. I know how hard it is
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=0.99): The Seahawks sorely miss Kenneth Walker III. Now they must stop him at his best
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Who has the hottest seat in the NFL? Bo Nix, Mike McDaniel, Dan Quinn and more
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NFL trade-deadline buyers with most and least salary cap space available
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NFL Playoff Simulator: Can NFC North make NFL history and put every team in postseason?
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Could QBs be shut out of 2027 NFL Draft top 10? Which prospects are underrated?
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Cleveland Browns news: Browns hoping to keep the victory party going
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Sean Payton discusses where Bo Nix can get better
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NY Giants news: J.J. McCarthy named starter, top three offensive tackles miss practice, more
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NFL Week 7 upset alert: Can Giants upset Texans with JJ McCarthy at QB? Can Falcons beat 49ers?
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Bryan Cook is healthy and ready to go for Bengals vs. the Ravens on Sunday
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): One painful stat that is haunting the Bengals offense
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Chiefs News: Seahawks to wear 90s-inspired uniforms Sunday night
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): Discussion: Is Sam LaPorta right to take his contract frustrations public?
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   suppressed (sim=1.00): NY Giants QB Jameis Winston on benching: ‘My week has been the same’
+2026-10-23 11:23:11,398 [INFO] processing.cross_day_filter:   ... and 150 more
+2026-10-23 11:23:11,398 [INFO] orchestrator: Cross-day filter: 512 -> 342 unique stories (170 suppressed as repeats)
+2026-10-23 11:23:12,458 [INFO] orchestrator: Game lines via API: 9 credits, 3163 remaining (13 games, 0 changes)
+2026-10-23 11:23:12,458 [INFO] orchestrator: Step 2c: Reading market lines...
+2026-10-23 11:23:19,377 [INFO] orchestrator: Market lines: week 7, 14 games, 988 player-stats, 0 changes (none); odds pulled 2026-10-22T16:07-04:00; game lines via API 2026-10-23T07:23:11-04:00
+2026-10-23 11:23:19,378 [INFO] orchestrator: Step 3: Summarizing with OpenAI API...
+2026-10-23 11:23:19,622 [INFO] processing.summarizer: Summarizing with openai/gpt-5.4-mini: 10 transactions, 1 injuries, 331 general news
+2026-10-23 11:23:19,628 [INFO] processing.summarizer: Loaded position lookup for 2529 players from depth charts
+2026-10-23 11:23:19,638 [INFO] processing.summarizer: Generating transactions summary...
+2026-10-23 11:23:26,799 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:23:26,869 [INFO] processing.summarizer: Generating injury report...
+2026-10-23 11:23:29,244 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:23:29,245 [INFO] processing.summarizer: Generating league-wide notes...
+2026-10-23 11:23:31,320 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:23:31,322 [INFO] processing.summarizer: Generating team notes...
+2026-10-23 11:23:51,499 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:24:17,831 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:24:26,746 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:24:34,402 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:24:41,326 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:24:59,926 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:25:21,798 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:25:41,955 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:25:51,469 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:26:02,708 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:26:16,303 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:26:35,777 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:26:51,698 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:27:16,205 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:27:34,994 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:27:49,244 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:28:09,049 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:28:24,032 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:28:35,087 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:28:47,355 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:29:02,547 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:29:27,913 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:29:53,052 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:30:15,590 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:30:55,844 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:30:55,888 [WARNING] processing.summarizer: OpenAI truncated team:MIN output at max_output_tokens=6400 (reason=max_output_tokens); retrying once with max_output_tokens=8192
+2026-10-23 11:31:21,613 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:31:51,231 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:32:11,731 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:32:16,967 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:32:27,241 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:32:39,480 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:33:00,354 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:33:05,627 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:33:05,628 [INFO] processing.summarizer: LLM usage: 36 requests | input=159210 tokens (cached=4608, uncached=154602) | output=106894 tokens (reasoning=98635) | estimated cost=$0.5973
+2026-10-23 11:33:05,629 [INFO] orchestrator: LLM summary: openai/gpt-5.4-mini | calls=36 | input=159210 | output=106894 | estimated cost=$0.5973
+2026-10-23 11:33:05,629 [INFO] orchestrator: LLM note: Exact token usage comes from OpenAI Responses API metadata.
+2026-10-23 11:33:05,630 [INFO] orchestrator: Step 4: Snapshotting weekly projections...
+2026-10-23 11:33:31,879 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in ATL block (row 42): metric columns differ from the first block
+2026-10-23 11:33:31,880 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in BLT block (row 75): metric columns differ from the first block
+2026-10-23 11:33:31,881 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in BUF block (row 108): metric columns differ from the first block
+2026-10-23 11:33:31,882 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in CAR block (row 141): metric columns differ from the first block
+2026-10-23 11:33:31,883 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in CHI block (row 174): metric columns differ from the first block
+2026-10-23 11:33:31,884 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in CIN block (row 207): metric columns differ from the first block
+2026-10-23 11:33:31,885 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in CLV block (row 240): metric columns differ from the first block
+2026-10-23 11:33:31,885 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in DAL block (row 273): metric columns differ from the first block
+2026-10-23 11:33:31,886 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in DEN block (row 306): metric columns differ from the first block
+2026-10-23 11:33:31,887 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in DET block (row 339): metric columns differ from the first block
+2026-10-23 11:33:31,888 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in GB block (row 372): metric columns differ from the first block
+2026-10-23 11:33:31,889 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in HST block (row 405): metric columns differ from the first block
+2026-10-23 11:33:31,890 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in IND block (row 438): metric columns differ from the first block
+2026-10-23 11:33:31,891 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in JAX block (row 471): metric columns differ from the first block
+2026-10-23 11:33:31,892 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in KC block (row 504): metric columns differ from the first block
+2026-10-23 11:33:31,893 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in LA block (row 537): metric columns differ from the first block
+2026-10-23 11:33:31,894 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in LAC block (row 570): metric columns differ from the first block
+2026-10-23 11:33:31,894 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in LV block (row 603): metric columns differ from the first block
+2026-10-23 11:33:31,895 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in MIA block (row 636): metric columns differ from the first block
+2026-10-23 11:33:31,896 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in MIN block (row 669): metric columns differ from the first block
+2026-10-23 11:33:31,897 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in NE block (row 702): metric columns differ from the first block
+2026-10-23 11:33:31,898 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in NO block (row 735): metric columns differ from the first block
+2026-10-23 11:33:31,899 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in NYG block (row 768): metric columns differ from the first block
+2026-10-23 11:33:31,900 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in NYJ block (row 801): metric columns differ from the first block
+2026-10-23 11:33:31,901 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in PHI block (row 834): metric columns differ from the first block
+2026-10-23 11:33:31,902 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in PIT block (row 867): metric columns differ from the first block
+2026-10-23 11:33:31,903 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in SEA block (row 900): metric columns differ from the first block
+2026-10-23 11:33:31,904 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in SF block (row 933): metric columns differ from the first block
+2026-10-23 11:33:31,905 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in TB block (row 966): metric columns differ from the first block
+2026-10-23 11:33:31,906 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in TEN block (row 999): metric columns differ from the first block
+2026-10-23 11:33:31,907 [WARNING] processing.weekly_projections: Working_Player_Proj header drift in WAS block (row 1032): metric columns differ from the first block
+2026-10-23 11:33:31,909 [WARNING] processing.weekly_projections: Duplicate team row BYE in Working_Game_Proj; keeping first
+2026-10-23 11:33:31,909 [WARNING] processing.weekly_projections: Duplicate team row BYE in Working_Game_Proj; keeping first
+2026-10-23 11:33:31,909 [WARNING] processing.weekly_projections: Duplicate team row BYE in Working_Game_Proj; keeping first
+2026-10-23 11:33:31,984 [INFO] processing.weekly_projections: Saved primary weekly snapshot wk07 (2026-10-23): players=503, games=29, output=439, kickers=32
+2026-10-23 11:33:32,010 [INFO] processing.weekly_projections: Logged 2074 primary/players changes (wk07) to /home/runner/work/nfl-news-agent/nfl-news-agent/data/weekly_projections/changelog.csv
+2026-10-23 11:33:32,012 [INFO] processing.weekly_projections: Logged 27 primary/kickers changes (wk07) to /home/runner/work/nfl-news-agent/nfl-news-agent/data/weekly_projections/changelog.csv
+2026-10-23 11:33:32,014 [INFO] processing.weekly_projections: Logged 227 primary/games changes (wk07) to /home/runner/work/nfl-news-agent/nfl-news-agent/data/weekly_projections/changelog.csv
+2026-10-23 11:33:32,034 [INFO] processing.weekly_projections: Logged 323 primary/output changes (wk07) to /home/runner/work/nfl-news-agent/nfl-news-agent/data/weekly_projections/changelog.csv
+2026-10-23 11:33:32,035 [INFO] processing.weekly_projections: Weekly snapshot done: week 7, active sheet primary (primary=wk7)
+2026-10-23 11:33:32,037 [INFO] orchestrator: Weekly projections: week 7, working sheet primary, sheet weeks {'primary': 7} | 60 rank movers
+2026-10-23 11:33:32,070 [INFO] orchestrator: Step 5: Updating depth charts...
+2026-10-23 11:33:35,431 [INFO] collectors.depth_chart_collector: Saved 2529 depth chart entries to /home/runner/work/nfl-news-agent/nfl-news-agent/data/depth_charts/2026-10-23.json
+2026-10-23 11:33:35,435 [INFO] orchestrator: Depth chart changes: 0 promotions, 0 demotions, 0 added, 0 removed, 0 team moves
+2026-10-23 11:33:35,763 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-22 is older than 2026-10-23 — refetching (attempt 1/3)
+2026-10-23 11:33:38,805 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-22 is older than 2026-10-23 — refetching (attempt 2/3)
+2026-10-23 11:33:41,849 [INFO] collectors.espn_transactions_collector: ESPN elevations: 3 in the last 4 days (3 parsed from 100 rows, newest row 2026-10-22); practice-squad promotions: 7
+2026-10-23 11:33:41,849 [INFO] orchestrator: Step 5f: 3 practice-squad elevations from ESPN (SF, WAS)
+2026-10-23 11:33:41,849 [INFO] orchestrator: Step 5f: 7 practice-squad promotions from ESPN (CAR, CIN, DAL, LAR, MIA, NE, NYG)
+2026-10-23 11:33:42,198 [INFO] collectors.cbs_transactions_collector: CBS elevations: 4 not yet in ESPN (8 move rows since 2026-10-21, 503 rows on the page, newest 2026-10-22)
+2026-10-23 11:33:42,199 [INFO] orchestrator: Step 5f: 4 more elevations from CBS, pending ESPN confirmation (CHI, NE)
+2026-10-23 11:33:42,200 [INFO] orchestrator: Step 5b: Updating roster events/state...
+2026-10-23 11:33:42,224 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
+2026-10-23 11:33:42,529 [INFO] collectors.nflverse_roster_collector: nflverse roster: 3054 rows (973927 bytes)
+2026-10-23 11:33:42,534 [WARNING] collectors.nflverse_roster_collector: nflverse: unknown reserve abbr 'A01' (status RES) — treating as IR
+2026-10-23 11:33:42,543 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 1 rows without gsis_id skipped, 0 duplicate gsis rows
+2026-10-23 11:33:42,561 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 3053 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-10-23.json
+2026-10-23 11:33:42,617 [INFO] processing.roster_events: Roster ledger: 5 reported events confirmed
+2026-10-23 11:33:42,662 [INFO] processing.roster_events: Saved roster state: 3089 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-10-23 11:33:42,679 [INFO] processing.roster_events: Roster step 2026-10-23: {"nflverse_transitions": 24, "nflverse_events": 11, "nflcom_events": 12, "news_events": 7, "espn_elevations": 14, "appended": 6, "ledger": 3398, "confirmed_new": 5}
+2026-10-23 11:33:42,681 [INFO] orchestrator: Roster events: 6 new (appended=6, confirmed_new=5, espn_elevations=14, ledger=3398, news_events=7, nflcom_events=12, nflverse_events=11, nflverse_transitions=24, status={'ACT': 1686, 'EXE': 5, 'FA': 445, 'IR': 309, 'NFI': 5, 'PS': 573, 'PUP': 22, 'RET': 23, 'SUS': 4, 'UNKNOWN': 17}); state covers 3089 players
+2026-10-23 11:33:42,681 [INFO] orchestrator: Step 5c: Collecting injury reports...
+2026-10-23 11:33:45,048 [INFO] collectors.injury_report_collector: Team-site injury reports: 28 with a table, 4 not posted, 0 mismatched, 0 failed; 632 rows
+2026-10-23 11:33:45,566 [INFO] collectors.injury_report_collector: RotoWire practice report: 332 rows
+2026-10-23 11:33:45,755 [INFO] collectors.injury_report_collector: NFL.com injuries: week 7, 335 rows (practice status dated 2026-10-22)
+2026-10-23 11:33:45,767 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk07.json (28 teams)
+2026-10-23 11:33:45,768 [INFO] collectors.injury_report_collector: Injury report week 7: 343 players, 0 changes
+2026-10-23 11:33:45,776 [INFO] orchestrator: Injury report: week 7, 343 rows (nflcom=335, rotowire=332, team_site=328), 0 changes, 0 conflicts, team sites with a table: 28
+2026-10-23 11:33:45,776 [INFO] orchestrator: Step 5e: Checking game-day inactives...
+2026-10-23 11:33:46,682 [INFO] collectors.inactives_collector: Inactives week 7: 1 games polled, 2 teams published, 0 changed
+2026-10-23 11:33:46,685 [INFO] orchestrator: Inactives: week 7, 1 games polled, 2 teams published, 0 newly published/changed
+2026-10-23 11:33:46,685 [INFO] orchestrator: Step 5d: Auditing weekly projections...
+2026-10-23 11:33:46,805 [INFO] orchestrator: Projection audit: 109 open alerts (error=7, info=89, warning=13), 0 dismissed
+2026-10-23 11:33:46,808 [INFO] orchestrator: Step 6c: Building Line Movement section...
+2026-10-23 11:33:50,147 [INFO] httpx2: HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-23 11:33:50,148 [INFO] processing.odds_section: Line Movement lede: 812 chars (2026-10-23)
+2026-10-23 11:33:50,149 [INFO] orchestrator: Step 6: Building daily report...
+2026-10-23 11:33:50,182 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-23.json
+2026-10-23 11:33:50,184 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-23.html
+2026-10-23 11:33:50,184 [INFO] orchestrator: Step 7: Cleaning up old data...
+2026-10-23 11:33:50,186 [INFO] orchestrator: Removed 2 report files older than 90 days.
+2026-10-23 11:33:50,186 [INFO] orchestrator: Skipping raw/transcript cleanup on CI (preserves pushed YouTube data).
+2026-10-23 11:33:50,188 [INFO] orchestrator: Removed 1 log files older than 90 days.
+2026-10-23 11:33:50,188 [INFO] orchestrator: ============================================================
+2026-10-23 11:33:50,188 [INFO] orchestrator: Daily run complete!
+2026-10-23 11:33:50,188 [INFO] orchestrator: JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-23.json
+2026-10-23 11:33:50,188 [INFO] orchestrator: HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-23.html
+2026-10-23 11:33:50,188 [INFO] orchestrator: Stats: 342 news items, 32 team highlights
+2026-10-23 11:33:50,188 [INFO] orchestrator: ============================================================
