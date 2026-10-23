@@ -4,14 +4,36 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-23T19:46:18+00:00",
+  "generated_at": "2026-10-23T22:38:41+00:00",
   "inputs": {
     "snapshot_date": "2026-10-23",
     "nflverse_date": "2026-10-23",
-    "injury_week_updated": "2026-10-23T19:46:18+00:00",
+    "injury_week_updated": "2026-10-23T22:38:41+00:00",
     "roster_state_updated": "2026-10-23T11:33:42+00:00"
   },
   "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0037746|7|OUT",
+      "severity": "error",
+      "player": "Brian Robinson",
+      "gsis_id": "00-0037746",
+      "pos": "RB",
+      "team": "ATL",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Brian Robinson (RB, ATL) is OUT (Hamstring) but projected for 5.4 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hamstring",
+        "practice": {
+          "2026-10-21": "LP",
+          "2026-10-22": "DNP",
+          "2026-10-23": "DNP"
+        },
+        "ppr": 5.4
+      }
+    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040162|7",
@@ -216,6 +238,28 @@
     },
     {
       "type": "sheet_line_stale",
+      "key": "sheet_line_stale|BLT|7|CIN@BAL",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 7,
+      "message": "CIN@BAL: the sheet has -1.5 / 48.5, the market 1.0 / 48.5 (FP-SPREAD) (odds pulled 2026-10-23 18:38:29-04:00)",
+      "evidence": {
+        "game": "CIN@BAL",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": -1.5,
+        "sheet_ou": 48.5,
+        "market_spread": 1.0,
+        "market_total": 48.5,
+        "spread_delta": 2.5,
+        "total_delta": 0.0
+      }
+    },
+    {
+      "type": "sheet_line_stale",
       "key": "sheet_line_stale|CHI|7|NE@CHI",
       "severity": "warning",
       "player": "",
@@ -224,7 +268,7 @@
       "team": "CHI",
       "sheet": "primary",
       "week": 7,
-      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-23 15:46:08-04:00)",
+      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-23 18:38:29-04:00)",
       "evidence": {
         "game": "NE@CHI",
         "fp_flag": "FP-BOTH",
@@ -534,27 +578,6 @@
         "earliest_return_week": null,
         "designated_return_date": "2026-10-22",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0037746|7",
-      "severity": "info",
-      "player": "Brian Robinson",
-      "gsis_id": "00-0037746",
-      "pos": "RB",
-      "team": "ATL",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Brian Robinson (RB, ATL) did not practice on the latest report (Hamstring); projected 5.4 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-21": "LP",
-          "2026-10-22": "DNP",
-          "2026-10-23": "DNP"
-        },
-        "injury": "Hamstring",
-        "ppr": 5.4
       }
     },
     {
@@ -899,26 +922,6 @@
         "earliest_return_week": null,
         "designated_return_date": "2026-10-07",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0037091|7",
-      "severity": "info",
-      "player": "Bo Melton",
-      "gsis_id": "00-0037091",
-      "pos": "WR",
-      "team": "GB",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Bo Melton (WR, GB) did not practice on the latest report (Back); projected 1.9 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-21": "DNP",
-          "2026-10-22": "DNP"
-        },
-        "injury": "Back",
-        "ppr": 1.9
       }
     },
     {
@@ -1347,26 +1350,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040878|7",
-      "severity": "info",
-      "player": "Mike Washington Jr.",
-      "gsis_id": "00-0040878",
-      "pos": "RB",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Mike Washington Jr. (RB, LV) did not practice on the latest report (Foot/Back); projected 5.7 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-21": "LP",
-          "2026-10-22": "DNP"
-        },
-        "injury": "Foot/Back",
-        "ppr": 5.7
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0041527|7",
       "severity": "info",
@@ -1722,6 +1705,66 @@
         "earliest_return_week": 7,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0034351|7",
+      "severity": "info",
+      "player": "Dallas Goedert",
+      "gsis_id": "00-0034351",
+      "pos": "TE",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Dallas Goedert (TE, PHI) did not practice on the latest report (Knee); projected 11.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-22": "DNP",
+          "2026-10-23": "DNP"
+        },
+        "injury": "Knee",
+        "ppr": 11.2
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036912|7",
+      "severity": "info",
+      "player": "DeVonta Smith",
+      "gsis_id": "00-0036912",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 7,
+      "message": "DeVonta Smith (WR, PHI) did not practice on the latest report (Hamstring); projected 16.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-22": "DNP",
+          "2026-10-23": "DNP"
+        },
+        "injury": "Hamstring",
+        "ppr": 16.4
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038393|7",
+      "severity": "info",
+      "player": "Dontayvion Wicks",
+      "gsis_id": "00-0038393",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Dontayvion Wicks (WR, PHI) did not practice on the latest report (Ankle); projected 7.7 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-22": "DNP",
+          "2026-10-23": "DNP"
+        },
+        "injury": "Ankle",
+        "ppr": 7.7
       }
     },
     {
@@ -2104,15 +2147,15 @@
   "dismissed": [],
   "errors": [],
   "counts": {
+    "out_but_projected": 3,
     "status_conflict": 6,
-    "out_but_projected": 2,
     "missing_active": 3,
     "sheet_status_stale": 6,
-    "sheet_line_stale": 1,
+    "sheet_line_stale": 2,
     "market_proj_gap": 5,
     "ir_return_window": 50,
-    "dnp_but_projected": 3,
     "elevation_limit": 18,
-    "unconfirmed_report": 14
+    "unconfirmed_report": 14,
+    "dnp_but_projected": 3
   }
 }
