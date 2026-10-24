@@ -507,3 +507,28 @@
 2026-10-24 16:40:22,115 [INFO] orchestrator: HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-24.html
 2026-10-24 16:40:22,115 [INFO] orchestrator: Stats: 397 news items, 32 team highlights
 2026-10-24 16:40:22,115 [INFO] orchestrator: ============================================================
+2026-10-24 20:16:01,102 [INFO] afternoon: ============================================================
+2026-10-24 20:16:01,102 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-10-24 (week 7, Sat)
+2026-10-24 20:16:01,102 [INFO] afternoon: ============================================================
+2026-10-24 20:16:02,135 [INFO] afternoon: Game lines via API: 9 credits, 2461 remaining (13 games, 6 changes)
+2026-10-24 20:16:02,136 [INFO] afternoon: Step 2c: Reading market lines...
+2026-10-24 20:16:06,874 [INFO] afternoon: Market lines: week 7, 14 games, 1034 player-stats, 0 changes (none); odds pulled 2026-10-23T19:46-04:00; game lines via API 2026-10-24T16:16:01-04:00
+2026-10-24 20:16:07,305 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-23 is older than 2026-10-24 — refetching (attempt 1/3)
+2026-10-24 20:16:10,391 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-23 is older than 2026-10-24 — refetching (attempt 2/3)
+2026-10-24 20:16:13,470 [INFO] collectors.espn_transactions_collector: ESPN elevations: 0 in the last 4 days (3 parsed from 100 rows, newest row 2026-10-23); practice-squad promotions: 7
+2026-10-24 20:16:13,470 [INFO] afternoon: Step 5f: no practice-squad elevations in the window.
+2026-10-24 20:16:13,470 [INFO] afternoon: Step 5f: 7 practice-squad promotions from ESPN (CAR, CIN, DAL, KC, LAR, MIA, NYG)
+2026-10-24 20:16:14,119 [INFO] collectors.cbs_transactions_collector: CBS elevations: 14 not yet in ESPN (20 move rows since 2026-10-22, 524 rows on the page, newest 2026-10-24)
+2026-10-24 20:16:14,121 [INFO] afternoon: Step 5f: 14 more elevations from CBS, pending ESPN confirmation (CLE, IND, KC, MIA, NO, PIT, TEN)
+2026-10-24 20:16:14,272 [INFO] processing.roster_events: Saved roster state: 3089 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-10-24 20:16:14,297 [INFO] processing.roster_events: Roster step 2026-10-24: {"nflverse_transitions": 9, "nflverse_events": 8, "espn_elevations": 21, "appended": 10, "ledger": 3454, "confirmed_new": 0}
+2026-10-24 20:16:14,302 [INFO] afternoon: Elevations merged into the ledger: 10 new events
+2026-10-24 20:16:14,303 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-10-24 20:16:14,393 [INFO] collectors.inactives_collector: Inactives week 7: 0 games polled, 0 teams published, 0 changed
+2026-10-24 20:16:14,395 [INFO] afternoon: Inactives: week 7, 0 games polled, 0 teams published, 0 newly published/changed
+2026-10-24 20:16:14,396 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-10-24 20:16:14,606 [INFO] afternoon: Projection audit: 106 open alerts (error=7, info=86, warning=13), 0 dismissed
+2026-10-24 20:16:14,661 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-24.json
+2026-10-24 20:16:14,664 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-10-24.html
+2026-10-24 20:16:14,664 [INFO] afternoon: Report 2026-10-24 updated in place (pm_updated_at=2026-10-24T20:16:14+00:00)
+2026-10-24 20:16:14,664 [INFO] afternoon: Game-day inactives run complete.
