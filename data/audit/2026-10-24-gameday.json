@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-24T20:16:14+00:00",
+  "generated_at": "2026-10-24T22:18:00+00:00",
   "inputs": {
     "snapshot_date": "2026-10-24",
     "nflverse_date": "2026-10-24",
-    "injury_week_updated": "2026-10-24T16:40:18+00:00",
-    "roster_state_updated": "2026-10-24T20:16:14+00:00"
+    "injury_week_updated": "2026-10-24T20:31:09+00:00",
+    "roster_state_updated": "2026-10-24T22:18:00+00:00"
   },
   "alerts": [
     {
@@ -133,6 +133,50 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0036912|7|OUT",
+      "severity": "error",
+      "player": "DeVonta Smith",
+      "gsis_id": "00-0036912",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 7,
+      "message": "DeVonta Smith (WR, PHI) is OUT (Hamstring) but projected for 15.9 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hamstring",
+        "practice": {
+          "2026-10-22": "DNP",
+          "2026-10-23": "DNP",
+          "2026-10-24": "DNP"
+        },
+        "ppr": 15.9
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0038393|7|OUT",
+      "severity": "error",
+      "player": "Dontayvion Wicks",
+      "gsis_id": "00-0038393",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Dontayvion Wicks (WR, PHI) is OUT (Ankle) but projected for 7.6 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-10-22": "DNP",
+          "2026-10-23": "DNP",
+          "2026-10-24": "DNP"
+        },
+        "ppr": 7.6
+      }
+    },
+    {
       "type": "status_conflict",
       "key": "status_conflict|00-0034775|7",
       "severity": "error",
@@ -153,6 +197,24 @@
       }
     },
     {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038397|7",
+      "severity": "warning",
+      "player": "Evan Hull",
+      "gsis_id": "00-0038397",
+      "pos": "RB",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Evan Hull (RB, ARZ) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "espn",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|BLT|7|CIN@BAL",
       "severity": "warning",
@@ -162,16 +224,16 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 7,
-      "message": "CIN@BAL: the sheet has 0.5 / 48.5, the market 2.5 / 47.0 (FP-BOTH) (odds pulled 2026-10-24 16:16:01-04:00)",
+      "message": "CIN@BAL: the sheet has 0.5 / 48.5, the market 2.5 / 47.5 (FP-SPREAD) (odds pulled 2026-10-24 18:17:52-04:00)",
       "evidence": {
         "game": "CIN@BAL",
-        "fp_flag": "FP-BOTH",
+        "fp_flag": "FP-SPREAD",
         "sheet_spread": 0.5,
         "sheet_ou": 48.5,
         "market_spread": 2.5,
-        "market_total": 47.0,
+        "market_total": 47.5,
         "spread_delta": 2.0,
-        "total_delta": -1.5
+        "total_delta": -1.0
       }
     },
     {
@@ -184,7 +246,7 @@
       "team": "CHI",
       "sheet": "primary",
       "week": 7,
-      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-24 16:16:01-04:00)",
+      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-24 18:17:52-04:00)",
       "evidence": {
         "game": "NE@CHI",
         "fp_flag": "FP-BOTH",
@@ -216,6 +278,42 @@
     },
     {
       "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040352|7",
+      "severity": "warning",
+      "player": "Coleman Owen",
+      "gsis_id": "00-0040352",
+      "pos": "WR",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Coleman Owen (WR, GB) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "espn",
+        "sheet_status": "PS",
+        "ppr": 0.1
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|kenneth murray|7",
+      "severity": "warning",
+      "player": "Kenneth Murray",
+      "gsis_id": null,
+      "pos": "QB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Kenneth Murray (QB, HST) was elevated from the practice squad (2026-10-24) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-24"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040298|7",
       "severity": "warning",
       "player": "Andrew Armstrong",
@@ -230,6 +328,26 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 4.5
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0040959|7",
+      "severity": "warning",
+      "player": "Jaydn Ott",
+      "gsis_id": "00-0040959",
+      "pos": "RB",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Jaydn Ott (RB, KC) is on the active roster but has no row on the sheet (OurLads RB #1; promoted from the practice squad 2026-10-24)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "RB",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "RB",
+        "status_abbr": "P01"
       }
     },
     {
@@ -286,6 +404,24 @@
         "nflverse_status": "CUT",
         "depth_chart_position": "WR",
         "status_abbr": "W03"
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0037156|7",
+      "severity": "warning",
+      "player": "Irvin Charles",
+      "gsis_id": "00-0037156",
+      "pos": "WR",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Irvin Charles (WR, SEA) was elevated from the practice squad (2026-10-23) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-23"
+        ],
+        "elevations_used": 0
       }
     },
     {
@@ -507,27 +643,6 @@
       "evidence": {
         "elevations_used": 3,
         "elevation_dates": [
-          "2026-10-10",
-          "2026-10-17",
-          "2026-10-19"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0039624|7",
-      "severity": "info",
-      "player": "Kyle Hergel",
-      "gsis_id": "00-0039624",
-      "pos": "OL",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Kyle Hergel (OL, BLT) has used 4/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 4,
-        "elevation_dates": [
-          "2026-10-03",
           "2026-10-10",
           "2026-10-17",
           "2026-10-19"
@@ -852,7 +967,8 @@
         "elevation_dates": [
           "2026-10-10",
           "2026-10-17",
-          "2026-10-19"
+          "2026-10-19",
+          "2026-10-24"
         ]
       }
     },
@@ -1624,66 +1740,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0034351|7",
-      "severity": "info",
-      "player": "Dallas Goedert",
-      "gsis_id": "00-0034351",
-      "pos": "TE",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Dallas Goedert (TE, PHI) did not practice on the latest report (Knee); projected 11.4 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-22": "DNP",
-          "2026-10-23": "DNP"
-        },
-        "injury": "Knee",
-        "ppr": 11.4
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036912|7",
-      "severity": "info",
-      "player": "DeVonta Smith",
-      "gsis_id": "00-0036912",
-      "pos": "WR",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 7,
-      "message": "DeVonta Smith (WR, PHI) did not practice on the latest report (Hamstring); projected 15.9 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-22": "DNP",
-          "2026-10-23": "DNP"
-        },
-        "injury": "Hamstring",
-        "ppr": 15.9
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0038393|7",
-      "severity": "info",
-      "player": "Dontayvion Wicks",
-      "gsis_id": "00-0038393",
-      "pos": "WR",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Dontayvion Wicks (WR, PHI) did not practice on the latest report (Ankle); projected 7.6 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-22": "DNP",
-          "2026-10-23": "DNP"
-        },
-        "injury": "Ankle",
-        "ppr": 7.6
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0041483|7",
       "severity": "info",
@@ -2070,14 +2126,14 @@
   "errors": [],
   "counts": {
     "status_conflict": 6,
-    "missing_active": 4,
+    "missing_active": 5,
+    "out_but_projected": 2,
+    "sheet_status_stale": 5,
     "sheet_line_stale": 2,
-    "sheet_status_stale": 3,
-    "elevated_not_projected": 2,
+    "elevated_not_projected": 4,
     "market_proj_gap": 4,
     "ir_return_window": 48,
-    "elevation_limit": 18,
-    "unconfirmed_report": 16,
-    "dnp_but_projected": 3
+    "elevation_limit": 17,
+    "unconfirmed_report": 16
   }
 }
