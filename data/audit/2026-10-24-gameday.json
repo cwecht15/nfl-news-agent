@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-24T22:53:29+00:00",
+  "generated_at": "2026-10-24T23:16:09+00:00",
   "inputs": {
     "snapshot_date": "2026-10-24",
     "nflverse_date": "2026-10-24",
     "injury_week_updated": "2026-10-24T20:31:09+00:00",
-    "roster_state_updated": "2026-10-24T22:53:29+00:00"
+    "roster_state_updated": "2026-10-24T23:16:09+00:00"
   },
   "alerts": [
     {
@@ -404,6 +404,26 @@
         "nflverse_status": "CUT",
         "depth_chart_position": "WR",
         "status_abbr": "W03"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0037156|7",
+      "severity": "warning",
+      "player": "Irvin Charles",
+      "gsis_id": "00-0037156",
+      "pos": "WR",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Irvin Charles (WR, SEA) is on the active roster but has no row on the sheet (OurLads WR #3; promoted from the practice squad 2026-10-24)",
+      "evidence": {
+        "ourlads_depth": 3,
+        "ourlads_pos": "WR",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "WR",
+        "status_abbr": "P07"
       }
     },
     {
@@ -2126,7 +2146,7 @@
   "errors": [],
   "counts": {
     "status_conflict": 6,
-    "missing_active": 5,
+    "missing_active": 6,
     "out_but_projected": 2,
     "sheet_status_stale": 5,
     "sheet_line_stale": 2,
