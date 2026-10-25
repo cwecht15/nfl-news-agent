@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-25T00:01:13+00:00",
+  "generated_at": "2026-10-25T01:31:13+00:00",
   "inputs": {
     "snapshot_date": "2026-10-24",
     "nflverse_date": "2026-10-24",
     "injury_week_updated": "2026-10-24T23:40:05+00:00",
-    "roster_state_updated": "2026-10-25T00:01:13+00:00"
+    "roster_state_updated": "2026-10-25T01:31:13+00:00"
   },
   "alerts": [
     {
@@ -100,7 +100,7 @@
       "team": "CHI",
       "sheet": "primary",
       "week": 7,
-      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-24 19:39:49-04:00)",
+      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-24 21:31:06-04:00)",
       "evidence": {
         "game": "NE@CHI",
         "fp_flag": "FP-BOTH",
@@ -239,6 +239,29 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040298|7|rec_yds",
+      "severity": "warning",
+      "player": "Andrew Armstrong",
+      "gsis_id": "00-0040298",
+      "pos": "WR",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Andrew Armstrong (WR, KC) Rec Yds: we project 27.8, the market implies 15.6 (odds pulled 2026-10-24 21:07-04:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 27.8,
+        "market_mean": 15.55704395,
+        "delta": -12.24295605,
+        "pct": -0.4403941026,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040078|7",
       "severity": "warning",
@@ -366,99 +389,6 @@
         "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038129|7|rec_yds",
-      "severity": "warning",
-      "player": "Cade Otton",
-      "gsis_id": "00-0038129",
-      "pos": "TE",
-      "team": "TB",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Cade Otton (TE, TB) Rec Yds: we project 32.2, the market implies 45.2 (odds pulled 2026-10-23 19:46-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 32.2,
-        "market_mean": 45.22820339,
-        "delta": 13.02820339,
-        "pct": 0.4046025898,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0033921|7|receptions",
-      "severity": "warning",
-      "player": "Chris Godwin Jr.",
-      "gsis_id": "00-0033921",
-      "pos": "WR",
-      "team": "TB",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Chris Godwin Jr. (WR, TB) Rec: we project 3.2, the market implies 4.5 (odds pulled 2026-10-23 19:46-04:00)",
-      "evidence": {
-        "stat": "receptions",
-        "stats": [
-          "receptions"
-        ],
-        "ours": 3.2,
-        "market_mean": 4.534038577,
-        "delta": 1.334038577,
-        "pct": 0.4168870555,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0041048|7|receptions",
-      "severity": "warning",
-      "player": "Ted Hurst III",
-      "gsis_id": "00-0041048",
-      "pos": "WR",
-      "team": "TB",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Ted Hurst III (WR, TB) Rec: we project 1.8, the market implies 3.1 (also Rec Yds) (odds pulled 2026-10-23 19:46-04:00)",
-      "evidence": {
-        "stat": "receptions",
-        "stats": [
-          "rec_yds",
-          "receptions"
-        ],
-        "ours": 1.8,
-        "market_mean": 3.146719985,
-        "delta": 1.346719985,
-        "pct": 0.7481777697,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0040237|7|rec_yds",
-      "severity": "warning",
-      "player": "Tez Johnson",
-      "gsis_id": "00-0040237",
-      "pos": "WR",
-      "team": "TB",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Tez Johnson (WR, TB) Rec Yds: we project 18.8, the market implies 33.1 (odds pulled 2026-10-23 19:46-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 18.8,
-        "market_mean": 33.05654062,
-        "delta": 14.25654062,
-        "pct": 0.7583266289,
-        "flag": "RED"
       }
     },
     {
@@ -1817,7 +1747,7 @@
     "sheet_status_stale": 12,
     "sheet_line_stale": 1,
     "elevated_not_projected": 1,
-    "market_proj_gap": 4,
+    "market_proj_gap": 1,
     "ir_return_window": 37,
     "elevation_limit": 15,
     "unconfirmed_report": 16
