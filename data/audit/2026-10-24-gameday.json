@@ -4,54 +4,14 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-24T23:16:09+00:00",
+  "generated_at": "2026-10-25T00:01:13+00:00",
   "inputs": {
     "snapshot_date": "2026-10-24",
     "nflverse_date": "2026-10-24",
-    "injury_week_updated": "2026-10-24T20:31:09+00:00",
-    "roster_state_updated": "2026-10-24T23:16:09+00:00"
+    "injury_week_updated": "2026-10-24T23:40:05+00:00",
+    "roster_state_updated": "2026-10-25T00:01:13+00:00"
   },
   "alerts": [
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0040162|7",
-      "severity": "error",
-      "player": "Dylan Sampson",
-      "gsis_id": "00-0040162",
-      "pos": "RB",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Dylan Sampson (RB, CLV) is marked IR on the sheet but still projected (7.0 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 7.0,
-        "slot": 3,
-        "earliest_return_week": 6
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0041496|7",
-      "severity": "error",
-      "player": "Jonah Coleman",
-      "gsis_id": "00-0041496",
-      "pos": "RB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jonah Coleman (RB, DEN) is marked IR on the sheet but still projected (4.1 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 4.1,
-        "slot": 3,
-        "earliest_return_week": 7
-      }
-    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0035700|7",
@@ -62,12 +22,12 @@
       "team": "GB",
       "sheet": "primary",
       "week": 7,
-      "message": "Josh Jacobs (RB, GB) is projected Active (13.0 PPR) but roster status is EXE (since 2026-10-24)",
+      "message": "Josh Jacobs (RB, GB) is projected Active (13.1 PPR) but roster status is EXE (since 2026-10-24)",
       "evidence": {
         "roster_status": "EXE",
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
-        "ppr": 13.0,
+        "ppr": 13.1,
         "slot": 1,
         "earliest_return_week": null
       }
@@ -93,26 +53,6 @@
       }
     },
     {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0037525|7",
-      "severity": "error",
-      "player": "Jordan Mason",
-      "gsis_id": "00-0037525",
-      "pos": "RB",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jordan Mason (RB, MIN) is marked IR on the sheet but still projected (9.1 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 9.1,
-        "slot": 2,
-        "earliest_return_week": 7
-      }
-    },
-    {
       "type": "missing_active",
       "key": "missing_active|00-0038998|7",
       "severity": "error",
@@ -133,70 +73,6 @@
       }
     },
     {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0036912|7|OUT",
-      "severity": "error",
-      "player": "DeVonta Smith",
-      "gsis_id": "00-0036912",
-      "pos": "WR",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 7,
-      "message": "DeVonta Smith (WR, PHI) is OUT (Hamstring) but projected for 15.9 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Hamstring",
-        "practice": {
-          "2026-10-22": "DNP",
-          "2026-10-23": "DNP",
-          "2026-10-24": "DNP"
-        },
-        "ppr": 15.9
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0038393|7|OUT",
-      "severity": "error",
-      "player": "Dontayvion Wicks",
-      "gsis_id": "00-0038393",
-      "pos": "WR",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Dontayvion Wicks (WR, PHI) is OUT (Ankle) but projected for 7.6 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Ankle",
-        "practice": {
-          "2026-10-22": "DNP",
-          "2026-10-23": "DNP",
-          "2026-10-24": "DNP"
-        },
-        "ppr": 7.6
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0034775|7",
-      "severity": "error",
-      "player": "Christian Kirk",
-      "gsis_id": "00-0034775",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Christian Kirk (WR, SF) is projected Active (6.5 PPR) but roster status is IR (since 2026-10-24)",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 6.5,
-        "slot": 4,
-        "earliest_return_week": null
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0038397|7",
       "severity": "warning",
@@ -209,31 +85,9 @@
       "message": "Evan Hull (RB, ARZ) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|BLT|7|CIN@BAL",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 7,
-      "message": "CIN@BAL: the sheet has 0.5 / 48.5, the market 2.5 / 47.5 (FP-SPREAD) (odds pulled 2026-10-24 18:17:52-04:00)",
-      "evidence": {
-        "game": "CIN@BAL",
-        "fp_flag": "FP-SPREAD",
-        "sheet_spread": 0.5,
-        "sheet_ou": 48.5,
-        "market_spread": 2.5,
-        "market_total": 47.5,
-        "spread_delta": 2.0,
-        "total_delta": -1.0
+        "ppr": 0.2
       }
     },
     {
@@ -246,7 +100,7 @@
       "team": "CHI",
       "sheet": "primary",
       "week": 7,
-      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-24 18:17:52-04:00)",
+      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-24 19:39:49-04:00)",
       "evidence": {
         "game": "NE@CHI",
         "fp_flag": "FP-BOTH",
@@ -271,9 +125,63 @@
       "message": "Cole Kmet (TE, CHI) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "official",
+        "status_source": "ourlads",
         "sheet_status": "ACTIVE",
         "ppr": 3.8
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040162|7",
+      "severity": "warning",
+      "player": "Dylan Sampson",
+      "gsis_id": "00-0040162",
+      "pos": "RB",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Dylan Sampson (RB, CLV) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 6.9
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041496|7",
+      "severity": "warning",
+      "player": "Jonah Coleman",
+      "gsis_id": "00-0041496",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Jonah Coleman (RB, DEN) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 4.2
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037085|7",
+      "severity": "warning",
+      "player": "Tyler Badie",
+      "gsis_id": "00-0037085",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Tyler Badie (RB, DEN) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -289,7 +197,7 @@
       "message": "Coleman Owen (WR, GB) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.1
       }
@@ -331,46 +239,44 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0040959|7",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040078|7",
       "severity": "warning",
-      "player": "Jaydn Ott",
-      "gsis_id": "00-0040959",
+      "player": "Brashard Smith",
+      "gsis_id": "00-0040078",
       "pos": "RB",
       "team": "KC",
       "sheet": "primary",
       "week": 7,
-      "message": "Jaydn Ott (RB, KC) is on the active roster but has no row on the sheet (OurLads RB #1; promoted from the practice squad 2026-10-24)",
+      "message": "Brashard Smith (RB, KC) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "ourlads_depth": 1,
-        "ourlads_pos": "RB",
-        "ourlads_stale": false,
-        "nflverse_status": "DEV",
-        "depth_chart_position": "RB",
-        "status_abbr": "P01"
-      }
-    },
-    {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0040959|7",
-      "severity": "warning",
-      "player": "Jaydn Ott",
-      "gsis_id": "00-0040959",
-      "pos": "RB",
-      "team": "KC",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jaydn Ott (RB, KC) was elevated from the practice squad (2026-10-24) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-10-24"
-        ],
-        "elevations_used": 0
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036425|7",
+      "key": "sheet_status_stale|00-0040959|7",
+      "severity": "warning",
+      "player": "Jaydn Ott",
+      "gsis_id": "00-0040959",
+      "pos": "RB",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Jaydn Ott (RB, KC) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.1
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0036425|7",
       "severity": "warning",
       "player": "DeeJay Dallas",
       "gsis_id": "00-0036425",
@@ -378,12 +284,32 @@
       "team": "MIN",
       "sheet": "primary",
       "week": 7,
-      "message": "DeeJay Dallas (RB, MIN) sheet Status is ACTIVE but roster says FA",
+      "message": "DeeJay Dallas (RB, MIN) is projected Active (1.5 PPR) but roster status is PS (since 2026-10-24)",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
+        "roster_status": "PS",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
-        "ppr": 0.0
+        "ppr": 1.5,
+        "slot": 3,
+        "earliest_return_week": null
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037525|7",
+      "severity": "warning",
+      "player": "Jordan Mason",
+      "gsis_id": "00-0037525",
+      "pos": "RB",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Jordan Mason (RB, MIN) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 9.2
       }
     },
     {
@@ -407,8 +333,8 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0037156|7",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037156|7",
       "severity": "warning",
       "player": "Irvin Charles",
       "gsis_id": "00-0037156",
@@ -416,32 +342,30 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 7,
-      "message": "Irvin Charles (WR, SEA) is on the active roster but has no row on the sheet (OurLads WR #3; promoted from the practice squad 2026-10-24)",
+      "message": "Irvin Charles (WR, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
-        "ourlads_depth": 3,
-        "ourlads_pos": "WR",
-        "ourlads_stale": false,
-        "nflverse_status": "DEV",
-        "depth_chart_position": "WR",
-        "status_abbr": "P07"
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.0
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0037156|7",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040621|7",
       "severity": "warning",
-      "player": "Irvin Charles",
-      "gsis_id": "00-0037156",
+      "player": "Montorie Foster Jr",
+      "gsis_id": "00-0040621",
       "pos": "WR",
       "team": "SEA",
       "sheet": "primary",
       "week": 7,
-      "message": "Irvin Charles (WR, SEA) was elevated from the practice squad (2026-10-23) but has no row on the sheet",
+      "message": "Montorie Foster Jr (WR, SEA) sheet Status is ACTIVE but roster says FA",
       "evidence": {
-        "elevation_dates": [
-          "2026-10-23"
-        ],
-        "elevations_used": 0
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -538,24 +462,6 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0036345|7",
-      "severity": "warning",
-      "player": "K.J. Osborn",
-      "gsis_id": "00-0036345",
-      "pos": "WR",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "K.J. Osborn (WR, TEN) was elevated from the practice squad (2026-10-24) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-10-24"
-        ],
-        "elevations_used": 0
-      }
-    },
-    {
       "type": "missing_active",
       "key": "missing_active|00-0036924|7",
       "severity": "warning",
@@ -595,24 +501,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0036285|7",
-      "severity": "info",
-      "player": "A.J. Terrell",
-      "gsis_id": "00-0036285",
-      "pos": "DB",
-      "team": "ATL",
-      "sheet": "primary",
-      "week": 7,
-      "message": "A.J. Terrell (DB, ATL) on IR - designated to return 2026-10-21 - first eligible Week 7",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 7,
-        "designated_return_date": "2026-10-21",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0040432|7",
       "severity": "info",
       "player": "Beaux Collins",
@@ -630,23 +518,21 @@
       }
     },
     {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0037826|7",
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040687|7",
       "severity": "info",
-      "player": "Drake Jackson",
-      "gsis_id": "00-0037826",
-      "pos": "LB",
+      "player": "Cameron Williams",
+      "gsis_id": "00-0040687",
+      "pos": "OL",
       "team": "ATL",
       "sheet": "primary",
       "week": 7,
-      "message": "Drake Jackson (LB, ATL) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Cameron Williams (OL, ATL) on IR - designated to return 2026-10-24 - first eligible Week 5",
       "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-10-10",
-          "2026-10-17",
-          "2026-10-19"
-        ]
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-10-24",
+        "on_sheet": false
       }
     },
     {
@@ -730,24 +616,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040289|7",
-      "severity": "info",
-      "player": "Bam Martin-Scott",
-      "gsis_id": "00-0040289",
-      "pos": "LB",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Bam Martin-Scott (LB, CAR) on IR - designated to return 2026-10-22",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-22",
-        "on_sheet": false
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0038440|7",
       "severity": "info",
@@ -784,24 +652,6 @@
         "earliest_return_week": null,
         "designated_return_date": "2026-10-06",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040162|7",
-      "severity": "info",
-      "player": "Dylan Sampson",
-      "gsis_id": "00-0040162",
-      "pos": "RB",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Dylan Sampson (RB, CLV) on IR - designated to return 2026-10-14 - first eligible Week 6 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": "2026-10-14",
-        "on_sheet": true
       }
     },
     {
@@ -901,24 +751,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0041496|7",
-      "severity": "info",
-      "player": "Jonah Coleman",
-      "gsis_id": "00-0041496",
-      "pos": "RB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jonah Coleman (RB, DEN) on IR - designated to return 2026-10-22 - first eligible Week 7 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 7,
-        "designated_return_date": "2026-10-22",
-        "on_sheet": true
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0039141|7",
       "severity": "info",
       "player": "Brian Branch",
@@ -950,24 +782,6 @@
         "status": "IR",
         "earliest_return_week": null,
         "designated_return_date": "2026-10-07",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0038506|7",
-      "severity": "info",
-      "player": "Jordon Riley",
-      "gsis_id": "00-0038506",
-      "pos": "DL",
-      "team": "GB",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jordon Riley (DL, GB) on PUP - designated to return 2026-10-14",
-      "evidence": {
-        "status": "PUP",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-14",
         "on_sheet": false
       }
     },
@@ -1185,24 +999,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040118|7",
-      "severity": "info",
-      "player": "Cooper McDonald",
-      "gsis_id": "00-0040118",
-      "pos": "LB",
-      "team": "KC",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Cooper McDonald (LB, KC) on IR - designated to return 2026-10-20 - first eligible Week 7",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 7,
-        "designated_return_date": "2026-10-20",
-        "on_sheet": false
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|aj jackson|7|suspended",
       "severity": "info",
@@ -1402,24 +1198,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0041527|7",
-      "severity": "info",
-      "player": "Kyle Louis",
-      "gsis_id": "00-0041527",
-      "pos": "LB",
-      "team": "MIA",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Kyle Louis (LB, MIA) on IR - designated to return 2026-10-22 - first eligible Week 7",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 7,
-        "designated_return_date": "2026-10-22",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0034779|7",
       "severity": "info",
       "player": "Ronnie Harrison",
@@ -1434,24 +1212,6 @@
         "earliest_return_week": 7,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0037525|7",
-      "severity": "info",
-      "player": "Jordan Mason",
-      "gsis_id": "00-0037525",
-      "pos": "RB",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jordan Mason (RB, MIN) on IR - designated to return 2026-10-19 - first eligible Week 7 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 7,
-        "designated_return_date": "2026-10-19",
-        "on_sheet": true
       }
     },
     {
@@ -1668,24 +1428,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0036937|7",
-      "severity": "info",
-      "player": "Paulson Adebo",
-      "gsis_id": "00-0036937",
-      "pos": "DB",
-      "team": "NYG",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Paulson Adebo (DB, NYG) on IR - designated to return 2026-10-21 - first eligible Week 6",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 6,
-        "designated_return_date": "2026-10-21",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0040582|7",
       "severity": "info",
       "player": "Arian Smith",
@@ -1718,27 +1460,6 @@
         "earliest_return_week": 7,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0041410|7",
-      "severity": "info",
-      "player": "Jaden Keller",
-      "gsis_id": "00-0041410",
-      "pos": "LB",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jaden Keller (LB, NYJ) has used 4/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 4,
-        "elevation_dates": [
-          "2026-10-03",
-          "2026-10-10",
-          "2026-10-17",
-          "2026-10-19"
-        ]
       }
     },
     {
@@ -1874,24 +1595,6 @@
     },
     {
       "type": "ir_return_window",
-      "key": "ir_return_window|00-0034277|7",
-      "severity": "info",
-      "player": "DeShon Elliott",
-      "gsis_id": "00-0034277",
-      "pos": "DB",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 7,
-      "message": "DeShon Elliott (DB, PIT) on IR - designated to return 2026-10-08",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-08",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
       "key": "ir_return_window|00-0041396|7",
       "severity": "info",
       "player": "Gennings Dunker",
@@ -1905,24 +1608,6 @@
         "status": "IR",
         "earliest_return_week": 7,
         "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0039020|7",
-      "severity": "info",
-      "player": "Anthony Bradford",
-      "gsis_id": "00-0039020",
-      "pos": "OL",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Anthony Bradford (OL, SEA) on IR - designated to return 2026-10-19 - first eligible Week 7",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 7,
-        "designated_return_date": "2026-10-19",
         "on_sheet": false
       }
     },
@@ -1983,24 +1668,6 @@
         "earliest_return_week": 7,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0034775|7",
-      "severity": "info",
-      "player": "Christian Kirk",
-      "gsis_id": "00-0034775",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Christian Kirk (WR, SF) on IR - designated to return 2026-10-15 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-15",
-        "on_sheet": true
       }
     },
     {
@@ -2145,15 +1812,14 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 6,
-    "missing_active": 6,
-    "out_but_projected": 2,
-    "sheet_status_stale": 5,
-    "sheet_line_stale": 2,
-    "elevated_not_projected": 4,
+    "status_conflict": 3,
+    "missing_active": 4,
+    "sheet_status_stale": 12,
+    "sheet_line_stale": 1,
+    "elevated_not_projected": 1,
     "market_proj_gap": 4,
-    "ir_return_window": 48,
-    "elevation_limit": 17,
+    "ir_return_window": 37,
+    "elevation_limit": 15,
     "unconfirmed_report": 16
   }
 }
