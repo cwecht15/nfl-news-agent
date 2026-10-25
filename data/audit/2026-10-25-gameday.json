@@ -4,82 +4,14 @@
   "season": 2026,
   "week": 7,
   "sheet": "primary",
-  "generated_at": "2026-10-25T22:56:19+00:00",
+  "generated_at": "2026-10-25T23:40:30+00:00",
   "inputs": {
     "snapshot_date": "2026-10-25",
     "nflverse_date": "2026-10-25",
-    "injury_week_updated": "2026-10-25T12:32:35+00:00",
-    "roster_state_updated": "2026-10-25T22:56:19+00:00"
+    "injury_week_updated": "2026-10-25T23:33:30+00:00",
+    "roster_state_updated": "2026-10-25T23:40:29+00:00"
   },
   "alerts": [
-    {
-      "type": "inactive_but_projected",
-      "key": "inactive_but_projected|00-0035208|7",
-      "severity": "error",
-      "player": "Olamide Zaccheaus",
-      "gsis_id": "00-0035208",
-      "pos": "WR",
-      "team": "ATL",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Olamide Zaccheaus (WR, ATL) is INACTIVE for SF @ ATL (postgame) but projected for 2.9 PPR",
-      "evidence": {
-        "game": "SF @ ATL",
-        "phase": "postgame",
-        "ppr": 2.9
-      }
-    },
-    {
-      "type": "inactive_but_projected",
-      "key": "inactive_but_projected|00-0036265|7",
-      "severity": "error",
-      "player": "AJ Dillon",
-      "gsis_id": "00-0036265",
-      "pos": "RB",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 7,
-      "message": "AJ Dillon (RB, CAR) is INACTIVE for TB @ CAR (postgame) but projected for 1.3 PPR",
-      "evidence": {
-        "game": "TB @ CAR",
-        "phase": "postgame",
-        "ppr": 1.3
-      }
-    },
-    {
-      "type": "inactive_but_projected",
-      "key": "inactive_but_projected|00-0041510|7",
-      "severity": "error",
-      "player": "Max Klare",
-      "gsis_id": "00-0041510",
-      "pos": "TE",
-      "team": "LA",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Max Klare (TE, LA) is INACTIVE for LAR @ LV (postgame) but projected for 0.2 PPR",
-      "evidence": {
-        "game": "LAR @ LV",
-        "phase": "postgame",
-        "ppr": 0.2
-      }
-    },
-    {
-      "type": "inactive_but_projected",
-      "key": "inactive_but_projected|00-0037666|7",
-      "severity": "error",
-      "player": "Jalen Tolbert",
-      "gsis_id": "00-0037666",
-      "pos": "WR",
-      "team": "MIA",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jalen Tolbert (WR, MIA) is INACTIVE for MIA @ NYJ (postgame) but projected for 0.2 PPR",
-      "evidence": {
-        "game": "MIA @ NYJ",
-        "phase": "postgame",
-        "ppr": 0.2
-      }
-    },
     {
       "type": "missing_active",
       "key": "missing_active|00-0038998|7",
@@ -101,38 +33,26 @@
       }
     },
     {
-      "type": "inactive_but_projected",
-      "key": "inactive_but_projected|00-0039032|7",
-      "severity": "error",
-      "player": "Tyjae Spears",
-      "gsis_id": "00-0039032",
-      "pos": "RB",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Tyjae Spears (RB, TEN) is INACTIVE for CLE @ TEN (postgame) but projected for 6.0 PPR",
-      "evidence": {
-        "game": "CLE @ TEN",
-        "phase": "postgame",
-        "ppr": 6.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038397|7",
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0037263|7|anytime_td",
       "severity": "warning",
-      "player": "Evan Hull",
-      "gsis_id": "00-0038397",
+      "player": "Tyler Allgeier",
+      "gsis_id": "00-0037263",
       "pos": "RB",
       "team": "ARZ",
       "sheet": "primary",
       "week": 7,
-      "message": "Evan Hull (RB, ARZ) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "message": "Tyler Allgeier (RB, ARZ) Anytime TD rate: we project 0.36, the market implies 0.04 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.2
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.36,
+        "market_mean": 0.03536449668,
+        "delta": -0.3246355033,
+        "pct": -0.901765287,
+        "flag": "RED"
       }
     },
     {
@@ -145,7 +65,7 @@
       "team": "ATL",
       "sheet": "primary",
       "week": 7,
-      "message": "SF@ATL: the sheet has 2.5 / 50.5, the market -3.5 / 49.5 (FP-SPREAD) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "SF@ATL: the sheet has 2.5 / 50.5, the market -3.5 / 49.5 (FP-SPREAD) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "game": "SF@ATL",
         "fp_flag": "FP-SPREAD",
@@ -158,24 +78,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036906|7",
-      "severity": "warning",
-      "player": "Khalil Herbert",
-      "gsis_id": "00-0036906",
-      "pos": "RB",
-      "team": "ATL",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Khalil Herbert (RB, ATL) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 3.1
-      }
-    },
-    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|BLT|7|CIN@BAL",
       "severity": "warning",
@@ -185,7 +87,7 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 7,
-      "message": "CIN@BAL: the sheet has 3.0 / 46.5, the market 1.5 / 39.5 (FP-BOTH) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "CIN@BAL: the sheet has 3.0 / 46.5, the market 1.5 / 39.5 (FP-BOTH) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "game": "CIN@BAL",
         "fp_flag": "FP-BOTH",
@@ -207,7 +109,7 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 7,
-      "message": "Josh Cuevas (TE, BLT) Rec Yds: we project 8.7, the market implies 23.5 (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Josh Cuevas (TE, BLT) Rec Yds: we project 8.7, the market implies 23.5 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -230,7 +132,7 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 7,
-      "message": "Zay Flowers (WR, BLT) Rec Yds: we project 66.3, the market implies 147.4 (also Rec) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Zay Flowers (WR, BLT) Rec Yds: we project 66.3, the market implies 147.4 (also Rec) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -254,7 +156,7 @@
       "team": "CAR",
       "sheet": "primary",
       "week": 7,
-      "message": "TB@CAR: the sheet has -3.0 / 44.5, the market 22.5 / 56.5 (FP-BOTH) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "TB@CAR: the sheet has -3.0 / 44.5, the market 22.5 / 56.5 (FP-BOTH) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "game": "TB@CAR",
         "fp_flag": "FP-BOTH",
@@ -276,7 +178,7 @@
       "team": "CAR",
       "sheet": "primary",
       "week": 7,
-      "message": "Bryce Young (QB, CAR) INT: we project 0.70, the market implies 1.53 (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Bryce Young (QB, CAR) INT: we project 0.70, the market implies 1.53 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -299,7 +201,7 @@
       "team": "CAR",
       "sheet": "primary",
       "week": 7,
-      "message": "Chuba Hubbard (RB, CAR) Anytime TD rate: we project 0.77, the market implies 0.08 (also Rec, Rush Att, Rush Yds) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Chuba Hubbard (RB, CAR) Anytime TD rate: we project 0.77, the market implies 0.08 (also Rec, Rush Att, Rush Yds) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -325,7 +227,7 @@
       "team": "CAR",
       "sheet": "primary",
       "week": 7,
-      "message": "Darren Waller (TE, CAR) Rec Yds: we project 25.4, the market implies 57.9 (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Darren Waller (TE, CAR) Rec Yds: we project 25.4, the market implies 57.9 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -348,7 +250,7 @@
       "team": "CHI",
       "sheet": "primary",
       "week": 7,
-      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "NE@CHI: the sheet has -3.0 / 50.5, the market -5.5 / 60.5 (FP-BOTH) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "game": "NE@CHI",
         "fp_flag": "FP-BOTH",
@@ -379,24 +281,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040162|7",
-      "severity": "warning",
-      "player": "Dylan Sampson",
-      "gsis_id": "00-0040162",
-      "pos": "RB",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Dylan Sampson (RB, CLV) sheet Status is IR but roster says ACT - activated",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 6.3
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0041547|7|rec_yds",
       "severity": "warning",
@@ -406,7 +290,7 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 7,
-      "message": "KC Concepcion (WR, CLV) Rec Yds: we project 43.5, the market implies 148.9 (also Rec) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "KC Concepcion (WR, CLV) Rec Yds: we project 43.5, the market implies 148.9 (also Rec) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -430,7 +314,7 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 7,
-      "message": "Quinshon Judkins (RB, CLV) Rush Yds: we project 51.2, the market implies 112.6 (also Rec, Rush Att, Rush+Rec Yds) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Quinshon Judkins (RB, CLV) Rush Yds: we project 51.2, the market implies 112.6 (also Rec, Rush Att, Rush+Rec Yds) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -447,57 +331,72 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041496|7",
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039065|7|anytime_td",
       "severity": "warning",
-      "player": "Jonah Coleman",
-      "gsis_id": "00-0041496",
-      "pos": "RB",
-      "team": "DEN",
+      "player": "Sam LaPorta",
+      "gsis_id": "00-0039065",
+      "pos": "TE",
+      "team": "DET",
       "sheet": "primary",
       "week": 7,
-      "message": "Jonah Coleman (RB, DEN) sheet Status is IR but roster says ACT - activated",
+      "message": "Sam LaPorta (TE, DET) Anytime TD rate: we project 0.50, the market implies 0.07 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 4.1
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.5,
+        "market_mean": 0.06763970809,
+        "delta": -0.4323602919,
+        "pct": -0.8647205838,
+        "flag": "RED"
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0037085|7",
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038124|7|anytime_td",
       "severity": "warning",
-      "player": "Tyler Badie",
-      "gsis_id": "00-0037085",
-      "pos": "RB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Tyler Badie (RB, DEN) sheet Status is ACTIVE but roster says IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040352|7",
-      "severity": "warning",
-      "player": "Coleman Owen",
-      "gsis_id": "00-0040352",
+      "player": "Christian Watson",
+      "gsis_id": "00-0038124",
       "pos": "WR",
       "team": "GB",
       "sheet": "primary",
       "week": 7,
-      "message": "Coleman Owen (WR, GB) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "message": "Christian Watson (WR, GB) Anytime TD rate: we project 0.68, the market implies 0.05 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.1
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.68,
+        "market_mean": 0.05206034914,
+        "delta": -0.6279396509,
+        "pct": -0.923440663,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040667|7|anytime_td",
+      "severity": "warning",
+      "player": "Matthew Golden",
+      "gsis_id": "00-0040667",
+      "pos": "WR",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 7,
+      "message": "Matthew Golden (WR, GB) Anytime TD rate: we project 0.50, the market implies 0.05 (odds pulled 2026-10-25 19:34-04:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.5,
+        "market_mean": 0.04829128409,
+        "delta": -0.4517087159,
+        "pct": -0.9034174318,
+        "flag": "RED"
       }
     },
     {
@@ -510,7 +409,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 7,
-      "message": "NYG@HOU: the sheet has -10.5 / 42.5, the market -2.5 / 50.0 (FP-BOTH) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "NYG@HOU: the sheet has -10.5 / 42.5, the market -2.5 / 50.0 (FP-BOTH) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "game": "NYG@HOU",
         "fp_flag": "FP-BOTH",
@@ -520,29 +419,6 @@
         "market_total": 50.0,
         "spread_delta": 8.0,
         "total_delta": 7.5
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0040138|7|rec_yds",
-      "severity": "warning",
-      "player": "Jaylin Noel",
-      "gsis_id": "00-0040138",
-      "pos": "WR",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jaylin Noel (WR, HST) Rec Yds: we project 34.9, the market implies 5.0 (odds pulled 2026-10-25 15:26-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 34.9,
-        "market_mean": 5.0,
-        "delta": -29.9,
-        "pct": -0.8567335244,
-        "flag": "RED"
       }
     },
     {
@@ -573,7 +449,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 7,
-      "message": "Tank Dell (WR, HST) Rec Yds: we project 12.0, the market implies 34.6 (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Tank Dell (WR, HST) Rec Yds: we project 12.0, the market implies 34.6 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -596,7 +472,7 @@
       "team": "IND",
       "sheet": "primary",
       "week": 7,
-      "message": "Seth McGowan (RB, IND) Rush Yds: we project 14.2, the market implies 38.9 (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Seth McGowan (RB, IND) Rush Yds: we project 14.2, the market implies 38.9 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -611,98 +487,48 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038394|7|receptions",
+      "key": "market_proj_gap|00-0039338|7|anytime_td",
       "severity": "warning",
-      "player": "Will Mallory",
-      "gsis_id": "00-0038394",
+      "player": "Brock Bowers",
+      "gsis_id": "00-0039338",
       "pos": "TE",
-      "team": "IND",
+      "team": "LV",
       "sheet": "primary",
       "week": 7,
-      "message": "Will Mallory (TE, IND) Rec: we project 3.2, the market implies 0.6 (also Rec Yds) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Brock Bowers (TE, LV) Anytime TD rate: we project 0.57, the market implies 0.06 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
-        "stat": "receptions",
+        "stat": "anytime_td",
         "stats": [
-          "rec_yds",
-          "receptions"
+          "anytime_td"
         ],
-        "ours": 3.2,
-        "market_mean": 0.5854082992,
-        "delta": -2.614591701,
-        "pct": -0.8170599065,
+        "ours": 0.57,
+        "market_mean": 0.05668857425,
+        "delta": -0.5133114258,
+        "pct": -0.900546361,
         "flag": "RED"
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040298|7",
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038563|7|rec_yds",
       "severity": "warning",
-      "player": "Andrew Armstrong",
-      "gsis_id": "00-0040298",
+      "player": "Tre Tucker",
+      "gsis_id": "00-0038563",
       "pos": "WR",
-      "team": "KC",
+      "team": "LV",
       "sheet": "primary",
       "week": 7,
-      "message": "Andrew Armstrong (WR, KC) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "message": "Tre Tucker (WR, LV) Rec Yds: we project 48.7, the market implies 94.1 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 4.5
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040078|7",
-      "severity": "warning",
-      "player": "Brashard Smith",
-      "gsis_id": "00-0040078",
-      "pos": "RB",
-      "team": "KC",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Brashard Smith (RB, KC) sheet Status is ACTIVE but roster says IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "news",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040959|7",
-      "severity": "warning",
-      "player": "Jaydn Ott",
-      "gsis_id": "00-0040959",
-      "pos": "RB",
-      "team": "KC",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jaydn Ott (RB, KC) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.1
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0034386|7",
-      "severity": "warning",
-      "player": "Justin Watson",
-      "gsis_id": "00-0034386",
-      "pos": "WR",
-      "team": "KC",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Justin Watson (WR, KC) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.2
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 48.7,
+        "market_mean": 94.11387761,
+        "delta": 45.41387761,
+        "pct": 0.9325231543,
+        "flag": "RED"
       }
     },
     {
@@ -715,7 +541,7 @@
       "team": "MIA",
       "sheet": "primary",
       "week": 7,
-      "message": "Greg Dulcich (TE, MIA) Rec Yds: we project 28.9, the market implies 66.3 (also Rec) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Greg Dulcich (TE, MIA) Rec Yds: we project 28.9, the market implies 66.3 (also Rec) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -730,29 +556,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038128|7|ints",
-      "severity": "warning",
-      "player": "Malik Willis",
-      "gsis_id": "00-0038128",
-      "pos": "QB",
-      "team": "MIA",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Malik Willis (QB, MIA) INT: we project 0.80, the market implies 0.13 (odds pulled 2026-10-25 15:26-04:00)",
-      "evidence": {
-        "stat": "ints",
-        "stats": [
-          "ints"
-        ],
-        "ours": 0.8,
-        "market_mean": 0.126697653,
-        "delta": -0.673302347,
-        "pct": -0.8416279337,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|MIN|7|IND@MIN",
       "severity": "warning",
@@ -762,7 +565,7 @@
       "team": "MIN",
       "sheet": "primary",
       "week": 7,
-      "message": "IND@MIN: the sheet has -6.5 / 41.5, the market 2.5 / 30.5 (FP-BOTH) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "IND@MIN: the sheet has -6.5 / 41.5, the market 2.5 / 30.5 (FP-BOTH) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "game": "IND@MIN",
         "fp_flag": "FP-BOTH",
@@ -775,48 +578,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0037525|7",
-      "severity": "warning",
-      "player": "Jordan Mason",
-      "gsis_id": "00-0037525",
-      "pos": "RB",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jordan Mason (RB, MIN) sheet Status is IR but roster says ACT - activated",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 9.1
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0036322|7|anytime_td",
-      "severity": "warning",
-      "player": "Justin Jefferson",
-      "gsis_id": "00-0036322",
-      "pos": "WR",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Justin Jefferson (WR, MIN) Anytime TD rate: we project 0.50, the market implies 0.08 (also Rec Yds) (odds pulled 2026-10-25 15:26-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td",
-          "rec_yds"
-        ],
-        "ours": 0.5,
-        "market_mean": 0.08178176053,
-        "delta": -0.4182182395,
-        "pct": -0.8364364789,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0033906|7|rec_yds",
       "severity": "warning",
@@ -826,7 +587,7 @@
       "team": "NO",
       "sheet": "primary",
       "week": 7,
-      "message": "Alvin Kamara (RB, NO) Rec Yds: we project 16.3, the market implies 50.7 (also Rec, Rush+Rec Yds) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Alvin Kamara (RB, NO) Rec Yds: we project 16.3, the market implies 50.7 (also Rec, Rush+Rec Yds) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -862,24 +623,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038979|7",
-      "severity": "warning",
-      "player": "Cedric Tillman",
-      "gsis_id": "00-0038979",
-      "pos": "WR",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Cedric Tillman (WR, NO) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.3
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0040715|7|receptions",
       "severity": "warning",
@@ -889,7 +632,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 7,
-      "message": "Cam Skattebo (RB, NYG) Rec: we project 1.0, the market implies 2.3 (also Rush Att, Rush Yds) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Cam Skattebo (RB, NYG) Rec: we project 1.0, the market implies 2.3 (also Rush Att, Rush Yds) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "receptions",
         "stats": [
@@ -905,24 +648,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038938|7",
-      "severity": "warning",
-      "player": "Jalin Hyatt",
-      "gsis_id": "00-0038938",
-      "pos": "WR",
-      "team": "NYG",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Jalin Hyatt (WR, NYG) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.4
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0041042|7|rec_yds",
       "severity": "warning",
@@ -932,7 +657,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 7,
-      "message": "Malachi Fields (WR, NYG) Rec Yds: we project 27.9, the market implies 72.7 (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Malachi Fields (WR, NYG) Rec Yds: we project 27.9, the market implies 72.7 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -955,7 +680,7 @@
       "team": "NYJ",
       "sheet": "primary",
       "week": 7,
-      "message": "MIA@NYJ: the sheet has -4.0 / 39.5, the market 6.5 / 47.5 (FP-BOTH) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "MIA@NYJ: the sheet has -4.0 / 39.5, the market 6.5 / 47.5 (FP-BOTH) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "game": "MIA@NYJ",
         "fp_flag": "FP-BOTH",
@@ -969,29 +694,6 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0039890|7|rec_yds",
-      "severity": "warning",
-      "player": "Adonai Mitchell",
-      "gsis_id": "00-0039890",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Adonai Mitchell (WR, NYJ) Rec Yds: we project 37.0, the market implies 5.9 (odds pulled 2026-10-25 15:26-04:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 37.0,
-        "market_mean": 5.939471982,
-        "delta": -31.06052802,
-        "pct": -0.8394737302,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
       "key": "market_proj_gap|00-0040736|7|rec_yds",
       "severity": "warning",
       "player": "Mason Taylor",
@@ -1000,7 +702,7 @@
       "team": "NYJ",
       "sheet": "primary",
       "week": 7,
-      "message": "Mason Taylor (TE, NYJ) Rec Yds: we project 21.3, the market implies 54.0 (also Rec) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Mason Taylor (TE, NYJ) Rec Yds: we project 21.3, the market implies 54.0 (also Rec) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -1024,7 +726,7 @@
       "team": "NYJ",
       "sheet": "primary",
       "week": 7,
-      "message": "Omar Cooper Jr. (WR, NYJ) Rec Yds: we project 48.3, the market implies 128.6 (also Rec) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Omar Cooper Jr. (WR, NYJ) Rec Yds: we project 48.3, the market implies 128.6 (also Rec) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -1039,42 +741,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0037382|7",
-      "severity": "warning",
-      "player": "Brandon Johnson",
-      "gsis_id": "00-0037382",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Brandon Johnson (WR, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 1.3
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036775|7",
-      "severity": "warning",
-      "player": "Brandon Smith",
-      "gsis_id": "00-0036775",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Brandon Smith (WR, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 2.6
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0036139|7|rec_yds",
       "severity": "warning",
@@ -1084,7 +750,7 @@
       "team": "PIT",
       "sheet": "primary",
       "week": 7,
-      "message": "Rico Dowdle (RB, PIT) Rec Yds: we project 8.2, the market implies 31.1 (also Rec, Rush+Rec Yds) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Rico Dowdle (RB, PIT) Rec Yds: we project 8.2, the market implies 31.1 (also Rec, Rush+Rec Yds) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
@@ -1100,42 +766,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0037156|7",
-      "severity": "warning",
-      "player": "Irvin Charles",
-      "gsis_id": "00-0037156",
-      "pos": "WR",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Irvin Charles (WR, SEA) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040621|7",
-      "severity": "warning",
-      "player": "Montorie Foster Jr",
-      "gsis_id": "00-0040621",
-      "pos": "WR",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Montorie Foster Jr (WR, SEA) sheet Status is ACTIVE but roster says FA",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0041052|7|rush_yds",
       "severity": "warning",
@@ -1145,7 +775,7 @@
       "team": "SF",
       "sheet": "primary",
       "week": 7,
-      "message": "Kaelon Black (RB, SF) Rush Yds: we project 29.2, the market implies 67.1 (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Kaelon Black (RB, SF) Rush Yds: we project 29.2, the market implies 67.1 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -1168,7 +798,7 @@
       "team": "TB",
       "sheet": "primary",
       "week": 7,
-      "message": "Baker Mayfield (QB, TB) INT: we project 0.70, the market implies 0.09 (also Completions, Pass Att, Pass TD, Pass Yds) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Baker Mayfield (QB, TB) INT: we project 0.70, the market implies 0.09 (also Completions, Pass Att, Pass TD, Pass Yds) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -1187,32 +817,6 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0039361|7|rush_yds",
-      "severity": "warning",
-      "player": "Bucky Irving",
-      "gsis_id": "00-0039361",
-      "pos": "RB",
-      "team": "TB",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Bucky Irving (RB, TB) Rush Yds: we project 70.9, the market implies 130.3 (also Rec Yds, Rec, Rush Att) (odds pulled 2026-10-25 15:26-04:00)",
-      "evidence": {
-        "stat": "rush_yds",
-        "stats": [
-          "rec_yds",
-          "receptions",
-          "rush_att",
-          "rush_yds"
-        ],
-        "ours": 70.9,
-        "market_mean": 130.3276471,
-        "delta": 59.42764709,
-        "pct": 0.8381896627,
-        "flag": "RED"
-      }
-    },
-    {
-      "type": "market_proj_gap",
       "key": "market_proj_gap|00-0038951|7|rush_yds",
       "severity": "warning",
       "player": "Sean Tucker",
@@ -1221,7 +825,7 @@
       "team": "TB",
       "sheet": "primary",
       "week": 7,
-      "message": "Sean Tucker (RB, TB) Rush Yds: we project 10.6, the market implies 33.5 (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "Sean Tucker (RB, TB) Rush Yds: we project 10.6, the market implies 33.5 (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -1244,7 +848,7 @@
       "team": "TEN",
       "sheet": "primary",
       "week": 7,
-      "message": "CLE@TEN: the sheet has 2.0 / 37.0, the market 4.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-25 15:26-04:00)",
+      "message": "CLE@TEN: the sheet has 2.0 / 37.0, the market 4.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-25 19:34-04:00)",
       "evidence": {
         "game": "CLE@TEN",
         "fp_flag": "FP-BOTH",
@@ -1254,42 +858,6 @@
         "market_total": 49.5,
         "spread_delta": 2.5,
         "total_delta": 12.5
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036345|7",
-      "severity": "warning",
-      "player": "K.J. Osborn",
-      "gsis_id": "00-0036345",
-      "pos": "WR",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "K.J. Osborn (WR, TEN) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040205|7",
-      "severity": "warning",
-      "player": "Kalel Mullings",
-      "gsis_id": "00-0040205",
-      "pos": "RB",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 7,
-      "message": "Kalel Mullings (RB, TEN) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.4
       }
     },
     {
@@ -2505,11 +2073,10 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "inactive_but_projected": 5,
     "missing_active": 4,
-    "sheet_status_stale": 20,
-    "sheet_line_stale": 8,
     "market_proj_gap": 25,
+    "sheet_line_stale": 8,
+    "sheet_status_stale": 1,
     "elevated_not_projected": 1,
     "ir_return_window": 34,
     "elevation_limit": 11,
