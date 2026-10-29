@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 8,
   "sheet": "primary",
-  "generated_at": "2026-10-29T00:09:47+00:00",
+  "generated_at": "2026-10-29T02:57:07+00:00",
   "inputs": {
     "snapshot_date": "2026-10-28",
     "nflverse_date": "2026-10-28",
-    "injury_week_updated": "2026-10-28T21:01:30+00:00",
-    "roster_state_updated": "2026-10-29T00:09:47+00:00"
+    "injury_week_updated": "2026-10-29T01:15:04+00:00",
+    "roster_state_updated": "2026-10-29T02:57:06+00:00"
   },
   "alerts": [
     {
@@ -22,66 +22,50 @@
       "team": "CIN",
       "sheet": "primary",
       "week": 8,
-      "message": "Erick All (TE, CIN) is projected Active (3.6 PPR) but roster status is IR (since 2026-10-28); eligible Wk 12",
+      "message": "Erick All (TE, CIN) is marked IR on the sheet but still projected (3.6 PPR); roster status is IR",
       "evidence": {
         "roster_status": "IR",
         "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
+        "sheet_status": "IR",
         "ppr": 3.6,
         "slot": 4,
         "earliest_return_week": 12
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038640|8",
-      "severity": "warning",
-      "player": "Jalen Brooks",
-      "gsis_id": "00-0038640",
-      "pos": "WR",
-      "team": "ARZ",
+      "type": "status_conflict",
+      "key": "status_conflict|00-0037258|8",
+      "severity": "error",
+      "player": "Dameon Pierce",
+      "gsis_id": "00-0037258",
+      "pos": "RB",
+      "team": "PHI",
       "sheet": "primary",
       "week": 8,
-      "message": "Jalen Brooks (WR, ARZ) sheet Status is ACTIVE but roster says IR",
+      "message": "Dameon Pierce (RB, PHI) is projected Active (7.7 PPR) but roster status is IR (since 2026-10-28); eligible Wk 13",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "nflverse",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
-        "ppr": 0.0
+        "ppr": 7.7,
+        "slot": 4,
+        "earliest_return_week": 13
       }
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041131|8",
+      "key": "sheet_status_stale|00-0040138|8",
       "severity": "warning",
-      "player": "Carsen Ryan",
-      "gsis_id": "00-0041131",
-      "pos": "TE",
-      "team": "CLV",
+      "player": "Jaylin Noel",
+      "gsis_id": "00-0040138",
+      "pos": "WR",
+      "team": "HST",
       "sheet": "primary",
       "week": 8,
-      "message": "Carsen Ryan (TE, CLV) sheet Status is ACTIVE but roster says FA",
+      "message": "Jaylin Noel (WR, HST) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038705|8",
-      "severity": "warning",
-      "player": "Emari Demercado",
-      "gsis_id": "00-0038705",
-      "pos": "RB",
-      "team": "DAL",
-      "sheet": "primary",
-      "week": 8,
-      "message": "Emari Demercado (RB, DAL) sheet Status is ACTIVE but roster says FA",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
+        "roster_status": "IR",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -104,24 +88,6 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "WR",
         "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040581|8",
-      "severity": "warning",
-      "player": "Dont'e Thornton Jr.",
-      "gsis_id": "00-0040581",
-      "pos": "WR",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 8,
-      "message": "Dont'e Thornton Jr. (WR, LV) sheet Status is IR but roster says ACT - activated",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 0.0
       }
     },
     {
@@ -161,24 +127,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0039384|8",
-      "severity": "warning",
-      "player": "Tyrone Tracy Jr.",
-      "gsis_id": "00-0039384",
-      "pos": "RB",
-      "team": "NYG",
-      "sheet": "primary",
-      "week": 8,
-      "message": "Tyrone Tracy Jr. (RB, NYG) sheet Status is ACTIVE but roster says IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "news",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0039794|8|anytime_td",
       "severity": "warning",
@@ -214,7 +162,7 @@
       "message": "Jaydon Blue (RB, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.0
       }
@@ -298,7 +246,7 @@
       "message": "Van Jefferson (WR, WAS) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.0
       }
@@ -336,6 +284,24 @@
         "status": "IR",
         "earliest_return_week": 5,
         "designated_return_date": "2026-10-24",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040888|8",
+      "severity": "info",
+      "player": "Adam Randall",
+      "gsis_id": "00-0040888",
+      "pos": "RB",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Adam Randall (RB, BLT) on IR - designated to return 2026-10-28",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-28",
         "on_sheet": false
       }
     },
@@ -471,6 +437,24 @@
           "source": "news:SBN Bills (Buffalo Rumblings)"
         },
         "days_pending": 48
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038679|8",
+      "severity": "info",
+      "player": "Tyrell Shavers",
+      "gsis_id": "00-0038679",
+      "pos": "WR",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Tyrell Shavers (WR, BUF) on PUP - designated to return 2026-10-28",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": false
       }
     },
     {
@@ -718,6 +702,24 @@
     },
     {
       "type": "ir_return_window",
+      "key": "ir_return_window|00-0037667|8",
+      "severity": "info",
+      "player": "Kerby Joseph",
+      "gsis_id": "00-0037667",
+      "pos": "DB",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Kerby Joseph (DB, DET) on PUP - designated to return 2026-10-28",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
       "key": "ir_return_window|00-0039660|8",
       "severity": "info",
       "player": "Thomas Harper",
@@ -909,6 +911,24 @@
           "2026-09-26",
           "2026-10-03"
         ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040748|8",
+      "severity": "info",
+      "player": "Omarr Norman-Lott",
+      "gsis_id": "00-0040748",
+      "pos": "DL",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Omarr Norman-Lott (DL, KC) on PUP - designated to return 2026-10-28",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": false
       }
     },
     {
@@ -1126,6 +1146,26 @@
         "earliest_return_week": 8,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0039837|8",
+      "severity": "info",
+      "player": "Bralen Trice",
+      "gsis_id": "00-0039837",
+      "pos": "LB",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Bralen Trice (LB, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-25",
+          "2026-10-10"
+        ]
       }
     },
     {
@@ -1654,17 +1694,35 @@
           "2026-10-03"
         ]
       }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039906|8",
+      "severity": "info",
+      "player": "Jer'Zhan Newton",
+      "gsis_id": "00-0039906",
+      "pos": "DL",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Jer'Zhan Newton (DL, WAS) on IR - designated to return 2026-10-28 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": false
+      }
     }
   ],
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 1,
-    "sheet_status_stale": 9,
+    "status_conflict": 2,
+    "sheet_status_stale": 5,
     "missing_active": 4,
     "market_proj_gap": 3,
-    "ir_return_window": 33,
-    "elevation_limit": 18,
+    "ir_return_window": 38,
+    "elevation_limit": 19,
     "unconfirmed_report": 16,
     "market_only_player": 1
   }
