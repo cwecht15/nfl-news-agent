@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 8,
   "sheet": "primary",
-  "generated_at": "2026-10-28T21:01:31+00:00",
+  "generated_at": "2026-10-29T01:00:04+00:00",
   "inputs": {
     "snapshot_date": "2026-10-28",
     "nflverse_date": "2026-10-28",
-    "injury_week_updated": "2026-10-28T21:01:30+00:00",
-    "roster_state_updated": "2026-10-28T20:16:56+00:00"
+    "injury_week_updated": "2026-10-29T01:00:04+00:00",
+    "roster_state_updated": "2026-10-29T00:09:47+00:00"
   },
   "alerts": [
     {
@@ -199,6 +199,24 @@
         "delta": 0.4277931879,
         "pct": 1.379978026,
         "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040586|8",
+      "severity": "warning",
+      "player": "Jaydon Blue",
+      "gsis_id": "00-0040586",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Jaydon Blue (RB, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "espn",
+        "sheet_status": "PS",
+        "ppr": 0.0
       }
     },
     {
@@ -1642,7 +1660,7 @@
   "errors": [],
   "counts": {
     "status_conflict": 1,
-    "sheet_status_stale": 8,
+    "sheet_status_stale": 9,
     "missing_active": 4,
     "market_proj_gap": 3,
     "ir_return_window": 33,
