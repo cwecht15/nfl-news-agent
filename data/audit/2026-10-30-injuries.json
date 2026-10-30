@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 8,
   "sheet": "primary",
-  "generated_at": "2026-10-30T20:31:27+00:00",
+  "generated_at": "2026-10-30T21:16:32+00:00",
   "inputs": {
     "snapshot_date": "2026-10-30",
     "nflverse_date": "2026-10-30",
-    "injury_week_updated": "2026-10-30T20:31:27+00:00",
-    "roster_state_updated": "2026-10-30T18:06:56+00:00"
+    "injury_week_updated": "2026-10-30T21:16:32+00:00",
+    "roster_state_updated": "2026-10-30T20:35:49+00:00"
   },
   "alerts": [
     {
@@ -64,7 +64,7 @@
       "team": "GB",
       "sheet": "primary",
       "week": 8,
-      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-30 15:46:00-04:00)",
+      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-30 17:16:22-04:00)",
       "evidence": {
         "game": "CAR@GB",
         "fp_flag": "FP-BOTH",
@@ -619,6 +619,26 @@
           "2026-10-03",
           "2026-10-08"
         ]
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040730|8",
+      "severity": "info",
+      "player": "RJ Harvey",
+      "gsis_id": "00-0040730",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 8,
+      "message": "RJ Harvey (RB, DEN) did not practice on the latest report (Knee); projected 7.6 PPR",
+      "evidence": {
+        "practice": {
+          "2026-10-29": "LP",
+          "2026-10-30": "DNP"
+        },
+        "injury": "Knee",
+        "ppr": 7.6
       }
     },
     {
@@ -1726,6 +1746,7 @@
     "missing_active": 3,
     "ir_return_window": 38,
     "elevation_limit": 21,
-    "unconfirmed_report": 17
+    "unconfirmed_report": 17,
+    "dnp_but_projected": 1
   }
 }
