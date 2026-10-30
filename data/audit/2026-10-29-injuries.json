@@ -4,11 +4,11 @@
   "season": 2026,
   "week": 8,
   "sheet": "primary",
-  "generated_at": "2026-10-29T23:03:45+00:00",
+  "generated_at": "2026-10-30T00:59:21+00:00",
   "inputs": {
     "snapshot_date": "2026-10-29",
     "nflverse_date": "2026-10-29",
-    "injury_week_updated": "2026-10-29T23:03:45+00:00",
+    "injury_week_updated": "2026-10-30T00:59:21+00:00",
     "roster_state_updated": "2026-10-29T18:23:13+00:00"
   },
   "alerts": [
@@ -62,7 +62,7 @@
       "team": "CIN",
       "sheet": "primary",
       "week": 8,
-      "message": "TEN@CIN: the sheet has -10.5 / 46.5, the market -11.5 / 46.5 (FP-SPREAD) (odds pulled 2026-10-29 19:03:35-04:00)",
+      "message": "TEN@CIN: the sheet has -10.5 / 46.5, the market -11.5 / 46.5 (FP-SPREAD) (odds pulled 2026-10-29 20:59:08-04:00)",
       "evidence": {
         "game": "TEN@CIN",
         "fp_flag": "FP-SPREAD",
@@ -72,6 +72,28 @@
         "market_total": 46.5,
         "spread_delta": -1.0,
         "total_delta": 0.0
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|GB|8|CAR@GB",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 8,
+      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -1.5 / 52.5 (FP-BOTH) (odds pulled 2026-10-29 20:59:08-04:00)",
+      "evidence": {
+        "game": "CAR@GB",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": -3.5,
+        "sheet_ou": 47.0,
+        "market_spread": -1.5,
+        "market_total": 52.5,
+        "spread_delta": 2.0,
+        "total_delta": 5.5
       }
     },
     {
@@ -1878,7 +1900,7 @@
   "errors": [],
   "counts": {
     "status_conflict": 2,
-    "sheet_line_stale": 1,
+    "sheet_line_stale": 2,
     "sheet_status_stale": 5,
     "missing_active": 4,
     "market_proj_gap": 2,
