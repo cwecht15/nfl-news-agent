@@ -4,32 +4,54 @@
   "season": 2026,
   "week": 8,
   "sheet": "primary",
-  "generated_at": "2026-10-30T15:19:30+00:00",
+  "generated_at": "2026-10-30T18:07:01+00:00",
   "inputs": {
-    "snapshot_date": "2026-10-29",
+    "snapshot_date": "2026-10-30",
     "nflverse_date": "2026-10-30",
-    "injury_week_updated": "2026-10-30T15:19:30+00:00",
-    "roster_state_updated": "2026-10-30T15:19:26+00:00"
+    "injury_week_updated": "2026-10-30T18:07:00+00:00",
+    "roster_state_updated": "2026-10-30T18:06:56+00:00"
   },
   "alerts": [
     {
       "type": "status_conflict",
-      "key": "status_conflict|00-0037258|8",
+      "key": "status_conflict|00-0040729|8",
       "severity": "error",
-      "player": "Dameon Pierce",
-      "gsis_id": "00-0037258",
-      "pos": "RB",
-      "team": "PHI",
+      "player": "Jack Bech",
+      "gsis_id": "00-0040729",
+      "pos": "WR",
+      "team": "LV",
       "sheet": "primary",
       "week": 8,
-      "message": "Dameon Pierce (RB, PHI) is projected Active (7.6 PPR) but roster status is IR (since 2026-10-30); eligible Wk 13",
+      "message": "Jack Bech (WR, LV) is marked IR on the sheet but still projected (2.9 PPR); roster status is IR",
       "evidence": {
         "roster_status": "IR",
         "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 7.6,
-        "slot": 4,
-        "earliest_return_week": 13
+        "sheet_status": "IR",
+        "ppr": 2.9,
+        "slot": 2,
+        "earliest_return_week": 7
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|CIN|8|TEN@CIN",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 8,
+      "message": "TEN@CIN: the sheet has -11.5 / 46.5, the market -12.5 / 46.5 (FP-SPREAD) (odds pulled 2026-10-30 12:57:00-04:00)",
+      "evidence": {
+        "game": "TEN@CIN",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": -11.5,
+        "sheet_ou": 46.5,
+        "market_spread": -12.5,
+        "market_total": 46.5,
+        "spread_delta": -1.0,
+        "total_delta": 0.0
       }
     },
     {
@@ -42,7 +64,7 @@
       "team": "GB",
       "sheet": "primary",
       "week": 8,
-      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-30 10:10-04:00)",
+      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-30 12:57:00-04:00)",
       "evidence": {
         "game": "CAR@GB",
         "fp_flag": "FP-BOTH",
@@ -123,30 +145,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0037228|8|anytime_td",
-      "severity": "warning",
-      "player": "Jaylen Warren",
-      "gsis_id": "00-0037228",
-      "pos": "RB",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 8,
-      "message": "Jaylen Warren (RB, PIT) Anytime TD rate: we project 0.41, the market implies 0.72 (odds pulled 2026-10-30 10:10-04:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 0.41,
-        "market_mean": 0.7173614387,
-        "delta": 0.3073614387,
-        "pct": 0.7496620456,
-        "flag": "RED"
+        "ppr": 2.0
       }
     },
     {
@@ -159,7 +158,7 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 8,
-      "message": "Emanuel Wilson (RB, SEA) Anytime TD rate: we project 0.41, the market implies 0.76 (odds pulled 2026-10-30 10:10-04:00)",
+      "message": "Emanuel Wilson (RB, SEA) Anytime TD rate: we project 0.41, the market implies 0.76 (odds pulled 2026-10-30 11:56-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -174,17 +173,17 @@
     },
     {
       "type": "missing_active",
-      "key": "missing_active|00-0036924|8",
+      "key": "missing_active|00-0037594|8",
       "severity": "warning",
-      "player": "Michael Carter",
-      "gsis_id": "00-0036924",
+      "player": "Julius Chestnut",
+      "gsis_id": "00-0037594",
       "pos": "RB",
       "team": "TEN",
       "sheet": "primary",
       "week": 8,
-      "message": "Michael Carter (RB, TEN) is on the active roster but has no row on the sheet (OurLads KR #3; promoted from the practice squad 2026-09-30)",
+      "message": "Julius Chestnut (RB, TEN) is on the active roster but has no row on the sheet (OurLads KR #2)",
       "evidence": {
-        "ourlads_depth": 3,
+        "ourlads_depth": 2,
         "ourlads_pos": "KR",
         "ourlads_stale": false,
         "nflverse_status": "ACT",
@@ -1220,12 +1219,12 @@
       "team": "LV",
       "sheet": "primary",
       "week": 8,
-      "message": "Jack Bech (WR, LV) on IR - designated to return 2026-10-26 - first eligible Week 7",
+      "message": "Jack Bech (WR, LV) on IR - designated to return 2026-10-26 - first eligible Week 7 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 7,
         "designated_return_date": "2026-10-26",
-        "on_sheet": false
+        "on_sheet": true
       }
     },
     {
@@ -1277,14 +1276,14 @@
       "team": "NE",
       "sheet": "primary",
       "week": 8,
-      "message": "A.J. Brown (WR, NE) did not practice on the latest report (Ankle / Knee); projected 14.5 PPR",
+      "message": "A.J. Brown (WR, NE) did not practice on the latest report (Ankle / Knee); projected 13.9 PPR",
       "evidence": {
         "practice": {
           "2026-10-28": "LP",
           "2026-10-29": "DNP"
         },
         "injury": "Ankle / Knee",
-        "ppr": 14.5
+        "ppr": 13.9
       }
     },
     {
@@ -1433,14 +1432,14 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 8,
-      "message": "Saquon Barkley (RB, PHI) did not practice on the latest report (Hamstring/Back); projected 9.0 PPR",
+      "message": "Saquon Barkley (RB, PHI) did not practice on the latest report (Hamstring/Back); projected 10.4 PPR",
       "evidence": {
         "practice": {
           "2026-10-28": "DNP",
           "2026-10-29": "DNP"
         },
         "injury": "Hamstring/Back",
-        "ppr": 9.0
+        "ppr": 10.4
       }
     },
     {
@@ -1494,12 +1493,12 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 8,
-      "message": "Jadarian Price (RB, SEA) on IR - designated to return 2026-10-26 - first eligible Week 8",
+      "message": "Jadarian Price (RB, SEA) on IR - designated to return 2026-10-26 - first eligible Week 8 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 8,
         "designated_return_date": "2026-10-26",
-        "on_sheet": false
+        "on_sheet": true
       }
     },
     {
@@ -1536,6 +1535,26 @@
       "message": "Robert Henry Jr. (RB, SEA) is on the active roster but has no row on the sheet (OurLads RB #5; promoted from the practice squad 2026-10-07)",
       "evidence": {
         "ourlads_depth": 5,
+        "ourlads_pos": "RB",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "RB",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0037745|8",
+      "severity": "info",
+      "player": "Velus Jones Jr.",
+      "gsis_id": "00-0037745",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Velus Jones Jr. (RB, SEA) is on the active roster but has no row on the sheet (OurLads RB #4; elevated 2026-10-16)",
+      "evidence": {
+        "ourlads_depth": 4,
         "ourlads_pos": "RB",
         "ourlads_stale": false,
         "nflverse_status": "ACT",
@@ -1600,26 +1619,6 @@
         "earliest_return_week": 8,
         "designated_return_date": null,
         "on_sheet": true
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0041438|8",
-      "severity": "info",
-      "player": "Carnell Tate",
-      "gsis_id": "00-0041438",
-      "pos": "WR",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 8,
-      "message": "Carnell Tate (WR, TEN) did not practice on the latest report (Shoulder); projected 13.5 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-28": "DNP",
-          "2026-10-29": "DNP"
-        },
-        "injury": "Shoulder",
-        "ppr": 13.5
       }
     },
     {
@@ -1718,6 +1717,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037585|8",
+      "severity": "info",
+      "player": "Timmy Horne",
+      "gsis_id": "00-0037585",
+      "pos": "DL",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Timmy Horne (DL, TEN) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-17",
+          "2026-10-24",
+          "2026-10-30"
+        ]
+      }
+    },
+    {
       "type": "dnp_but_projected",
       "key": "dnp_but_projected|00-0039032|8",
       "severity": "info",
@@ -1727,14 +1746,14 @@
       "team": "TEN",
       "sheet": "primary",
       "week": 8,
-      "message": "Tyjae Spears (RB, TEN) did not practice on the latest report (Knee); projected 6.0 PPR",
+      "message": "Tyjae Spears (RB, TEN) did not practice on the latest report (Knee); projected 1.3 PPR",
       "evidence": {
         "practice": {
           "2026-10-28": "DNP",
           "2026-10-29": "DNP"
         },
         "injury": "Knee",
-        "ppr": 6.0
+        "ppr": 1.3
       }
     },
     {
@@ -1805,14 +1824,14 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 8,
-      "message": "Treylon Burks (WR, WAS) did not practice on the latest report (Foot); projected 5.9 PPR",
+      "message": "Treylon Burks (WR, WAS) did not practice on the latest report (Foot); projected 6.0 PPR",
       "evidence": {
         "practice": {
           "2026-10-28": "LP",
           "2026-10-29": "DNP"
         },
         "injury": "Foot",
-        "ppr": 5.9
+        "ppr": 6.0
       }
     }
   ],
@@ -1820,13 +1839,13 @@
   "errors": [],
   "counts": {
     "status_conflict": 1,
-    "sheet_line_stale": 1,
+    "sheet_line_stale": 2,
     "sheet_status_stale": 5,
-    "market_proj_gap": 2,
-    "missing_active": 2,
+    "market_proj_gap": 1,
+    "missing_active": 3,
     "ir_return_window": 38,
-    "elevation_limit": 20,
+    "elevation_limit": 21,
     "unconfirmed_report": 17,
-    "dnp_but_projected": 7
+    "dnp_but_projected": 6
   }
 }
