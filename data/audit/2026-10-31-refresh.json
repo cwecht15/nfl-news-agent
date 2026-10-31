@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 8,
   "sheet": "primary",
-  "generated_at": "2026-10-31T18:10:34+00:00",
+  "generated_at": "2026-10-31T23:44:00+00:00",
   "inputs": {
     "snapshot_date": "2026-10-31",
     "nflverse_date": "2026-10-31",
     "injury_week_updated": "2026-10-31T16:09:23+00:00",
-    "roster_state_updated": "2026-10-31T18:10:33+00:00"
+    "roster_state_updated": "2026-10-31T23:43:59+00:00"
   },
   "alerts": [
     {
@@ -33,6 +33,60 @@
       }
     },
     {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0036510|8",
+      "severity": "warning",
+      "player": "Kenny Yeboah",
+      "gsis_id": "00-0036510",
+      "pos": "TE",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Kenny Yeboah (TE, ARZ) was elevated from the practice squad (2026-10-31) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-31"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0041131|8",
+      "severity": "warning",
+      "player": "Carsen Ryan",
+      "gsis_id": "00-0041131",
+      "pos": "TE",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Carsen Ryan (TE, CLV) was elevated from the practice squad (2026-10-31) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-31"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0037282|8",
+      "severity": "warning",
+      "player": "James Mitchell",
+      "gsis_id": "00-0037282",
+      "pos": "TE",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 8,
+      "message": "James Mitchell (TE, DAL) was elevated from the practice squad (2026-10-31) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-31"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|GB|8|CAR@GB",
       "severity": "warning",
@@ -42,7 +96,7 @@
       "team": "GB",
       "sheet": "primary",
       "week": 8,
-      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-31 11:59:16-04:00)",
+      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-31 19:09:16-04:00)",
       "evidence": {
         "game": "CAR@GB",
         "fp_flag": "FP-BOTH",
@@ -70,6 +124,24 @@
         "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0039750|8",
+      "severity": "warning",
+      "player": "Joshua Karty",
+      "gsis_id": "00-0039750",
+      "pos": "K",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 8,
+      "message": "Joshua Karty (K, LA) was elevated from the practice squad (2026-10-31) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-10-31"
+        ],
+        "elevations_used": 0
       }
     },
     {
@@ -257,7 +329,8 @@
         "elevation_dates": [
           "2026-10-10",
           "2026-10-17",
-          "2026-10-19"
+          "2026-10-19",
+          "2026-10-31"
         ]
       }
     },
@@ -1397,7 +1470,8 @@
           "2026-10-10",
           "2026-10-17",
           "2026-10-19",
-          "2026-10-24"
+          "2026-10-24",
+          "2026-10-31"
         ]
       }
     },
@@ -1677,6 +1751,7 @@
   "errors": [],
   "counts": {
     "status_conflict": 1,
+    "elevated_not_projected": 4,
     "sheet_line_stale": 1,
     "sheet_status_stale": 5,
     "market_proj_gap": 1,
