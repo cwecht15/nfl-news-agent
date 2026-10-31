@@ -4,35 +4,14 @@
   "season": 2026,
   "week": 8,
   "sheet": "primary",
-  "generated_at": "2026-10-31T00:06:59+00:00",
+  "generated_at": "2026-10-31T01:37:58+00:00",
   "inputs": {
     "snapshot_date": "2026-10-30",
     "nflverse_date": "2026-10-30",
-    "injury_week_updated": "2026-10-31T00:06:59+00:00",
-    "roster_state_updated": "2026-10-30T20:35:49+00:00"
+    "injury_week_updated": "2026-10-31T01:37:58+00:00",
+    "roster_state_updated": "2026-10-31T01:05:30+00:00"
   },
   "alerts": [
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0040730|8|OUT",
-      "severity": "error",
-      "player": "RJ Harvey",
-      "gsis_id": "00-0040730",
-      "pos": "RB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 8,
-      "message": "RJ Harvey (RB, DEN) is OUT (Knee) but projected for 7.6 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Knee",
-        "practice": {
-          "2026-10-29": "LP",
-          "2026-10-30": "DNP"
-        },
-        "ppr": 7.6
-      }
-    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040729|8",
@@ -43,36 +22,14 @@
       "team": "LV",
       "sheet": "primary",
       "week": 8,
-      "message": "Jack Bech (WR, LV) is marked IR on the sheet but still projected (2.9 PPR); roster status is IR",
+      "message": "Jack Bech (WR, LV) is marked IR on the sheet but still projected (3.0 PPR); roster status is IR",
       "evidence": {
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "IR",
-        "ppr": 2.9,
+        "ppr": 3.0,
         "slot": 2,
         "earliest_return_week": 7
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0039032|8|OUT",
-      "severity": "error",
-      "player": "Tyjae Spears",
-      "gsis_id": "00-0039032",
-      "pos": "RB",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 8,
-      "message": "Tyjae Spears (RB, TEN) is OUT (Knee) but projected for 1.3 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Knee",
-        "practice": {
-          "2026-10-28": "DNP",
-          "2026-10-29": "DNP",
-          "2026-10-30": "DNP"
-        },
-        "ppr": 1.3
       }
     },
     {
@@ -85,7 +42,7 @@
       "team": "GB",
       "sheet": "primary",
       "week": 8,
-      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-30 20:06:49-04:00)",
+      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-30 21:37:48-04:00)",
       "evidence": {
         "game": "CAR@GB",
         "fp_flag": "FP-BOTH",
@@ -1679,26 +1636,6 @@
     },
     {
       "type": "elevation_limit",
-      "key": "elevation_limit|00-0037585|8",
-      "severity": "info",
-      "player": "Timmy Horne",
-      "gsis_id": "00-0037585",
-      "pos": "DL",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 8,
-      "message": "Timmy Horne (DL, TEN) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-10-17",
-          "2026-10-24",
-          "2026-10-30"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
       "key": "elevation_limit|00-0040318|8",
       "severity": "info",
       "player": "Ale Kaho",
@@ -1739,14 +1676,13 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "out_but_projected": 2,
     "status_conflict": 1,
     "sheet_line_stale": 1,
     "sheet_status_stale": 5,
     "market_proj_gap": 1,
     "missing_active": 3,
     "ir_return_window": 38,
-    "elevation_limit": 21,
+    "elevation_limit": 20,
     "unconfirmed_report": 17
   }
 }
