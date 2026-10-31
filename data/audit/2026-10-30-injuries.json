@@ -4,14 +4,35 @@
   "season": 2026,
   "week": 8,
   "sheet": "primary",
-  "generated_at": "2026-10-30T21:16:32+00:00",
+  "generated_at": "2026-10-31T00:06:59+00:00",
   "inputs": {
     "snapshot_date": "2026-10-30",
     "nflverse_date": "2026-10-30",
-    "injury_week_updated": "2026-10-30T21:16:32+00:00",
+    "injury_week_updated": "2026-10-31T00:06:59+00:00",
     "roster_state_updated": "2026-10-30T20:35:49+00:00"
   },
   "alerts": [
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040730|8|OUT",
+      "severity": "error",
+      "player": "RJ Harvey",
+      "gsis_id": "00-0040730",
+      "pos": "RB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 8,
+      "message": "RJ Harvey (RB, DEN) is OUT (Knee) but projected for 7.6 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Knee",
+        "practice": {
+          "2026-10-29": "LP",
+          "2026-10-30": "DNP"
+        },
+        "ppr": 7.6
+      }
+    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040729|8",
@@ -64,7 +85,7 @@
       "team": "GB",
       "sheet": "primary",
       "week": 8,
-      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-30 17:16:22-04:00)",
+      "message": "CAR@GB: the sheet has -3.5 / 47.0, the market -8.5 / 49.5 (FP-BOTH) (odds pulled 2026-10-30 20:06:49-04:00)",
       "evidence": {
         "game": "CAR@GB",
         "fp_flag": "FP-BOTH",
@@ -158,7 +179,7 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 8,
-      "message": "Emanuel Wilson (RB, SEA) Anytime TD rate: we project 0.40, the market implies 0.76 (odds pulled 2026-10-30 10:03-04:00)",
+      "message": "Emanuel Wilson (RB, SEA) Anytime TD rate: we project 0.40, the market implies 0.76 (odds pulled 2026-10-30 16:11-04:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -619,26 +640,6 @@
           "2026-10-03",
           "2026-10-08"
         ]
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040730|8",
-      "severity": "info",
-      "player": "RJ Harvey",
-      "gsis_id": "00-0040730",
-      "pos": "RB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 8,
-      "message": "RJ Harvey (RB, DEN) did not practice on the latest report (Knee); projected 7.6 PPR",
-      "evidence": {
-        "practice": {
-          "2026-10-29": "LP",
-          "2026-10-30": "DNP"
-        },
-        "injury": "Knee",
-        "ppr": 7.6
       }
     },
     {
@@ -1738,15 +1739,14 @@
   "dismissed": [],
   "errors": [],
   "counts": {
+    "out_but_projected": 2,
     "status_conflict": 1,
-    "out_but_projected": 1,
     "sheet_line_stale": 1,
     "sheet_status_stale": 5,
     "market_proj_gap": 1,
     "missing_active": 3,
     "ir_return_window": 38,
     "elevation_limit": 21,
-    "unconfirmed_report": 17,
-    "dnp_but_projected": 1
+    "unconfirmed_report": 17
   }
 }
