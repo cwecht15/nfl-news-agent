@@ -1,23 +1,19 @@
-2026-11-01 16:52:04,481 [INFO] afternoon: ============================================================
-2026-11-01 16:52:04,481 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-11-01 (week 8, Sun)
-2026-11-01 16:52:04,481 [INFO] afternoon: ============================================================
-2026-11-01 16:52:05,503 [INFO] afternoon: Game lines via API: 9 credits, 99431 remaining (13 games, 11 changes)
-2026-11-01 16:52:05,504 [INFO] afternoon: Step 2c: Reading market lines...
-2026-11-01 16:52:10,765 [INFO] afternoon: Market lines: week 8, 14 games, 1150 player-stats, 0 changes (none); odds pulled 2026-10-31T21:03-04:00; game lines via API 2026-11-01T11:52:04-05:00
-2026-11-01 16:52:10,995 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-31 is older than 2026-11-01 — refetching (attempt 1/3)
-2026-11-01 16:52:14,024 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-10-31 is older than 2026-11-01 — refetching (attempt 2/3)
-2026-11-01 16:52:17,696 [INFO] collectors.espn_transactions_collector: ESPN elevations: 0 in the last 4 days (2 parsed from 100 rows, newest row 2026-10-31); practice-squad promotions: 4
-2026-11-01 16:52:17,696 [INFO] afternoon: Step 5f: no practice-squad elevations in the window.
-2026-11-01 16:52:17,696 [INFO] afternoon: Step 5f: 4 practice-squad promotions from ESPN (ARI, BUF, PHI, WAS)
-2026-11-01 16:52:18,343 [INFO] collectors.cbs_transactions_collector: CBS elevations: 33 not yet in ESPN (42 move rows since 2026-10-30, 472 rows on the page, newest 2026-10-31)
-2026-11-01 16:52:18,345 [INFO] afternoon: Step 5f: 33 more elevations from CBS, pending ESPN confirmation (ARI, ATL, BAL, BUF, CLE, DAL, DEN, IND, JAX, KC, LAC, LAR, LV, MIA, MIN, NE, NYJ, PHI, PIT, TEN, WAS)
-2026-11-01 16:52:18,500 [INFO] processing.roster_events: Saved roster state: 3100 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
-2026-11-01 16:52:18,531 [INFO] processing.roster_events: Roster step 2026-11-01: {"nflverse_transitions": 8, "nflverse_events": 8, "espn_elevations": 37, "appended": 0, "ledger": 3973, "confirmed_new": 0}
-2026-11-01 16:52:18,535 [INFO] afternoon: Elevations merged into the ledger: 0 new events
-2026-11-01 16:52:18,536 [INFO] afternoon: Step 5e: Checking game-day inactives...
-2026-11-01 16:52:18,882 [INFO] collectors.inactives_collector: Inactives week 8: 8 games polled, 0 teams published, 0 changed
-2026-11-01 16:52:18,886 [INFO] afternoon: Inactives: week 8, 8 games polled, 0 teams published, 0 newly published/changed
-2026-11-01 16:52:18,891 [INFO] afternoon: Step 5d: Auditing weekly projections...
-2026-11-01 16:52:19,090 [INFO] afternoon: Projection audit: 95 open alerts (error=2, info=75, warning=18), 0 dismissed
-2026-11-01 16:52:19,104 [WARNING] afternoon: No report for 2026-11-01 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-11-01 to produce the morning report.
-2026-11-01 16:52:19,104 [INFO] afternoon: Game-day inactives run complete.
+2026-11-01 16:53:20,188 [INFO] afternoon: ============================================================
+2026-11-01 16:53:20,189 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-11-01 (week 8, Sun)
+2026-11-01 16:53:20,189 [INFO] afternoon: ============================================================
+2026-11-01 16:53:20,932 [INFO] afternoon: Game lines via API: 9 credits, 99422 remaining (13 games, 11 changes)
+2026-11-01 16:53:20,932 [INFO] afternoon: Step 2c: Reading market lines...
+2026-11-01 16:53:28,504 [INFO] afternoon: Market lines: week 8, 14 games, 1150 player-stats, 0 changes (none); odds pulled 2026-10-31T21:07-04:00; game lines via API 2026-11-01T11:53:20-05:00
+2026-11-01 16:53:28,517 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-11-01 16:53:30,220 [INFO] collectors.injury_report_collector: Team-site injury reports: 28 with a table, 4 not posted, 0 mismatched, 0 failed; 611 rows
+2026-11-01 16:53:30,668 [INFO] collectors.injury_report_collector: RotoWire practice report: 320 rows
+2026-11-01 16:53:30,836 [INFO] collectors.injury_report_collector: NFL.com injuries: week 8, 320 rows (practice status dated 2026-10-31)
+2026-11-01 16:53:30,837 [INFO] collectors.injury_report_collector: rotowire: dropped rows for FA — no game this week
+2026-11-01 16:53:30,840 [INFO] collectors.injury_report_collector: Injury report: 6 source conflicts
+2026-11-01 16:53:30,845 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk08.json (28 teams)
+2026-11-01 16:53:30,846 [INFO] collectors.injury_report_collector: Injury report week 8: 328 players, 0 changes
+2026-11-01 16:53:30,853 [INFO] afternoon: Injury report: week 8, 328 rows (nflcom=320, rotowire=319, team_site=308), 0 changes, 6 conflicts, team sites with a table: 28
+2026-11-01 16:53:30,853 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-11-01 16:53:30,995 [INFO] afternoon: Projection audit: 95 open alerts (error=2, info=75, warning=18), 0 dismissed
+2026-11-01 16:53:31,003 [WARNING] afternoon: No report for 2026-11-01 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-11-01 to produce the morning report.
+2026-11-01 16:53:31,003 [INFO] afternoon: Injury report refresh complete.
