@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-04T22:46:27+00:00",
+  "generated_at": "2026-11-04T23:31:17+00:00",
   "inputs": {
     "snapshot_date": "2026-11-04",
     "nflverse_date": "2026-11-04",
-    "injury_week_updated": "2026-11-04T22:11:36+00:00",
-    "roster_state_updated": "2026-11-04T22:46:27+00:00"
+    "injury_week_updated": "2026-11-04T23:27:24+00:00",
+    "roster_state_updated": "2026-11-04T23:31:16+00:00"
   },
   "alerts": [
     {
@@ -27,6 +27,26 @@
         "sheet_team": "CLV",
         "roster_team": "NO",
         "status_source": "official"
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0035891|9",
+      "severity": "error",
+      "player": "Cody White",
+      "gsis_id": "00-0035891",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cody White (WR, LV) is projected Active (0.7 PPR) but roster status is FA (since 2026-11-04)",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.7,
+        "slot": 4,
+        "earliest_return_week": null
       }
     },
     {
@@ -117,6 +137,24 @@
         "status_source": "ourlads",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035039|9",
+      "severity": "warning",
+      "player": "Stephen Carlson",
+      "gsis_id": "00-0035039",
+      "pos": "TE",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Stephen Carlson (TE, CHI) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.9
       }
     },
     {
@@ -323,10 +361,10 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Alex Bachman (WR, LA) sheet Status is ACTIVE but roster says FA",
+      "message": "Alex Bachman (WR, LA) sheet Status is ACTIVE but roster says PS",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "news",
+        "roster_status": "PS",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -406,7 +444,7 @@
       "message": "DeeJay Dallas (RB, MIN) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 1.4
       }
@@ -1802,6 +1840,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040537|9",
+      "severity": "info",
+      "player": "Elliott Davison",
+      "gsis_id": "00-0040537",
+      "pos": "DB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Elliott Davison (DB, NE) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0033555|9",
       "severity": "info",
@@ -2244,12 +2302,13 @@
   "errors": [],
   "counts": {
     "wrong_team": 1,
-    "sheet_status_stale": 23,
+    "status_conflict": 1,
+    "sheet_status_stale": 24,
     "market_proj_gap": 11,
     "missing_active": 3,
     "sheet_line_stale": 1,
     "ir_return_window": 40,
-    "elevation_limit": 17,
+    "elevation_limit": 18,
     "unconfirmed_report": 18,
     "market_only_player": 1
   }
