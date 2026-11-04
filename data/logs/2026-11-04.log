@@ -315,3 +315,53 @@
 2026-11-04 18:35:33,112 [INFO] orchestrator: HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-04.html
 2026-11-04 18:35:33,112 [INFO] orchestrator: Stats: 450 news items, 32 team highlights
 2026-11-04 18:35:33,112 [INFO] orchestrator: ============================================================
+2026-11-04 20:43:28,541 [INFO] afternoon: ============================================================
+2026-11-04 20:43:28,542 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-11-04 (week 9, Wed)
+2026-11-04 20:43:28,542 [INFO] afternoon: ============================================================
+2026-11-04 20:43:28,569 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/11
+2026-11-04 20:43:28,747 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/11
+2026-11-04 20:43:28,894 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/11
+2026-11-04 20:43:28,944 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/11
+2026-11-04 20:43:28,998 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/11
+2026-11-04 20:43:29,040 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/11
+2026-11-04 20:43:29,094 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/10
+2026-11-04 20:43:29,143 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/10
+2026-11-04 20:43:29,198 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/10
+2026-11-04 20:43:29,261 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/10
+2026-11-04 20:43:29,337 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/10
+2026-11-04 20:43:29,397 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/10
+2026-11-04 20:43:29,442 [INFO] collectors.web_scraper: Found 43 transactions.
+2026-11-04 20:43:29,445 [INFO] afternoon: PM transactions: 43 rows -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-11-04/web_pm.json
+2026-11-04 20:43:29,446 [INFO] afternoon: Step 2c: Reading market lines...
+2026-11-04 20:43:34,552 [INFO] afternoon: Market lines: week 9, 15 games, 867 player-stats, 14 changes (market_only=3, ml_move=2, prop_move=5, spread_move=3, total_move=1); odds pulled 2026-11-04T15:21-05:00
+2026-11-04 20:43:34,654 [INFO] collectors.espn_transactions_collector: ESPN elevations: 0 in the last 4 days (2 parsed from 100 rows, newest row 2026-11-04); practice-squad promotions: 7
+2026-11-04 20:43:34,654 [INFO] afternoon: Step 5f: no practice-squad elevations in the window.
+2026-11-04 20:43:34,654 [INFO] afternoon: Step 5f: 7 practice-squad promotions from ESPN (ARI, BAL, BUF, CLE, LAR, NYJ, WAS)
+2026-11-04 20:43:35,241 [INFO] collectors.cbs_transactions_collector: CBS elevations: 3 not yet in ESPN (11 move rows since 2026-11-02, 471 rows on the page, newest 2026-11-04)
+2026-11-04 20:43:35,243 [INFO] afternoon: Step 5f: 3 more elevations from CBS, pending ESPN confirmation (CHI, SEA)
+2026-11-04 20:43:35,243 [INFO] afternoon: Step 5b: Updating roster events/state...
+2026-11-04 20:43:35,285 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
+2026-11-04 20:43:35,509 [INFO] collectors.nflverse_roster_collector: nflverse roster: 3063 rows (981620 bytes)
+2026-11-04 20:43:35,517 [WARNING] collectors.nflverse_roster_collector: nflverse: unknown reserve abbr 'A01' (status RES) — treating as IR
+2026-11-04 20:43:35,528 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 1 rows without gsis_id skipped, 0 duplicate gsis rows
+2026-11-04 20:43:35,552 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 3062 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-11-04.json
+2026-11-04 20:43:35,627 [INFO] processing.roster_events: Roster ledger: 2 reported events confirmed
+2026-11-04 20:43:35,695 [INFO] processing.roster_events: Saved roster state: 3105 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-11-04 20:43:35,727 [INFO] processing.roster_events: Roster step 2026-11-04: {"nflverse_transitions": 0, "nflverse_events": 0, "nflcom_events": 43, "news_events": 0, "espn_elevations": 10, "appended": 2, "ledger": 4156, "confirmed_new": 0}
+2026-11-04 20:43:35,730 [INFO] afternoon: Roster events: 2 new (appended=2, confirmed_new=0, espn_elevations=10, ledger=4156, news_events=0, nflcom_events=43, nflverse_events=0, nflverse_transitions=0, status={'ACT': 1727, 'EXE': 2, 'FA': 442, 'IR': 317, 'NFI': 5, 'PS': 551, 'PUP': 19, 'RET': 23, 'SUS': 2, 'UNKNOWN': 17}); state covers 3105 players
+2026-11-04 20:43:35,730 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-11-04 20:43:38,102 [INFO] collectors.injury_report_collector: Team-site injury reports: 4 with a table, 28 not posted, 0 mismatched, 0 failed; 72 rows
+2026-11-04 20:43:38,517 [INFO] collectors.injury_report_collector: RotoWire practice report: 50 rows
+2026-11-04 20:43:38,636 [INFO] collectors.injury_report_collector: NFL.com injuries: week 9, 28 rows (practice status dated 2026-11-04)
+2026-11-04 20:43:38,639 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk09.json (5 teams)
+2026-11-04 20:43:38,640 [INFO] collectors.injury_report_collector: Injury report week 9: 51 players, 16 changes
+2026-11-04 20:43:38,646 [INFO] afternoon: Injury report: week 9, 51 rows (nflcom=28, rotowire=50, team_site=36), 16 changes, 0 conflicts, team sites with a table: 4
+2026-11-04 20:43:38,647 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-11-04 20:43:38,770 [INFO] collectors.inactives_collector: Inactives week 9: 0 games polled, 0 teams published, 0 changed
+2026-11-04 20:43:38,772 [INFO] afternoon: Inactives: week 9, 0 games polled, 0 teams published, 0 newly published/changed
+2026-11-04 20:43:38,772 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-11-04 20:43:38,997 [INFO] afternoon: Projection audit: 114 open alerts (error=1, info=77, warning=36), 0 dismissed
+2026-11-04 20:43:39,068 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-04.json
+2026-11-04 20:43:39,071 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-04.html
+2026-11-04 20:43:39,071 [INFO] afternoon: Report 2026-11-04 updated in place (pm_updated_at=2026-11-04T20:43:39+00:00)
+2026-11-04 20:43:39,071 [INFO] afternoon: Refresh complete (elevations, inactives, injuries, odds, roster, transactions).
