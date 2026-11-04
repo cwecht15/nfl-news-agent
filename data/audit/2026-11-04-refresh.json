@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-04T20:43:38+00:00",
+  "generated_at": "2026-11-04T23:27:24+00:00",
   "inputs": {
     "snapshot_date": "2026-11-04",
     "nflverse_date": "2026-11-04",
-    "injury_week_updated": "2026-11-04T20:43:38+00:00",
-    "roster_state_updated": "2026-11-04T20:43:35+00:00"
+    "injury_week_updated": "2026-11-04T23:27:24+00:00",
+    "roster_state_updated": "2026-11-04T23:27:20+00:00"
   },
   "alerts": [
     {
@@ -27,6 +27,26 @@
         "sheet_team": "CLV",
         "roster_team": "NO",
         "status_source": "official"
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0035891|9",
+      "severity": "error",
+      "player": "Cody White",
+      "gsis_id": "00-0035891",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cody White (WR, LV) is projected Active (0.7 PPR) but roster status is FA (since 2026-11-04)",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.7,
+        "slot": 4,
+        "earliest_return_week": null
       }
     },
     {
@@ -120,6 +140,24 @@
       }
     },
     {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035039|9",
+      "severity": "warning",
+      "player": "Stephen Carlson",
+      "gsis_id": "00-0035039",
+      "pos": "TE",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Stephen Carlson (TE, CHI) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.9
+      }
+    },
+    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0038597|9|receptions",
       "severity": "warning",
@@ -129,7 +167,7 @@
       "team": "CIN",
       "sheet": "primary",
       "week": 9,
-      "message": "Chase Brown (RB, CIN) Rec: we project 5.4, the market implies 3.8 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Chase Brown (RB, CIN) Rec: we project 5.4, the market implies 3.8 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "receptions",
         "stats": [
@@ -188,7 +226,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 9,
-      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -229,7 +267,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 9,
-      "message": "Woody Marks (RB, HST) Rush Att: we project 10.3, the market implies 17.6 (also Rush+Rec Yds, Rush Yds) (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Woody Marks (RB, HST) Rush Att: we project 10.3, the market implies 17.6 (also Rush+Rec Yds, Rush Yds) (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "rush_att",
         "stats": [
@@ -254,7 +292,7 @@
       "team": "IND",
       "sheet": "primary",
       "week": 9,
-      "message": "DJ Giddens (RB, IND) Anytime TD rate: we project 0.03, the market implies 0.36 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "DJ Giddens (RB, IND) Anytime TD rate: we project 0.03, the market implies 0.36 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -277,7 +315,7 @@
       "team": "IND",
       "sheet": "primary",
       "week": 9,
-      "message": "Seth McGowan (RB, IND) Anytime TD rate: we project 0.21, the market implies 0.59 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Seth McGowan (RB, IND) Anytime TD rate: we project 0.21, the market implies 0.59 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -300,7 +338,7 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 9,
-      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.65 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.65 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -323,10 +361,10 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Alex Bachman (WR, LA) sheet Status is ACTIVE but roster says FA",
+      "message": "Alex Bachman (WR, LA) sheet Status is ACTIVE but roster says PS",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "news",
+        "roster_status": "PS",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -341,7 +379,7 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Blake Corum (RB, LA) Anytime TD rate: we project 0.30, the market implies 0.63 (also Rush Yds) (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Blake Corum (RB, LA) Anytime TD rate: we project 0.30, the market implies 0.63 (also Rush Yds) (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -406,7 +444,7 @@
       "message": "DeeJay Dallas (RB, MIN) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "nflverse",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 1.4
       }
@@ -475,7 +513,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 9,
-      "message": "Devin Singletary (RB, NYG) Anytime TD rate: we project 0.20, the market implies 0.53 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Devin Singletary (RB, NYG) Anytime TD rate: we project 0.20, the market implies 0.53 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -570,7 +608,7 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 9,
-      "message": "Saquon Barkley (RB, PHI) Rush Yds: we project 50.6, the market implies 66.8 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Saquon Barkley (RB, PHI) Rush Yds: we project 50.6, the market implies 66.8 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -620,6 +658,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|SEA|9|ARI@SEA",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "ARI@SEA: the sheet has -12.0 / 41.5, the market -8.5 / 39.5 (FP-BOTH) (odds pulled 2026-11-04 17:46:20-05:00)",
+      "evidence": {
+        "game": "ARI@SEA",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": -12.0,
+        "sheet_ou": 41.5,
+        "market_spread": -8.5,
+        "market_total": 39.5,
+        "spread_delta": 3.5,
+        "total_delta": -2.0
+      }
+    },
+    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0035704|9|ints",
       "severity": "warning",
@@ -629,7 +689,7 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 9,
-      "message": "Drew Lock (QB, SEA) INT: we project 1.00, the market implies 0.61 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Drew Lock (QB, SEA) INT: we project 1.00, the market implies 0.61 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -652,7 +712,7 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 9,
-      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -1780,6 +1840,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040537|9",
+      "severity": "info",
+      "player": "Elliott Davison",
+      "gsis_id": "00-0040537",
+      "pos": "DB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Elliott Davison (DB, NE) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0033555|9",
       "severity": "info",
@@ -1882,7 +1962,7 @@
       "team": "NO",
       "sheet": "primary",
       "week": 9,
-      "message": "Jordyn Tyson (WR, NO) is quoted by the market (Anytime TD rate 0.36) but has no row on the sheet (odds pulled 2026-11-04 15:21-05:00)",
+      "message": "Jordyn Tyson (WR, NO) is quoted by the market (Anytime TD rate 0.36) but has no row on the sheet (odds pulled 2026-11-04 15:14-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "market_mean": 0.3592885081,
@@ -2222,11 +2302,13 @@
   "errors": [],
   "counts": {
     "wrong_team": 1,
-    "sheet_status_stale": 23,
+    "status_conflict": 1,
+    "sheet_status_stale": 24,
     "market_proj_gap": 11,
     "missing_active": 3,
+    "sheet_line_stale": 1,
     "ir_return_window": 40,
-    "elevation_limit": 17,
+    "elevation_limit": 18,
     "unconfirmed_report": 18,
     "market_only_player": 1
   }
