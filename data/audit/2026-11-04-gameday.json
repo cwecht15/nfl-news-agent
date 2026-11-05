@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-05T00:16:40+00:00",
+  "generated_at": "2026-11-05T03:47:26+00:00",
   "inputs": {
     "snapshot_date": "2026-11-04",
     "nflverse_date": "2026-11-04",
-    "injury_week_updated": "2026-11-04T23:27:24+00:00",
-    "roster_state_updated": "2026-11-05T00:16:39+00:00"
+    "injury_week_updated": "2026-11-05T01:48:03+00:00",
+    "roster_state_updated": "2026-11-05T03:47:25+00:00"
   },
   "alerts": [
     {
@@ -123,19 +123,19 @@
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0035993|9",
+      "key": "sheet_status_stale|00-0034796|9",
       "severity": "warning",
-      "player": "Tyler Huntley",
-      "gsis_id": "00-0035993",
+      "player": "Lamar Jackson",
+      "gsis_id": "00-0034796",
       "pos": "QB",
       "team": "BLT",
       "sheet": "primary",
       "week": 9,
-      "message": "Tyler Huntley (QB, BLT) sheet Status is ACTIVE but roster says IR",
+      "message": "Lamar Jackson (QB, BLT) sheet Status is IR but roster says ACT - activated",
       "evidence": {
-        "roster_status": "IR",
-        "status_source": "ourlads",
-        "sheet_status": "ACTIVE",
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
         "ppr": 0.0
       }
     },
@@ -159,24 +159,24 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0038597|9|receptions",
+      "key": "market_proj_gap|00-0040668|9|ints",
       "severity": "warning",
-      "player": "Chase Brown",
-      "gsis_id": "00-0038597",
-      "pos": "RB",
-      "team": "CIN",
+      "player": "Shedeur Sanders",
+      "gsis_id": "00-0040668",
+      "pos": "QB",
+      "team": "CLV",
       "sheet": "primary",
       "week": 9,
-      "message": "Chase Brown (RB, CIN) Rec: we project 5.4, the market implies 3.8 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Shedeur Sanders (QB, CLV) INT: we project 1.20, the market implies 0.65 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
-        "stat": "receptions",
+        "stat": "ints",
         "stats": [
-          "receptions"
+          "ints"
         ],
-        "ours": 5.4,
-        "market_mean": 3.77927903,
-        "delta": -1.62072097,
-        "pct": -0.3001335129,
+        "ours": 1.2,
+        "market_mean": 0.6500876911,
+        "delta": -0.5499123089,
+        "pct": -0.4582602574,
         "flag": "RED"
       }
     },
@@ -218,6 +218,29 @@
     },
     {
       "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0035700|9|receptions",
+      "severity": "warning",
+      "player": "Josh Jacobs",
+      "gsis_id": "00-0035700",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Josh Jacobs (RB, GB) Rec: we project 2.7, the market implies 3.9 (odds pulled 2026-11-04 22:23-05:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "receptions"
+        ],
+        "ours": 2.7,
+        "market_mean": 3.912231266,
+        "delta": 1.212231266,
+        "pct": 0.4489745429,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
       "key": "market_proj_gap|00-0035685|9|anytime_td",
       "severity": "warning",
       "player": "David Montgomery",
@@ -226,7 +249,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 9,
-      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -267,7 +290,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 9,
-      "message": "Woody Marks (RB, HST) Rush Att: we project 10.3, the market implies 17.6 (also Rush+Rec Yds, Rush Yds) (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Woody Marks (RB, HST) Rush Att: we project 10.3, the market implies 17.6 (also Rush+Rec Yds, Rush Yds) (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "rush_att",
         "stats": [
@@ -276,9 +299,9 @@
           "rush_yds"
         ],
         "ours": 10.3,
-        "market_mean": 17.59249645,
-        "delta": 7.292496447,
-        "pct": 0.7080093638,
+        "market_mean": 17.62357326,
+        "delta": 7.323573259,
+        "pct": 0.71102653,
         "flag": "RED"
       }
     },
@@ -292,16 +315,16 @@
       "team": "IND",
       "sheet": "primary",
       "week": 9,
-      "message": "DJ Giddens (RB, IND) Anytime TD rate: we project 0.03, the market implies 0.36 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "DJ Giddens (RB, IND) Anytime TD rate: we project 0.03, the market implies 0.35 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
           "anytime_td"
         ],
         "ours": 0.03,
-        "market_mean": 0.3630386534,
-        "delta": 0.3330386534,
-        "pct": 11.10128845,
+        "market_mean": 0.3476941935,
+        "delta": 0.3176941935,
+        "pct": 10.58980645,
         "flag": "RED"
       }
     },
@@ -315,16 +338,16 @@
       "team": "IND",
       "sheet": "primary",
       "week": 9,
-      "message": "Seth McGowan (RB, IND) Anytime TD rate: we project 0.21, the market implies 0.59 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Seth McGowan (RB, IND) Anytime TD rate: we project 0.21, the market implies 0.61 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
           "anytime_td"
         ],
         "ours": 0.21,
-        "market_mean": 0.5933202203,
-        "delta": 0.3833202203,
-        "pct": 1.825334382,
+        "market_mean": 0.6118599874,
+        "delta": 0.4018599874,
+        "pct": 1.913618988,
         "flag": "RED"
       }
     },
@@ -338,16 +361,16 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 9,
-      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.65 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.66 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
           "anytime_td"
         ],
         "ours": 0.3,
-        "market_mean": 0.6524708958,
-        "delta": 0.3524708958,
-        "pct": 1.174902986,
+        "market_mean": 0.6553593094,
+        "delta": 0.3553593094,
+        "pct": 1.184531031,
         "flag": "RED"
       }
     },
@@ -379,17 +402,17 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Blake Corum (RB, LA) Anytime TD rate: we project 0.30, the market implies 0.63 (also Rush Yds) (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Blake Corum (RB, LA) Anytime TD rate: we project 0.28, the market implies 0.60 (also Rush Yds) (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
           "anytime_td",
           "rush_yds"
         ],
-        "ours": 0.3,
-        "market_mean": 0.6264319531,
-        "delta": 0.3264319531,
-        "pct": 1.08810651,
+        "ours": 0.28,
+        "market_mean": 0.5973362667,
+        "delta": 0.3173362667,
+        "pct": 1.133343809,
         "flag": "RED"
       }
     },
@@ -513,16 +536,16 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 9,
-      "message": "Devin Singletary (RB, NYG) Anytime TD rate: we project 0.20, the market implies 0.53 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Devin Singletary (RB, NYG) Anytime TD rate: we project 0.20, the market implies 0.56 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
           "anytime_td"
         ],
         "ours": 0.2,
-        "market_mean": 0.5344536337,
-        "delta": 0.3344536337,
-        "pct": 1.672268168,
+        "market_mean": 0.5562323635,
+        "delta": 0.3562323635,
+        "pct": 1.781161817,
         "flag": "RED"
       }
     },
@@ -577,7 +600,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 9.4
+        "ppr": 9.6
       }
     },
     {
@@ -595,7 +618,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 1.3
+        "ppr": 1.0
       }
     },
     {
@@ -608,16 +631,16 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 9,
-      "message": "Saquon Barkley (RB, PHI) Rush Yds: we project 50.6, the market implies 66.8 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Saquon Barkley (RB, PHI) Rush Yds: we project 50.6, the market implies 66.1 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
           "rush_yds"
         ],
         "ours": 50.6,
-        "market_mean": 66.80931322,
-        "delta": 16.20931322,
-        "pct": 0.3203421584,
+        "market_mean": 66.12099533,
+        "delta": 15.52099533,
+        "pct": 0.3067390381,
         "flag": "RED"
       }
     },
@@ -658,28 +681,6 @@
       }
     },
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|SEA|9|ARI@SEA",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 9,
-      "message": "ARI@SEA: the sheet has -12.0 / 41.5, the market -8.5 / 39.5 (FP-BOTH) (odds pulled 2026-11-04 19:16:33-05:00)",
-      "evidence": {
-        "game": "ARI@SEA",
-        "fp_flag": "FP-BOTH",
-        "sheet_spread": -12.0,
-        "sheet_ou": 41.5,
-        "market_spread": -8.5,
-        "market_total": 39.5,
-        "spread_delta": 3.5,
-        "total_delta": -2.0
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0035704|9|ints",
       "severity": "warning",
@@ -689,16 +690,16 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 9,
-      "message": "Drew Lock (QB, SEA) INT: we project 1.00, the market implies 0.61 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Drew Lock (QB, SEA) INT: we project 1.00, the market implies 0.63 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
           "ints"
         ],
         "ours": 1.0,
-        "market_mean": 0.6134126388,
-        "delta": -0.3865873612,
-        "pct": -0.3865873612,
+        "market_mean": 0.6311117896,
+        "delta": -0.3688882104,
+        "pct": -0.3688882104,
         "flag": "RED"
       }
     },
@@ -712,7 +713,7 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 9,
-      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -1962,10 +1963,10 @@
       "team": "NO",
       "sheet": "primary",
       "week": 9,
-      "message": "Jordyn Tyson (WR, NO) is quoted by the market (Anytime TD rate 0.36) but has no row on the sheet (odds pulled 2026-11-04 15:14-05:00)",
+      "message": "Jordyn Tyson (WR, NO) is quoted by the market (Anytime TD rate 0.35) but has no row on the sheet (odds pulled 2026-11-04 22:23-05:00)",
       "evidence": {
         "stat": "anytime_td",
-        "market_mean": 0.3592885081,
+        "market_mean": 0.352441727,
         "flag": "MKT-ONLY",
         "n_books": 3
       }
@@ -2304,9 +2305,8 @@
     "wrong_team": 1,
     "status_conflict": 1,
     "sheet_status_stale": 24,
-    "market_proj_gap": 11,
+    "market_proj_gap": 12,
     "missing_active": 3,
-    "sheet_line_stale": 1,
     "ir_return_window": 40,
     "elevation_limit": 18,
     "unconfirmed_report": 18,
