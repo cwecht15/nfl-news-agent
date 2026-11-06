@@ -4,14 +4,34 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-05T23:14:34+00:00",
+  "generated_at": "2026-11-06T01:32:51+00:00",
   "inputs": {
     "snapshot_date": "2026-11-05",
     "nflverse_date": "2026-11-05",
-    "injury_week_updated": "2026-11-05T23:14:34+00:00",
-    "roster_state_updated": "2026-11-05T20:16:45+00:00"
+    "injury_week_updated": "2026-11-06T01:32:51+00:00",
+    "roster_state_updated": "2026-11-06T00:56:47+00:00"
   },
   "alerts": [
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0039464|9",
+      "severity": "error",
+      "player": "Austin Reed",
+      "gsis_id": "00-0039464",
+      "pos": "QB",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Austin Reed (QB, BLT) is on the active roster but has no row on the sheet (OurLads QB #1; signed 2026-11-05; OurLads lists him as the starter)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "QB",
+        "status_abbr": "P01"
+      }
+    },
     {
       "type": "wrong_team",
       "key": "wrong_team|00-0039373|9|NO",
@@ -27,46 +47,6 @@
         "sheet_team": "CLV",
         "roster_team": "NO",
         "status_source": "nflverse"
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0035891|9",
-      "severity": "error",
-      "player": "Cody White",
-      "gsis_id": "00-0035891",
-      "pos": "WR",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Cody White (WR, LV) is projected Active (0.7 PPR) but roster status is FA (since 2026-11-04)",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.7,
-        "slot": 4,
-        "earliest_return_week": null
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0038998|9",
-      "severity": "error",
-      "player": "Jake Haener",
-      "gsis_id": "00-0038998",
-      "pos": "QB",
-      "team": "NYG",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Jake Haener (QB, NYG) is on the active roster but has no row on the sheet (OurLads QB #1; promoted from the practice squad 2026-10-08; OurLads lists him as the starter)",
-      "evidence": {
-        "ourlads_depth": 1,
-        "ourlads_pos": "QB",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "QB",
-        "status_abbr": "A01"
       }
     },
     {
@@ -106,20 +86,78 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0034796|9",
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|BLT|9|JAX@BAL",
       "severity": "warning",
-      "player": "Lamar Jackson",
-      "gsis_id": "00-0034796",
-      "pos": "QB",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
       "team": "BLT",
       "sheet": "primary",
       "week": 9,
-      "message": "Lamar Jackson (QB, BLT) sheet Status is IR but roster says ACT - activated",
+      "message": "JAX@BAL: the sheet has 10.0 / 39.5, the market 11.5 / 43.5 (FP-BOTH) (odds pulled 2026-11-05 20:32:41-05:00)",
       "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
+        "game": "JAX@BAL",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 10.0,
+        "sheet_ou": 39.5,
+        "market_spread": 11.5,
+        "market_total": 43.5,
+        "spread_delta": 1.5,
+        "total_delta": 4.0
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0038562|9",
+      "severity": "warning",
+      "player": "Jake Moody",
+      "gsis_id": "00-0038562",
+      "pos": "K",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jake Moody (K, BLT) was elevated from the practice squad (2026-11-05) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-11-05"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038440|9",
+      "severity": "warning",
+      "player": "Zavier Scott",
+      "gsis_id": "00-0038440",
+      "pos": "RB",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Zavier Scott (RB, CHI) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041131|9",
+      "severity": "warning",
+      "player": "Carsen Ryan",
+      "gsis_id": "00-0041131",
+      "pos": "TE",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Carsen Ryan (TE, CLV) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
@@ -133,7 +171,7 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 9,
-      "message": "Shedeur Sanders (QB, CLV) INT: we project 1.20, the market implies 0.65 (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Shedeur Sanders (QB, CLV) INT: we project 1.20, the market implies 0.65 (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -156,7 +194,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 9,
-      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -215,7 +253,7 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Blake Corum (RB, LA) Anytime TD rate: we project 0.29, the market implies 0.61 (also Rush Yds) (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Blake Corum (RB, LA) Anytime TD rate: we project 0.29, the market implies 0.61 (also Rush Yds) (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -248,6 +286,26 @@
       }
     },
     {
+      "type": "missing_active",
+      "key": "missing_active|00-0039750|9",
+      "severity": "warning",
+      "player": "Joshua Karty",
+      "gsis_id": "00-0039750",
+      "pos": "K",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Joshua Karty (K, LA) is on the active roster but has no row on the sheet (OurLads PK #1; signed 2026-11-05)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "PK",
+        "ourlads_stale": false,
+        "nflverse_status": "DEV",
+        "depth_chart_position": "K",
+        "status_abbr": "P06"
+      }
+    },
+    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|LAC|9|HOU@LAC",
       "severity": "warning",
@@ -257,7 +315,7 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 9,
-      "message": "HOU@LAC: the sheet has 4.5 / 40.5, the market 5.5 / 40.5 (FP-SPREAD) (odds pulled 2026-11-05 18:14:23-05:00)",
+      "message": "HOU@LAC: the sheet has 4.5 / 40.5, the market 5.5 / 40.5 (FP-SPREAD) (odds pulled 2026-11-05 20:32:41-05:00)",
       "evidence": {
         "game": "HOU@LAC",
         "fp_flag": "FP-SPREAD",
@@ -279,7 +337,7 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 9,
-      "message": "Kimani Vidal (RB, LAC) Rush Yds: we project 36.2, the market implies 23.6 (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Kimani Vidal (RB, LAC) Rush Yds: we project 36.2, the market implies 23.6 (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -290,6 +348,28 @@
         "delta": -12.62876325,
         "pct": -0.3488608634,
         "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|NE|9|GB@NE",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "GB@NE: the sheet has -3.0 / 46.0, the market -3.0 / 44.5 (FP-TOTAL) (odds pulled 2026-11-05 20:32:41-05:00)",
+      "evidence": {
+        "game": "GB@NE",
+        "fp_flag": "FP-TOTAL",
+        "sheet_spread": -3.0,
+        "sheet_ou": 46.0,
+        "market_spread": -3.0,
+        "market_total": 44.5,
+        "spread_delta": 0.0,
+        "total_delta": -1.5
       }
     },
     {
@@ -320,7 +400,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 9,
-      "message": "Devin Singletary (RB, NYG) Anytime TD rate: we project 0.20, the market implies 0.56 (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Devin Singletary (RB, NYG) Anytime TD rate: we project 0.20, the market implies 0.56 (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -363,7 +443,7 @@
       "team": "NYJ",
       "sheet": "primary",
       "week": 9,
-      "message": "Braelon Allen (RB, NYJ) Rush Yds: we project 88.2, the market implies 37.6 (also Rush Att) (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Braelon Allen (RB, NYJ) Rush Yds: we project 88.2, the market implies 37.6 (also Rush Att) (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -441,7 +521,7 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 9,
-      "message": "Drew Lock (QB, SEA) INT: we project 1.00, the market implies 0.63 (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Drew Lock (QB, SEA) INT: we project 1.00, the market implies 0.63 (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -464,7 +544,7 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 9,
-      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -1881,7 +1961,7 @@
       "team": "NO",
       "sheet": "primary",
       "week": 9,
-      "message": "Jordyn Tyson (WR, NO) is quoted by the market (Anytime TD rate 0.36) but has no row on the sheet (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Jordyn Tyson (WR, NO) is quoted by the market (Anytime TD rate 0.36) but has no row on the sheet (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "market_mean": 0.3590853713,
@@ -2150,7 +2230,7 @@
       "team": "SF",
       "sheet": "primary",
       "week": 9,
-      "message": "Demarcus Robinson (WR, SF) is quoted by the market (Rec 2.7) but has no row on the sheet (odds pulled 2026-11-05 16:13-05:00)",
+      "message": "Demarcus Robinson (WR, SF) is quoted by the market (Rec 2.7) but has no row on the sheet (odds pulled 2026-11-05 16:07-05:00)",
       "evidence": {
         "stat": "receptions",
         "market_mean": 2.744105348,
@@ -2333,21 +2413,41 @@
         "designated_return_date": null,
         "on_sheet": false
       }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0037742|9",
+      "severity": "info",
+      "player": "Treylon Burks",
+      "gsis_id": "00-0037742",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Treylon Burks (WR, WAS) did not practice on the latest report (Foot); projected 8.6 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-04": "DNP",
+          "2026-11-05": "DNP"
+        },
+        "injury": "Foot",
+        "ppr": 8.6
+      }
     }
   ],
   "dismissed": [],
   "errors": [],
   "counts": {
+    "missing_active": 6,
     "wrong_team": 1,
-    "status_conflict": 1,
-    "missing_active": 5,
-    "sheet_status_stale": 13,
+    "sheet_status_stale": 14,
+    "sheet_line_stale": 3,
+    "elevated_not_projected": 1,
     "market_proj_gap": 8,
-    "sheet_line_stale": 1,
     "ir_return_window": 38,
     "elevation_limit": 24,
     "unconfirmed_report": 18,
-    "dnp_but_projected": 8,
+    "dnp_but_projected": 9,
     "market_only_player": 2
   }
 }
