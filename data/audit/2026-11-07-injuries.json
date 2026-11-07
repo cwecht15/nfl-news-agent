@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-07T16:56:25+00:00",
+  "generated_at": "2026-11-07T21:31:35+00:00",
   "inputs": {
-    "snapshot_date": "2026-11-06",
-    "nflverse_date": "2026-11-06",
-    "injury_week_updated": "2026-11-07T16:56:24+00:00",
-    "roster_state_updated": "2026-11-07T03:18:01+00:00"
+    "snapshot_date": "2026-11-07",
+    "nflverse_date": "2026-11-07",
+    "injury_week_updated": "2026-11-07T21:31:35+00:00",
+    "roster_state_updated": "2026-11-07T21:16:34+00:00"
   },
   "alerts": [
     {
@@ -53,6 +53,28 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0036259|9|OUT",
+      "severity": "error",
+      "player": "Jauan Jennings",
+      "gsis_id": "00-0036259",
+      "pos": "WR",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jauan Jennings (WR, MIN) is OUT (Calf) but projected for 3.9 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Calf",
+        "practice": {
+          "2026-11-05": "LP",
+          "2026-11-06": "DNP",
+          "2026-11-07": "DNP"
+        },
+        "ppr": 3.9
+      }
+    },
+    {
       "type": "status_conflict",
       "key": "status_conflict|00-0033555|9",
       "severity": "error",
@@ -82,12 +104,12 @@
       "team": "SF",
       "sheet": "primary",
       "week": 9,
-      "message": "Demarcus Robinson (WR, SF) is marked IR on the sheet but still projected (9.7 PPR); roster status is IR",
+      "message": "Demarcus Robinson (WR, SF) is marked IR on the sheet but still projected (9.6 PPR); roster status is IR",
       "evidence": {
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "IR",
-        "ppr": 9.7,
+        "ppr": 9.6,
         "slot": 3,
         "earliest_return_week": 7
       }
@@ -120,7 +142,7 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 9,
-      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-07 11:56:14-05:00)",
+      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-07 16:16:16-05:00)",
       "evidence": {
         "game": "JAX@BAL",
         "fp_flag": "FP-BOTH",
@@ -199,9 +221,45 @@
       "message": "Carsen Ryan (TE, CLV) sheet Status is ACTIVE but roster says FA",
       "evidence": {
         "roster_status": "FA",
-        "status_source": "nflverse",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0040934|9",
+      "severity": "warning",
+      "player": "Jordan Hudson",
+      "gsis_id": "00-0040934",
+      "pos": "WR",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jordan Hudson (WR, DAL) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-11-07"
+        ],
+        "elevations_used": 0
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0040628|9",
+      "severity": "warning",
+      "player": "Drake Dabney",
+      "gsis_id": "00-0040628",
+      "pos": "TE",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Drake Dabney (TE, GB) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-11-07"
+        ],
+        "elevations_used": 0
       }
     },
     {
@@ -228,28 +286,6 @@
       }
     },
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|IND|9|DAL@IND",
-      "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 9,
-      "message": "DAL@IND: the sheet has 5.5 / 51.5, the market 4.5 / 51.5 (FP-SPREAD) (odds pulled 2026-11-07 11:56:14-05:00)",
-      "evidence": {
-        "game": "DAL@IND",
-        "fp_flag": "FP-SPREAD",
-        "sheet_spread": 5.5,
-        "sheet_ou": 51.5,
-        "market_spread": 4.5,
-        "market_total": 51.5,
-        "spread_delta": -1.0,
-        "total_delta": 0.0
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0035602|9",
       "severity": "warning",
@@ -262,7 +298,7 @@
       "message": "Alex Bachman (WR, LA) sheet Status is ACTIVE but roster says PS",
       "evidence": {
         "roster_status": "PS",
-        "status_source": "nflverse",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -338,10 +374,10 @@
       "team": "LV",
       "sheet": "primary",
       "week": 9,
-      "message": "Cody White (WR, LV) sheet Status is PS but roster says FA",
+      "message": "Cody White (WR, LV) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
+        "roster_status": "ACT",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.8
       }
@@ -380,6 +416,24 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 0.6
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040734|9",
+      "severity": "warning",
+      "player": "TreVeyon Henderson",
+      "gsis_id": "00-0040734",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "TreVeyon Henderson (RB, NE) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -629,7 +683,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 3.2
+        "ppr": 3.1
       }
     },
     {
@@ -1803,26 +1857,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036259|9",
-      "severity": "info",
-      "player": "Jauan Jennings",
-      "gsis_id": "00-0036259",
-      "pos": "WR",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Jauan Jennings (WR, MIN) did not practice on the latest report (Calf); projected 3.9 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-05": "LP",
-          "2026-11-06": "DNP"
-        },
-        "injury": "Calf",
-        "ppr": 3.9
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0035249|9",
       "severity": "info",
@@ -2462,13 +2496,13 @@
   "counts": {
     "missing_active": 3,
     "status_conflict": 3,
-    "sheet_status_stale": 14,
-    "sheet_line_stale": 2,
-    "elevated_not_projected": 1,
+    "out_but_projected": 1,
+    "sheet_status_stale": 15,
+    "sheet_line_stale": 1,
+    "elevated_not_projected": 3,
     "market_proj_gap": 8,
     "ir_return_window": 50,
     "elevation_limit": 25,
-    "unconfirmed_report": 19,
-    "dnp_but_projected": 1
+    "unconfirmed_report": 19
   }
 }
