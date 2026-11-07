@@ -4,14 +4,34 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-07T00:31:41+00:00",
+  "generated_at": "2026-11-07T01:58:22+00:00",
   "inputs": {
     "snapshot_date": "2026-11-06",
     "nflverse_date": "2026-11-06",
-    "injury_week_updated": "2026-11-07T00:31:41+00:00",
-    "roster_state_updated": "2026-11-07T00:16:37+00:00"
+    "injury_week_updated": "2026-11-07T01:58:21+00:00",
+    "roster_state_updated": "2026-11-07T01:10:33+00:00"
   },
   "alerts": [
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0033119|9",
+      "severity": "error",
+      "player": "Jacoby Brissett",
+      "gsis_id": "00-0033119",
+      "pos": "QB",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jacoby Brissett (QB, ARZ) is on the active roster but has no row on the sheet (OurLads QB #1; traded 2026-11-06; OurLads lists him as the starter)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "QB",
+        "status_abbr": "A01"
+      }
+    },
     {
       "type": "status_conflict",
       "key": "status_conflict|00-0040134|9",
@@ -33,134 +53,43 @@
       }
     },
     {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0038589|9|OUT",
+      "type": "status_conflict",
+      "key": "status_conflict|00-0033555|9",
       "severity": "error",
-      "player": "Josh Whyle",
-      "gsis_id": "00-0038589",
-      "pos": "TE",
-      "team": "GB",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Josh Whyle (TE, GB) is OUT (Concussion) but projected for 0.6 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Concussion",
-        "practice": {
-          "2026-11-04": "DNP",
-          "2026-11-05": "DNP",
-          "2026-11-06": "DNP"
-        },
-        "ppr": 0.6
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0040734|9|OUT",
-      "severity": "error",
-      "player": "TreVeyon Henderson",
-      "gsis_id": "00-0040734",
-      "pos": "RB",
+      "player": "Mack Hollins",
+      "gsis_id": "00-0033555",
+      "pos": "WR",
       "team": "NE",
       "sheet": "primary",
       "week": 9,
-      "message": "TreVeyon Henderson (RB, NE) is OUT (Illness) but projected for 4.5 PPR",
+      "message": "Mack Hollins (WR, NE) is marked IR on the sheet but still projected (11.9 PPR); roster status is IR",
       "evidence": {
-        "game_status": "OUT",
-        "injury": "Illness",
-        "practice": {
-          "2026-11-04": "DNP",
-          "2026-11-05": "DNP",
-          "2026-11-06": "DNP"
-        },
-        "ppr": 4.5
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 11.9,
+        "slot": 2,
+        "earliest_return_week": 9
       }
     },
     {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0041326|9|OUT",
+      "type": "status_conflict",
+      "key": "status_conflict|00-0032775|9",
       "severity": "error",
-      "player": "CJ Donaldson",
-      "gsis_id": "00-0041326",
-      "pos": "RB",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 9,
-      "message": "CJ Donaldson (RB, NO) is OUT (Shoulder, Concussion) but projected for 2.5 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Shoulder, Concussion",
-        "practice": {
-          "2026-11-04": "LP",
-          "2026-11-05": "DNP",
-          "2026-11-06": "DNP"
-        },
-        "ppr": 2.5
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0034775|9|OUT",
-      "severity": "error",
-      "player": "Christian Kirk",
-      "gsis_id": "00-0034775",
+      "player": "Demarcus Robinson",
+      "gsis_id": "00-0032775",
       "pos": "WR",
       "team": "SF",
       "sheet": "primary",
       "week": 9,
-      "message": "Christian Kirk (WR, SF) is OUT (Knee) but projected for 4.8 PPR",
+      "message": "Demarcus Robinson (WR, SF) is marked IR on the sheet but still projected (9.7 PPR); roster status is IR",
       "evidence": {
-        "game_status": "OUT",
-        "injury": "Knee",
-        "practice": {
-          "2026-11-04": "LP",
-          "2026-11-05": "DNP",
-          "2026-11-06": "DNP"
-        },
-        "ppr": 4.8
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0036626|9|OUT",
-      "severity": "error",
-      "player": "Dyami Brown",
-      "gsis_id": "00-0036626",
-      "pos": "WR",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Dyami Brown (WR, WAS) is OUT (Calf) but projected for 1.8 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Calf",
-        "practice": {
-          "2026-11-05": "LP",
-          "2026-11-06": "DNP"
-        },
-        "ppr": 1.8
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0037742|9|OUT",
-      "severity": "error",
-      "player": "Treylon Burks",
-      "gsis_id": "00-0037742",
-      "pos": "WR",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Treylon Burks (WR, WAS) is OUT (Foot) but projected for 7.0 PPR",
-      "evidence": {
-        "game_status": "OUT",
-        "injury": "Foot",
-        "practice": {
-          "2026-11-04": "DNP",
-          "2026-11-05": "DNP",
-          "2026-11-06": "DNP"
-        },
-        "ppr": 7.0
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 9.7,
+        "slot": 3,
+        "earliest_return_week": 7
       }
     },
     {
@@ -191,7 +120,7 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 9,
-      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-06 16:38-05:00)",
+      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-06 20:58:06-05:00)",
       "evidence": {
         "game": "JAX@BAL",
         "fp_flag": "FP-BOTH",
@@ -379,6 +308,24 @@
     },
     {
       "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035891|9",
+      "severity": "warning",
+      "player": "Cody White",
+      "gsis_id": "00-0035891",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cody White (WR, LV) sheet Status is PS but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.8
+      }
+    },
+    {
+      "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0036425|9",
       "severity": "warning",
       "player": "DeeJay Dallas",
@@ -410,29 +357,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0040715|9|D",
-      "severity": "warning",
-      "player": "Cam Skattebo",
-      "gsis_id": "00-0040715",
-      "pos": "RB",
-      "team": "NYG",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Cam Skattebo (RB, NYG) is Doubtful (Hamstring) but projected for 11.6 PPR",
-      "evidence": {
-        "game_status": "D",
-        "injury": "Hamstring",
-        "practice": {
-          "2026-11-04": "DNP",
-          "2026-11-05": "DNP",
-          "2026-11-06": "LP"
-        },
-        "ppr": 11.6
+        "ppr": 0.6
       }
     },
     {
@@ -560,6 +485,26 @@
       }
     },
     {
+      "type": "missing_active",
+      "key": "missing_active|00-0035719|9",
+      "severity": "warning",
+      "player": "Deebo Samuel Sr.",
+      "gsis_id": "00-0035719",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Deebo Samuel Sr. (WR, SF) is on the active roster but has no row on the sheet (OurLads KR #1)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "KR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0040172|9|rec_yds",
       "severity": "warning",
@@ -662,7 +607,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 1.0
+        "ppr": 3.2
       }
     },
     {
@@ -729,12 +674,12 @@
       "team": "ATL",
       "sheet": "primary",
       "week": 9,
-      "message": "Beaux Collins (WR, ATL) on IR - designated to return 2026-10-22",
+      "message": "Beaux Collins (WR, ATL) on IR - designated to return 2026-10-22 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": null,
         "designated_return_date": "2026-10-22",
-        "on_sheet": false
+        "on_sheet": true
       }
     },
     {
@@ -1638,6 +1583,42 @@
       }
     },
     {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0033885|9",
+      "severity": "info",
+      "player": "David Njoku",
+      "gsis_id": "00-0033885",
+      "pos": "TE",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "David Njoku (TE, LAC) on IR - designated to return 2026-11-06 - first eligible Week 8 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 8,
+        "designated_return_date": "2026-11-06",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0032103|9",
+      "severity": "info",
+      "player": "Denzel Perryman",
+      "gsis_id": "00-0032103",
+      "pos": "LB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Denzel Perryman (LB, LAC) on IR - designated to return 2026-11-06 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-11-06",
+        "on_sheet": false
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|marquez valdez-scantling|9|ps_signed",
       "severity": "info",
@@ -1975,26 +1956,6 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0039373|9",
-      "severity": "info",
-      "player": "Audric Estimé",
-      "gsis_id": "00-0039373",
-      "pos": "RB",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Audric Estimé (RB, NO) is on the active roster but has no row on the sheet (OurLads RB #4; team change 2026-11-05)",
-      "evidence": {
-        "ourlads_depth": 4,
-        "ourlads_pos": "RB",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "RB",
-        "status_abbr": "A01"
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0038979|9",
       "severity": "info",
@@ -2081,12 +2042,12 @@
       "team": "NO",
       "sheet": "primary",
       "week": 9,
-      "message": "Travis Etienne (RB, NO) on IR - first eligible Week 9 (already on the sheet)",
+      "message": "Travis Etienne (RB, NO) on IR - first eligible Week 9",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 9,
         "designated_return_date": null,
-        "on_sheet": true
+        "on_sheet": false
       }
     },
     {
@@ -2270,30 +2231,12 @@
       "team": "SF",
       "sheet": "primary",
       "week": 9,
-      "message": "Demarcus Robinson (WR, SF) on IR - designated to return 2026-11-05 - first eligible Week 7",
+      "message": "Demarcus Robinson (WR, SF) on IR - designated to return 2026-11-05 - first eligible Week 7 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 7,
         "designated_return_date": "2026-11-05",
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "market_only_player",
-      "key": "market_only_player|00-0032775|9|receptions",
-      "severity": "info",
-      "player": "Demarcus Robinson",
-      "gsis_id": "00-0032775",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Demarcus Robinson (WR, SF) is quoted by the market (Rec 2.8) but has no row on the sheet (odds pulled 2026-11-06 16:38-05:00)",
-      "evidence": {
-        "stat": "receptions",
-        "market_mean": 2.795357171,
-        "flag": "MKT-ONLY",
-        "n_books": 2
+        "on_sheet": true
       }
     },
     {
@@ -2495,17 +2438,15 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 1,
-    "out_but_projected": 7,
-    "sheet_status_stale": 13,
+    "missing_active": 3,
+    "status_conflict": 3,
+    "sheet_status_stale": 14,
     "sheet_line_stale": 1,
     "elevated_not_projected": 1,
     "market_proj_gap": 8,
-    "missing_active": 2,
-    "ir_return_window": 48,
+    "ir_return_window": 50,
     "elevation_limit": 25,
     "unconfirmed_report": 19,
-    "dnp_but_projected": 1,
-    "market_only_player": 1
+    "dnp_but_projected": 1
   }
 }
