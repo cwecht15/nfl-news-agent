@@ -1,0 +1,2492 @@
+{
+  "date": "2026-11-07",
+  "run": "am",
+  "season": 2026,
+  "week": 9,
+  "sheet": "primary",
+  "generated_at": "2026-11-07T16:54:42+00:00",
+  "inputs": {
+    "snapshot_date": "2026-11-07",
+    "nflverse_date": "2026-11-07",
+    "injury_week_updated": "2026-11-07T16:54:41+00:00",
+    "roster_state_updated": "2026-11-07T16:54:37+00:00"
+  },
+  "alerts": [
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0033119|9",
+      "severity": "error",
+      "player": "Jacoby Brissett",
+      "gsis_id": "00-0033119",
+      "pos": "QB",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jacoby Brissett (QB, ARZ) is on the active roster but has no row on the sheet (OurLads QB #1; traded 2026-11-06; OurLads lists him as the starter)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "QB",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0040134|9",
+      "severity": "error",
+      "player": "Pat Bryant",
+      "gsis_id": "00-0040134",
+      "pos": "WR",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Pat Bryant (WR, DEN) is marked IR on the sheet but still projected (5.4 PPR); roster status is IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 5.4,
+        "slot": 5,
+        "earliest_return_week": 9
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0033555|9",
+      "severity": "error",
+      "player": "Mack Hollins",
+      "gsis_id": "00-0033555",
+      "pos": "WR",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Mack Hollins (WR, NE) is marked IR on the sheet but still projected (11.9 PPR); roster status is IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 11.9,
+        "slot": 2,
+        "earliest_return_week": 9
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0032775|9",
+      "severity": "error",
+      "player": "Demarcus Robinson",
+      "gsis_id": "00-0032775",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Demarcus Robinson (WR, SF) is marked IR on the sheet but still projected (9.6 PPR); roster status is IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 9.6,
+        "slot": 3,
+        "earliest_return_week": 7
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041368|9",
+      "severity": "warning",
+      "player": "Harrison Wallace III",
+      "gsis_id": "00-0041368",
+      "pos": "WR",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Harrison Wallace III (WR, ARZ) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|BLT|9|JAX@BAL",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-07 11:44:27-05:00)",
+      "evidence": {
+        "game": "JAX@BAL",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 9.5,
+        "sheet_ou": 40.0,
+        "market_spread": 26.5,
+        "market_total": 35.5,
+        "spread_delta": 17.0,
+        "total_delta": -4.5
+      }
+    },
+    {
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0039464|9",
+      "severity": "warning",
+      "player": "Austin Reed",
+      "gsis_id": "00-0039464",
+      "pos": "QB",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Austin Reed (QB, BLT) was elevated from the practice squad (2026-11-06) but has no row on the sheet",
+      "evidence": {
+        "elevation_dates": [
+          "2026-11-06"
+        ],
+        "elevations_used": 1
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035039|9",
+      "severity": "warning",
+      "player": "Stephen Carlson",
+      "gsis_id": "00-0035039",
+      "pos": "TE",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Stephen Carlson (TE, CHI) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.8
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038440|9",
+      "severity": "warning",
+      "player": "Zavier Scott",
+      "gsis_id": "00-0038440",
+      "pos": "RB",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Zavier Scott (RB, CHI) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041131|9",
+      "severity": "warning",
+      "player": "Carsen Ryan",
+      "gsis_id": "00-0041131",
+      "pos": "TE",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Carsen Ryan (TE, CLV) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0035685|9|anytime_td",
+      "severity": "warning",
+      "player": "David Montgomery",
+      "gsis_id": "00-0035685",
+      "pos": "RB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 9,
+      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-06 16:38-05:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.42,
+        "market_mean": 0.7219453886,
+        "delta": 0.3019453886,
+        "pct": 0.7189175919,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|IND|9|DAL@IND",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 9,
+      "message": "DAL@IND: the sheet has 5.5 / 51.5, the market 4.5 / 51.5 (FP-SPREAD) (odds pulled 2026-11-07 11:44:27-05:00)",
+      "evidence": {
+        "game": "DAL@IND",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": 5.5,
+        "sheet_ou": 51.5,
+        "market_spread": 4.5,
+        "market_total": 51.5,
+        "spread_delta": -1.0,
+        "total_delta": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035602|9",
+      "severity": "warning",
+      "player": "Alex Bachman",
+      "gsis_id": "00-0035602",
+      "pos": "WR",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Alex Bachman (WR, LA) sheet Status is ACTIVE but roster says PS",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041415|9",
+      "severity": "warning",
+      "player": "Dean Connors",
+      "gsis_id": "00-0041415",
+      "pos": "RB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Dean Connors (RB, LA) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0039750|9",
+      "severity": "warning",
+      "player": "Joshua Karty",
+      "gsis_id": "00-0039750",
+      "pos": "K",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Joshua Karty (K, LA) is on the active roster but has no row on the sheet (OurLads KO #1; promoted from the practice squad 2026-11-06)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "KO",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "K",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039391|9|rush_yds",
+      "severity": "warning",
+      "player": "Kimani Vidal",
+      "gsis_id": "00-0039391",
+      "pos": "RB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Kimani Vidal (RB, LAC) Rush Yds: we project 35.9, the market implies 23.4 (odds pulled 2026-11-06 16:38-05:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_yds"
+        ],
+        "ours": 35.9,
+        "market_mean": 23.37895746,
+        "delta": -12.52104254,
+        "pct": -0.3487755581,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035891|9",
+      "severity": "warning",
+      "player": "Cody White",
+      "gsis_id": "00-0035891",
+      "pos": "WR",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cody White (WR, LV) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 0.8
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036425|9",
+      "severity": "warning",
+      "player": "DeeJay Dallas",
+      "gsis_id": "00-0036425",
+      "pos": "RB",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "DeeJay Dallas (RB, MIN) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 1.3
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040568|9",
+      "severity": "warning",
+      "player": "Lan Larison",
+      "gsis_id": "00-0040568",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Lan Larison (RB, NE) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.6
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040734|9",
+      "severity": "warning",
+      "player": "TreVeyon Henderson",
+      "gsis_id": "00-0040734",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "TreVeyon Henderson (RB, NE) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0035250|9|anytime_td",
+      "severity": "warning",
+      "player": "Devin Singletary",
+      "gsis_id": "00-0035250",
+      "pos": "RB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Devin Singletary (RB, NYG) Anytime TD rate: we project 0.29, the market implies 0.66 (odds pulled 2026-11-06 16:38-05:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.29,
+        "market_mean": 0.6562967429,
+        "delta": 0.3662967429,
+        "pct": 1.263092217,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040586|9",
+      "severity": "warning",
+      "player": "Jaydon Blue",
+      "gsis_id": "00-0040586",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jaydon Blue (RB, PHI) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 1.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0034844|9|rush_yds",
+      "severity": "warning",
+      "player": "Saquon Barkley",
+      "gsis_id": "00-0034844",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Saquon Barkley (RB, PHI) Rush Yds: we project 48.2, the market implies 63.4 (also Rush Att) (odds pulled 2026-11-06 16:38-05:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_att",
+          "rush_yds"
+        ],
+        "ours": 48.2,
+        "market_mean": 63.39336884,
+        "delta": 15.19336884,
+        "pct": 0.3152151211,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037382|9",
+      "severity": "warning",
+      "player": "Brandon Johnson",
+      "gsis_id": "00-0037382",
+      "pos": "WR",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Brandon Johnson (WR, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036775|9",
+      "severity": "warning",
+      "player": "Brandon Smith",
+      "gsis_id": "00-0036775",
+      "pos": "WR",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Brandon Smith (WR, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0034869|9|ints",
+      "severity": "warning",
+      "player": "Sam Darnold",
+      "gsis_id": "00-0034869",
+      "pos": "QB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-06 16:38-05:00)",
+      "evidence": {
+        "stat": "ints",
+        "stats": [
+          "ints"
+        ],
+        "ours": 1.0,
+        "market_mean": 0.5395680926,
+        "delta": -0.4604319074,
+        "pct": -0.4604319074,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0035719|9",
+      "severity": "warning",
+      "player": "Deebo Samuel Sr.",
+      "gsis_id": "00-0035719",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Deebo Samuel Sr. (WR, SF) is on the active roster but has no row on the sheet (OurLads KR #1)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "KR",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "WR",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040172|9|rec_yds",
+      "severity": "warning",
+      "player": "Jordan Watkins",
+      "gsis_id": "00-0040172",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jordan Watkins (WR, SF) Rec Yds: we project 39.0, the market implies 24.9 (odds pulled 2026-11-06 16:38-05:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 39.0,
+        "market_mean": 24.93104726,
+        "delta": -14.06895274,
+        "pct": -0.360742378,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0033921|9|rec_yds",
+      "severity": "warning",
+      "player": "Chris Godwin Jr.",
+      "gsis_id": "00-0033921",
+      "pos": "WR",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Chris Godwin Jr. (WR, TB) Rec Yds: we project 56.7, the market implies 36.1 (also Rec) (odds pulled 2026-11-06 16:38-05:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 56.7,
+        "market_mean": 36.08272815,
+        "delta": -20.61727185,
+        "pct": -0.3636203149,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040237|9|receptions",
+      "severity": "warning",
+      "player": "Tez Johnson",
+      "gsis_id": "00-0040237",
+      "pos": "WR",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Tez Johnson (WR, TB) Rec: we project 3.0, the market implies 1.6 (odds pulled 2026-11-06 16:38-05:00)",
+      "evidence": {
+        "stat": "receptions",
+        "stats": [
+          "receptions"
+        ],
+        "ours": 3.0,
+        "market_mean": 1.562752014,
+        "delta": -1.437247986,
+        "pct": -0.4790826621,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040522|9",
+      "severity": "warning",
+      "player": "Xavier Restrepo",
+      "gsis_id": "00-0040522",
+      "pos": "WR",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Xavier Restrepo (WR, TEN) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036415|9",
+      "severity": "warning",
+      "player": "Van Jefferson",
+      "gsis_id": "00-0036415",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Van Jefferson (WR, WAS) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 3.1
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037004|9",
+      "severity": "info",
+      "player": "Hunter Long",
+      "gsis_id": "00-0037004",
+      "pos": "TE",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Hunter Long (TE, ARZ) on IR - first eligible Week 9 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039808|9",
+      "severity": "info",
+      "player": "Isaiah Adams",
+      "gsis_id": "00-0039808",
+      "pos": "OL",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Isaiah Adams (OL, ARZ) on IR - designated to return 2026-11-05 - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038540|9",
+      "severity": "info",
+      "player": "Paris Johnson Jr.",
+      "gsis_id": "00-0038540",
+      "pos": "OL",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Paris Johnson Jr. (OL, ARZ) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040432|9",
+      "severity": "info",
+      "player": "Beaux Collins",
+      "gsis_id": "00-0040432",
+      "pos": "WR",
+      "team": "ATL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Beaux Collins (WR, ATL) on IR - designated to return 2026-10-22 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-22",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040687|9",
+      "severity": "info",
+      "player": "Cameron Williams",
+      "gsis_id": "00-0040687",
+      "pos": "OL",
+      "team": "ATL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cameron Williams (OL, ATL) on IR - designated to return 2026-10-24 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-10-24",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037826|9",
+      "severity": "info",
+      "player": "Drake Jackson",
+      "gsis_id": "00-0037826",
+      "pos": "LB",
+      "team": "ATL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Drake Jackson (LB, ATL) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038580|9",
+      "severity": "info",
+      "player": "Yasir Abdullah",
+      "gsis_id": "00-0038580",
+      "pos": "LB",
+      "team": "ATL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Yasir Abdullah (LB, ATL) on IR - designated to return 2026-11-05 - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040888|9",
+      "severity": "info",
+      "player": "Adam Randall",
+      "gsis_id": "00-0040888",
+      "pos": "RB",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Adam Randall (RB, BLT) on IR - designated to return 2026-10-28 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0039791|9",
+      "severity": "info",
+      "player": "Adisa Isaac",
+      "gsis_id": "00-0039791",
+      "pos": "LB",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Adisa Isaac (LB, BLT) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-24",
+          "2026-10-31",
+          "2026-11-05"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0035698|9",
+      "severity": "info",
+      "player": "Chuma Edoga",
+      "gsis_id": "00-0035698",
+      "pos": "OL",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Chuma Edoga (OL, BLT) has used 4/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 4,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19",
+          "2026-10-31"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0034798|9",
+      "severity": "info",
+      "player": "Durham Smythe",
+      "gsis_id": "00-0034798",
+      "pos": "TE",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Durham Smythe (TE, BLT) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|lamar jackson's|9|ir_placed",
+      "severity": "info",
+      "player": "Lamar Jackson's",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Lamar Jackson's: reported ir placed on 2026-11-01 (The Athletic NFL) still unconfirmed after 6 days",
+      "evidence": {
+        "event": {
+          "event_id": "8a1b240ecc87d607",
+          "event_type": "ir_placed",
+          "date": "2026-11-01",
+          "source": "news:The Athletic NFL"
+        },
+        "days_pending": 6
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|sheldrick jackson|9|ps_signed",
+      "severity": "info",
+      "player": "Sheldrick Jackson",
+      "gsis_id": null,
+      "pos": "WR",
+      "team": "BLT",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Sheldrick Jackson: reported ps signed on 2026-09-23 (SBN Ravens (Baltimore Beatdown)) still unconfirmed after 45 days",
+      "evidence": {
+        "event": {
+          "event_id": "4cb100ab7e99990c",
+          "event_type": "ps_signed",
+          "date": "2026-09-23",
+          "source": "news:SBN Ravens (Baltimore Beatdown)"
+        },
+        "days_pending": 45
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040192|9",
+      "severity": "info",
+      "player": "Jordan Hancock",
+      "gsis_id": "00-0040192",
+      "pos": "DB",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jordan Hancock (DB, BUF) on IR - designated to return 2026-11-05 - first eligible Week 8",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 8,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|nintendo wii|9|released",
+      "severity": "info",
+      "player": "Nintendo Wii",
+      "gsis_id": null,
+      "pos": "",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Nintendo Wii: reported released on 2026-09-10 (SBN Bills (Buffalo Rumblings)) still unconfirmed after 58 days",
+      "evidence": {
+        "event": {
+          "event_id": "dbe683763185fa5b",
+          "event_type": "released",
+          "date": "2026-09-10",
+          "source": "news:SBN Bills (Buffalo Rumblings)"
+        },
+        "days_pending": 58
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038679|9",
+      "severity": "info",
+      "player": "Tyrell Shavers",
+      "gsis_id": "00-0038679",
+      "pos": "WR",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Tyrell Shavers (WR, BUF) on PUP - designated to return 2026-10-28",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0036968|9",
+      "severity": "info",
+      "player": "Brady Christensen",
+      "gsis_id": "00-0036968",
+      "pos": "OL",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Brady Christensen (OL, CAR) on IR - designated to return 2026-11-05 - first eligible Week 6",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 6,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0036944|9",
+      "severity": "info",
+      "player": "Jaycee Horn",
+      "gsis_id": "00-0036944",
+      "pos": "DB",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jaycee Horn (DB, CAR) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0035277|9",
+      "severity": "info",
+      "player": "Mike Jackson",
+      "gsis_id": "00-0035277",
+      "pos": "DB",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Mike Jackson (DB, CAR) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|rt taylor|9|ir_placed",
+      "severity": "info",
+      "player": "RT Taylor",
+      "gsis_id": null,
+      "pos": "CB",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 9,
+      "message": "RT Taylor: reported ir placed on 2026-10-26 (ESPN CAR) still unconfirmed after 12 days",
+      "evidence": {
+        "event": {
+          "event_id": "1a123255633bdf0a",
+          "event_type": "ir_placed",
+          "date": "2026-10-26",
+          "source": "news:ESPN CAR"
+        },
+        "days_pending": 12
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039342|9",
+      "severity": "info",
+      "player": "Xavier Legette",
+      "gsis_id": "00-0039342",
+      "pos": "WR",
+      "team": "CAR",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Xavier Legette (WR, CAR) on IR - first eligible Week 9 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0034446|9",
+      "severity": "info",
+      "player": "Jalen Davis",
+      "gsis_id": "00-0034446",
+      "pos": "DB",
+      "team": "CIN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jalen Davis (DB, CIN) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037832|9",
+      "severity": "info",
+      "player": "Kalia Davis",
+      "gsis_id": "00-0037832",
+      "pos": "DL",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Kalia Davis (DL, CLV) on IR - designated to return 2026-10-06 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-10-06",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036705|9",
+      "severity": "info",
+      "player": "Sam Kamara",
+      "gsis_id": "00-0036705",
+      "pos": "DL",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Sam Kamara (DL, CLV) has used 4/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 4,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19",
+          "2026-10-24"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0033093|9",
+      "severity": "info",
+      "player": "Jonathan Bullard",
+      "gsis_id": "00-0033093",
+      "pos": "DL",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jonathan Bullard (DL, DAL) on IR - designated to return 2026-10-29 - first eligible Week 8",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 8,
+        "designated_return_date": "2026-10-29",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039352|9",
+      "severity": "info",
+      "player": "Marist Liufau",
+      "gsis_id": "00-0039352",
+      "pos": "LB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Marist Liufau (LB, DAL) on IR - designated to return 2026-10-22",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-22",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0039465|9",
+      "severity": "info",
+      "player": "Reddy Steward",
+      "gsis_id": "00-0039465",
+      "pos": "DB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Reddy Steward (DB, DAL) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-26",
+          "2026-10-03",
+          "2026-10-08"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040134|9",
+      "severity": "info",
+      "player": "Pat Bryant",
+      "gsis_id": "00-0040134",
+      "pos": "WR",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Pat Bryant (WR, DEN) on IR - designated to return 2026-11-05 - first eligible Week 9 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040679|9",
+      "severity": "info",
+      "player": "Sean Fresch",
+      "gsis_id": "00-0040679",
+      "pos": "DB",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Sean Fresch (DB, DEN) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-15",
+          "2026-10-24"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037667|9",
+      "severity": "info",
+      "player": "Kerby Joseph",
+      "gsis_id": "00-0037667",
+      "pos": "DB",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Kerby Joseph (DB, DET) on PUP - designated to return 2026-10-28",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037364|9",
+      "severity": "info",
+      "player": "Arron Mosby",
+      "gsis_id": "00-0037364",
+      "pos": "LB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Arron Mosby (LB, GB) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-17",
+          "2026-10-24",
+          "2026-10-29"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038685|9",
+      "severity": "info",
+      "player": "Chris Brooks",
+      "gsis_id": "00-0038685",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Chris Brooks (RB, GB) on IR - designated to return 2026-11-05 - first eligible Week 9 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039850|9",
+      "severity": "info",
+      "player": "Edgerrin Cooper",
+      "gsis_id": "00-0039850",
+      "pos": "LB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Edgerrin Cooper (LB, GB) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039603|9",
+      "severity": "info",
+      "player": "British Brooks",
+      "gsis_id": "00-0039603",
+      "pos": "RB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 9,
+      "message": "British Brooks (RB, HST) on IR - first eligible Week 9 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036241|9",
+      "severity": "info",
+      "player": "Bryce Hall",
+      "gsis_id": "00-0036241",
+      "pos": "DB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Bryce Hall (DB, HST) has used 4/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 4,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19",
+          "2026-10-24"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0034091|9",
+      "severity": "info",
+      "player": "George Odum",
+      "gsis_id": "00-0034091",
+      "pos": "DB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 9,
+      "message": "George Odum (DB, HST) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|kenneth murray|9|ps_elevated",
+      "severity": "info",
+      "player": "Kenneth Murray",
+      "gsis_id": null,
+      "pos": "QB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Kenneth Murray: reported ps elevated on 2026-10-03 (cbs_transactions) still unconfirmed after 35 days",
+      "evidence": {
+        "event": {
+          "event_id": "66b05abbecbccd60",
+          "event_type": "ps_elevated",
+          "date": "2026-10-03",
+          "source": "cbs_transactions"
+        },
+        "days_pending": 35
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0032265|9",
+      "severity": "info",
+      "player": "Mario Edwards",
+      "gsis_id": "00-0032265",
+      "pos": "DL",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Mario Edwards (DL, HST) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|arden|9",
+      "severity": "info",
+      "player": "ARDEN KEY",
+      "gsis_id": null,
+      "pos": "",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 9,
+      "message": "ARDEN KEY (, IND) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0034825|9",
+      "severity": "info",
+      "player": "Arden Key",
+      "gsis_id": "00-0034825",
+      "pos": "DL",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Arden Key (DL, IND) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|ed dodds|9|ps_signed",
+      "severity": "info",
+      "player": "Ed Dodds",
+      "gsis_id": null,
+      "pos": "",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Ed Dodds: reported ps signed on 2026-10-21 (SBN Colts (Stampede Blue)) still unconfirmed after 17 days",
+      "evidence": {
+        "event": {
+          "event_id": "ac51f0cebb6b080f",
+          "event_type": "ps_signed",
+          "date": "2026-10-21",
+          "source": "news:SBN Colts (Stampede Blue)"
+        },
+        "days_pending": 17
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036182|9",
+      "severity": "info",
+      "player": "Nick Westbrook-Ikhine",
+      "gsis_id": "00-0036182",
+      "pos": "WR",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Nick Westbrook-Ikhine (WR, IND) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-26",
+          "2026-10-03",
+          "2026-10-10"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040336|9",
+      "severity": "info",
+      "player": "Jabbar Muhammad",
+      "gsis_id": "00-0040336",
+      "pos": "DB",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jabbar Muhammad (DB, JAX) has used 4/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 4,
+        "elevation_dates": [
+          "2026-10-03",
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0035900|9",
+      "severity": "info",
+      "player": "Cole Christiansen",
+      "gsis_id": "00-0035900",
+      "pos": "LB",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cole Christiansen (LB, KC) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-09-26",
+          "2026-10-03"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040748|9",
+      "severity": "info",
+      "player": "Omarr Norman-Lott",
+      "gsis_id": "00-0040748",
+      "pos": "DL",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Omarr Norman-Lott (DL, KC) on PUP - designated to return 2026-10-28",
+      "evidence": {
+        "status": "PUP",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|aj jackson|9|suspended",
+      "severity": "info",
+      "player": "A.J. Jackson",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "A.J. Jackson: reported suspended on 2026-10-13 (SBN Rams (Turf Show Times)) still unconfirmed after 25 days",
+      "evidence": {
+        "event": {
+          "event_id": "e59ae1f8051b21c9",
+          "event_type": "suspended",
+          "date": "2026-10-13",
+          "source": "news:SBN Rams (Turf Show Times)"
+        },
+        "days_pending": 25
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|lt alaric|9|suspended",
+      "severity": "info",
+      "player": "LT Alaric",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "LT Alaric: reported suspended on 2026-10-13 (Pro Football Talk) still unconfirmed after 25 days",
+      "evidence": {
+        "event": {
+          "event_id": "10bfd26cbe51ce62",
+          "event_type": "suspended",
+          "date": "2026-10-13",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 25
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0033868|9",
+      "severity": "info",
+      "player": "Myles Garrett",
+      "gsis_id": "00-0033868",
+      "pos": "LB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Myles Garrett (LB, LA) on IR - designated to return 2026-11-05 - first eligible Week 6",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 6,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037557|9",
+      "severity": "info",
+      "player": "Ronnie Rivers",
+      "gsis_id": "00-0037557",
+      "pos": "RB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Ronnie Rivers (RB, LA) on IR - designated to return 2026-11-05 - first eligible Week 7",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 7,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040737|9",
+      "severity": "info",
+      "player": "Terrance Ferguson",
+      "gsis_id": "00-0040737",
+      "pos": "TE",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Terrance Ferguson (TE, LA) on IR - designated to return 2026-11-05 - first eligible Week 8 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 8,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0033221|9",
+      "severity": "info",
+      "player": "Daniel Brunskill",
+      "gsis_id": "00-0033221",
+      "pos": "OL",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Daniel Brunskill (OL, LAC) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0033885|9",
+      "severity": "info",
+      "player": "David Njoku",
+      "gsis_id": "00-0033885",
+      "pos": "TE",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "David Njoku (TE, LAC) on IR - designated to return 2026-11-06 - first eligible Week 8 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 8,
+        "designated_return_date": "2026-11-06",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0032103|9",
+      "severity": "info",
+      "player": "Denzel Perryman",
+      "gsis_id": "00-0032103",
+      "pos": "LB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Denzel Perryman (LB, LAC) on IR - designated to return 2026-11-06 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-11-06",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|marquez valdez-scantling|9|ps_signed",
+      "severity": "info",
+      "player": "Marquez Valdez-Scantling",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Marquez Valdez-Scantling: reported ps signed on 2026-09-16 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 52 days",
+      "evidence": {
+        "event": {
+          "event_id": "a1a155d9e0e05ae7",
+          "event_type": "ps_signed",
+          "date": "2026-09-16",
+          "source": "news:SBN Chargers (Bolts From The Blue)"
+        },
+        "days_pending": 52
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|marquez valdez-scantling|9|ps_promoted",
+      "severity": "info",
+      "player": "Marquez Valdez-Scantling",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Marquez Valdez-Scantling: reported ps promoted on 2026-09-23 (SBN Chargers (Bolts From The Blue)) still unconfirmed after 45 days",
+      "evidence": {
+        "event": {
+          "event_id": "6699951c49f939af",
+          "event_type": "ps_promoted",
+          "date": "2026-09-23",
+          "source": "news:SBN Chargers (Bolts From The Blue)"
+        },
+        "days_pending": 45
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0039837|9",
+      "severity": "info",
+      "player": "Bralen Trice",
+      "gsis_id": "00-0039837",
+      "pos": "LB",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Bralen Trice (LB, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-25",
+          "2026-10-10"
+        ]
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|carter runyon's|9|ir_designated_return",
+      "severity": "info",
+      "player": "Carter Runyon's",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Carter Runyon's: reported ir designated return on 2026-10-14 (Pro Football Talk) still unconfirmed after 24 days",
+      "evidence": {
+        "event": {
+          "event_id": "0cf2169c06637481",
+          "event_type": "ir_designated_return",
+          "date": "2026-10-14",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 24
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|cian sloan|9|ps_elevated",
+      "severity": "info",
+      "player": "Cian Sloan",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cian Sloan: reported ps elevated on 2026-10-18 (SBN Raiders (Silver and Black Pride)) still unconfirmed after 20 days",
+      "evidence": {
+        "event": {
+          "event_id": "e5013358df502491",
+          "event_type": "ps_elevated",
+          "date": "2026-10-18",
+          "source": "news:SBN Raiders (Silver and Black Pride)"
+        },
+        "days_pending": 20
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0041006|9",
+      "severity": "info",
+      "player": "Cian Slone",
+      "gsis_id": "00-0041006",
+      "pos": "LB",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cian Slone (LB, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-17",
+          "2026-10-24",
+          "2026-10-31"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039040|9",
+      "severity": "info",
+      "player": "De'Von Achane",
+      "gsis_id": "00-0039040",
+      "pos": "RB",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "De'Von Achane (RB, MIA) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0041531|9",
+      "severity": "info",
+      "player": "Max Llewellyn",
+      "gsis_id": "00-0041531",
+      "pos": "DL",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Max Llewellyn (DL, MIA) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-10-24",
+          "2026-10-31"
+        ]
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036259|9",
+      "severity": "info",
+      "player": "Jauan Jennings",
+      "gsis_id": "00-0036259",
+      "pos": "WR",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jauan Jennings (WR, MIN) did not practice on the latest report (Calf); projected 3.9 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-05": "LP",
+          "2026-11-06": "DNP"
+        },
+        "injury": "Calf",
+        "ppr": 3.9
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0035249|9",
+      "severity": "info",
+      "player": "Josh Oliver",
+      "gsis_id": "00-0035249",
+      "pos": "TE",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Josh Oliver (TE, MIN) on IR - first eligible Week 9 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|kevin o'connell|9|ps_signed",
+      "severity": "info",
+      "player": "Kevin O'Connell",
+      "gsis_id": null,
+      "pos": "",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Kevin O'Connell: reported ps signed on 2026-10-07 (ESPN MIN) still unconfirmed after 31 days",
+      "evidence": {
+        "event": {
+          "event_id": "f065861db53d4426",
+          "event_type": "ps_signed",
+          "date": "2026-10-07",
+          "source": "news:ESPN MIN"
+        },
+        "days_pending": 31
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|aj brown’s|9|ir_designated_return",
+      "severity": "info",
+      "player": "A.J. Brown’s",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "A.J. Brown’s: reported ir designated return on 2026-10-14 (SBN Patriots (Pats Pulpit)) still unconfirmed after 24 days",
+      "evidence": {
+        "event": {
+          "event_id": "ed79d4164bdcb03b",
+          "event_type": "ir_designated_return",
+          "date": "2026-10-14",
+          "source": "news:SBN Patriots (Pats Pulpit)"
+        },
+        "days_pending": 24
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040537|9",
+      "severity": "info",
+      "player": "Elliott Davison",
+      "gsis_id": "00-0040537",
+      "pos": "DB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Elliott Davison (DB, NE) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0029685|9",
+      "severity": "info",
+      "player": "Greg Van Roten",
+      "gsis_id": "00-0029685",
+      "pos": "OL",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Greg Van Roten (OL, NE) on IR - designated to return 2026-11-05 - first eligible Week 8",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 8,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0033555|9",
+      "severity": "info",
+      "player": "Mack Hollins",
+      "gsis_id": "00-0033555",
+      "pos": "WR",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Mack Hollins (WR, NE) on IR - designated to return 2026-11-04 - first eligible Week 9 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": "2026-11-04",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0036187|9",
+      "severity": "info",
+      "player": "Reggie Gilliam",
+      "gsis_id": "00-0036187",
+      "pos": "RB",
+      "team": "NE",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Reggie Gilliam (RB, NE) on IR - first eligible Week 9 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|audric estime|9|ir_placed",
+      "severity": "info",
+      "player": "Audric Estime",
+      "gsis_id": null,
+      "pos": "",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 56 days",
+      "evidence": {
+        "event": {
+          "event_id": "3c678b83451f2bd8",
+          "event_type": "ir_placed",
+          "date": "2026-09-12",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 56
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0038979|9",
+      "severity": "info",
+      "player": "Cedric Tillman",
+      "gsis_id": "00-0038979",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Cedric Tillman (WR, NO) has used 4/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 4,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19",
+          "2026-10-24"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0041029|9",
+      "severity": "info",
+      "player": "Jordyn Tyson",
+      "gsis_id": "00-0041029",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jordyn Tyson (WR, NO) on IR - designated to return 2026-11-04 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-11-04",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040125|9",
+      "severity": "info",
+      "player": "Kelvin Banks Jr.",
+      "gsis_id": "00-0040125",
+      "pos": "OL",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Kelvin Banks Jr. (OL, NO) on IR - designated to return 2026-11-05 - first eligible Week 7",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 7,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037231|9",
+      "severity": "info",
+      "player": "Kevin Austin Jr.",
+      "gsis_id": "00-0037231",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Kevin Austin Jr. (WR, NO) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-19",
+          "2026-09-26"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0036973|9",
+      "severity": "info",
+      "player": "Travis Etienne",
+      "gsis_id": "00-0036973",
+      "pos": "RB",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Travis Etienne (RB, NO) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0035713|9",
+      "severity": "info",
+      "player": "Brian Burns",
+      "gsis_id": "00-0035713",
+      "pos": "LB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Brian Burns (LB, NYG) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039284|9",
+      "severity": "info",
+      "player": "Braiden McGregor",
+      "gsis_id": "00-0039284",
+      "pos": "LB",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Braiden McGregor (LB, NYJ) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0035617|9",
+      "severity": "info",
+      "player": "Troy Reeder",
+      "gsis_id": "00-0035617",
+      "pos": "LB",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Troy Reeder (LB, NYJ) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-09-22",
+          "2026-10-24"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0041120|9",
+      "severity": "info",
+      "player": "VJ Payne",
+      "gsis_id": "00-0041120",
+      "pos": "DB",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 9,
+      "message": "VJ Payne (DB, NYJ) on IR - designated to return 2026-11-05",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036567|9",
+      "severity": "info",
+      "player": "Elijah Mitchell",
+      "gsis_id": "00-0036567",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Elijah Mitchell (RB, PHI) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-20",
+          "2026-10-26",
+          "2026-10-31"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0038555|9",
+      "severity": "info",
+      "player": "Tank Bigsby",
+      "gsis_id": "00-0038555",
+      "pos": "RB",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Tank Bigsby (RB, PHI) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0030061|9",
+      "severity": "info",
+      "player": "Zach Ertz",
+      "gsis_id": "00-0030061",
+      "pos": "TE",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Zach Ertz (TE, PHI) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-28",
+          "2026-10-03",
+          "2026-10-10"
+        ]
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|joe mixon|9|ps_signed",
+      "severity": "info",
+      "player": "Joe Mixon",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Joe Mixon: reported ps signed on 2026-10-05 (SBN Seahawks (Field Gulls)) still unconfirmed after 33 days",
+      "evidence": {
+        "event": {
+          "event_id": "c3e444fa2a90e91b",
+          "event_type": "ps_signed",
+          "date": "2026-10-05",
+          "source": "news:SBN Seahawks (Field Gulls)"
+        },
+        "days_pending": 33
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040873|9",
+      "severity": "info",
+      "player": "Julian Neal",
+      "gsis_id": "00-0040873",
+      "pos": "DB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Julian Neal (DB, SEA) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0032775|9",
+      "severity": "info",
+      "player": "Demarcus Robinson",
+      "gsis_id": "00-0032775",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Demarcus Robinson (WR, SF) on IR - designated to return 2026-11-05 - first eligible Week 7 (already on the sheet)",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 7,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": true
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0036871|9",
+      "severity": "info",
+      "player": "Nate Hobbs",
+      "gsis_id": "00-0036871",
+      "pos": "DB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Nate Hobbs (DB, SF) on IR - designated to return 2026-11-05 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-11-05",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|robert beal|9|ps_signed",
+      "severity": "info",
+      "player": "Robert Beal",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Robert Beal: reported ps signed on 2026-11-03 (SBN 49ers (Niners Nation)) still unconfirmed after 4 days",
+      "evidence": {
+        "event": {
+          "event_id": "a70ddd6d3e210291",
+          "event_type": "ps_signed",
+          "date": "2026-11-03",
+          "source": "news:SBN 49ers (Niners Nation)"
+        },
+        "days_pending": 4
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|xavier thomas|9|suspended",
+      "severity": "info",
+      "player": "Xavier Thomas",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Xavier Thomas: reported suspended on 2026-09-11 (Pro Football Talk) still unconfirmed after 57 days",
+      "evidence": {
+        "event": {
+          "event_id": "e9e6dda68a40e203",
+          "event_type": "suspended",
+          "date": "2026-09-11",
+          "source": "news:Pro Football Talk"
+        },
+        "days_pending": 57
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0035282|9",
+      "severity": "info",
+      "player": "Easton Stick",
+      "gsis_id": "00-0035282",
+      "pos": "QB",
+      "team": "TB",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Easton Stick (QB, TB) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-03",
+          "2026-10-08",
+          "2026-10-17"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040503|9",
+      "severity": "info",
+      "player": "Dorian Mausi",
+      "gsis_id": "00-0040503",
+      "pos": "LB",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Dorian Mausi (LB, TEN) on IR - designated to return 2026-10-22",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-10-22",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0034357|9",
+      "severity": "info",
+      "player": "Isaiah Oliver",
+      "gsis_id": "00-0034357",
+      "pos": "DB",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Isaiah Oliver (DB, TEN) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-10",
+          "2026-10-17",
+          "2026-10-19"
+        ]
+      }
+    },
+    {
+      "type": "unconfirmed_report",
+      "key": "unconfirmed_report|jordan elliott’s|9|released",
+      "severity": "info",
+      "player": "Jordan Elliott’s",
+      "gsis_id": null,
+      "pos": "",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jordan Elliott’s: reported released on 2026-10-21 (r/nfl) still unconfirmed after 17 days",
+      "evidence": {
+        "event": {
+          "event_id": "81b61d57e418749c",
+          "event_type": "released",
+          "date": "2026-10-21",
+          "source": "news:r/nfl"
+        },
+        "days_pending": 17
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040318|9",
+      "severity": "info",
+      "player": "Ale Kaho",
+      "gsis_id": "00-0040318",
+      "pos": "LB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Ale Kaho (LB, WAS) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-09-26",
+          "2026-10-03"
+        ]
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0039906|9",
+      "severity": "info",
+      "player": "Jer'Zhan Newton",
+      "gsis_id": "00-0039906",
+      "pos": "DL",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jer'Zhan Newton (DL, WAS) on IR - designated to return 2026-10-28 - first eligible Week 5",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 5,
+        "designated_return_date": "2026-10-28",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0037819|9",
+      "severity": "info",
+      "player": "Leo Chenal",
+      "gsis_id": "00-0037819",
+      "pos": "LB",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Leo Chenal (LB, WAS) on IR - first eligible Week 9",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 9,
+        "designated_return_date": null,
+        "on_sheet": false
+      }
+    }
+  ],
+  "dismissed": [],
+  "errors": [],
+  "counts": {
+    "missing_active": 3,
+    "status_conflict": 3,
+    "sheet_status_stale": 15,
+    "sheet_line_stale": 2,
+    "elevated_not_projected": 1,
+    "market_proj_gap": 8,
+    "ir_return_window": 50,
+    "elevation_limit": 25,
+    "unconfirmed_report": 19,
+    "dnp_but_projected": 1
+  }
+}
