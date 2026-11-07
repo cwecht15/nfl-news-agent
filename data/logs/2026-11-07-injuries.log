@@ -1,0 +1,18 @@
+2026-11-07 16:56:14,230 [INFO] afternoon: ============================================================
+2026-11-07 16:56:14,230 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-11-07 (week 9, Sat)
+2026-11-07 16:56:14,231 [INFO] afternoon: ============================================================
+2026-11-07 16:56:15,345 [INFO] afternoon: Game lines via API: 9 credits, 92677 remaining (14 games, 3 changes)
+2026-11-07 16:56:15,345 [INFO] afternoon: Step 2c: Reading market lines...
+2026-11-07 16:56:20,606 [INFO] afternoon: Market lines: week 9, 15 games, 1135 player-stats, 0 changes (none); odds pulled 2026-11-06T16:38-05:00; game lines via API 2026-11-07T11:56:14-05:00
+2026-11-07 16:56:20,606 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-11-07 16:56:23,995 [INFO] collectors.injury_report_collector: Team-site injury reports: 30 with a table, 2 not posted, 0 mismatched, 0 failed; 683 rows
+2026-11-07 16:56:24,441 [INFO] collectors.injury_report_collector: RotoWire practice report: 361 rows
+2026-11-07 16:56:24,740 [INFO] collectors.injury_report_collector: NFL.com injuries: week 9, 360 rows (practice status dated 2026-11-06)
+2026-11-07 16:56:24,742 [INFO] collectors.injury_report_collector: rotowire: dropped rows for FA — no game this week
+2026-11-07 16:56:24,758 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk09.json (30 teams)
+2026-11-07 16:56:24,759 [INFO] collectors.injury_report_collector: Injury report week 9: 366 players, 0 changes
+2026-11-07 16:56:24,766 [INFO] afternoon: Injury report: week 9, 366 rows (nflcom=360, rotowire=360, team_site=342), 0 changes, 0 conflicts, team sites with a table: 30
+2026-11-07 16:56:24,767 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-11-07 16:56:25,025 [INFO] afternoon: Projection audit: 126 open alerts (error=4, info=95, warning=27), 0 dismissed
+2026-11-07 16:56:25,042 [WARNING] afternoon: No report for 2026-11-07 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-11-07 to produce the morning report.
+2026-11-07 16:56:25,042 [INFO] afternoon: Injury report refresh complete.
