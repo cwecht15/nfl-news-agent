@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-07T00:15:15+00:00",
+  "generated_at": "2026-11-07T00:23:56+00:00",
   "inputs": {
     "snapshot_date": "2026-11-06",
     "nflverse_date": "2026-11-06",
-    "injury_week_updated": "2026-11-07T00:15:15+00:00",
-    "roster_state_updated": "2026-11-06T13:39:17+00:00"
+    "injury_week_updated": "2026-11-07T00:23:55+00:00",
+    "roster_state_updated": "2026-11-07T00:16:37+00:00"
   },
   "alerts": [
     {
@@ -191,7 +191,7 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 9,
-      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-06 19:15:00-05:00)",
+      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-06 16:38-05:00)",
       "evidence": {
         "game": "JAX@BAL",
         "fp_flag": "FP-BOTH",
@@ -252,7 +252,25 @@
       "message": "Zavier Scott (RB, CHI) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "official",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041131|9",
+      "severity": "warning",
+      "player": "Carsen Ryan",
+      "gsis_id": "00-0041131",
+      "pos": "TE",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Carsen Ryan (TE, CLV) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -326,14 +344,14 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Joshua Karty (K, LA) is on the active roster but has no row on the sheet (OurLads KO #1; signed 2026-11-05)",
+      "message": "Joshua Karty (K, LA) is on the active roster but has no row on the sheet (OurLads KO #1; promoted from the practice squad 2026-11-06)",
       "evidence": {
         "ourlads_depth": 1,
         "ourlads_pos": "KO",
         "ourlads_stale": false,
-        "nflverse_status": "DEV",
+        "nflverse_status": "ACT",
         "depth_chart_position": "K",
-        "status_abbr": "P06"
+        "status_abbr": "A01"
       }
     },
     {
@@ -357,26 +375,6 @@
         "delta": -12.52104254,
         "pct": -0.3487755581,
         "flag": "RED"
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0040488|9",
-      "severity": "warning",
-      "player": "Carter Runyon",
-      "gsis_id": "00-0040488",
-      "pos": "TE",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Carter Runyon (TE, LV) is on the active roster but has no row on the sheet (activated off IR 2026-11-06)",
-      "evidence": {
-        "ourlads_depth": null,
-        "ourlads_pos": "",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "TE",
-        "status_abbr": "A01"
       }
     },
     {
@@ -2263,26 +2261,6 @@
       }
     },
     {
-      "type": "missing_active",
-      "key": "missing_active|00-0037745|9",
-      "severity": "info",
-      "player": "Velus Jones Jr.",
-      "gsis_id": "00-0037745",
-      "pos": "RB",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Velus Jones Jr. (RB, SEA) is on the active roster but has no row on the sheet (OurLads KR #4; elevated 2026-10-16)",
-      "evidence": {
-        "ourlads_depth": 4,
-        "ourlads_pos": "KR",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "RB",
-        "status_abbr": "A01"
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0032775|9",
       "severity": "info",
@@ -2519,11 +2497,11 @@
   "counts": {
     "status_conflict": 1,
     "out_but_projected": 7,
-    "sheet_status_stale": 12,
+    "sheet_status_stale": 13,
     "sheet_line_stale": 1,
     "elevated_not_projected": 1,
     "market_proj_gap": 8,
-    "missing_active": 4,
+    "missing_active": 2,
     "ir_return_window": 48,
     "elevation_limit": 25,
     "unconfirmed_report": 19,
