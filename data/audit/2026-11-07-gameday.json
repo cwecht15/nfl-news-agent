@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-08T01:01:32+00:00",
+  "generated_at": "2026-11-08T02:46:18+00:00",
   "inputs": {
     "snapshot_date": "2026-11-07",
     "nflverse_date": "2026-11-07",
     "injury_week_updated": "2026-11-08T00:56:10+00:00",
-    "roster_state_updated": "2026-11-08T01:01:32+00:00"
+    "roster_state_updated": "2026-11-08T02:46:18+00:00"
   },
   "alerts": [
     {
@@ -176,7 +176,7 @@
       "team": "BLT",
       "sheet": "primary",
       "week": 9,
-      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-07 19:16:18-05:00)",
+      "message": "JAX@BAL: the sheet has 9.5 / 40.0, the market 26.5 / 35.5 (FP-BOTH) (odds pulled 2026-11-07 21:46:04-05:00)",
       "evidence": {
         "game": "JAX@BAL",
         "fp_flag": "FP-BOTH",
@@ -252,7 +252,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 9,
-      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-07 17:53-05:00)",
+      "message": "David Montgomery (RB, HST) Anytime TD rate: we project 0.42, the market implies 0.72 (odds pulled 2026-11-07 21:09-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -285,7 +285,7 @@
     },
     {
       "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0039738|9|rush_att",
+      "key": "market_proj_gap|00-0039738|9|rush_rec_yds",
       "severity": "warning",
       "player": "Blake Corum",
       "gsis_id": "00-0039738",
@@ -293,17 +293,18 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Blake Corum (RB, LA) Rush Att: we project 8.5, the market implies 11.5 (also Rush Yds) (odds pulled 2026-11-07 17:53-05:00)",
+      "message": "Blake Corum (RB, LA) Rush+Rec Yds: we project 44.7, the market implies 63.9 (also Rush Att, Rush Yds) (odds pulled 2026-11-07 21:09-05:00)",
       "evidence": {
-        "stat": "rush_att",
+        "stat": "rush_rec_yds",
         "stats": [
           "rush_att",
+          "rush_rec_yds",
           "rush_yds"
         ],
-        "ours": 8.5,
-        "market_mean": 11.52024342,
-        "delta": 3.020243423,
-        "pct": 0.3553227556,
+        "ours": 44.7,
+        "market_mean": 63.91662456,
+        "delta": 19.21662456,
+        "pct": 0.4299021155,
         "flag": "RED"
       }
     },
@@ -337,7 +338,7 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Kyren Williams (RB, LA) Rush Yds: we project 50.2, the market implies 65.8 (odds pulled 2026-11-07 17:53-05:00)",
+      "message": "Kyren Williams (RB, LA) Rush Yds: we project 50.2, the market implies 65.8 (odds pulled 2026-11-07 21:09-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -360,7 +361,7 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 9,
-      "message": "Kimani Vidal (RB, LAC) Rush Yds: we project 35.8, the market implies 23.4 (odds pulled 2026-11-07 17:53-05:00)",
+      "message": "Kimani Vidal (RB, LAC) Rush Yds: we project 35.8, the market implies 23.4 (odds pulled 2026-11-07 21:09-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -437,16 +438,16 @@
       "team": "NE",
       "sheet": "primary",
       "week": 9,
-      "message": "Mack Hollins (WR, NE) Rec Yds: we project 56.5, the market implies 38.5 (odds pulled 2026-11-07 17:53-05:00)",
+      "message": "Mack Hollins (WR, NE) Rec Yds: we project 56.5, the market implies 38.7 (odds pulled 2026-11-07 21:09-05:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
           "rec_yds"
         ],
         "ours": 56.5,
-        "market_mean": 38.54935204,
-        "delta": -17.95064796,
-        "pct": -0.3177105834,
+        "market_mean": 38.7488776,
+        "delta": -17.7511224,
+        "pct": -0.3141791576,
         "flag": "RED"
       }
     },
@@ -469,30 +470,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0033906|9|rush_yds",
-      "severity": "warning",
-      "player": "Alvin Kamara",
-      "gsis_id": "00-0033906",
-      "pos": "RB",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Alvin Kamara (RB, NO) Rush Yds: we project 31.6, the market implies 46.2 (also Rush Att) (odds pulled 2026-11-07 17:53-05:00)",
-      "evidence": {
-        "stat": "rush_yds",
-        "stats": [
-          "rush_att",
-          "rush_yds"
-        ],
-        "ours": 31.6,
-        "market_mean": 46.23403898,
-        "delta": 14.63403898,
-        "pct": 0.4631024994,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0041029|9",
       "severity": "warning",
@@ -508,29 +485,6 @@
         "status_source": "ourlads",
         "sheet_status": "IR",
         "ppr": 7.9
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0041029|9|rec_yds",
-      "severity": "warning",
-      "player": "Jordyn Tyson",
-      "gsis_id": "00-0041029",
-      "pos": "WR",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Jordyn Tyson (WR, NO) Rec Yds: we project 21.7, the market implies 34.7 (odds pulled 2026-11-07 17:53-05:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 21.7,
-        "market_mean": 34.74803921,
-        "delta": 13.04803921,
-        "pct": 0.6012921294,
-        "flag": "RED"
       }
     },
     {
@@ -597,16 +551,16 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 9,
-      "message": "Saquon Barkley (RB, PHI) Rush+Rec Yds: we project 56.2, the market implies 73.5 (odds pulled 2026-11-07 17:53-05:00)",
+      "message": "Saquon Barkley (RB, PHI) Rush+Rec Yds: we project 56.2, the market implies 73.5 (odds pulled 2026-11-07 21:09-05:00)",
       "evidence": {
         "stat": "rush_rec_yds",
         "stats": [
           "rush_rec_yds"
         ],
         "ours": 56.2,
-        "market_mean": 73.51357377,
-        "delta": 17.31357377,
-        "pct": 0.3080707077,
+        "market_mean": 73.46715563,
+        "delta": 17.26715563,
+        "pct": 0.3072447621,
         "flag": "RED"
       }
     },
@@ -656,7 +610,7 @@
       "team": "SEA",
       "sheet": "primary",
       "week": 9,
-      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-07 17:53-05:00)",
+      "message": "Sam Darnold (QB, SEA) INT: we project 1.00, the market implies 0.54 (odds pulled 2026-11-07 21:09-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -2520,7 +2474,7 @@
     "sheet_status_stale": 20,
     "sheet_line_stale": 1,
     "elevated_not_projected": 1,
-    "market_proj_gap": 9,
+    "market_proj_gap": 7,
     "ir_return_window": 48,
     "elevation_limit": 24,
     "unconfirmed_report": 19
