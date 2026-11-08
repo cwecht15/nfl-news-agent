@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 9,
   "sheet": "primary",
-  "generated_at": "2026-11-08T00:40:49+00:00",
+  "generated_at": "2026-11-08T01:11:28+00:00",
   "inputs": {
     "snapshot_date": "2026-11-07",
     "nflverse_date": "2026-11-07",
-    "injury_week_updated": "2026-11-08T00:38:14+00:00",
-    "roster_state_updated": "2026-11-08T00:40:47+00:00"
+    "injury_week_updated": "2026-11-08T00:56:10+00:00",
+    "roster_state_updated": "2026-11-08T01:11:27+00:00"
   },
   "alerts": [
     {
@@ -53,25 +53,23 @@
       }
     },
     {
-      "type": "out_but_projected",
-      "key": "out_but_projected|00-0036259|9|OUT",
+      "type": "status_conflict",
+      "key": "status_conflict|00-0037557|9",
       "severity": "error",
-      "player": "Jauan Jennings",
-      "gsis_id": "00-0036259",
-      "pos": "WR",
-      "team": "MIN",
+      "player": "Ronnie Rivers",
+      "gsis_id": "00-0037557",
+      "pos": "RB",
+      "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Jauan Jennings (WR, MIN) is OUT (Calf) but projected for 3.9 PPR",
+      "message": "Ronnie Rivers (RB, LA) is marked IR on the sheet but still projected (3.1 PPR); roster status is IR",
       "evidence": {
-        "game_status": "OUT",
-        "injury": "Calf",
-        "practice": {
-          "2026-11-05": "LP",
-          "2026-11-06": "DNP",
-          "2026-11-07": "DNP"
-        },
-        "ppr": 3.9
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 3.1,
+        "slot": 3,
+        "earliest_return_week": 7
       }
     },
     {
@@ -133,21 +131,39 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0039550|9",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0037746|9",
       "severity": "warning",
-      "player": "Shawn Bowman",
-      "gsis_id": "00-0039550",
-      "pos": "TE",
-      "team": "ARZ",
+      "player": "Brian Robinson",
+      "gsis_id": "00-0037746",
+      "pos": "RB",
+      "team": "ATL",
       "sheet": "primary",
       "week": 9,
-      "message": "Shawn Bowman (TE, ARZ) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
+      "message": "Brian Robinson (RB, ATL) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "elevation_dates": [
-          "2026-11-07"
-        ],
-        "elevations_used": 0
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036906|9",
+      "severity": "warning",
+      "player": "Khalil Herbert",
+      "gsis_id": "00-0036906",
+      "pos": "RB",
+      "team": "ATL",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Khalil Herbert (RB, ATL) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "official",
+        "sheet_status": "PS",
+        "ppr": 3.9
       }
     },
     {
@@ -191,24 +207,6 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0036020|9",
-      "severity": "warning",
-      "player": "Salvon Ahmed",
-      "gsis_id": "00-0036020",
-      "pos": "RB",
-      "team": "CHI",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Salvon Ahmed (RB, CHI) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-11-07"
-        ],
-        "elevations_used": 0
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0035039|9",
       "severity": "warning",
@@ -242,60 +240,6 @@
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041131|9",
-      "severity": "warning",
-      "player": "Carsen Ryan",
-      "gsis_id": "00-0041131",
-      "pos": "TE",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Carsen Ryan (TE, CLV) sheet Status is ACTIVE but roster says FA",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0040934|9",
-      "severity": "warning",
-      "player": "Jordan Hudson",
-      "gsis_id": "00-0040934",
-      "pos": "WR",
-      "team": "DAL",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Jordan Hudson (WR, DAL) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-11-07"
-        ],
-        "elevations_used": 0
-      }
-    },
-    {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0040628|9",
-      "severity": "warning",
-      "player": "Drake Dabney",
-      "gsis_id": "00-0040628",
-      "pos": "TE",
-      "team": "GB",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Drake Dabney (TE, GB) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-11-07"
-        ],
-        "elevations_used": 0
       }
     },
     {
@@ -361,24 +305,6 @@
         "delta": 3.020243423,
         "pct": 0.3553227556,
         "flag": "RED"
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0041415|9",
-      "severity": "warning",
-      "player": "Dean Connors",
-      "gsis_id": "00-0041415",
-      "pos": "RB",
-      "team": "LA",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Dean Connors (RB, LA) sheet Status is ACTIVE but roster says IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
       }
     },
     {
@@ -466,24 +392,6 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0038930|9",
-      "severity": "warning",
-      "player": "Carlos Washington",
-      "gsis_id": "00-0038930",
-      "pos": "RB",
-      "team": "MIA",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Carlos Washington (RB, MIA) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-11-07"
-        ],
-        "elevations_used": 1
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0036425|9",
       "severity": "warning",
@@ -498,7 +406,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 1.3
+        "ppr": 1.6
       }
     },
     {
@@ -585,6 +493,24 @@
       }
     },
     {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0041029|9",
+      "severity": "warning",
+      "player": "Jordyn Tyson",
+      "gsis_id": "00-0041029",
+      "pos": "WR",
+      "team": "NO",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Jordyn Tyson (WR, NO) sheet Status is IR but roster says ACT - activated",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 7.9
+      }
+    },
+    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0041029|9|rec_yds",
       "severity": "warning",
@@ -608,21 +534,21 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0038040|9",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039518|9",
       "severity": "warning",
-      "player": "Zamir White",
-      "gsis_id": "00-0038040",
-      "pos": "RB",
+      "player": "Treyton Welch",
+      "gsis_id": "00-0039518",
+      "pos": "TE",
       "team": "NO",
       "sheet": "primary",
       "week": 9,
-      "message": "Zamir White (RB, NO) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
+      "message": "Treyton Welch (TE, NO) sheet Status is ACTIVE but roster says FA",
       "evidence": {
-        "elevation_dates": [
-          "2026-11-07"
-        ],
-        "elevations_used": 0
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -638,7 +564,7 @@
       "message": "Jalin Hyatt (WR, NYG) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.3
       }
@@ -721,24 +647,6 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0040621|9",
-      "severity": "warning",
-      "player": "Montorie Foster Jr",
-      "gsis_id": "00-0040621",
-      "pos": "WR",
-      "team": "SEA",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Montorie Foster Jr (WR, SEA) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-11-07"
-        ],
-        "elevations_used": 1
-      }
-    },
-    {
       "type": "market_proj_gap",
       "key": "market_proj_gap|00-0034869|9|ints",
       "severity": "warning",
@@ -759,6 +667,24 @@
         "delta": -0.4604319074,
         "pct": -0.4604319074,
         "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0034775|9",
+      "severity": "warning",
+      "player": "Christian Kirk",
+      "gsis_id": "00-0034775",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Christian Kirk (WR, SF) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -800,21 +726,21 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0041176|9",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036626|9",
       "severity": "warning",
-      "player": "Jaden Bradley",
-      "gsis_id": "00-0041176",
+      "player": "Dyami Brown",
+      "gsis_id": "00-0036626",
       "pos": "WR",
       "team": "WAS",
       "sheet": "primary",
       "week": 9,
-      "message": "Jaden Bradley (WR, WAS) was elevated from the practice squad (2026-11-07) but has no row on the sheet",
+      "message": "Dyami Brown (WR, WAS) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "elevation_dates": [
-          "2026-11-07"
-        ],
-        "elevations_used": 0
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -845,12 +771,12 @@
       "team": "ARZ",
       "sheet": "primary",
       "week": 9,
-      "message": "Hunter Long (TE, ARZ) on IR - first eligible Week 9 (already on the sheet)",
+      "message": "Hunter Long (TE, ARZ) on IR - first eligible Week 9",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 9,
         "designated_return_date": null,
-        "on_sheet": true
+        "on_sheet": false
       }
     },
     {
@@ -1267,27 +1193,6 @@
         "earliest_return_week": 5,
         "designated_return_date": "2026-10-06",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0036705|9",
-      "severity": "info",
-      "player": "Sam Kamara",
-      "gsis_id": "00-0036705",
-      "pos": "DL",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Sam Kamara (DL, CLV) has used 4/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 4,
-        "elevation_dates": [
-          "2026-10-10",
-          "2026-10-17",
-          "2026-10-19",
-          "2026-10-24"
-        ]
       }
     },
     {
@@ -1742,12 +1647,12 @@
       "team": "LA",
       "sheet": "primary",
       "week": 9,
-      "message": "Ronnie Rivers (RB, LA) on IR - designated to return 2026-11-05 - first eligible Week 7",
+      "message": "Ronnie Rivers (RB, LA) on IR - designated to return 2026-11-05 - first eligible Week 7 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 7,
         "designated_return_date": "2026-11-05",
-        "on_sheet": false
+        "on_sheet": true
       }
     },
     {
@@ -2163,42 +2068,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0041029|9",
-      "severity": "info",
-      "player": "Jordyn Tyson",
-      "gsis_id": "00-0041029",
-      "pos": "WR",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Jordyn Tyson (WR, NO) on IR - designated to return 2026-11-04 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-11-04",
-        "on_sheet": true
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040125|9",
-      "severity": "info",
-      "player": "Kelvin Banks Jr.",
-      "gsis_id": "00-0040125",
-      "pos": "OL",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 9,
-      "message": "Kelvin Banks Jr. (OL, NO) on IR - designated to return 2026-11-05 - first eligible Week 7",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 7,
-        "designated_return_date": "2026-11-05",
-        "on_sheet": false
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0037231|9",
       "severity": "info",
@@ -2407,6 +2276,26 @@
         "earliest_return_week": 9,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0037745|9",
+      "severity": "info",
+      "player": "Velus Jones Jr.",
+      "gsis_id": "00-0037745",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 9,
+      "message": "Velus Jones Jr. (RB, SEA) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-09",
+          "2026-09-26",
+          "2026-10-16"
+        ]
       }
     },
     {
@@ -2627,13 +2516,12 @@
   "errors": [],
   "counts": {
     "missing_active": 3,
-    "status_conflict": 3,
-    "out_but_projected": 1,
-    "sheet_status_stale": 16,
-    "elevated_not_projected": 9,
+    "status_conflict": 4,
+    "sheet_status_stale": 20,
     "sheet_line_stale": 1,
+    "elevated_not_projected": 1,
     "market_proj_gap": 9,
-    "ir_return_window": 50,
+    "ir_return_window": 48,
     "elevation_limit": 24,
     "unconfirmed_report": 19
   }
