@@ -505,3 +505,25 @@
 2026-11-08 00:16:35,673 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-07.html
 2026-11-08 00:16:35,674 [INFO] afternoon: Report 2026-11-07 updated in place (pm_updated_at=2026-11-08T00:16:35+00:00)
 2026-11-08 00:16:35,674 [INFO] afternoon: Game-day inactives run complete.
+2026-11-08 00:37:59,721 [INFO] afternoon: ============================================================
+2026-11-08 00:37:59,721 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-11-07 (week 9, Sat)
+2026-11-08 00:37:59,721 [INFO] afternoon: ============================================================
+2026-11-08 00:37:59,766 [INFO] afternoon: Game lines via API skipped: last pulled 2026-11-08T00:16+00:00 (< 60 min ago)
+2026-11-08 00:37:59,767 [INFO] afternoon: Step 2c: Reading market lines...
+2026-11-08 00:38:10,611 [INFO] afternoon: Market lines: week 9, 15 games, 1224 player-stats, 0 changes (none); odds pulled 2026-11-07T17:53-05:00; game lines via API 2026-11-07T19:16:18-05:00
+2026-11-08 00:38:10,612 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-11-08 00:38:13,932 [INFO] collectors.injury_report_collector: Team-site injury reports: 30 with a table, 2 not posted, 0 mismatched, 0 failed; 697 rows
+2026-11-08 00:38:14,506 [INFO] collectors.injury_report_collector: RotoWire practice report: 363 rows
+2026-11-08 00:38:14,826 [INFO] collectors.injury_report_collector: NFL.com injuries: week 9, 362 rows (practice status dated 2026-11-07)
+2026-11-08 00:38:14,828 [INFO] collectors.injury_report_collector: rotowire: dropped rows for FA — no game this week
+2026-11-08 00:38:14,831 [WARNING] collectors.injury_report_collector: IND A.J. Haulcy: same-source game_status disagreement Q vs OUT (team_site)
+2026-11-08 00:38:14,833 [INFO] collectors.injury_report_collector: Injury report: 2 source conflicts
+2026-11-08 00:38:14,844 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk09.json (30 teams)
+2026-11-08 00:38:14,844 [INFO] collectors.injury_report_collector: Injury report week 9: 368 players, 1 changes
+2026-11-08 00:38:14,853 [INFO] afternoon: Injury report: week 9, 368 rows (nflcom=362, rotowire=362, team_site=349), 1 changes, 2 conflicts, team sites with a table: 30
+2026-11-08 00:38:14,854 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-11-08 00:38:15,119 [INFO] afternoon: Projection audit: 135 open alerts (error=5, info=94, warning=36), 0 dismissed
+2026-11-08 00:38:15,148 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-07.json
+2026-11-08 00:38:15,151 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-07.html
+2026-11-08 00:38:15,151 [INFO] afternoon: Report 2026-11-07 updated in place (pm_updated_at=2026-11-08T00:38:15+00:00)
+2026-11-08 00:38:15,151 [INFO] afternoon: Injury report refresh complete.
