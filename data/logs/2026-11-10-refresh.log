@@ -1,0 +1,78 @@
+2026-11-11 02:55:29,199 [INFO] afternoon: ============================================================
+2026-11-11 02:55:29,199 [INFO] afternoon: NFL News Agent - on-demand refresh: 2026-11-10 (week 10, Tue)
+2026-11-11 02:55:29,199 [INFO] afternoon: ============================================================
+2026-11-11 02:55:29,223 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/11
+2026-11-11 02:55:29,534 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/11
+2026-11-11 02:55:29,655 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/11
+2026-11-11 02:55:29,784 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/11
+2026-11-11 02:55:29,913 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/11
+2026-11-11 02:55:30,037 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/11
+2026-11-11 02:55:30,155 [INFO] collectors.web_scraper: Scraping NFL.com transactions [trades]: https://www.nfl.com/transactions/league/trades/2026/10
+2026-11-11 02:55:30,269 [INFO] collectors.web_scraper: Scraping NFL.com transactions [signings]: https://www.nfl.com/transactions/league/signings/2026/10
+2026-11-11 02:55:30,684 [INFO] collectors.web_scraper: Scraping NFL.com transactions [reserve-list]: https://www.nfl.com/transactions/league/reserve-list/2026/10
+2026-11-11 02:55:32,458 [INFO] collectors.web_scraper: Scraping NFL.com transactions [waivers]: https://www.nfl.com/transactions/league/waivers/2026/10
+2026-11-11 02:55:33,062 [INFO] collectors.web_scraper: Scraping NFL.com transactions [terminations]: https://www.nfl.com/transactions/league/terminations/2026/10
+2026-11-11 02:55:33,550 [INFO] collectors.web_scraper: Scraping NFL.com transactions [other]: https://www.nfl.com/transactions/league/other/2026/10
+2026-11-11 02:55:33,967 [INFO] collectors.web_scraper: Found 56 transactions.
+2026-11-11 02:55:33,970 [INFO] afternoon: PM transactions: 56 rows -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/raw/2026-11-10/web_pm.json
+2026-11-11 02:55:33,972 [INFO] afternoon: Step 2c: Reading market lines...
+2026-11-11 02:55:41,141 [INFO] afternoon: Market lines: week 10, 14 games, 471 player-stats, 0 changes (none); odds pulled 2026-11-10T09:07-05:00; game lines via API 2026-11-10T20:29:54-05:00
+2026-11-11 02:55:41,502 [INFO] collectors.espn_transactions_collector: ESPN elevations: 38 in the last 4 days (38 parsed from 100 rows, newest row 2026-11-10); practice-squad promotions: 7
+2026-11-11 02:55:41,502 [INFO] afternoon: Step 5f: 38 practice-squad elevations from ESPN (ARI, ATL, BUF, CAR, CHI, CLE, DAL, DEN, DET, GB, HOU, IND, KC, LAR, LV, MIA, MIN, NO, NYG, NYJ, PHI, SEA, SF, WAS)
+2026-11-11 02:55:41,502 [INFO] afternoon: Step 5f: 7 practice-squad promotions from ESPN (ARI, DEN, LAR, MIN, NYG, NYJ)
+2026-11-11 02:55:43,608 [INFO] collectors.cbs_transactions_collector: CBS elevations: 1 not yet in ESPN (9 move rows since 2026-11-08, 457 rows on the page, newest 2026-11-10)
+2026-11-11 02:55:43,610 [INFO] afternoon: Step 5f: 1 more elevations from CBS, pending ESPN confirmation (ATL)
+2026-11-11 02:55:43,610 [INFO] afternoon: Step 5b: Updating roster events/state...
+2026-11-11 02:55:43,648 [INFO] collectors.nflverse_roster_collector: Fetching nflverse roster: https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2026.csv
+2026-11-11 02:55:44,078 [INFO] collectors.nflverse_roster_collector: nflverse roster: 3070 rows (981583 bytes)
+2026-11-11 02:55:44,096 [INFO] collectors.nflverse_roster_collector: nflverse normalize: 1 rows without gsis_id skipped, 0 duplicate gsis rows
+2026-11-11 02:55:44,120 [INFO] collectors.nflverse_roster_collector: Saved nflverse snapshot: 3069 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/nflverse/2026-11-10.json
+2026-11-11 02:55:44,297 [INFO] processing.roster_events: Saved roster state: 3112 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-11-11 02:55:44,330 [INFO] processing.roster_events: Roster step 2026-11-10: {"nflverse_transitions": 214, "nflverse_events": 49, "nflcom_events": 56, "news_events": 0, "espn_elevations": 46, "appended": 0, "ledger": 4722, "confirmed_new": 0}
+2026-11-11 02:55:44,333 [INFO] afternoon: Roster events: 0 new (appended=0, confirmed_new=0, espn_elevations=46, ledger=4722, news_events=0, nflcom_events=56, nflverse_events=49, nflverse_transitions=214, status={'ACT': 1689, 'EXE': 2, 'FA': 437, 'IR': 320, 'NFI': 5, 'PS': 596, 'PUP': 19, 'RET': 23, 'SUS': 2, 'UNKNOWN': 19}); state covers 3112 players
+2026-11-11 02:55:44,334 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-11-11 02:55:44,726 [INFO] collectors.injury_report_collector: BAL injury page shows ['BAL', 'JAX'], expected BAL vs LAC this week — skipped
+2026-11-11 02:55:44,784 [INFO] collectors.injury_report_collector: ARI injury page shows ['ARI', 'SEA'], expected ARI vs LAR this week — skipped
+2026-11-11 02:55:44,930 [INFO] collectors.injury_report_collector: CHI injury page shows ['CHI', 'TB'], but CHI has no game in week 10 — skipped
+2026-11-11 02:55:44,979 [INFO] collectors.injury_report_collector: BUF injury page shows ['BUF', 'MIN'], expected BUF vs NYJ this week — skipped
+2026-11-11 02:55:45,070 [INFO] collectors.injury_report_collector: CLE injury page shows ['CLE', 'NO'], expected CLE vs HOU this week — skipped
+2026-11-11 02:55:45,141 [INFO] collectors.injury_report_collector: CIN injury page shows ['ATL'], expected CIN vs PIT this week — skipped
+2026-11-11 02:55:45,196 [INFO] collectors.injury_report_collector: CAR injury page shows ['CAR', 'DEN'], expected CAR vs NO this week — skipped
+2026-11-11 02:55:45,274 [INFO] collectors.injury_report_collector: DAL injury page shows ['DAL', 'IND'], expected DAL vs SF this week — skipped
+2026-11-11 02:55:45,341 [INFO] collectors.injury_report_collector: DEN injury page shows ['CAR', 'DEN'], but DEN has no game in week 10 — skipped
+2026-11-11 02:55:45,413 [INFO] collectors.injury_report_collector: DET injury page shows ['DET', 'MIA'], expected DET vs NE this week — skipped
+2026-11-11 02:55:45,493 [INFO] collectors.injury_report_collector: GB injury page shows ['GB', 'NE'], expected GB vs MIN this week — skipped
+2026-11-11 02:55:45,641 [INFO] collectors.injury_report_collector: IND injury page shows ['DAL', 'IND'], expected IND vs MIA this week — skipped
+2026-11-11 02:55:45,643 [INFO] collectors.injury_report_collector: JAX injury page shows ['BAL', 'JAX'], expected JAX vs TEN this week — skipped
+2026-11-11 02:55:45,782 [INFO] collectors.injury_report_collector: KC injury page shows ['KC', 'NYJ'], expected KC vs ATL this week — skipped
+2026-11-11 02:55:45,890 [INFO] collectors.injury_report_collector: HOU injury page shows ['HOU', 'LAC'], expected HOU vs CLE this week — skipped
+2026-11-11 02:55:45,937 [INFO] collectors.injury_report_collector: LAC injury page shows ['HOU', 'LAC'], expected LAC vs BAL this week — skipped
+2026-11-11 02:55:45,981 [INFO] collectors.injury_report_collector: LAR injury page shows ['LAR', 'WAS'], expected LAR vs ARI this week — skipped
+2026-11-11 02:55:46,046 [INFO] collectors.injury_report_collector: MIA injury page shows ['DET', 'MIA'], expected MIA vs IND this week — skipped
+2026-11-11 02:55:46,145 [INFO] collectors.injury_report_collector: MIN injury page shows ['BUF', 'MIN'], expected MIN vs GB this week — skipped
+2026-11-11 02:55:46,219 [INFO] collectors.injury_report_collector: NE injury page shows ['GB', 'NE'], expected NE vs DET this week — skipped
+2026-11-11 02:55:46,316 [INFO] collectors.injury_report_collector: NYG injury page shows ['NYG', 'PHI'], expected NYG vs WAS this week — skipped
+2026-11-11 02:55:46,453 [INFO] collectors.injury_report_collector: NO injury page shows ['CLE', 'NO'], expected NO vs CAR this week — skipped
+2026-11-11 02:55:46,617 [INFO] collectors.injury_report_collector: NYJ injury page shows ['KC', 'NYJ'], expected NYJ vs BUF this week — skipped
+2026-11-11 02:55:46,678 [INFO] collectors.injury_report_collector: PHI injury page shows ['NYG', 'PHI'], but PHI has no game in week 10 — skipped
+2026-11-11 02:55:46,749 [INFO] collectors.injury_report_collector: SF injury page shows ['LV', 'SF'], expected SF vs DAL this week — skipped
+2026-11-11 02:55:46,795 [INFO] collectors.injury_report_collector: SEA injury page shows ['ARI', 'SEA'], expected SEA vs LV this week — skipped
+2026-11-11 02:55:46,861 [INFO] collectors.injury_report_collector: TB injury page shows ['CHI', 'TB'], but TB has no game in week 10 — skipped
+2026-11-11 02:55:47,024 [INFO] collectors.injury_report_collector: LV injury page shows ['LV', 'SF'], expected LV vs SEA this week — skipped
+2026-11-11 02:55:47,090 [INFO] collectors.injury_report_collector: WAS injury page shows ['LAR', 'WAS'], expected WAS vs NYG this week — skipped
+2026-11-11 02:55:47,091 [INFO] collectors.injury_report_collector: Team-site injury reports: 1 with a table, 2 not posted, 29 mismatched, 0 failed; 8 rows
+2026-11-11 02:55:47,703 [INFO] collectors.injury_report_collector: RotoWire practice report: 20 rows
+2026-11-11 02:55:48,009 [INFO] collectors.injury_report_collector: NFL.com injuries: week 9, 362 rows (practice status dated 2026-11-10)
+2026-11-11 02:55:48,009 [INFO] collectors.injury_report_collector: NFL.com injuries page is week 9, collecting week 10 — 362 rows ignored
+2026-11-11 02:55:48,011 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk10.json (3 teams)
+2026-11-11 02:55:48,011 [INFO] collectors.injury_report_collector: Injury report week 10: 28 players, 0 changes
+2026-11-11 02:55:48,018 [INFO] afternoon: Injury report: week 10, 28 rows (nflcom=0, rotowire=20, team_site=8), 0 changes, 0 conflicts, team sites with a table: 1
+2026-11-11 02:55:48,018 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-11-11 02:55:48,231 [INFO] collectors.inactives_collector: Inactives week 10: 0 games polled, 0 teams published, 0 changed
+2026-11-11 02:55:48,233 [INFO] afternoon: Inactives: week 10, 0 games polled, 0 teams published, 0 newly published/changed
+2026-11-11 02:55:48,234 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-11-11 02:55:48,410 [INFO] afternoon: Projection audit: 128 open alerts (error=7, info=90, warning=31), 0 dismissed
+2026-11-11 02:55:48,474 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-10.json
+2026-11-11 02:55:48,477 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-10.html
+2026-11-11 02:55:48,477 [INFO] afternoon: Report 2026-11-10 updated in place (pm_updated_at=2026-11-11T02:55:48+00:00)
+2026-11-11 02:55:48,477 [INFO] afternoon: Refresh complete (elevations, inactives, injuries, odds, roster, transactions).
