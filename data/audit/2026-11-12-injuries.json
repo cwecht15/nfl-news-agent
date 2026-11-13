@@ -4,29 +4,32 @@
   "season": 2026,
   "week": 10,
   "sheet": "primary",
-  "generated_at": "2026-11-12T11:45:24+00:00",
+  "generated_at": "2026-11-13T00:20:32+00:00",
   "inputs": {
-    "snapshot_date": "2026-11-11",
-    "nflverse_date": "2026-11-11",
-    "injury_week_updated": "2026-11-12T11:45:24+00:00",
-    "roster_state_updated": "2026-11-12T04:24:30+00:00"
+    "snapshot_date": "2026-11-12",
+    "nflverse_date": "2026-11-12",
+    "injury_week_updated": "2026-11-13T00:20:31+00:00",
+    "roster_state_updated": "2026-11-12T20:12:44+00:00"
   },
   "alerts": [
     {
-      "type": "wrong_team",
-      "key": "wrong_team|00-0038562|10|ATL",
+      "type": "status_conflict",
+      "key": "status_conflict|00-0032394|10",
       "severity": "error",
-      "player": "Jake Moody",
-      "gsis_id": "00-0038562",
-      "pos": "K",
+      "player": "Nick Vannett",
+      "gsis_id": "00-0032394",
+      "pos": "TE",
       "team": "BLT",
       "sheet": "primary",
       "week": 10,
-      "message": "Jake Moody (K) is on the BLT sheet but the roster has him on ATL",
+      "message": "Nick Vannett (TE, BLT) is projected Active (0.4 PPR) but roster status is FA (since 2026-11-12)",
       "evidence": {
-        "sheet_team": "BLT",
-        "roster_team": "ATL",
-        "status_source": "official"
+        "roster_status": "FA",
+        "status_source": "nflverse",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.4,
+        "slot": 4,
+        "earliest_return_week": null
       }
     },
     {
@@ -70,23 +73,6 @@
       }
     },
     {
-      "type": "wrong_team",
-      "key": "wrong_team|00-0038997|10|IND",
-      "severity": "error",
-      "player": "Josh Downs",
-      "gsis_id": "00-0038997",
-      "pos": "WR",
-      "team": "KC",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Josh Downs (WR) is on the KC sheet but the roster has him on IND",
-      "evidence": {
-        "sheet_team": "KC",
-        "roster_team": "IND",
-        "status_source": "nflverse"
-      }
-    },
-    {
       "type": "status_conflict",
       "key": "status_conflict|00-0039489|10",
       "severity": "error",
@@ -96,48 +82,14 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 10,
-      "message": "Hayden Rucci (TE, LAC) is projected Active (0.5 PPR) but roster status is FA (since 2026-11-10)",
+      "message": "Hayden Rucci (TE, LAC) is projected Active (0.5 PPR) but roster status is FA (since 2026-11-12)",
       "evidence": {
         "roster_status": "FA",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.5,
         "slot": 3,
         "earliest_return_week": null
-      }
-    },
-    {
-      "type": "wrong_team",
-      "key": "wrong_team|00-0029604|10|LV",
-      "severity": "error",
-      "player": "Kirk Cousins",
-      "gsis_id": "00-0029604",
-      "pos": "QB",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Kirk Cousins (QB) is on the MIN sheet but the roster has him on LV",
-      "evidence": {
-        "sheet_team": "MIN",
-        "roster_team": "LV",
-        "status_source": "nflverse"
-      }
-    },
-    {
-      "type": "wrong_team",
-      "key": "wrong_team|00-0030279|10|IND",
-      "severity": "error",
-      "player": "Keenan Allen",
-      "gsis_id": "00-0030279",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Keenan Allen (WR) is on the SF sheet but the roster has him on IND",
-      "evidence": {
-        "sheet_team": "SF",
-        "roster_team": "IND",
-        "status_source": "nflverse"
       }
     },
     {
@@ -175,7 +127,7 @@
       "message": "Gardner Minshew (QB, ARZ) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "ourlads",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -211,31 +163,27 @@
       "message": "Michael Wilson (WR, ARZ) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
     {
-      "type": "sheet_line_stale",
-      "key": "sheet_line_stale|ATL|10|KC@ATL",
+      "type": "elevated_not_projected",
+      "key": "elevated_not_projected|00-0038562|10",
       "severity": "warning",
-      "player": "",
-      "gsis_id": null,
-      "pos": "",
+      "player": "Jake Moody",
+      "gsis_id": "00-0038562",
+      "pos": "K",
       "team": "ATL",
       "sheet": "primary",
       "week": 10,
-      "message": "KC@ATL: the sheet has 3.5 / 45.5, the market 3.5 / 47.0 (FP-TOTAL) (odds pulled 2026-11-12 06:44:36-05:00)",
+      "message": "Jake Moody (K, ATL) was elevated from the practice squad (2026-11-10) but has no row on the sheet",
       "evidence": {
-        "game": "KC@ATL",
-        "fp_flag": "FP-TOTAL",
-        "sheet_spread": 3.5,
-        "sheet_ou": 45.5,
-        "market_spread": 3.5,
-        "market_total": 47.0,
-        "spread_delta": 0.0,
-        "total_delta": 1.5
+        "elevation_dates": [
+          "2026-11-10"
+        ],
+        "elevations_used": 1
       }
     },
     {
@@ -257,44 +205,6 @@
       }
     },
     {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0032394|10",
-      "severity": "warning",
-      "player": "Nick Vannett",
-      "gsis_id": "00-0032394",
-      "pos": "TE",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Nick Vannett (TE, BLT) is projected Active (0.4 PPR) but roster status is PS (since 2026-11-11)",
-      "evidence": {
-        "roster_status": "PS",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.4,
-        "slot": 4,
-        "earliest_return_week": null
-      }
-    },
-    {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0034487|10",
-      "severity": "warning",
-      "player": "Trent Sherfield",
-      "gsis_id": "00-0034487",
-      "pos": "WR",
-      "team": "BUF",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Trent Sherfield (WR, BUF) sheet Status is PS but roster says ACT - promoted to the active roster",
-      "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.2
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0033589|10",
       "severity": "warning",
@@ -304,10 +214,10 @@
       "team": "CAR",
       "sheet": "primary",
       "week": 10,
-      "message": "David Moore (WR, CAR) sheet Status is ACTIVE but roster says PS",
+      "message": "David Moore (WR, CAR) sheet Status is ACTIVE but roster says FA",
       "evidence": {
-        "roster_status": "PS",
-        "status_source": "official",
+        "roster_status": "FA",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -403,6 +313,52 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040142|10|rush_yds",
+      "severity": "warning",
+      "player": "Kaleb Johnson",
+      "gsis_id": "00-0040142",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Kaleb Johnson (RB, GB) Rush Yds: we project 52.2, the market implies 35.1 (odds pulled 2026-11-12 16:07-05:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_yds"
+        ],
+        "ours": 52.2,
+        "market_mean": 35.13891187,
+        "delta": -17.06108813,
+        "pct": -0.3268407687,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0038098|10|rush_yds",
+      "severity": "warning",
+      "player": "Pierre Strong",
+      "gsis_id": "00-0038098",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Pierre Strong (RB, GB) Rush Yds: we project 31.3, the market implies 15.7 (odds pulled 2026-11-12 16:07-05:00)",
+      "evidence": {
+        "stat": "rush_yds",
+        "stats": [
+          "rush_yds"
+        ],
+        "ours": 31.3,
+        "market_mean": 15.68203815,
+        "delta": -15.61796185,
+        "pct": -0.4989764169,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0036182|10",
       "severity": "warning",
@@ -415,9 +371,33 @@
       "message": "Nick Westbrook-Ikhine (WR, IND) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 2.4
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0039738|10|rush_rec_yds",
+      "severity": "warning",
+      "player": "Blake Corum",
+      "gsis_id": "00-0039738",
+      "pos": "RB",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Blake Corum (RB, LA) Rush+Rec Yds: we project 52.5, the market implies 73.9 (also Rush Yds) (odds pulled 2026-11-12 16:07-05:00)",
+      "evidence": {
+        "stat": "rush_rec_yds",
+        "stats": [
+          "rush_rec_yds",
+          "rush_yds"
+        ],
+        "ours": 52.5,
+        "market_mean": 73.92539925,
+        "delta": 21.42539925,
+        "pct": 0.4081028429,
+        "flag": "RED"
       }
     },
     {
@@ -433,7 +413,7 @@
       "message": "Jordan Whittington (WR, LA) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -459,6 +439,29 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040590|10|rec_yds",
+      "severity": "warning",
+      "player": "Konata Mumpfield",
+      "gsis_id": "00-0040590",
+      "pos": "WR",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Konata Mumpfield (WR, LA) Rec Yds: we project 44.0, the market implies 30.4 (odds pulled 2026-11-12 16:07-05:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 44.0,
+        "market_mean": 30.37856039,
+        "delta": -13.62143961,
+        "pct": -0.3095781728,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "missing_active",
       "key": "missing_active|00-0038359|10",
       "severity": "warning",
@@ -468,14 +471,14 @@
       "team": "LA",
       "sheet": "primary",
       "week": 10,
-      "message": "Xavier Smith (WR, LA) is on the active roster but has no row on the sheet (OurLads SWR #2; signed 2026-11-10)",
+      "message": "Xavier Smith (WR, LA) is on the active roster but has no row on the sheet (OurLads SWR #2; promoted from the practice squad 2026-11-12)",
       "evidence": {
         "ourlads_depth": 2,
         "ourlads_pos": "SWR",
         "ourlads_stale": false,
-        "nflverse_status": "DEV",
+        "nflverse_status": "ACT",
         "depth_chart_position": "WR",
-        "status_abbr": "P06"
+        "status_abbr": "A01"
       }
     },
     {
@@ -491,7 +494,7 @@
       "message": "Malik Willis (QB, MIA) sheet Status is ACTIVE but roster says IR",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -527,7 +530,7 @@
       "message": "Odell Beckham Jr. (WR, MIN) sheet Status is PS but roster says FA",
       "evidence": {
         "roster_status": "FA",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 0.4
       }
@@ -663,6 +666,31 @@
       }
     },
     {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0035719|10|rec_yds",
+      "severity": "warning",
+      "player": "Deebo Samuel Sr.",
+      "gsis_id": "00-0035719",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Deebo Samuel Sr. (WR, SF) Rec Yds: we project 66.0, the market implies 42.2 (also Rec, Rush+Rec Yds) (odds pulled 2026-11-12 16:07-05:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions",
+          "rush_rec_yds"
+        ],
+        "ours": 66.0,
+        "market_mean": 42.17076471,
+        "delta": -23.82923529,
+        "pct": -0.3610490195,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0035359|10",
       "severity": "warning",
@@ -690,16 +718,16 @@
       "team": "TEN",
       "sheet": "primary",
       "week": 10,
-      "message": "Elic Ayomanor (WR, TEN) Rec Yds: we project 38.7, the market implies 26.4 (odds pulled 2026-11-11 15:06-05:00)",
+      "message": "Elic Ayomanor (WR, TEN) Rec Yds: we project 38.7, the market implies 26.4 (odds pulled 2026-11-12 16:07-05:00)",
       "evidence": {
         "stat": "rec_yds",
         "stats": [
           "rec_yds"
         ],
         "ours": 38.7,
-        "market_mean": 26.44610134,
-        "delta": -12.25389866,
-        "pct": -0.3166382082,
+        "market_mean": 26.39534768,
+        "delta": -12.30465232,
+        "pct": -0.3179496723,
         "flag": "RED"
       }
     },
@@ -757,27 +785,6 @@
         "earliest_return_week": 5,
         "designated_return_date": "2026-10-24",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0037826|10",
-      "severity": "info",
-      "player": "Drake Jackson",
-      "gsis_id": "00-0037826",
-      "pos": "LB",
-      "team": "ATL",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Drake Jackson (LB, ATL) has used 4/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 4,
-        "elevation_dates": [
-          "2026-10-10",
-          "2026-10-17",
-          "2026-10-19",
-          "2026-11-07"
-        ]
       }
     },
     {
@@ -1090,6 +1097,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0041037|10",
+      "severity": "info",
+      "player": "Denzel Boston",
+      "gsis_id": "00-0041037",
+      "pos": "WR",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Denzel Boston (WR, CLV) did not practice on the latest report (Toe); projected 10.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Toe",
+        "ppr": 10.8
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0037832|10",
       "severity": "info",
@@ -1105,6 +1132,26 @@
         "earliest_return_week": 5,
         "designated_return_date": "2026-10-06",
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0031595|10",
+      "severity": "info",
+      "player": "Michael Burton",
+      "gsis_id": "00-0031595",
+      "pos": "RB",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Michael Burton (RB, CLV) did not practice on the latest report (Calf); projected 0.3 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Calf",
+        "ppr": 0.3
       }
     },
     {
@@ -1165,26 +1212,6 @@
     },
     {
       "type": "elevation_limit",
-      "key": "elevation_limit|00-0039465|10",
-      "severity": "info",
-      "player": "Reddy Steward",
-      "gsis_id": "00-0039465",
-      "pos": "DB",
-      "team": "DAL",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Reddy Steward (DB, DAL) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-09-26",
-          "2026-10-03",
-          "2026-10-08"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
       "key": "elevation_limit|00-0035663|10",
       "severity": "info",
       "player": "Taylor Rapp",
@@ -1219,6 +1246,26 @@
         "earliest_return_week": null,
         "designated_return_date": "2026-10-28",
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039364|10",
+      "severity": "info",
+      "player": "Sione Vaki",
+      "gsis_id": "00-0039364",
+      "pos": "RB",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Sione Vaki (RB, DET) did not practice on the latest report (Ankle); projected 3.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Ankle",
+        "ppr": 3.2
       }
     },
     {
@@ -1314,6 +1361,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0036556|10",
+      "severity": "info",
+      "player": "Brevin Jordan",
+      "gsis_id": "00-0036556",
+      "pos": "TE",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Brevin Jordan (TE, HST) did not practice on the latest report (Finger / Foot); projected 0.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Finger / Foot",
+        "ppr": 0.8
+      }
+    },
+    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0036241|10",
       "severity": "info",
@@ -1394,6 +1461,46 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039849|10",
+      "severity": "info",
+      "player": "Marvin Harrison Jr.",
+      "gsis_id": "00-0039849",
+      "pos": "WR",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Marvin Harrison Jr. (WR, HST) did not practice on the latest report (Hamstring); projected 5.5 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "LP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Hamstring",
+        "ppr": 5.5
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040583|10",
+      "severity": "info",
+      "player": "Woody Marks",
+      "gsis_id": "00-0040583",
+      "pos": "RB",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Woody Marks (RB, HST) did not practice on the latest report (Knee); projected 14.3 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "LP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Knee",
+        "ppr": 14.3
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|ed dodds|10|ps_signed",
       "severity": "info",
@@ -1432,6 +1539,46 @@
           "2026-11-07",
           "2026-11-09"
         ]
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0033217|10",
+      "severity": "info",
+      "player": "Mo Alie-Cox",
+      "gsis_id": "00-0033217",
+      "pos": "TE",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Mo Alie-Cox (TE, IND) did not practice on the latest report (Groin); projected 0.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Groin",
+        "ppr": 0.8
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040719|10",
+      "severity": "info",
+      "player": "Bhayshul Tuten",
+      "gsis_id": "00-0040719",
+      "pos": "RB",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Bhayshul Tuten (RB, JAX) did not practice on the latest report (Ankle/Foot); projected 16.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Ankle/Foot",
+        "ppr": 16.8
       }
     },
     {
@@ -1569,6 +1716,26 @@
           "source": "news:SBN Rams (Turf Show Times)"
         },
         "days_pending": 30
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039074|10",
+      "severity": "info",
+      "player": "Davis Allen",
+      "gsis_id": "00-0039074",
+      "pos": "TE",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Davis Allen (TE, LA) did not practice on the latest report (Oblique); projected 4.3 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "LP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Oblique",
+        "ppr": 4.3
       }
     },
     {
@@ -1905,6 +2072,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0041525|10",
+      "severity": "info",
+      "player": "Chris Bell",
+      "gsis_id": "00-0041525",
+      "pos": "WR",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Chris Bell (WR, MIA) did not practice on the latest report (Knee); projected 4.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "LP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Knee",
+        "ppr": 4.8
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0037549|10",
       "severity": "info",
@@ -2003,6 +2190,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0035229|10",
+      "severity": "info",
+      "player": "T.J. Hockenson",
+      "gsis_id": "00-0035229",
+      "pos": "TE",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 10,
+      "message": "T.J. Hockenson (TE, MIN) did not practice on the latest report (Wrist/Chest); projected 12.0 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Wrist/Chest",
+        "ppr": 12.0
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|aj brown’s|10|ir_designated_return",
       "severity": "info",
@@ -2059,27 +2266,6 @@
         "earliest_return_week": 8,
         "designated_return_date": "2026-11-05",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "unconfirmed_report",
-      "key": "unconfirmed_report|audric estime|10|ir_placed",
-      "severity": "info",
-      "player": "Audric Estime",
-      "gsis_id": null,
-      "pos": "",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Audric Estime: reported ir placed on 2026-09-12 (Pro Football Talk) still unconfirmed after 61 days",
-      "evidence": {
-        "event": {
-          "event_id": "3c678b83451f2bd8",
-          "event_type": "ir_placed",
-          "date": "2026-09-12",
-          "source": "news:Pro Football Talk"
-        },
-        "days_pending": 61
       }
     },
     {
@@ -2284,10 +2470,10 @@
       "team": "PIT",
       "sheet": "primary",
       "week": 10,
-      "message": "Michael Pittman (WR, PIT) is quoted by the market (Anytime TD rate 0.26) but has no row on the sheet (odds pulled 2026-11-11 15:06-05:00)",
+      "message": "Michael Pittman (WR, PIT) is quoted by the market (Anytime TD rate 0.24) but has no row on the sheet (odds pulled 2026-11-12 16:07-05:00)",
       "evidence": {
         "stat": "anytime_td",
-        "market_mean": 0.2625592152,
+        "market_mean": 0.2420635583,
         "flag": "MKT-ONLY",
         "n_books": 3
       }
@@ -2515,6 +2701,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0035261|10",
+      "severity": "info",
+      "player": "Tony Pollard",
+      "gsis_id": "00-0035261",
+      "pos": "RB",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Tony Pollard (RB, TEN) did not practice on the latest report (Finger/Not Injury Related-Rest); projected 14.5 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-11": "FP",
+          "2026-11-12": "DNP"
+        },
+        "injury": "Finger/Not Injury Related-Rest",
+        "ppr": 14.5
+      }
+    },
+    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0040318|10",
       "severity": "info",
@@ -2556,16 +2762,16 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "wrong_team": 4,
     "status_conflict": 5,
     "out_but_projected": 1,
-    "sheet_status_stale": 23,
-    "sheet_line_stale": 1,
+    "sheet_status_stale": 22,
+    "elevated_not_projected": 1,
+    "market_proj_gap": 6,
     "missing_active": 4,
-    "market_proj_gap": 1,
     "ir_return_window": 37,
-    "elevation_limit": 36,
-    "unconfirmed_report": 19,
+    "elevation_limit": 34,
+    "unconfirmed_report": 18,
+    "dnp_but_projected": 12,
     "market_only_player": 1
   }
 }
