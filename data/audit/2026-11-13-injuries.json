@@ -4,11 +4,11 @@
   "season": 2026,
   "week": 10,
   "sheet": "primary",
-  "generated_at": "2026-11-13T20:46:52+00:00",
+  "generated_at": "2026-11-14T00:31:38+00:00",
   "inputs": {
     "snapshot_date": "2026-11-13",
     "nflverse_date": "2026-11-13",
-    "injury_week_updated": "2026-11-13T20:46:52+00:00",
+    "injury_week_updated": "2026-11-14T00:31:37+00:00",
     "roster_state_updated": "2026-11-13T12:57:32+00:00"
   },
   "alerts": [
@@ -33,6 +33,28 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0031595|10|OUT",
+      "severity": "error",
+      "player": "Michael Burton",
+      "gsis_id": "00-0031595",
+      "pos": "RB",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Michael Burton (RB, CLV) is OUT (Calf) but projected for 0.3 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Calf",
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP",
+          "2026-11-13": "DNP"
+        },
+        "ppr": 0.3
+      }
+    },
+    {
       "type": "status_conflict",
       "key": "status_conflict|00-0038685|10",
       "severity": "error",
@@ -50,6 +72,28 @@
         "ppr": 5.3,
         "slot": 3,
         "earliest_return_week": 9
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0036556|10|OUT",
+      "severity": "error",
+      "player": "Brevin Jordan",
+      "gsis_id": "00-0036556",
+      "pos": "TE",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Brevin Jordan (TE, HST) is OUT (Finger / Foot) but projected for 0.8 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Finger / Foot",
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP",
+          "2026-11-13": "DNP"
+        },
+        "ppr": 0.8
       }
     },
     {
@@ -74,6 +118,28 @@
     },
     {
       "type": "out_but_projected",
+      "key": "out_but_projected|00-0039849|10|OUT",
+      "severity": "error",
+      "player": "Marvin Harrison Jr.",
+      "gsis_id": "00-0039849",
+      "pos": "WR",
+      "team": "HST",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Marvin Harrison Jr. (WR, HST) is OUT (Hamstring) but projected for 4.8 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Hamstring",
+        "practice": {
+          "2026-11-11": "LP",
+          "2026-11-12": "DNP",
+          "2026-11-13": "DNP"
+        },
+        "ppr": 4.8
+      }
+    },
+    {
+      "type": "out_but_projected",
       "key": "out_but_projected|00-0033217|10|OUT",
       "severity": "error",
       "player": "Mo Alie-Cox",
@@ -88,9 +154,32 @@
         "injury": "Groin",
         "practice": {
           "2026-11-11": "DNP",
-          "2026-11-12": "DNP"
+          "2026-11-12": "DNP",
+          "2026-11-13": "DNP"
         },
         "ppr": 0.7
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0035229|10|OUT",
+      "severity": "error",
+      "player": "T.J. Hockenson",
+      "gsis_id": "00-0035229",
+      "pos": "TE",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 10,
+      "message": "T.J. Hockenson (TE, MIN) is OUT (Wrist/Chest) but projected for 11.8 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Wrist/Chest",
+        "practice": {
+          "2026-11-11": "DNP",
+          "2026-11-12": "DNP",
+          "2026-11-13": "DNP"
+        },
+        "ppr": 11.8
       }
     },
     {
@@ -204,29 +293,6 @@
       }
     },
     {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0035021|10|rec_yds",
-      "severity": "warning",
-      "player": "Ashton Dulin",
-      "gsis_id": "00-0035021",
-      "pos": "WR",
-      "team": "IND",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Ashton Dulin (WR, IND) Rec Yds: we project 25.8, the market implies 13.2 (odds pulled 2026-11-13 15:10-05:00)",
-      "evidence": {
-        "stat": "rec_yds",
-        "stats": [
-          "rec_yds"
-        ],
-        "ours": 25.8,
-        "market_mean": 13.16148168,
-        "delta": -12.63851832,
-        "pct": -0.4898650512,
-        "flag": "RED"
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0036182|10",
       "severity": "warning",
@@ -242,6 +308,29 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 2.6
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041013|10|anytime_td",
+      "severity": "warning",
+      "player": "Emmett Johnson",
+      "gsis_id": "00-0041013",
+      "pos": "RB",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Emmett Johnson (RB, KC) Anytime TD rate: we project 0.14, the market implies 0.62 (odds pulled 2026-11-13 18:54-05:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.14,
+        "market_mean": 0.6226441141,
+        "delta": 0.4826441141,
+        "pct": 3.447457958,
+        "flag": "RED"
       }
     },
     {
@@ -303,6 +392,76 @@
       }
     },
     {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0041525|10|D",
+      "severity": "warning",
+      "player": "Chris Bell",
+      "gsis_id": "00-0041525",
+      "pos": "WR",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Chris Bell (WR, MIA) is Doubtful (Knee) but projected for 4.7 PPR",
+      "evidence": {
+        "game_status": "D",
+        "injury": "Knee",
+        "practice": {
+          "2026-11-11": "LP",
+          "2026-11-12": "DNP",
+          "2026-11-13": "DNP"
+        },
+        "ppr": 4.7
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0041529|10|rec_yds",
+      "severity": "warning",
+      "player": "Kevin Coleman Jr.",
+      "gsis_id": "00-0041529",
+      "pos": "WR",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Kevin Coleman Jr. (WR, MIA) Rec Yds: we project 7.6, the market implies 21.6 (also Rec) (odds pulled 2026-11-13 18:54-05:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 7.6,
+        "market_mean": 21.56420281,
+        "delta": 13.96420281,
+        "pct": 1.837395106,
+        "flag": "RED"
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040509|10|rec_yds",
+      "severity": "warning",
+      "player": "Ben Yurosek",
+      "gsis_id": "00-0040509",
+      "pos": "TE",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Ben Yurosek (TE, MIN) Rec Yds: we project 2.5, the market implies 20.3 (also Rec) (odds pulled 2026-11-13 18:54-05:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 2.5,
+        "market_mean": 20.29184674,
+        "delta": 17.79184674,
+        "pct": 7.116738694,
+        "flag": "RED"
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0036425|10",
       "severity": "warning",
@@ -318,6 +477,30 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040215|10|rec_yds",
+      "severity": "warning",
+      "player": "Gavin Bartholomew",
+      "gsis_id": "00-0040215",
+      "pos": "TE",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Gavin Bartholomew (TE, MIN) Rec Yds: we project 3.5, the market implies 25.8 (also Rec) (odds pulled 2026-11-13 18:54-05:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds",
+          "receptions"
+        ],
+        "ours": 3.5,
+        "market_mean": 25.79012955,
+        "delta": 22.29012955,
+        "pct": 6.368608442,
+        "flag": "RED"
       }
     },
     {
@@ -388,7 +571,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 10,
-      "message": "WAS@NYG: the sheet has -1.5 / 41.0, the market 2.5 / 37.5 (FP-BOTH) (odds pulled 2026-11-13 15:46:42-05:00)",
+      "message": "WAS@NYG: the sheet has -1.5 / 41.0, the market 2.5 / 37.5 (FP-BOTH) (odds pulled 2026-11-13 19:31:25-05:00)",
       "evidence": {
         "game": "WAS@NYG",
         "fp_flag": "FP-BOTH",
@@ -410,7 +593,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 10,
-      "message": "Cam Skattebo (RB, NYG) Rush Yds: we project 58.3, the market implies 81.8 (also Rush+Rec Yds) (odds pulled 2026-11-13 15:10-05:00)",
+      "message": "Cam Skattebo (RB, NYG) Rush Yds: we project 58.3, the market implies 81.8 (also Rush+Rec Yds) (odds pulled 2026-11-13 18:54-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -494,6 +677,29 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.1
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040172|10|rec_yds",
+      "severity": "warning",
+      "player": "Jordan Watkins",
+      "gsis_id": "00-0040172",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Jordan Watkins (WR, SF) Rec Yds: we project 11.9, the market implies 28.4 (odds pulled 2026-11-13 18:54-05:00)",
+      "evidence": {
+        "stat": "rec_yds",
+        "stats": [
+          "rec_yds"
+        ],
+        "ours": 11.9,
+        "market_mean": 28.39716931,
+        "delta": 16.49716931,
+        "pct": 1.386316749,
+        "flag": "RED"
       }
     },
     {
@@ -937,26 +1143,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0041037|10",
-      "severity": "info",
-      "player": "Denzel Boston",
-      "gsis_id": "00-0041037",
-      "pos": "WR",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Denzel Boston (WR, CLV) did not practice on the latest report (Toe); projected 10.7 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "DNP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Toe",
-        "ppr": 10.7
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0037832|10",
       "severity": "info",
@@ -972,26 +1158,6 @@
         "earliest_return_week": 5,
         "designated_return_date": "2026-10-06",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0031595|10",
-      "severity": "info",
-      "player": "Michael Burton",
-      "gsis_id": "00-0031595",
-      "pos": "RB",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Michael Burton (RB, CLV) did not practice on the latest report (Calf); projected 0.3 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "DNP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Calf",
-        "ppr": 0.3
       }
     },
     {
@@ -1199,26 +1365,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036556|10",
-      "severity": "info",
-      "player": "Brevin Jordan",
-      "gsis_id": "00-0036556",
-      "pos": "TE",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Brevin Jordan (TE, HST) did not practice on the latest report (Finger / Foot); projected 0.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "DNP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Finger / Foot",
-        "ppr": 0.8
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0036241|10",
       "severity": "info",
@@ -1317,46 +1463,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0039849|10",
-      "severity": "info",
-      "player": "Marvin Harrison Jr.",
-      "gsis_id": "00-0039849",
-      "pos": "WR",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Marvin Harrison Jr. (WR, HST) did not practice on the latest report (Hamstring); projected 4.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "LP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Hamstring",
-        "ppr": 4.8
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040583|10",
-      "severity": "info",
-      "player": "Woody Marks",
-      "gsis_id": "00-0040583",
-      "pos": "RB",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Woody Marks (RB, HST) did not practice on the latest report (Knee); projected 13.9 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "LP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Knee",
-        "ppr": 13.9
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|arden|10",
       "severity": "info",
@@ -1431,26 +1537,6 @@
         "earliest_return_week": 6,
         "designated_return_date": "2026-11-12",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040719|10",
-      "severity": "info",
-      "player": "Bhayshul Tuten",
-      "gsis_id": "00-0040719",
-      "pos": "RB",
-      "team": "JAX",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Bhayshul Tuten (RB, JAX) did not practice on the latest report (Ankle/Foot); projected 16.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "DNP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Ankle/Foot",
-        "ppr": 16.8
       }
     },
     {
@@ -1570,26 +1656,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0039074|10",
-      "severity": "info",
-      "player": "Davis Allen",
-      "gsis_id": "00-0039074",
-      "pos": "TE",
-      "team": "LA",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Davis Allen (TE, LA) did not practice on the latest report (Oblique); projected 4.3 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "LP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Oblique",
-        "ppr": 4.3
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0028394|10",
       "severity": "info",
@@ -1702,6 +1768,26 @@
         "earliest_return_week": 5,
         "designated_return_date": "2026-11-06",
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039915|10",
+      "severity": "info",
+      "player": "Ladd McConkey",
+      "gsis_id": "00-0039915",
+      "pos": "WR",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Ladd McConkey (WR, LAC) did not practice on the latest report (Back); projected 13.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-12": "DNP",
+          "2026-11-13": "DNP"
+        },
+        "injury": "Back",
+        "ppr": 13.4
       }
     },
     {
@@ -1923,26 +2009,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0041525|10",
-      "severity": "info",
-      "player": "Chris Bell",
-      "gsis_id": "00-0041525",
-      "pos": "WR",
-      "team": "MIA",
-      "sheet": "primary",
-      "week": 10,
-      "message": "Chris Bell (WR, MIA) did not practice on the latest report (Knee); projected 4.7 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "LP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Knee",
-        "ppr": 4.7
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0037549|10",
       "severity": "info",
@@ -2041,26 +2107,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0035229|10",
-      "severity": "info",
-      "player": "T.J. Hockenson",
-      "gsis_id": "00-0035229",
-      "pos": "TE",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 10,
-      "message": "T.J. Hockenson (TE, MIN) did not practice on the latest report (Wrist/Chest); projected 11.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-11": "DNP",
-          "2026-11-12": "DNP"
-        },
-        "injury": "Wrist/Chest",
-        "ppr": 11.8
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|aj brown’s|10|ir_designated_return",
       "severity": "info",
@@ -2147,7 +2193,7 @@
       "team": "NE",
       "sheet": "primary",
       "week": 10,
-      "message": "TreVeyon Henderson (RB, NE) is quoted by the market (Anytime TD rate 0.33) but has no row on the sheet (odds pulled 2026-11-13 15:10-05:00)",
+      "message": "TreVeyon Henderson (RB, NE) is quoted by the market (Anytime TD rate 0.33) but has no row on the sheet (odds pulled 2026-11-13 18:54-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "market_mean": 0.3266236843,
@@ -2395,7 +2441,7 @@
       "team": "PIT",
       "sheet": "primary",
       "week": 10,
-      "message": "Michael Pittman (WR, PIT) is quoted by the market (Anytime TD rate 0.24) but has no row on the sheet (odds pulled 2026-11-13 15:10-05:00)",
+      "message": "Michael Pittman (WR, PIT) is quoted by the market (Anytime TD rate 0.24) but has no row on the sheet (odds pulled 2026-11-13 18:54-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "market_mean": 0.2420635583,
@@ -2648,15 +2694,15 @@
   "errors": [],
   "counts": {
     "status_conflict": 3,
-    "out_but_projected": 1,
+    "out_but_projected": 6,
     "sheet_status_stale": 14,
     "missing_active": 6,
-    "market_proj_gap": 2,
+    "market_proj_gap": 6,
     "sheet_line_stale": 1,
     "ir_return_window": 46,
     "elevation_limit": 34,
     "unconfirmed_report": 18,
-    "dnp_but_projected": 9,
+    "dnp_but_projected": 1,
     "market_only_player": 2
   }
 }
