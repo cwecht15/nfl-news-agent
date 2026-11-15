@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 10,
   "sheet": "primary",
-  "generated_at": "2026-11-15T20:59:54+00:00",
+  "generated_at": "2026-11-15T23:31:01+00:00",
   "inputs": {
     "snapshot_date": "2026-11-15",
     "nflverse_date": "2026-11-15",
     "injury_week_updated": "2026-11-15T13:29:23+00:00",
-    "roster_state_updated": "2026-11-15T20:59:52+00:00"
+    "roster_state_updated": "2026-11-15T23:31:00+00:00"
   },
   "alerts": [
     {
@@ -65,6 +65,40 @@
     },
     {
       "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0038797|10",
+      "severity": "error",
+      "player": "Emanuel Wilson",
+      "gsis_id": "00-0038797",
+      "pos": "RB",
+      "team": "SEA",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Emanuel Wilson (RB, SEA) is INACTIVE for SEA @ LV (postgame) but projected for 0.1 PPR",
+      "evidence": {
+        "game": "SEA @ LV",
+        "phase": "postgame",
+        "ppr": 0.1
+      }
+    },
+    {
+      "type": "inactive_but_projected",
+      "key": "inactive_but_projected|00-0031236|10",
+      "severity": "error",
+      "player": "Brandin Cooks",
+      "gsis_id": "00-0031236",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 10,
+      "message": "Brandin Cooks (WR, SF) is INACTIVE for SF @ DAL (postgame) but projected for 1.3 PPR",
+      "evidence": {
+        "game": "SF @ DAL",
+        "phase": "postgame",
+        "ppr": 1.3
+      }
+    },
+    {
+      "type": "inactive_but_projected",
       "key": "inactive_but_projected|00-0040886|10",
       "severity": "error",
       "player": "Nicholas Singleton",
@@ -78,6 +112,28 @@
         "game": "JAX @ TEN",
         "phase": "postgame",
         "ppr": 0.9
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|ARZ|10|LAR@ARI",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 10,
+      "message": "LAR@ARI: the sheet has 9.5 / 38.5, the market 28.5 / 45.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
+      "evidence": {
+        "game": "LAR@ARI",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 9.5,
+        "sheet_ou": 38.5,
+        "market_spread": 28.5,
+        "market_total": 45.5,
+        "spread_delta": 19.0,
+        "total_delta": 7.0
       }
     },
     {
@@ -108,7 +164,7 @@
       "team": "ATL",
       "sheet": "primary",
       "week": 10,
-      "message": "KC@ATL: the sheet has 3.0 / 47.5, the market 21.5 / 49.5 (FP-BOTH) (odds pulled 2026-11-15 15:59:35-05:00)",
+      "message": "KC@ATL: the sheet has 3.0 / 47.5, the market 21.5 / 49.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
       "evidence": {
         "game": "KC@ATL",
         "fp_flag": "FP-BOTH",
@@ -320,7 +376,7 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 10,
-      "message": "HOU@CLE: the sheet has 4.5 / 40.5, the market 3.5 / 44.5 (FP-BOTH) (odds pulled 2026-11-15 15:59:35-05:00)",
+      "message": "HOU@CLE: the sheet has 4.5 / 40.5, the market 3.5 / 44.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
       "evidence": {
         "game": "HOU@CLE",
         "fp_flag": "FP-BOTH",
@@ -353,6 +409,28 @@
         "delta": 42.95824536,
         "pct": 1.760583826,
         "flag": "RED"
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|DAL|10|SF@DAL",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 10,
+      "message": "SF@DAL: the sheet has 4.0 / 56.0, the market 9.5 / 71.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
+      "evidence": {
+        "game": "SF@DAL",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 4.0,
+        "sheet_ou": 56.0,
+        "market_spread": 9.5,
+        "market_total": 71.5,
+        "spread_delta": 5.5,
+        "total_delta": 15.5
       }
     },
     {
@@ -498,7 +576,7 @@
       "team": "GB",
       "sheet": "primary",
       "week": 10,
-      "message": "MIN@GB: the sheet has -2.5 / 42.0, the market 19.5 / 40.5 (FP-BOTH) (odds pulled 2026-11-15 15:59:35-05:00)",
+      "message": "MIN@GB: the sheet has -2.5 / 42.0, the market 19.5 / 40.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
       "evidence": {
         "game": "MIN@GB",
         "fp_flag": "FP-BOTH",
@@ -587,7 +665,7 @@
       "team": "IND",
       "sheet": "primary",
       "week": 10,
-      "message": "MIA@IND: the sheet has -4.5 / 37.5, the market -1.5 / 49.5 (FP-BOTH) (odds pulled 2026-11-15 15:59:35-05:00)",
+      "message": "MIA@IND: the sheet has -4.5 / 37.5, the market -1.5 / 49.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
       "evidence": {
         "game": "MIA@IND",
         "fp_flag": "FP-BOTH",
@@ -817,6 +895,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|LV|10|SEA@LV",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 10,
+      "message": "SEA@LV: the sheet has 6.5 / 40.5, the market 14.0 / 38.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
+      "evidence": {
+        "game": "SEA@LV",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": 6.5,
+        "sheet_ou": 40.5,
+        "market_spread": 14.0,
+        "market_total": 38.5,
+        "spread_delta": 7.5,
+        "total_delta": -2.0
+      }
+    },
+    {
       "type": "elevated_not_projected",
       "key": "elevated_not_projected|00-0040398|10",
       "severity": "warning",
@@ -978,7 +1078,7 @@
       "team": "NO",
       "sheet": "primary",
       "week": 10,
-      "message": "CAR@NO: the sheet has -1.5 / 49.0, the market 2.5 / 32.5 (FP-BOTH) (odds pulled 2026-11-15 15:59:35-05:00)",
+      "message": "CAR@NO: the sheet has -1.5 / 49.0, the market 2.5 / 32.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
       "evidence": {
         "game": "CAR@NO",
         "fp_flag": "FP-BOTH",
@@ -1020,7 +1120,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 10,
-      "message": "WAS@NYG: the sheet has -1.5 / 41.0, the market 2.5 / 37.5 (FP-BOTH) (odds pulled 2026-11-15 15:59:35-05:00)",
+      "message": "WAS@NYG: the sheet has -1.5 / 41.0, the market 2.5 / 37.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
       "evidence": {
         "game": "WAS@NYG",
         "fp_flag": "FP-BOTH",
@@ -1060,7 +1160,7 @@
       "team": "NYJ",
       "sheet": "primary",
       "week": 10,
-      "message": "BUF@NYJ: the sheet has 7.5 / 51.0, the market 17.5 / 47.0 (FP-BOTH) (odds pulled 2026-11-15 15:59:35-05:00)",
+      "message": "BUF@NYJ: the sheet has 7.5 / 51.0, the market 17.5 / 47.0 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
       "evidence": {
         "game": "BUF@NYJ",
         "fp_flag": "FP-BOTH",
@@ -1186,7 +1286,7 @@
       "team": "TEN",
       "sheet": "primary",
       "week": 10,
-      "message": "JAX@TEN: the sheet has 10.5 / 46.5, the market 9.5 / 58.5 (FP-BOTH) (odds pulled 2026-11-15 15:59:35-05:00)",
+      "message": "JAX@TEN: the sheet has 10.5 / 46.5, the market 9.5 / 58.5 (FP-BOTH) (odds pulled 2026-11-15 18:30:42-05:00)",
       "evidence": {
         "game": "JAX@TEN",
         "fp_flag": "FP-BOTH",
@@ -3061,9 +3161,9 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "inactive_but_projected": 4,
+    "inactive_but_projected": 6,
+    "sheet_line_stale": 11,
     "sheet_status_stale": 16,
-    "sheet_line_stale": 8,
     "market_proj_gap": 25,
     "missing_active": 6,
     "elevated_not_projected": 2,
