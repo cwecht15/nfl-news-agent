@@ -1,0 +1,24 @@
+2026-11-17 05:16:30,073 [INFO] afternoon: ============================================================
+2026-11-17 05:16:30,073 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-11-17 (week 11, Tue)
+2026-11-17 05:16:30,073 [INFO] afternoon: ============================================================
+2026-11-17 05:16:30,714 [INFO] afternoon: Game lines via API: 9 credits, 82828 remaining (13 games, 0 changes)
+2026-11-17 05:16:30,715 [INFO] afternoon: Step 2c: Reading market lines...
+2026-11-17 05:16:37,053 [INFO] collectors.odds_collector: Market history tab 2026_W11 not present yet
+2026-11-17 05:16:37,415 [INFO] afternoon: Market lines: week 11, 13 games, 0 player-stats, 0 changes (none); odds pulled 2026-11-16T19:29-05:00 [the last odds pull priced Week 10; the news agent is on Week 11]; game lines via API 2026-11-17T00:16:30-05:00
+2026-11-17 05:16:37,416 [WARNING] afternoon: Odds source error: the last odds pull priced Week 10; the news agent is on Week 11
+2026-11-17 05:16:37,496 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-11-16 is older than 2026-11-17 — refetching (attempt 1/3)
+2026-11-17 05:16:40,511 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-11-16 is older than 2026-11-17 — refetching (attempt 2/3)
+2026-11-17 05:16:43,533 [INFO] collectors.espn_transactions_collector: ESPN elevations: 33 in the last 4 days (37 parsed from 100 rows, newest row 2026-11-16); practice-squad promotions: 7
+2026-11-17 05:16:43,533 [INFO] afternoon: Step 5f: 33 practice-squad elevations from ESPN (ARI, ATL, BAL, BUF, CAR, CLE, DAL, DET, GB, HOU, IND, KC, LAC, LAR, LV, MIA, MIN, NE, NO, SEA, TEN)
+2026-11-17 05:16:43,533 [INFO] afternoon: Step 5f: 7 practice-squad promotions from ESPN (BAL, CAR, IND, NYG, PHI, TB)
+2026-11-17 05:16:44,009 [INFO] collectors.cbs_transactions_collector: CBS elevations: 0 not yet in ESPN (11 move rows since 2026-11-15, 472 rows on the page, newest 2026-11-16)
+2026-11-17 05:16:44,730 [INFO] processing.roster_events: Saved roster state: 3117 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-11-17 05:16:44,789 [INFO] processing.roster_events: Roster step 2026-11-17: {"nflverse_transitions": 135, "nflverse_events": 0, "espn_elevations": 40, "appended": 0, "ledger": 5161, "confirmed_new": 0}
+2026-11-17 05:16:44,795 [INFO] afternoon: Elevations merged into the ledger: 0 new events
+2026-11-17 05:16:44,797 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-11-17 05:16:44,850 [INFO] collectors.inactives_collector: Inactives week 11: 0 games polled, 0 teams published, 0 changed
+2026-11-17 05:16:44,851 [INFO] afternoon: Inactives: week 11, 0 games polled, 0 teams published, 0 newly published/changed
+2026-11-17 05:16:44,855 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-11-17 05:16:44,989 [INFO] afternoon: Projection audit: 111 open alerts (error=1, info=76, warning=34), 0 dismissed
+2026-11-17 05:16:45,009 [WARNING] afternoon: No report for 2026-11-17 and this run is an updater, not a producer — not writing a skeleton. What it collected is saved under data/ (roster, injuries, inactives, audit) and the pages that read those files directly will show it. Run scripts/run_daily.py --date 2026-11-17 to produce the morning report.
+2026-11-17 05:16:45,009 [INFO] afternoon: Game-day inactives run complete.
