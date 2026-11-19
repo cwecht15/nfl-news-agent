@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-18T23:50:44+00:00",
+  "generated_at": "2026-11-19T00:16:43+00:00",
   "inputs": {
     "snapshot_date": "2026-11-18",
     "nflverse_date": "2026-11-18",
-    "injury_week_updated": "2026-11-18T18:56:09+00:00",
-    "roster_state_updated": "2026-11-18T23:50:44+00:00"
+    "injury_week_updated": "2026-11-19T00:08:28+00:00",
+    "roster_state_updated": "2026-11-19T00:16:42+00:00"
   },
   "alerts": [
     {
@@ -50,26 +50,6 @@
         "nflverse_status": "ACT",
         "depth_chart_position": "QB",
         "status_abbr": "A01"
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0038576|11",
-      "severity": "error",
-      "player": "Charlie Jones",
-      "gsis_id": "00-0038576",
-      "pos": "WR",
-      "team": "NYG",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Charlie Jones (WR, NYG) is projected Active (0.4 PPR) but roster status is FA (since 2026-11-18)",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.4,
-        "slot": 3,
-        "earliest_return_week": null
       }
     },
     {
@@ -160,10 +140,11 @@
       "team": "ARZ",
       "sheet": "primary",
       "week": 11,
-      "message": "Tyler Allgeier (RB, ARZ) Rush Yds: we project 43.9, the market implies 30.0 (odds pulled 2026-11-18 15:07-05:00)",
+      "message": "Tyler Allgeier (RB, ARZ) Rush Yds: we project 43.9, the market implies 30.0 (also Rush+Rec Yds) (odds pulled 2026-11-18 18:48-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
+          "rush_rec_yds",
           "rush_yds"
         ],
         "ours": 43.9,
@@ -407,7 +388,7 @@
       "team": "KC",
       "sheet": "primary",
       "week": 11,
-      "message": "Emmett Johnson (RB, KC) Anytime TD rate: we project 0.38, the market implies 1.09 (odds pulled 2026-11-18 15:07-05:00)",
+      "message": "Emmett Johnson (RB, KC) Anytime TD rate: we project 0.38, the market implies 1.09 (odds pulled 2026-11-18 18:48-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -440,19 +421,19 @@
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0040597|11",
+      "key": "sheet_status_stale|00-0039824|11",
       "severity": "warning",
-      "player": "Brennan Presley",
-      "gsis_id": "00-0040597",
-      "pos": "WR",
-      "team": "LA",
+      "player": "Jared Wiley",
+      "gsis_id": "00-0039824",
+      "pos": "TE",
+      "team": "KC",
       "sheet": "primary",
       "week": 11,
-      "message": "Brennan Presley (WR, LA) sheet Status is PS but roster says FA",
+      "message": "Jared Wiley (TE, KC) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "roster_status": "FA",
+        "roster_status": "IR",
         "status_source": "official",
-        "sheet_status": "PS",
+        "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
@@ -543,7 +524,7 @@
       "message": "Jeshaun Jones (WR, MIN) sheet Status is PS but roster says ACT - promoted to the active roster",
       "evidence": {
         "roster_status": "ACT",
-        "status_source": "espn",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.0
       }
@@ -564,6 +545,26 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "status_conflict",
+      "key": "status_conflict|00-0038576|11",
+      "severity": "warning",
+      "player": "Charlie Jones",
+      "gsis_id": "00-0038576",
+      "pos": "WR",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Charlie Jones (WR, NYG) is projected Active (0.4 PPR) but roster status is PS (since 2026-11-18)",
+      "evidence": {
+        "roster_status": "PS",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.4,
+        "slot": 3,
+        "earliest_return_week": null
       }
     },
     {
