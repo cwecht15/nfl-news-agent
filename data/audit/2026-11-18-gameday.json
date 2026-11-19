@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-19T01:31:53+00:00",
+  "generated_at": "2026-11-19T04:36:27+00:00",
   "inputs": {
     "snapshot_date": "2026-11-18",
     "nflverse_date": "2026-11-18",
-    "injury_week_updated": "2026-11-19T00:08:28+00:00",
-    "roster_state_updated": "2026-11-19T01:31:53+00:00"
+    "injury_week_updated": "2026-11-19T02:48:57+00:00",
+    "roster_state_updated": "2026-11-19T04:36:27+00:00"
   },
   "alerts": [
     {
@@ -30,26 +30,6 @@
         "ppr": 4.1,
         "slot": 2,
         "earliest_return_week": 8
-      }
-    },
-    {
-      "type": "missing_active",
-      "key": "missing_active|00-0040398|11",
-      "severity": "error",
-      "player": "Brady Cook",
-      "gsis_id": "00-0040398",
-      "pos": "QB",
-      "team": "MIA",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Brady Cook (QB, MIA) is on the active roster but has no row on the sheet (OurLads QB #1; promoted from the practice squad 2026-11-18; OurLads lists him as the starter)",
-      "evidence": {
-        "ourlads_depth": 1,
-        "ourlads_pos": "QB",
-        "ourlads_stale": false,
-        "nflverse_status": "ACT",
-        "depth_chart_position": "QB",
-        "status_abbr": "A01"
       }
     },
     {
@@ -85,7 +65,7 @@
       "message": "Wan'Dale Robinson (WR, TEN) is projected Active (0.1 PPR) but roster status is IR (since 2026-11-18); eligible Wk 15",
       "evidence": {
         "roster_status": "IR",
-        "status_source": "nflverse",
+        "status_source": "ourlads",
         "sheet_status": "ACTIVE",
         "ppr": 0.1,
         "slot": 2,
@@ -155,26 +135,6 @@
       }
     },
     {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0033891|11",
-      "severity": "warning",
-      "player": "Zay Jones",
-      "gsis_id": "00-0033891",
-      "pos": "WR",
-      "team": "ARZ",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Zay Jones (WR, ARZ) is projected Active (3.1 PPR) but roster status is PS (since 2026-11-18)",
-      "evidence": {
-        "roster_status": "PS",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 3.1,
-        "slot": 4,
-        "earliest_return_week": null
-      }
-    },
-    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0036906|11",
       "severity": "warning",
@@ -193,23 +153,21 @@
       }
     },
     {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0032394|11",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0040888|11",
       "severity": "warning",
-      "player": "Nick Vannett",
-      "gsis_id": "00-0032394",
-      "pos": "TE",
+      "player": "Adam Randall",
+      "gsis_id": "00-0040888",
+      "pos": "RB",
       "team": "BLT",
       "sheet": "primary",
       "week": 11,
-      "message": "Nick Vannett (TE, BLT) is projected Active (0.5 PPR) but roster status is PS (since 2026-11-18)",
+      "message": "Adam Randall (RB, BLT) sheet Status is IR but roster says ACT - activated",
       "evidence": {
-        "roster_status": "PS",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.5,
-        "slot": 4,
-        "earliest_return_week": null
+        "roster_status": "ACT",
+        "status_source": "ourlads",
+        "sheet_status": "IR",
+        "ppr": 0.0
       }
     },
     {
@@ -312,12 +270,12 @@
       "team": "HST",
       "sheet": "primary",
       "week": 11,
-      "message": "Dare Ogunbowale (RB, HST) is projected Active (1.2 PPR) but roster status is PS (since 2026-11-14)",
+      "message": "Dare Ogunbowale (RB, HST) is projected Active (1.1 PPR) but roster status is PS (since 2026-11-14)",
       "evidence": {
         "roster_status": "PS",
         "status_source": "official",
         "sheet_status": "ACTIVE",
-        "ppr": 1.2,
+        "ppr": 1.1,
         "slot": 4,
         "earliest_return_week": null
       }
@@ -375,7 +333,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.0
+        "ppr": 0.1
       }
     },
     {
@@ -656,7 +614,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.5
+        "ppr": 0.9
       }
     },
     {
@@ -675,24 +633,6 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 2.6
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0040888|11",
-      "severity": "info",
-      "player": "Adam Randall",
-      "gsis_id": "00-0040888",
-      "pos": "RB",
-      "team": "BLT",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Adam Randall (RB, BLT) on IR - designated to return 2026-10-28 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-28",
-        "on_sheet": true
       }
     },
     {
@@ -815,24 +755,6 @@
           "source": "news:SBN Bills (Buffalo Rumblings)"
         },
         "days_pending": 69
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0038679|11",
-      "severity": "info",
-      "player": "Tyrell Shavers",
-      "gsis_id": "00-0038679",
-      "pos": "WR",
-      "team": "BUF",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Tyrell Shavers (WR, BUF) on PUP - designated to return 2026-10-28 (already on the sheet)",
-      "evidence": {
-        "status": "PUP",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-28",
-        "on_sheet": true
       }
     },
     {
@@ -1114,6 +1036,42 @@
       }
     },
     {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0035705|11",
+      "severity": "info",
+      "player": "Jalen Thompson",
+      "gsis_id": "00-0035705",
+      "pos": "DB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Jalen Thompson (DB, DAL) on IR - designated to return 2026-11-18 - first eligible Week 8",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 8,
+        "designated_return_date": "2026-11-18",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0040240|11",
+      "severity": "info",
+      "player": "Caleb Lohner",
+      "gsis_id": "00-0040240",
+      "pos": "TE",
+      "team": "DEN",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Caleb Lohner (TE, DEN) on IR - designated to return 2026-11-18",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": null,
+        "designated_return_date": "2026-11-18",
+        "on_sheet": false
+      }
+    },
+    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0039703|11",
       "severity": "info",
@@ -1207,24 +1165,6 @@
         "status": "IR",
         "earliest_return_week": 11,
         "designated_return_date": null,
-        "on_sheet": false
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0037667|11",
-      "severity": "info",
-      "player": "Kerby Joseph",
-      "gsis_id": "00-0037667",
-      "pos": "DB",
-      "team": "DET",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Kerby Joseph (DB, DET) on PUP - designated to return 2026-10-28",
-      "evidence": {
-        "status": "PUP",
-        "earliest_return_week": null,
-        "designated_return_date": "2026-10-28",
         "on_sheet": false
       }
     },
@@ -1966,6 +1906,24 @@
     },
     {
       "type": "ir_return_window",
+      "key": "ir_return_window|00-0033051|11",
+      "severity": "info",
+      "player": "David Onyemata",
+      "gsis_id": "00-0033051",
+      "pos": "DL",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 11,
+      "message": "David Onyemata (DL, NYJ) on IR - designated to return 2026-11-18 - first eligible Week 7",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 7,
+        "designated_return_date": "2026-11-18",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
       "key": "ir_return_window|00-0040186|11",
       "severity": "info",
       "player": "Francisco Mauigoa",
@@ -2123,6 +2081,42 @@
     },
     {
       "type": "ir_return_window",
+      "key": "ir_return_window|00-0041396|11",
+      "severity": "info",
+      "player": "Gennings Dunker",
+      "gsis_id": "00-0041396",
+      "pos": "OL",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Gennings Dunker (OL, PIT) on IR - designated to return 2026-11-18 - first eligible Week 7",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 7,
+        "designated_return_date": "2026-11-18",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
+      "key": "ir_return_window|00-0036252|11",
+      "severity": "info",
+      "player": "Michael Pittman",
+      "gsis_id": "00-0036252",
+      "pos": "WR",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Michael Pittman (WR, PIT) on IR - designated to return 2026-11-18 - first eligible Week 10",
+      "evidence": {
+        "status": "IR",
+        "earliest_return_week": 10,
+        "designated_return_date": "2026-11-18",
+        "on_sheet": false
+      }
+    },
+    {
+      "type": "ir_return_window",
       "key": "ir_return_window|00-0039739|11",
       "severity": "info",
       "player": "Roman Wilson",
@@ -2131,11 +2125,11 @@
       "team": "PIT",
       "sheet": "primary",
       "week": 11,
-      "message": "Roman Wilson (WR, PIT) on IR - first eligible Week 11 (already on the sheet)",
+      "message": "Roman Wilson (WR, PIT) on IR - designated to return 2026-11-18 - first eligible Week 11 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 11,
-        "designated_return_date": null,
+        "designated_return_date": "2026-11-18",
         "on_sheet": true
       }
     },
@@ -2347,11 +2341,11 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 11,
-      "message": "Jacory Croskey-Merritt (RB, WAS) on IR - first eligible Week 11 (already on the sheet)",
+      "message": "Jacory Croskey-Merritt (RB, WAS) on IR - designated to return 2026-11-18 - first eligible Week 11 (already on the sheet)",
       "evidence": {
         "status": "IR",
         "earliest_return_week": 11,
-        "designated_return_date": null,
+        "designated_return_date": "2026-11-18",
         "on_sheet": true
       }
     },
@@ -2377,12 +2371,12 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 9,
-    "missing_active": 4,
-    "sheet_status_stale": 21,
+    "status_conflict": 7,
+    "sheet_status_stale": 22,
     "market_proj_gap": 2,
-    "ir_return_window": 37,
+    "missing_active": 3,
     "elevation_limit": 30,
-    "unconfirmed_report": 19
+    "unconfirmed_report": 19,
+    "ir_return_window": 39
   }
 }
