@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-20T18:08:35+00:00",
+  "generated_at": "2026-11-20T20:50:05+00:00",
   "inputs": {
-    "snapshot_date": "2026-11-19",
+    "snapshot_date": "2026-11-20",
     "nflverse_date": "2026-11-20",
-    "injury_week_updated": "2026-11-20T18:08:34+00:00",
-    "roster_state_updated": "2026-11-20T18:08:32+00:00"
+    "injury_week_updated": "2026-11-20T20:50:05+00:00",
+    "roster_state_updated": "2026-11-20T20:50:02+00:00"
   },
   "alerts": [
     {
@@ -30,6 +30,48 @@
         "ppr": 4.1,
         "slot": 2,
         "earliest_return_week": 8
+      }
+    },
+    {
+      "type": "missing_active",
+      "key": "missing_active|00-0039164|11",
+      "severity": "error",
+      "player": "Anthony Richardson",
+      "gsis_id": "00-0039164",
+      "pos": "QB",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Anthony Richardson (QB, IND) is on the active roster but has no row on the sheet (OurLads QB #1; OurLads lists him as the starter)",
+      "evidence": {
+        "ourlads_depth": 1,
+        "ourlads_pos": "QB",
+        "ourlads_stale": false,
+        "nflverse_status": "ACT",
+        "depth_chart_position": "QB",
+        "status_abbr": "A01"
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0039451|11|OUT",
+      "severity": "error",
+      "player": "Isaiah Williams",
+      "gsis_id": "00-0039451",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Isaiah Williams (WR, NYJ) is OUT (Ribs) but projected for 4.7 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ribs",
+        "practice": {
+          "2026-11-18": "DNP",
+          "2026-11-19": "DNP",
+          "2026-11-20": "DNP"
+        },
+        "ppr": 4.7
       }
     },
     {
@@ -54,6 +96,26 @@
     },
     {
       "type": "status_conflict",
+      "key": "status_conflict|00-0036252|11",
+      "severity": "error",
+      "player": "Michael Pittman",
+      "gsis_id": "00-0036252",
+      "pos": "WR",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Michael Pittman (WR, PIT) is marked IR on the sheet but still projected (8.0 PPR); roster status is IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "nflverse",
+        "sheet_status": "IR",
+        "ppr": 8.0,
+        "slot": 2,
+        "earliest_return_week": 10
+      }
+    },
+    {
+      "type": "status_conflict",
       "key": "status_conflict|00-0039739|11",
       "severity": "error",
       "player": "Roman Wilson",
@@ -62,12 +124,12 @@
       "team": "PIT",
       "sheet": "primary",
       "week": 11,
-      "message": "Roman Wilson (WR, PIT) is marked IR on the sheet but still projected (8.5 PPR); roster status is IR",
+      "message": "Roman Wilson (WR, PIT) is marked IR on the sheet but still projected (5.4 PPR); roster status is IR",
       "evidence": {
         "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "IR",
-        "ppr": 8.5,
+        "ppr": 5.4,
         "slot": 3,
         "earliest_return_week": 11
       }
@@ -128,6 +190,24 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.4
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0026300|11",
+      "severity": "warning",
+      "player": "Josh Johnson",
+      "gsis_id": "00-0026300",
+      "pos": "QB",
+      "team": "ARZ",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Josh Johnson (QB, ARZ) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "evidence": {
+        "roster_status": "ACT",
+        "status_source": "nflverse",
+        "sheet_status": "PS",
+        "ppr": 11.8
       }
     },
     {
@@ -248,7 +328,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 11,
-      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-20 12:45-05:00)",
+      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-20 13:55:57-05:00)",
       "evidence": {
         "game": "IND@HOU",
         "fp_flag": "FP-SPREAD",
@@ -258,6 +338,24 @@
         "market_total": 43.5,
         "spread_delta": -6.5,
         "total_delta": -0.5
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0035710|11",
+      "severity": "warning",
+      "player": "Daniel Jones",
+      "gsis_id": "00-0035710",
+      "pos": "QB",
+      "team": "IND",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Daniel Jones (QB, IND) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 11.1
       }
     },
     {
@@ -539,7 +637,7 @@
         "roster_status": "FA",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.1
+        "ppr": 0.0
       }
     },
     {
@@ -677,26 +775,6 @@
         "earliest_return_week": 11,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0038933|11",
-      "severity": "info",
-      "player": "Dalton Kincaid",
-      "gsis_id": "00-0038933",
-      "pos": "TE",
-      "team": "BUF",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Dalton Kincaid (TE, BUF) did not practice on the latest report (Thumb/Ankle); projected 9.3 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-18": "DNP",
-          "2026-11-19": "DNP"
-        },
-        "injury": "Thumb/Ankle",
-        "ppr": 9.3
       }
     },
     {
@@ -1342,14 +1420,14 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 11,
-      "message": "Bhayshul Tuten (RB, JAX) did not practice on the latest report (Ankle/Foot); projected 16.6 PPR",
+      "message": "Bhayshul Tuten (RB, JAX) did not practice on the latest report (Ankle/Foot); projected 16.7 PPR",
       "evidence": {
         "practice": {
           "2026-11-18": "LP",
           "2026-11-19": "DNP"
         },
         "injury": "Ankle/Foot",
-        "ppr": 16.6
+        "ppr": 16.7
       }
     },
     {
@@ -1869,26 +1947,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0039451|11",
-      "severity": "info",
-      "player": "Isaiah Williams",
-      "gsis_id": "00-0039451",
-      "pos": "WR",
-      "team": "NYJ",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Isaiah Williams (WR, NYJ) did not practice on the latest report (Ribs); projected 4.7 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-18": "DNP",
-          "2026-11-19": "DNP"
-        },
-        "injury": "Ribs",
-        "ppr": 4.7
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|kiko mauigoa|11",
       "severity": "info",
@@ -2317,13 +2375,15 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 6,
-    "sheet_status_stale": 21,
+    "status_conflict": 7,
+    "missing_active": 1,
+    "out_but_projected": 1,
+    "sheet_status_stale": 23,
     "sheet_line_stale": 1,
     "market_proj_gap": 2,
     "elevation_limit": 29,
     "unconfirmed_report": 19,
     "ir_return_window": 38,
-    "dnp_but_projected": 3
+    "dnp_but_projected": 1
   }
 }
