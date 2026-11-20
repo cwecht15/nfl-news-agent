@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-20T14:17:47+00:00",
+  "generated_at": "2026-11-20T18:08:35+00:00",
   "inputs": {
     "snapshot_date": "2026-11-19",
     "nflverse_date": "2026-11-20",
-    "injury_week_updated": "2026-11-20T14:17:47+00:00",
-    "roster_state_updated": "2026-11-20T14:17:44+00:00"
+    "injury_week_updated": "2026-11-20T18:08:34+00:00",
+    "roster_state_updated": "2026-11-20T18:08:32+00:00"
   },
   "alerts": [
     {
@@ -248,7 +248,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 11,
-      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-20 07:27-05:00)",
+      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-20 12:45-05:00)",
       "evidence": {
         "game": "IND@HOU",
         "fp_flag": "FP-SPREAD",
@@ -306,7 +306,7 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 11,
-      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.74 (odds pulled 2026-11-20 07:27-05:00)",
+      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.74 (odds pulled 2026-11-20 12:45-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -371,6 +371,29 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.0
+      }
+    },
+    {
+      "type": "market_proj_gap",
+      "key": "market_proj_gap|00-0040215|11|anytime_td",
+      "severity": "warning",
+      "player": "Gavin Bartholomew",
+      "gsis_id": "00-0040215",
+      "pos": "TE",
+      "team": "MIN",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Gavin Bartholomew (TE, MIN) Anytime TD rate: we project 0.03, the market implies 0.33 (odds pulled 2026-11-20 12:45-05:00)",
+      "evidence": {
+        "stat": "anytime_td",
+        "stats": [
+          "anytime_td"
+        ],
+        "ours": 0.03,
+        "market_mean": 0.3332386041,
+        "delta": 0.3032386041,
+        "pct": 10.10795347,
+        "flag": "RED"
       }
     },
     {
@@ -514,7 +537,7 @@
       "message": "Brandon Smith (WR, PIT) sheet Status is PS but roster says FA",
       "evidence": {
         "roster_status": "FA",
-        "status_source": "official",
+        "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 0.1
       }
@@ -1465,26 +1488,6 @@
       }
     },
     {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0033221|11",
-      "severity": "info",
-      "player": "Daniel Brunskill",
-      "gsis_id": "00-0033221",
-      "pos": "OL",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Daniel Brunskill (OL, LAC) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-10-10",
-          "2026-10-17",
-          "2026-10-19"
-        ]
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|marquez valdez-scantling|11|ps_signed",
       "severity": "info",
@@ -2317,8 +2320,8 @@
     "status_conflict": 6,
     "sheet_status_stale": 21,
     "sheet_line_stale": 1,
-    "market_proj_gap": 1,
-    "elevation_limit": 30,
+    "market_proj_gap": 2,
+    "elevation_limit": 29,
     "unconfirmed_report": 19,
     "ir_return_window": 38,
     "dnp_but_projected": 3
