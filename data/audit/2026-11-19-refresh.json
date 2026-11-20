@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-19T20:12:47+00:00",
+  "generated_at": "2026-11-20T00:09:09+00:00",
   "inputs": {
     "snapshot_date": "2026-11-19",
     "nflverse_date": "2026-11-19",
-    "injury_week_updated": "2026-11-19T20:12:47+00:00",
-    "roster_state_updated": "2026-11-19T20:12:44+00:00"
+    "injury_week_updated": "2026-11-20T00:06:34+00:00",
+    "roster_state_updated": "2026-11-20T00:09:08+00:00"
   },
   "alerts": [
     {
@@ -140,7 +140,7 @@
       "team": "ARZ",
       "sheet": "primary",
       "week": 11,
-      "message": "Tyler Allgeier (RB, ARZ) Rush Yds: we project 43.9, the market implies 30.3 (odds pulled 2026-11-19 14:32-05:00)",
+      "message": "Tyler Allgeier (RB, ARZ) Rush Yds: we project 43.9, the market implies 30.3 (odds pulled 2026-11-19 16:07-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -262,6 +262,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|DET|11|TB@DET",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 11,
+      "message": "TB@DET: the sheet has -7.0 / 44.0, the market -6.0 / 45.5 (FP-BOTH) (odds pulled 2026-11-19 19:06:15-05:00)",
+      "evidence": {
+        "game": "TB@DET",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": -7.0,
+        "sheet_ou": 44.0,
+        "market_spread": -6.0,
+        "market_total": 45.5,
+        "spread_delta": 1.0,
+        "total_delta": 1.5
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040628|11",
       "severity": "warning",
@@ -353,29 +375,6 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 0.1
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0041013|11|anytime_td",
-      "severity": "warning",
-      "player": "Emmett Johnson",
-      "gsis_id": "00-0041013",
-      "pos": "RB",
-      "team": "KC",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Emmett Johnson (RB, KC) Anytime TD rate: we project 0.38, the market implies 1.09 (odds pulled 2026-11-19 14:32-05:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 0.38,
-        "market_mean": 1.086304441,
-        "delta": 0.706304441,
-        "pct": 1.858695897,
-        "flag": "RED"
       }
     },
     {
@@ -771,6 +770,26 @@
         "earliest_return_week": 11,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038933|11",
+      "severity": "info",
+      "player": "Dalton Kincaid",
+      "gsis_id": "00-0038933",
+      "pos": "TE",
+      "team": "BUF",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Dalton Kincaid (TE, BUF) did not practice on the latest report (Thumb/Ankle); projected 9.4 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-18": "DNP",
+          "2026-11-19": "DNP"
+        },
+        "injury": "Thumb/Ankle",
+        "ppr": 9.4
       }
     },
     {
@@ -1274,14 +1293,15 @@
       "team": "HST",
       "sheet": "primary",
       "week": 11,
-      "message": "Chad Muma (LB, HST) has used 4/3 elevations - must be signed to the 53 to play again",
+      "message": "Chad Muma (LB, HST) has used 5/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 4,
+        "elevations_used": 5,
         "elevation_dates": [
           "2026-11-07",
           "2026-11-09",
           "2026-11-14",
-          "2026-11-16"
+          "2026-11-16",
+          "2026-11-19"
         ]
       }
     },
@@ -1384,6 +1404,26 @@
       }
     },
     {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0040719|11",
+      "severity": "info",
+      "player": "Bhayshul Tuten",
+      "gsis_id": "00-0040719",
+      "pos": "RB",
+      "team": "JAX",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Bhayshul Tuten (RB, JAX) did not practice on the latest report (Ankle/Foot); projected 16.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-18": "LP",
+          "2026-11-19": "DNP"
+        },
+        "injury": "Ankle/Foot",
+        "ppr": 16.8
+      }
+    },
+    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0040336|11",
       "severity": "info",
@@ -1438,6 +1478,26 @@
         "earliest_return_week": 11,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038134|11",
+      "severity": "info",
+      "player": "Kenneth Walker III",
+      "gsis_id": "00-0038134",
+      "pos": "RB",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Kenneth Walker III (RB, KC) did not practice on the latest report (Groin); projected 20.2 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-18": "DNP",
+          "2026-11-19": "DNP"
+        },
+        "injury": "Groin",
+        "ppr": 20.2
       }
     },
     {
@@ -1516,6 +1576,26 @@
         "earliest_return_week": 11,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0038046|11",
+      "severity": "info",
+      "player": "Charlie Kolar",
+      "gsis_id": "00-0038046",
+      "pos": "TE",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Charlie Kolar (TE, LAC) did not practice on the latest report (Concussion); projected 4.9 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-18": "DNP",
+          "2026-11-19": "DNP"
+        },
+        "injury": "Concussion",
+        "ppr": 4.9
       }
     },
     {
@@ -1801,26 +1881,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0033906|11",
-      "severity": "info",
-      "player": "Alvin Kamara",
-      "gsis_id": "00-0033906",
-      "pos": "RB",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Alvin Kamara (RB, NO) did not practice on the latest report (Back); projected 6.3 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-18": "DNP",
-          "2026-11-19": "DNP"
-        },
-        "injury": "Back",
-        "ppr": 6.3
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0038979|11",
       "severity": "info",
@@ -1957,6 +2017,26 @@
         "earliest_return_week": 11,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0039451|11",
+      "severity": "info",
+      "player": "Isaiah Williams",
+      "gsis_id": "00-0039451",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Isaiah Williams (WR, NYJ) did not practice on the latest report (Ribs); projected 4.7 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-18": "DNP",
+          "2026-11-19": "DNP"
+        },
+        "injury": "Ribs",
+        "ppr": 4.7
       }
     },
     {
@@ -2372,11 +2452,12 @@
   "counts": {
     "status_conflict": 8,
     "sheet_status_stale": 23,
-    "market_proj_gap": 2,
+    "market_proj_gap": 1,
+    "sheet_line_stale": 1,
     "missing_active": 2,
     "elevation_limit": 29,
     "unconfirmed_report": 19,
     "ir_return_window": 38,
-    "dnp_but_projected": 1
+    "dnp_but_projected": 5
   }
 }
