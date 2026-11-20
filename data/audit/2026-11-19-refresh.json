@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-20T00:09:09+00:00",
+  "generated_at": "2026-11-20T01:05:58+00:00",
   "inputs": {
     "snapshot_date": "2026-11-19",
     "nflverse_date": "2026-11-19",
-    "injury_week_updated": "2026-11-20T00:06:34+00:00",
-    "roster_state_updated": "2026-11-20T00:09:08+00:00"
+    "injury_week_updated": "2026-11-20T01:05:58+00:00",
+    "roster_state_updated": "2026-11-20T01:05:55+00:00"
   },
   "alerts": [
     {
@@ -217,9 +217,9 @@
       "team": "CLV",
       "sheet": "primary",
       "week": 11,
-      "message": "Carsen Ryan (TE, CLV) sheet Status is ACTIVE but roster says FA",
+      "message": "Carsen Ryan (TE, CLV) sheet Status is ACTIVE but roster says PS",
       "evidence": {
-        "roster_status": "FA",
+        "roster_status": "PS",
         "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
@@ -298,6 +298,24 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038098|11",
+      "severity": "warning",
+      "player": "Pierre Strong",
+      "gsis_id": "00-0038098",
+      "pos": "RB",
+      "team": "GB",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Pierre Strong (RB, GB) sheet Status is ACTIVE but roster says FA",
+      "evidence": {
+        "roster_status": "FA",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
@@ -627,10 +645,10 @@
       "team": "PIT",
       "sheet": "primary",
       "week": 11,
-      "message": "Brandon Smith (WR, PIT) sheet Status is PS but roster says ACT - promoted to the active roster",
+      "message": "Brandon Smith (WR, PIT) sheet Status is PS but roster says FA",
       "evidence": {
-        "roster_status": "ACT",
-        "status_source": "nflverse",
+        "roster_status": "FA",
+        "status_source": "official",
         "sheet_status": "PS",
         "ppr": 0.1
       }
@@ -1036,6 +1054,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0041131|11",
+      "severity": "info",
+      "player": "Carsen Ryan",
+      "gsis_id": "00-0041131",
+      "pos": "TE",
+      "team": "CLV",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Carsen Ryan (TE, CLV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-10-31",
+          "2026-11-04",
+          "2026-11-06"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0037832|11",
       "severity": "info",
@@ -1051,6 +1089,26 @@
         "earliest_return_week": 5,
         "designated_return_date": "2026-10-06",
         "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0039837|11",
+      "severity": "info",
+      "player": "Bralen Trice",
+      "gsis_id": "00-0039837",
+      "pos": "LB",
+      "team": "DAL",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Bralen Trice (LB, DAL) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-12",
+          "2026-09-25",
+          "2026-10-10"
+        ]
       }
     },
     {
@@ -1676,26 +1734,6 @@
         "earliest_return_week": 8,
         "designated_return_date": "2026-11-13",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0039837|11",
-      "severity": "info",
-      "player": "Bralen Trice",
-      "gsis_id": "00-0039837",
-      "pos": "LB",
-      "team": "LV",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Bralen Trice (LB, LV) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-09-12",
-          "2026-09-25",
-          "2026-10-10"
-        ]
       }
     },
     {
@@ -2451,11 +2489,11 @@
   "errors": [],
   "counts": {
     "status_conflict": 8,
-    "sheet_status_stale": 23,
+    "sheet_status_stale": 24,
     "market_proj_gap": 1,
     "sheet_line_stale": 1,
     "missing_active": 2,
-    "elevation_limit": 29,
+    "elevation_limit": 30,
     "unconfirmed_report": 19,
     "ir_return_window": 38,
     "dnp_but_projected": 5
