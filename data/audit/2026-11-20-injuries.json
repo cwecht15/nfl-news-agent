@@ -4,11 +4,11 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-20T21:33:17+00:00",
+  "generated_at": "2026-11-20T23:58:20+00:00",
   "inputs": {
     "snapshot_date": "2026-11-20",
     "nflverse_date": "2026-11-20",
-    "injury_week_updated": "2026-11-20T21:33:17+00:00",
+    "injury_week_updated": "2026-11-20T23:58:19+00:00",
     "roster_state_updated": "2026-11-20T20:50:02+00:00"
   },
   "alerts": [
@@ -350,7 +350,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 11,
-      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-20 13:55:57-05:00)",
+      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-20 18:58:04-05:00)",
       "evidence": {
         "game": "IND@HOU",
         "fp_flag": "FP-SPREAD",
@@ -426,7 +426,7 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 11,
-      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.61 (odds pulled 2026-11-20 12:45-05:00)",
+      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.61 (odds pulled 2026-11-20 15:59-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -2349,6 +2349,26 @@
         "designated_return_date": null,
         "on_sheet": false
       }
+    },
+    {
+      "type": "dnp_but_projected",
+      "key": "dnp_but_projected|00-0037742|11",
+      "severity": "info",
+      "player": "Treylon Burks",
+      "gsis_id": "00-0037742",
+      "pos": "WR",
+      "team": "WAS",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Treylon Burks (WR, WAS) did not practice on the latest report (Foot); projected 7.8 PPR",
+      "evidence": {
+        "practice": {
+          "2026-11-19": "FP",
+          "2026-11-20": "DNP"
+        },
+        "injury": "Foot",
+        "ppr": 7.8
+      }
     }
   ],
   "dismissed": [],
@@ -2362,6 +2382,7 @@
     "market_proj_gap": 1,
     "elevation_limit": 29,
     "unconfirmed_report": 19,
-    "ir_return_window": 38
+    "ir_return_window": 38,
+    "dnp_but_projected": 1
   }
 }
