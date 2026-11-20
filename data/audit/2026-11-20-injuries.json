@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-20T20:48:23+00:00",
+  "generated_at": "2026-11-20T21:33:17+00:00",
   "inputs": {
     "snapshot_date": "2026-11-20",
     "nflverse_date": "2026-11-20",
-    "injury_week_updated": "2026-11-20T20:48:23+00:00",
-    "roster_state_updated": "2026-11-20T19:06:19+00:00"
+    "injury_week_updated": "2026-11-20T21:33:17+00:00",
+    "roster_state_updated": "2026-11-20T20:50:02+00:00"
   },
   "alerts": [
     {
@@ -72,6 +72,28 @@
           "2026-11-20": "DNP"
         },
         "ppr": 4.7
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0038393|11|OUT",
+      "severity": "error",
+      "player": "Dontayvion Wicks",
+      "gsis_id": "00-0038393",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Dontayvion Wicks (WR, PHI) is OUT (Ankle/Foot) but projected for 6.7 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle/Foot",
+        "practice": {
+          "2026-11-18": "LP",
+          "2026-11-19": "LP",
+          "2026-11-20": "LP"
+        },
+        "ppr": 6.7
       }
     },
     {
@@ -328,7 +350,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 11,
-      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-20 15:48:07-05:00)",
+      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-20 13:55:57-05:00)",
       "evidence": {
         "game": "IND@HOU",
         "fp_flag": "FP-SPREAD",
@@ -404,16 +426,16 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 11,
-      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.74 (odds pulled 2026-11-20 12:45-05:00)",
+      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.30, the market implies 0.61 (odds pulled 2026-11-20 12:45-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
           "anytime_td"
         ],
         "ours": 0.3,
-        "market_mean": 0.7369788979,
-        "delta": 0.4369788979,
-        "pct": 1.456596326,
+        "market_mean": 0.6091851141,
+        "delta": 0.3091851141,
+        "pct": 1.030617047,
         "flag": "RED"
       }
     },
@@ -469,29 +491,6 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.0
-      }
-    },
-    {
-      "type": "market_proj_gap",
-      "key": "market_proj_gap|00-0040215|11|anytime_td",
-      "severity": "warning",
-      "player": "Gavin Bartholomew",
-      "gsis_id": "00-0040215",
-      "pos": "TE",
-      "team": "MIN",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Gavin Bartholomew (TE, MIN) Anytime TD rate: we project 0.03, the market implies 0.33 (odds pulled 2026-11-20 12:45-05:00)",
-      "evidence": {
-        "stat": "anytime_td",
-        "stats": [
-          "anytime_td"
-        ],
-        "ours": 0.03,
-        "market_mean": 0.3332386041,
-        "delta": 0.3032386041,
-        "pct": 10.10795347,
-        "flag": "RED"
       }
     },
     {
@@ -1408,26 +1407,6 @@
         "earliest_return_week": 6,
         "designated_return_date": "2026-11-12",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040719|11",
-      "severity": "info",
-      "player": "Bhayshul Tuten",
-      "gsis_id": "00-0040719",
-      "pos": "RB",
-      "team": "JAX",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Bhayshul Tuten (RB, JAX) did not practice on the latest report (Ankle/Foot); projected 16.7 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-18": "LP",
-          "2026-11-19": "DNP"
-        },
-        "injury": "Ankle/Foot",
-        "ppr": 16.7
       }
     },
     {
@@ -2377,13 +2356,12 @@
   "counts": {
     "status_conflict": 7,
     "missing_active": 1,
-    "out_but_projected": 1,
+    "out_but_projected": 2,
     "sheet_status_stale": 23,
     "sheet_line_stale": 1,
-    "market_proj_gap": 2,
+    "market_proj_gap": 1,
     "elevation_limit": 29,
     "unconfirmed_report": 19,
-    "ir_return_window": 38,
-    "dnp_but_projected": 1
+    "ir_return_window": 38
   }
 }
