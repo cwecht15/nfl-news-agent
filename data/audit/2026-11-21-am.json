@@ -4,34 +4,14 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-21T18:04:10+00:00",
+  "generated_at": "2026-11-22T01:29:45+00:00",
   "inputs": {
     "snapshot_date": "2026-11-21",
     "nflverse_date": "2026-11-21",
-    "injury_week_updated": "2026-11-21T18:04:10+00:00",
-    "roster_state_updated": "2026-11-21T18:04:06+00:00"
+    "injury_week_updated": "2026-11-22T01:29:45+00:00",
+    "roster_state_updated": "2026-11-22T01:29:42+00:00"
   },
   "alerts": [
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0039344|11",
-      "severity": "error",
-      "player": "Jonathon Brooks",
-      "gsis_id": "00-0039344",
-      "pos": "RB",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Jonathon Brooks (RB, CAR) is marked IR on the sheet but still projected (3.8 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 3.8,
-        "slot": 2,
-        "earliest_return_week": 8
-      }
-    },
     {
       "type": "missing_active",
       "key": "missing_active|00-0039164|11",
@@ -69,46 +49,6 @@
         "sheet_status": "IR",
         "ppr": 3.9,
         "slot": 2,
-        "earliest_return_week": 11
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0036252|11",
-      "severity": "error",
-      "player": "Michael Pittman",
-      "gsis_id": "00-0036252",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Michael Pittman (WR, PIT) is marked IR on the sheet but still projected (8.0 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 8.0,
-        "slot": 2,
-        "earliest_return_week": 10
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0039739|11",
-      "severity": "error",
-      "player": "Roman Wilson",
-      "gsis_id": "00-0039739",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Roman Wilson (WR, PIT) is marked IR on the sheet but still projected (5.4 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 5.4,
-        "slot": 3,
         "earliest_return_week": 11
       }
     },
@@ -241,6 +181,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|DET|11|TB@DET",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 11,
+      "message": "TB@DET: the sheet has -4.5 / 46.0, the market -4.5 / 47.5 (FP-TOTAL) (odds pulled 2026-11-21 20:19:36-05:00)",
+      "evidence": {
+        "game": "TB@DET",
+        "fp_flag": "FP-TOTAL",
+        "sheet_spread": -4.5,
+        "sheet_ou": 46.0,
+        "market_spread": -4.5,
+        "market_total": 47.5,
+        "spread_delta": 0.0,
+        "total_delta": 1.5
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040628|11",
       "severity": "warning",
@@ -259,24 +221,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038098|11",
-      "severity": "warning",
-      "player": "Pierre Strong",
-      "gsis_id": "00-0038098",
-      "pos": "RB",
-      "team": "GB",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Pierre Strong (RB, GB) sheet Status is ACTIVE but roster says FA",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|HST|11|IND@HOU",
       "severity": "warning",
@@ -286,7 +230,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 11,
-      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-21 12:53:13-05:00)",
+      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-21 20:19:36-05:00)",
       "evidence": {
         "game": "IND@HOU",
         "fp_flag": "FP-SPREAD",
@@ -500,6 +444,24 @@
     },
     {
       "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038393|11",
+      "severity": "warning",
+      "player": "Dontayvion Wicks",
+      "gsis_id": "00-0038393",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Dontayvion Wicks (WR, PHI) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040586|11",
       "severity": "warning",
       "player": "Jaydon Blue",
@@ -536,19 +498,37 @@
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036775|11",
+      "key": "sheet_status_stale|00-0039739|11",
       "severity": "warning",
-      "player": "Brandon Smith",
-      "gsis_id": "00-0036775",
+      "player": "Roman Wilson",
+      "gsis_id": "00-0039739",
       "pos": "WR",
       "team": "PIT",
       "sheet": "primary",
       "week": 11,
-      "message": "Brandon Smith (WR, PIT) sheet Status is PS but roster says FA",
+      "message": "Roman Wilson (WR, PIT) sheet Status is IR but roster says ACT - activated",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
+        "roster_status": "ACT",
+        "status_source": "news",
+        "sheet_status": "IR",
+        "ppr": 7.5
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039032|11",
+      "severity": "warning",
+      "player": "Tyjae Spears",
+      "gsis_id": "00-0039032",
+      "pos": "RB",
+      "team": "TEN",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Tyjae Spears (RB, TEN) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
     },
@@ -567,7 +547,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 2.1
+        "ppr": 2.2
       }
     },
     {
@@ -843,6 +823,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0036020|11",
+      "severity": "info",
+      "player": "Salvon Ahmed",
+      "gsis_id": "00-0036020",
+      "pos": "RB",
+      "team": "CHI",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Salvon Ahmed (RB, CHI) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-07",
+          "2026-11-09",
+          "2026-11-21"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0038619|11",
       "severity": "info",
@@ -1000,13 +1000,14 @@
       "team": "DAL",
       "sheet": "primary",
       "week": 11,
-      "message": "Derion Kendrick (DB, DAL) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Derion Kendrick (DB, DAL) has used 4/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 3,
+        "elevations_used": 4,
         "elevation_dates": [
           "2026-10-17",
           "2026-11-14",
-          "2026-11-16"
+          "2026-11-16",
+          "2026-11-21"
         ]
       }
     },
@@ -1074,13 +1075,14 @@
       "team": "DEN",
       "sheet": "primary",
       "week": 11,
-      "message": "Cody Schrader (RB, DEN) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Cody Schrader (RB, DEN) has used 4/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 3,
+        "elevations_used": 4,
         "elevation_dates": [
           "2026-10-31",
           "2026-11-07",
-          "2026-11-09"
+          "2026-11-09",
+          "2026-11-21"
         ]
       }
     },
@@ -1099,26 +1101,6 @@
         "elevations_used": 3,
         "elevation_dates": [
           "2026-10-10",
-          "2026-10-15",
-          "2026-10-24",
-          "2026-11-07"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0035663|11",
-      "severity": "info",
-      "player": "Taylor Rapp",
-      "gsis_id": "00-0035663",
-      "pos": "DB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Taylor Rapp (DB, DEN) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
           "2026-10-15",
           "2026-10-24",
           "2026-11-07"
@@ -1159,6 +1141,26 @@
         "earliest_return_week": 11,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0038600|11",
+      "severity": "info",
+      "player": "Owen Pappoe",
+      "gsis_id": "00-0038600",
+      "pos": "LB",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Owen Pappoe (LB, DET) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-14",
+          "2026-11-16",
+          "2026-11-21"
+        ]
       }
     },
     {
@@ -1380,6 +1382,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040547|11",
+      "severity": "info",
+      "player": "Nate Carter",
+      "gsis_id": "00-0040547",
+      "pos": "RB",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Nate Carter (RB, KC) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-14",
+          "2026-11-16",
+          "2026-11-21"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|aj jackson|11|suspended",
       "severity": "info",
@@ -1518,6 +1540,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040488|11",
+      "severity": "info",
+      "player": "Carter Runyon",
+      "gsis_id": "00-0040488",
+      "pos": "TE",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Carter Runyon (TE, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-14",
+          "2026-11-16",
+          "2026-11-21"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|carter runyon's|11|ir_designated_return",
       "severity": "info",
@@ -1548,13 +1590,14 @@
       "team": "LV",
       "sheet": "primary",
       "week": 11,
-      "message": "Chris Williams (DL, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Chris Williams (DL, LV) has used 4/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 3,
+        "elevations_used": 4,
         "elevation_dates": [
           "2026-10-10",
           "2026-10-17",
-          "2026-10-19"
+          "2026-10-19",
+          "2026-11-21"
         ]
       }
     },
@@ -1722,27 +1765,6 @@
     },
     {
       "type": "elevation_limit",
-      "key": "elevation_limit|00-0039229|11",
-      "severity": "info",
-      "player": "Charlie Smyth",
-      "gsis_id": "00-0039229",
-      "pos": "K",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Charlie Smyth (K, NO) has used 4/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 4,
-        "elevation_dates": [
-          "2026-11-07",
-          "2026-11-09",
-          "2026-11-14",
-          "2026-11-16"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
       "key": "elevation_limit|00-0037231|11",
       "severity": "info",
       "player": "Kevin Austin Jr.",
@@ -1771,13 +1793,34 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 11,
-      "message": "Dawuane Smoot (DL, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Dawuane Smoot (DL, NYG) has used 4/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 4,
+        "elevation_dates": [
+          "2026-11-07",
+          "2026-11-09",
+          "2026-11-12",
+          "2026-11-21"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040021|11",
+      "severity": "info",
+      "player": "Phil Mafah",
+      "gsis_id": "00-0040021",
+      "pos": "RB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Phil Mafah (RB, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
       "evidence": {
         "elevations_used": 3,
         "elevation_dates": [
           "2026-11-07",
           "2026-11-09",
-          "2026-11-12"
+          "2026-11-21"
         ]
       }
     },
@@ -1854,6 +1897,26 @@
         "earliest_return_week": 11,
         "designated_return_date": null,
         "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0032385|11",
+      "severity": "info",
+      "player": "Sterling Shepard",
+      "gsis_id": "00-0032385",
+      "pos": "WR",
+      "team": "NYJ",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Sterling Shepard (WR, NYJ) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-27",
+          "2026-10-03",
+          "2026-11-21"
+        ]
       }
     },
     {
@@ -1989,24 +2052,6 @@
       "evidence": {
         "status": "IR",
         "earliest_return_week": 10,
-        "designated_return_date": "2026-11-18",
-        "on_sheet": true
-      }
-    },
-    {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0039739|11",
-      "severity": "info",
-      "player": "Roman Wilson",
-      "gsis_id": "00-0039739",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Roman Wilson (WR, PIT) on IR - designated to return 2026-11-18 - first eligible Week 11 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 11,
         "designated_return_date": "2026-11-18",
         "on_sheet": true
       }
@@ -2280,39 +2325,18 @@
         "designated_return_date": null,
         "on_sheet": false
       }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0037742|11",
-      "severity": "info",
-      "player": "Treylon Burks",
-      "gsis_id": "00-0037742",
-      "pos": "WR",
-      "team": "WAS",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Treylon Burks (WR, WAS) did not practice on the latest report (Foot); projected 7.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-19": "FP",
-          "2026-11-20": "DNP"
-        },
-        "injury": "Foot",
-        "ppr": 7.8
-      }
     }
   ],
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 6,
     "missing_active": 1,
-    "sheet_status_stale": 23,
-    "sheet_line_stale": 1,
-    "elevation_limit": 29,
+    "status_conflict": 3,
+    "sheet_status_stale": 24,
+    "sheet_line_stale": 2,
+    "elevation_limit": 33,
     "unconfirmed_report": 19,
-    "ir_return_window": 38,
-    "market_only_player": 1,
-    "dnp_but_projected": 1
+    "ir_return_window": 37,
+    "market_only_player": 1
   }
 }
