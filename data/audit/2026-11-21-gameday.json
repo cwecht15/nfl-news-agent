@@ -4,34 +4,14 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-22T00:52:49+00:00",
+  "generated_at": "2026-11-22T01:36:53+00:00",
   "inputs": {
     "snapshot_date": "2026-11-21",
     "nflverse_date": "2026-11-21",
-    "injury_week_updated": "2026-11-22T00:07:02+00:00",
-    "roster_state_updated": "2026-11-22T00:52:49+00:00"
+    "injury_week_updated": "2026-11-22T01:31:35+00:00",
+    "roster_state_updated": "2026-11-22T01:36:52+00:00"
   },
   "alerts": [
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0039344|11",
-      "severity": "error",
-      "player": "Jonathon Brooks",
-      "gsis_id": "00-0039344",
-      "pos": "RB",
-      "team": "CAR",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Jonathon Brooks (RB, CAR) is marked IR on the sheet but still projected (3.8 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 3.8,
-        "slot": 2,
-        "earliest_return_week": 8
-      }
-    },
     {
       "type": "missing_active",
       "key": "missing_active|00-0039164|11",
@@ -69,46 +49,6 @@
         "sheet_status": "IR",
         "ppr": 3.9,
         "slot": 2,
-        "earliest_return_week": 11
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0036252|11",
-      "severity": "error",
-      "player": "Michael Pittman",
-      "gsis_id": "00-0036252",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Michael Pittman (WR, PIT) is marked IR on the sheet but still projected (8.0 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 8.0,
-        "slot": 2,
-        "earliest_return_week": 10
-      }
-    },
-    {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0039739|11",
-      "severity": "error",
-      "player": "Roman Wilson",
-      "gsis_id": "00-0039739",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Roman Wilson (WR, PIT) is marked IR on the sheet but still projected (5.4 PPR); roster status is IR",
-      "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "IR",
-        "ppr": 5.4,
-        "slot": 3,
         "earliest_return_week": 11
       }
     },
@@ -241,24 +181,6 @@
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0037410|11",
-      "severity": "warning",
-      "player": "Jashaun Corbin",
-      "gsis_id": "00-0037410",
-      "pos": "RB",
-      "team": "DAL",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Jashaun Corbin (RB, DAL) was elevated from the practice squad (2026-11-21) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-11-21"
-        ],
-        "elevations_used": 1
-      }
-    },
-    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|DET|11|TB@DET",
       "severity": "warning",
@@ -268,15 +190,15 @@
       "team": "DET",
       "sheet": "primary",
       "week": 11,
-      "message": "TB@DET: the sheet has -4.5 / 46.0, the market -4.5 / 47.5 (FP-TOTAL) (odds pulled 2026-11-21 19:06:53-05:00)",
+      "message": "TB@DET: the sheet has -4.5 / 46.0, the market -4.0 / 47.5 (FP-TOTAL) (odds pulled 2026-11-21 20:31:24-05:00)",
       "evidence": {
         "game": "TB@DET",
         "fp_flag": "FP-TOTAL",
         "sheet_spread": -4.5,
         "sheet_ou": 46.0,
-        "market_spread": -4.5,
+        "market_spread": -4.0,
         "market_total": 47.5,
-        "spread_delta": 0.0,
+        "spread_delta": 0.5,
         "total_delta": 1.5
       }
     },
@@ -299,24 +221,6 @@
       }
     },
     {
-      "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0038098|11",
-      "severity": "warning",
-      "player": "Pierre Strong",
-      "gsis_id": "00-0038098",
-      "pos": "RB",
-      "team": "GB",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Pierre Strong (RB, GB) sheet Status is ACTIVE but roster says FA",
-      "evidence": {
-        "roster_status": "FA",
-        "status_source": "official",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.0
-      }
-    },
-    {
       "type": "sheet_line_stale",
       "key": "sheet_line_stale|HST|11|IND@HOU",
       "severity": "warning",
@@ -326,7 +230,7 @@
       "team": "HST",
       "sheet": "primary",
       "week": 11,
-      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-21 19:06:53-05:00)",
+      "message": "IND@HOU: the sheet has -12.5 / 44.0, the market -19.0 / 43.5 (FP-SPREAD) (odds pulled 2026-11-21 20:31:24-05:00)",
       "evidence": {
         "game": "IND@HOU",
         "fp_flag": "FP-SPREAD",
@@ -540,6 +444,24 @@
     },
     {
       "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0038393|11",
+      "severity": "warning",
+      "player": "Dontayvion Wicks",
+      "gsis_id": "00-0038393",
+      "pos": "WR",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Dontayvion Wicks (WR, PHI) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040586|11",
       "severity": "warning",
       "player": "Jaydon Blue",
@@ -576,38 +498,38 @@
     },
     {
       "type": "sheet_status_stale",
-      "key": "sheet_status_stale|00-0036775|11",
+      "key": "sheet_status_stale|00-0039739|11",
       "severity": "warning",
-      "player": "Brandon Smith",
-      "gsis_id": "00-0036775",
+      "player": "Roman Wilson",
+      "gsis_id": "00-0039739",
       "pos": "WR",
       "team": "PIT",
       "sheet": "primary",
       "week": 11,
-      "message": "Brandon Smith (WR, PIT) sheet Status is PS but roster says FA",
+      "message": "Roman Wilson (WR, PIT) sheet Status is IR but roster says ACT - activated",
       "evidence": {
-        "roster_status": "FA",
-        "status_source": "nflverse",
-        "sheet_status": "PS",
-        "ppr": 0.0
+        "roster_status": "ACT",
+        "status_source": "news",
+        "sheet_status": "IR",
+        "ppr": 7.5
       }
     },
     {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0040618|11",
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0039032|11",
       "severity": "warning",
-      "player": "Max Hurleman",
-      "gsis_id": "00-0040618",
-      "pos": "WR",
-      "team": "PIT",
+      "player": "Tyjae Spears",
+      "gsis_id": "00-0039032",
+      "pos": "RB",
+      "team": "TEN",
       "sheet": "primary",
       "week": 11,
-      "message": "Max Hurleman (WR, PIT) was elevated from the practice squad (2026-11-21) but has no row on the sheet",
+      "message": "Tyjae Spears (RB, TEN) sheet Status is ACTIVE but roster says IR",
       "evidence": {
-        "elevation_dates": [
-          "2026-11-21"
-        ],
-        "elevations_used": 1
+        "roster_status": "IR",
+        "status_source": "official",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
       }
     },
     {
@@ -625,7 +547,7 @@
         "roster_status": "ACT",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 2.1
+        "ppr": 2.2
       }
     },
     {
@@ -1179,26 +1101,6 @@
         "elevations_used": 3,
         "elevation_dates": [
           "2026-10-10",
-          "2026-10-15",
-          "2026-10-24",
-          "2026-11-07"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0035663|11",
-      "severity": "info",
-      "player": "Taylor Rapp",
-      "gsis_id": "00-0035663",
-      "pos": "DB",
-      "team": "DEN",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Taylor Rapp (DB, DEN) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
           "2026-10-15",
           "2026-10-24",
           "2026-11-07"
@@ -2155,24 +2057,6 @@
       }
     },
     {
-      "type": "ir_return_window",
-      "key": "ir_return_window|00-0039739|11",
-      "severity": "info",
-      "player": "Roman Wilson",
-      "gsis_id": "00-0039739",
-      "pos": "WR",
-      "team": "PIT",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Roman Wilson (WR, PIT) on IR - designated to return 2026-11-18 - first eligible Week 11 (already on the sheet)",
-      "evidence": {
-        "status": "IR",
-        "earliest_return_week": 11,
-        "designated_return_date": "2026-11-18",
-        "on_sheet": true
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|joe mixon|11|ps_signed",
       "severity": "info",
@@ -2446,14 +2330,13 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 6,
     "missing_active": 1,
-    "sheet_status_stale": 23,
-    "elevated_not_projected": 2,
+    "status_conflict": 3,
+    "sheet_status_stale": 24,
     "sheet_line_stale": 2,
-    "elevation_limit": 34,
+    "elevation_limit": 33,
     "unconfirmed_report": 19,
-    "ir_return_window": 38,
+    "ir_return_window": 37,
     "market_only_player": 1
   }
 }
