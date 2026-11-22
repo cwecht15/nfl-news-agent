@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 11,
   "sheet": "primary",
-  "generated_at": "2026-11-22T00:09:24+00:00",
+  "generated_at": "2026-11-22T00:52:49+00:00",
   "inputs": {
     "snapshot_date": "2026-11-21",
     "nflverse_date": "2026-11-21",
     "injury_week_updated": "2026-11-22T00:07:02+00:00",
-    "roster_state_updated": "2026-11-22T00:09:24+00:00"
+    "roster_state_updated": "2026-11-22T00:52:49+00:00"
   },
   "alerts": [
     {
@@ -608,24 +608,6 @@
           "2026-11-21"
         ],
         "elevations_used": 1
-      }
-    },
-    {
-      "type": "elevated_not_projected",
-      "key": "elevated_not_projected|00-0036924|11",
-      "severity": "warning",
-      "player": "Michael Carter",
-      "gsis_id": "00-0036924",
-      "pos": "RB",
-      "team": "TEN",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Michael Carter (RB, TEN) was elevated from the practice squad (2026-11-21) but has no row on the sheet",
-      "evidence": {
-        "elevation_dates": [
-          "2026-11-21"
-        ],
-        "elevations_used": 2
       }
     },
     {
@@ -1498,6 +1480,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040547|11",
+      "severity": "info",
+      "player": "Nate Carter",
+      "gsis_id": "00-0040547",
+      "pos": "RB",
+      "team": "KC",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Nate Carter (RB, KC) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-14",
+          "2026-11-16",
+          "2026-11-21"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|aj jackson|11|suspended",
       "severity": "info",
@@ -1636,6 +1638,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040488|11",
+      "severity": "info",
+      "player": "Carter Runyon",
+      "gsis_id": "00-0040488",
+      "pos": "TE",
+      "team": "LV",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Carter Runyon (TE, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-14",
+          "2026-11-16",
+          "2026-11-21"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|carter runyon's|11|ir_designated_return",
       "severity": "info",
@@ -1666,9 +1688,9 @@
       "team": "LV",
       "sheet": "primary",
       "week": 11,
-      "message": "Chris Williams (DL, LV) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Chris Williams (DL, LV) has used 4/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 3,
+        "elevations_used": 4,
         "elevation_dates": [
           "2026-10-10",
           "2026-10-17",
@@ -1841,28 +1863,6 @@
     },
     {
       "type": "elevation_limit",
-      "key": "elevation_limit|00-0039229|11",
-      "severity": "info",
-      "player": "Charlie Smyth",
-      "gsis_id": "00-0039229",
-      "pos": "K",
-      "team": "NO",
-      "sheet": "primary",
-      "week": 11,
-      "message": "Charlie Smyth (K, NO) has used 4/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 4,
-        "elevation_dates": [
-          "2026-11-07",
-          "2026-11-09",
-          "2026-11-14",
-          "2026-11-16",
-          "2026-11-21"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
       "key": "elevation_limit|00-0037231|11",
       "severity": "info",
       "player": "Kevin Austin Jr.",
@@ -1891,13 +1891,33 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 11,
-      "message": "Dawuane Smoot (DL, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Dawuane Smoot (DL, NYG) has used 4/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 4,
+        "elevation_dates": [
+          "2026-11-07",
+          "2026-11-09",
+          "2026-11-12",
+          "2026-11-21"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0040021|11",
+      "severity": "info",
+      "player": "Phil Mafah",
+      "gsis_id": "00-0040021",
+      "pos": "RB",
+      "team": "NYG",
+      "sheet": "primary",
+      "week": 11,
+      "message": "Phil Mafah (RB, NYG) has used 3/3 elevations - must be signed to the 53 to play again",
       "evidence": {
         "elevations_used": 3,
         "elevation_dates": [
           "2026-11-07",
           "2026-11-09",
-          "2026-11-12",
           "2026-11-21"
         ]
       }
@@ -2429,9 +2449,9 @@
     "status_conflict": 6,
     "missing_active": 1,
     "sheet_status_stale": 23,
-    "elevated_not_projected": 3,
+    "elevated_not_projected": 2,
     "sheet_line_stale": 2,
-    "elevation_limit": 32,
+    "elevation_limit": 34,
     "unconfirmed_report": 19,
     "ir_return_window": 38,
     "market_only_player": 1
