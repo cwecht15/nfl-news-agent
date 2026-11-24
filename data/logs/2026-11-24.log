@@ -114,3 +114,29 @@
 2026-11-24 05:32:50,834 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-24.json
 2026-11-24 05:32:50,835 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-24.html
 2026-11-24 05:32:50,835 [INFO] afternoon: Afternoon run complete.
+2026-11-24 07:08:40,530 [INFO] afternoon: ============================================================
+2026-11-24 07:08:40,530 [INFO] afternoon: NFL News Agent - game-day inactives: 2026-11-24 (week 12, Tue)
+2026-11-24 07:08:40,530 [INFO] afternoon: ============================================================
+2026-11-24 07:08:41,691 [INFO] afternoon: Game lines via API: 9 credits, 76004 remaining (16 games, 0 changes)
+2026-11-24 07:08:41,691 [INFO] afternoon: Step 2c: Reading market lines...
+2026-11-24 07:08:49,260 [INFO] collectors.odds_collector: Market history tab 2026_W12 not present yet
+2026-11-24 07:08:49,262 [INFO] afternoon: Market lines: week 12, 16 games, 0 player-stats, 0 changes (none); odds pulled 2026-11-23T19:25-05:00 [the last odds pull priced Week 11; the news agent is on Week 12]; game lines via API 2026-11-24T02:08:41-05:00
+2026-11-24 07:08:49,262 [WARNING] afternoon: Odds source error: the last odds pull priced Week 11; the news agent is on Week 12
+2026-11-24 07:08:49,396 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-11-23 is older than 2026-11-24 — refetching (attempt 1/3)
+2026-11-24 07:08:52,554 [INFO] collectors.espn_transactions_collector: ESPN transactions: newest row 2026-11-23 is older than 2026-11-24 — refetching (attempt 2/3)
+2026-11-24 07:08:55,580 [INFO] collectors.espn_transactions_collector: ESPN elevations: 30 in the last 4 days (35 parsed from 100 rows, newest row 2026-11-23); practice-squad promotions: 2
+2026-11-24 07:08:55,580 [INFO] afternoon: Step 5f: 30 practice-squad elevations from ESPN (ARI, BAL, BUF, CHI, DAL, DEN, DET, JAX, KC, LAC, LV, MIA, NO, NYG, NYJ, PHI, PIT, TB, TEN)
+2026-11-24 07:08:55,580 [INFO] afternoon: Step 5f: 2 practice-squad promotions from ESPN (ATL, NO)
+2026-11-24 07:08:55,947 [INFO] collectors.cbs_transactions_collector: CBS elevations: 0 not yet in ESPN (1 move rows since 2026-11-22, 440 rows on the page, newest 2026-11-23)
+2026-11-24 07:08:56,102 [INFO] processing.roster_events: Saved roster state: 3122 players -> /home/runner/work/nfl-news-agent/nfl-news-agent/data/roster/state.json
+2026-11-24 07:08:56,130 [INFO] processing.roster_events: Roster step 2026-11-24: {"nflverse_transitions": 213, "nflverse_events": 23, "espn_elevations": 32, "appended": 0, "ledger": 5657, "confirmed_new": 0}
+2026-11-24 07:08:56,133 [INFO] afternoon: Elevations merged into the ledger: 0 new events
+2026-11-24 07:08:56,133 [INFO] afternoon: Step 5e: Checking game-day inactives...
+2026-11-24 07:08:56,266 [INFO] collectors.inactives_collector: Inactives week 12: 0 games polled, 0 teams published, 0 changed
+2026-11-24 07:08:56,267 [INFO] afternoon: Inactives: week 12, 0 games polled, 0 teams published, 0 newly published/changed
+2026-11-24 07:08:56,268 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-11-24 07:08:56,387 [INFO] afternoon: Projection audit: 105 open alerts (error=1, info=79, warning=25), 0 dismissed
+2026-11-24 07:08:56,432 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-24.json
+2026-11-24 07:08:56,433 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-24.html
+2026-11-24 07:08:56,433 [INFO] afternoon: Report 2026-11-24 updated in place (pm_updated_at=2026-11-24T07:08:56+00:00)
+2026-11-24 07:08:56,433 [INFO] afternoon: Game-day inactives run complete.
