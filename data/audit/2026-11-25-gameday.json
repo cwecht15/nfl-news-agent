@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 12,
   "sheet": "primary",
-  "generated_at": "2026-11-25T21:17:13+00:00",
+  "generated_at": "2026-11-25T22:01:56+00:00",
   "inputs": {
     "snapshot_date": "2026-11-25",
     "nflverse_date": "2026-11-25",
     "injury_week_updated": "2026-11-25T21:12:43+00:00",
-    "roster_state_updated": "2026-11-25T21:17:13+00:00"
+    "roster_state_updated": "2026-11-25T22:01:55+00:00"
   },
   "alerts": [
     {
@@ -246,7 +246,7 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 12,
-      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.42, the market implies 0.73 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.42, the market implies 0.73 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -269,7 +269,7 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 12,
-      "message": "Trevor Lawrence (QB, JAX) INT: we project 0.80, the market implies 0.44 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Trevor Lawrence (QB, JAX) INT: we project 0.80, the market implies 0.44 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -318,6 +318,28 @@
         "status_source": "nflverse",
         "sheet_status": "PS",
         "ppr": 1.7
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|LAC|12|NE@LAC",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 12,
+      "message": "NE@LAC: the sheet has -1.0 / 35.5, the market 1.0 / 35.5 (FP-SPREAD) (odds pulled 2026-11-25 17:01:46-05:00)",
+      "evidence": {
+        "game": "NE@LAC",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": -1.0,
+        "sheet_ou": 35.5,
+        "market_spread": 1.0,
+        "market_total": 35.5,
+        "spread_delta": 2.0,
+        "total_delta": 0.0
       }
     },
     {
@@ -402,7 +424,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 12,
-      "message": "Devin Singletary (RB, NYG) Rush Yds: we project 4.6, the market implies 17.7 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Devin Singletary (RB, NYG) Rush Yds: we project 4.6, the market implies 17.7 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -553,7 +575,7 @@
       "team": "SF",
       "sheet": "primary",
       "week": 12,
-      "message": "Kaelon Black (RB, SF) Rush Yds: we project 36.2, the market implies 24.0 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Kaelon Black (RB, SF) Rush Yds: we project 36.2, the market implies 24.0 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -614,7 +636,7 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 12,
-      "message": "Rachaad White (RB, WAS) Anytime TD rate: we project 0.08, the market implies 0.43 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Rachaad White (RB, WAS) Anytime TD rate: we project 0.08, the market implies 0.43 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -2309,6 +2331,26 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0039265|12",
+      "severity": "info",
+      "player": "Gabe Hall",
+      "gsis_id": "00-0039265",
+      "pos": "DL",
+      "team": "PHI",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Gabe Hall (DL, PHI) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-21",
+          "2026-11-23",
+          "2026-11-25"
+        ]
+      }
+    },
+    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|hollywood brown|12|released",
       "severity": "info",
@@ -2743,8 +2785,9 @@
     "sheet_status_stale": 21,
     "market_proj_gap": 5,
     "missing_active": 2,
+    "sheet_line_stale": 1,
     "ir_return_window": 48,
-    "elevation_limit": 39,
+    "elevation_limit": 40,
     "unconfirmed_report": 19,
     "dnp_but_projected": 1
   }
