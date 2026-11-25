@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 12,
   "sheet": "primary",
-  "generated_at": "2026-11-25T22:01:56+00:00",
+  "generated_at": "2026-11-25T22:46:51+00:00",
   "inputs": {
     "snapshot_date": "2026-11-25",
     "nflverse_date": "2026-11-25",
-    "injury_week_updated": "2026-11-25T21:12:43+00:00",
-    "roster_state_updated": "2026-11-25T22:01:55+00:00"
+    "injury_week_updated": "2026-11-25T22:03:48+00:00",
+    "roster_state_updated": "2026-11-25T22:46:51+00:00"
   },
   "alerts": [
     {
@@ -330,7 +330,7 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 12,
-      "message": "NE@LAC: the sheet has -1.0 / 35.5, the market 1.0 / 35.5 (FP-SPREAD) (odds pulled 2026-11-25 17:01:46-05:00)",
+      "message": "NE@LAC: the sheet has -1.0 / 35.5, the market 1.0 / 35.5 (FP-SPREAD) (odds pulled 2026-11-25 17:03:40-05:00)",
       "evidence": {
         "game": "NE@LAC",
         "fp_flag": "FP-SPREAD",
@@ -358,6 +358,28 @@
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|MIA|12|NYJ@MIA",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 12,
+      "message": "NYJ@MIA: the sheet has 3.5 / 40.5, the market 4.5 / 40.5 (FP-SPREAD) (odds pulled 2026-11-25 17:03:40-05:00)",
+      "evidence": {
+        "game": "NYJ@MIA",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": 3.5,
+        "sheet_ou": 40.5,
+        "market_spread": 4.5,
+        "market_total": 40.5,
+        "spread_delta": 1.0,
+        "total_delta": 0.0
       }
     },
     {
@@ -1344,6 +1366,26 @@
     },
     {
       "type": "elevation_limit",
+      "key": "elevation_limit|00-0041458|12",
+      "severity": "info",
+      "player": "Anthony Lucas",
+      "gsis_id": "00-0041458",
+      "pos": "DL",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Anthony Lucas (DL, DET) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-07",
+          "2026-11-09",
+          "2026-11-25"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
       "key": "elevation_limit|00-0038600|12",
       "severity": "info",
       "player": "Owen Pappoe",
@@ -2298,13 +2340,14 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 12,
-      "message": "Cole Wisniewski (DB, PHI) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Cole Wisniewski (DB, PHI) has used 4/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 3,
+        "elevations_used": 4,
         "elevation_dates": [
           "2026-10-17",
           "2026-11-07",
-          "2026-11-09"
+          "2026-11-09",
+          "2026-11-25"
         ]
       }
     },
@@ -2327,26 +2370,6 @@
           "2026-10-31",
           "2026-11-07",
           "2026-11-09"
-        ]
-      }
-    },
-    {
-      "type": "elevation_limit",
-      "key": "elevation_limit|00-0039265|12",
-      "severity": "info",
-      "player": "Gabe Hall",
-      "gsis_id": "00-0039265",
-      "pos": "DL",
-      "team": "PHI",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Gabe Hall (DL, PHI) has used 3/3 elevations - must be signed to the 53 to play again",
-      "evidence": {
-        "elevations_used": 3,
-        "elevation_dates": [
-          "2026-11-21",
-          "2026-11-23",
-          "2026-11-25"
         ]
       }
     },
@@ -2785,7 +2808,7 @@
     "sheet_status_stale": 21,
     "market_proj_gap": 5,
     "missing_active": 2,
-    "sheet_line_stale": 1,
+    "sheet_line_stale": 2,
     "ir_return_window": 48,
     "elevation_limit": 40,
     "unconfirmed_report": 19,
