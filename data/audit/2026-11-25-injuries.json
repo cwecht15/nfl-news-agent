@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 12,
   "sheet": "primary",
-  "generated_at": "2026-11-25T22:03:48+00:00",
+  "generated_at": "2026-11-26T03:36:49+00:00",
   "inputs": {
     "snapshot_date": "2026-11-25",
     "nflverse_date": "2026-11-25",
-    "injury_week_updated": "2026-11-25T22:03:48+00:00",
-    "roster_state_updated": "2026-11-25T21:17:13+00:00"
+    "injury_week_updated": "2026-11-26T03:36:49+00:00",
+    "roster_state_updated": "2026-11-26T00:22:33+00:00"
   },
   "alerts": [
     {
@@ -283,6 +283,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|LA|12|GB@LAR",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LA",
+      "sheet": "primary",
+      "week": 12,
+      "message": "GB@LAR: the sheet has -2.5 / 43.5, the market -6.5 / 46.5 (FP-BOTH) (odds pulled 2026-11-25 22:36:41-05:00)",
+      "evidence": {
+        "game": "GB@LAR",
+        "fp_flag": "FP-BOTH",
+        "sheet_spread": -2.5,
+        "sheet_ou": 43.5,
+        "market_spread": -6.5,
+        "market_total": 46.5,
+        "spread_delta": -4.0,
+        "total_delta": 3.0
+      }
+    },
+    {
       "type": "missing_active",
       "key": "missing_active|00-0039750|12",
       "severity": "warning",
@@ -330,7 +352,7 @@
       "team": "LAC",
       "sheet": "primary",
       "week": 12,
-      "message": "NE@LAC: the sheet has -1.0 / 35.5, the market 1.0 / 35.5 (FP-SPREAD) (odds pulled 2026-11-25 17:03:40-05:00)",
+      "message": "NE@LAC: the sheet has -1.0 / 35.5, the market 1.0 / 35.5 (FP-SPREAD) (odds pulled 2026-11-25 22:36:41-05:00)",
       "evidence": {
         "game": "NE@LAC",
         "fp_flag": "FP-SPREAD",
@@ -370,7 +392,7 @@
       "team": "MIA",
       "sheet": "primary",
       "week": 12,
-      "message": "NYJ@MIA: the sheet has 3.5 / 40.5, the market 4.5 / 40.5 (FP-SPREAD) (odds pulled 2026-11-25 17:03:40-05:00)",
+      "message": "NYJ@MIA: the sheet has 3.5 / 40.5, the market 4.5 / 40.5 (FP-SPREAD) (odds pulled 2026-11-25 22:36:41-05:00)",
       "evidence": {
         "game": "NYJ@MIA",
         "fp_flag": "FP-SPREAD",
@@ -564,7 +586,7 @@
       "message": "Aaron Rodgers (QB, PIT) sheet Status is ACTIVE but roster says FA",
       "evidence": {
         "roster_status": "FA",
-        "status_source": "news",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -1366,6 +1388,26 @@
     },
     {
       "type": "elevation_limit",
+      "key": "elevation_limit|00-0041458|12",
+      "severity": "info",
+      "player": "Anthony Lucas",
+      "gsis_id": "00-0041458",
+      "pos": "DL",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Anthony Lucas (DL, DET) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-07",
+          "2026-11-09",
+          "2026-11-25"
+        ]
+      }
+    },
+    {
+      "type": "elevation_limit",
       "key": "elevation_limit|00-0038600|12",
       "severity": "info",
       "player": "Owen Pappoe",
@@ -2037,6 +2079,27 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0041531|12",
+      "severity": "info",
+      "player": "Max Llewellyn",
+      "gsis_id": "00-0041531",
+      "pos": "DL",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Max Llewellyn (DL, MIA) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-10-24",
+          "2026-10-31",
+          "2026-11-18"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0034779|12",
       "severity": "info",
@@ -2320,13 +2383,14 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 12,
-      "message": "Cole Wisniewski (DB, PHI) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Cole Wisniewski (DB, PHI) has used 4/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 3,
+        "elevations_used": 4,
         "elevation_dates": [
           "2026-10-17",
           "2026-11-07",
-          "2026-11-09"
+          "2026-11-09",
+          "2026-11-25"
         ]
       }
     },
@@ -2786,10 +2850,10 @@
     "status_conflict": 5,
     "sheet_status_stale": 21,
     "market_proj_gap": 5,
+    "sheet_line_stale": 3,
     "missing_active": 2,
-    "sheet_line_stale": 2,
     "ir_return_window": 48,
-    "elevation_limit": 39,
+    "elevation_limit": 41,
     "unconfirmed_report": 19,
     "dnp_but_projected": 1
   }

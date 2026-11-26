@@ -470,3 +470,23 @@
 2026-11-26 00:22:36,870 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-25.html
 2026-11-26 00:22:36,870 [INFO] afternoon: Report 2026-11-25 updated in place (pm_updated_at=2026-11-26T00:22:36+00:00)
 2026-11-26 00:22:36,871 [INFO] afternoon: Refresh complete (elevations, inactives, injuries, odds, roster, transactions).
+2026-11-26 03:36:41,527 [INFO] afternoon: ============================================================
+2026-11-26 03:36:41,528 [INFO] afternoon: NFL News Agent - injury report refresh: 2026-11-25 (week 12, Wed)
+2026-11-26 03:36:41,528 [INFO] afternoon: ============================================================
+2026-11-26 03:36:42,375 [INFO] afternoon: Game lines via API: 9 credits, 74202 remaining (16 games, 11 changes)
+2026-11-26 03:36:42,375 [INFO] afternoon: Step 2c: Reading market lines...
+2026-11-26 03:36:47,490 [INFO] afternoon: Market lines: week 12, 16 games, 1146 player-stats, 0 changes (none); odds pulled 2026-11-25T15:45-05:00; game lines via API 2026-11-25T22:36:41-05:00
+2026-11-26 03:36:47,491 [INFO] afternoon: Step 5c: Collecting injury reports...
+2026-11-26 03:36:49,251 [INFO] collectors.injury_report_collector: Team-site injury reports: 30 with a table, 2 not posted, 0 mismatched, 0 failed; 538 rows
+2026-11-26 03:36:49,682 [INFO] collectors.injury_report_collector: RotoWire practice report: 303 rows
+2026-11-26 03:36:49,799 [INFO] collectors.injury_report_collector: NFL.com injuries: week 12, 256 rows (practice status dated 2026-11-25)
+2026-11-26 03:36:49,800 [INFO] collectors.injury_report_collector: rotowire: dropped rows for FA — no game this week
+2026-11-26 03:36:49,808 [INFO] collectors.injury_report_collector: Injury week file updated: /home/runner/work/nfl-news-agent/nfl-news-agent/data/injuries/2026/wk12.json (32 teams)
+2026-11-26 03:36:49,809 [INFO] collectors.injury_report_collector: Injury report week 12: 309 players, 0 changes
+2026-11-26 03:36:49,816 [INFO] afternoon: Injury report: week 12, 309 rows (nflcom=256, rotowire=302, team_site=269), 0 changes, 0 conflicts, team sites with a table: 30
+2026-11-26 03:36:49,816 [INFO] afternoon: Step 5d: Auditing weekly projections...
+2026-11-26 03:36:50,000 [INFO] afternoon: Projection audit: 145 open alerts (error=2, info=109, warning=34), 0 dismissed
+2026-11-26 03:36:50,036 [INFO] reports.report_builder: Saved JSON report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-25.json
+2026-11-26 03:36:50,038 [INFO] reports.report_builder: Saved HTML report: /home/runner/work/nfl-news-agent/nfl-news-agent/data/reports/2026-11-25.html
+2026-11-26 03:36:50,038 [INFO] afternoon: Report 2026-11-25 updated in place (pm_updated_at=2026-11-26T03:36:50+00:00)
+2026-11-26 03:36:50,038 [INFO] afternoon: Injury report refresh complete.
