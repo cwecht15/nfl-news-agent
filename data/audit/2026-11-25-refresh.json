@@ -4,12 +4,12 @@
   "season": 2026,
   "week": 12,
   "sheet": "primary",
-  "generated_at": "2026-11-25T21:12:43+00:00",
+  "generated_at": "2026-11-26T00:22:36+00:00",
   "inputs": {
     "snapshot_date": "2026-11-25",
     "nflverse_date": "2026-11-25",
-    "injury_week_updated": "2026-11-25T21:12:43+00:00",
-    "roster_state_updated": "2026-11-25T21:12:39+00:00"
+    "injury_week_updated": "2026-11-26T00:22:36+00:00",
+    "roster_state_updated": "2026-11-26T00:22:33+00:00"
   },
   "alerts": [
     {
@@ -246,7 +246,7 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 12,
-      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.42, the market implies 0.73 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Chris Rodriguez Jr. (RB, JAX) Anytime TD rate: we project 0.42, the market implies 0.73 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -269,7 +269,7 @@
       "team": "JAX",
       "sheet": "primary",
       "week": 12,
-      "message": "Trevor Lawrence (QB, JAX) INT: we project 0.80, the market implies 0.44 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Trevor Lawrence (QB, JAX) INT: we project 0.80, the market implies 0.44 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "ints",
         "stats": [
@@ -321,6 +321,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|LAC|12|NE@LAC",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 12,
+      "message": "NE@LAC: the sheet has -1.0 / 35.5, the market 1.0 / 35.5 (FP-SPREAD) (odds pulled 2026-11-25 18:31:42-05:00)",
+      "evidence": {
+        "game": "NE@LAC",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": -1.0,
+        "sheet_ou": 35.5,
+        "market_spread": 1.0,
+        "market_total": 35.5,
+        "spread_delta": 2.0,
+        "total_delta": 0.0
+      }
+    },
+    {
       "type": "sheet_status_stale",
       "key": "sheet_status_stale|00-0040488|12",
       "severity": "warning",
@@ -336,6 +358,28 @@
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|MIA|12|NYJ@MIA",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 12,
+      "message": "NYJ@MIA: the sheet has 3.5 / 40.5, the market 4.5 / 40.5 (FP-SPREAD) (odds pulled 2026-11-25 18:31:42-05:00)",
+      "evidence": {
+        "game": "NYJ@MIA",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": 3.5,
+        "sheet_ou": 40.5,
+        "market_spread": 4.5,
+        "market_total": 40.5,
+        "spread_delta": 1.0,
+        "total_delta": 0.0
       }
     },
     {
@@ -402,7 +446,7 @@
       "team": "NYG",
       "sheet": "primary",
       "week": 12,
-      "message": "Devin Singletary (RB, NYG) Rush Yds: we project 4.6, the market implies 17.7 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Devin Singletary (RB, NYG) Rush Yds: we project 4.6, the market implies 17.7 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -520,7 +564,7 @@
       "message": "Aaron Rodgers (QB, PIT) sheet Status is ACTIVE but roster says FA",
       "evidence": {
         "roster_status": "FA",
-        "status_source": "news",
+        "status_source": "official",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
       }
@@ -553,7 +597,7 @@
       "team": "SF",
       "sheet": "primary",
       "week": 12,
-      "message": "Kaelon Black (RB, SF) Rush Yds: we project 36.2, the market implies 24.0 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Kaelon Black (RB, SF) Rush Yds: we project 36.2, the market implies 24.0 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "rush_yds",
         "stats": [
@@ -614,7 +658,7 @@
       "team": "WAS",
       "sheet": "primary",
       "week": 12,
-      "message": "Rachaad White (RB, WAS) Anytime TD rate: we project 0.08, the market implies 0.43 (odds pulled 2026-11-25 15:27-05:00)",
+      "message": "Rachaad White (RB, WAS) Anytime TD rate: we project 0.08, the market implies 0.43 (odds pulled 2026-11-25 15:45-05:00)",
       "evidence": {
         "stat": "anytime_td",
         "stats": [
@@ -983,14 +1027,15 @@
       "team": "CHI",
       "sheet": "primary",
       "week": 12,
-      "message": "Salvon Ahmed (RB, CHI) has used 4/3 elevations - must be signed to the 53 to play again",
+      "message": "Salvon Ahmed (RB, CHI) has used 5/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 4,
+        "elevations_used": 5,
         "elevation_dates": [
           "2026-11-07",
           "2026-11-09",
           "2026-11-21",
-          "2026-11-23"
+          "2026-11-23",
+          "2026-11-25"
         ]
       }
     },
@@ -1317,6 +1362,26 @@
         "earliest_return_week": 12,
         "designated_return_date": "2026-11-24",
         "on_sheet": false
+      }
+    },
+    {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0041458|12",
+      "severity": "info",
+      "player": "Anthony Lucas",
+      "gsis_id": "00-0041458",
+      "pos": "DL",
+      "team": "DET",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Anthony Lucas (DL, DET) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-11-07",
+          "2026-11-09",
+          "2026-11-25"
+        ]
       }
     },
     {
@@ -1992,6 +2057,27 @@
       }
     },
     {
+      "type": "elevation_limit",
+      "key": "elevation_limit|00-0041531|12",
+      "severity": "info",
+      "player": "Max Llewellyn",
+      "gsis_id": "00-0041531",
+      "pos": "DL",
+      "team": "MIA",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Max Llewellyn (DL, MIA) has used 3/3 elevations - must be signed to the 53 to play again",
+      "evidence": {
+        "elevations_used": 3,
+        "elevation_dates": [
+          "2026-09-19",
+          "2026-10-24",
+          "2026-10-31",
+          "2026-11-18"
+        ]
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0034779|12",
       "severity": "info",
@@ -2275,13 +2361,14 @@
       "team": "PHI",
       "sheet": "primary",
       "week": 12,
-      "message": "Cole Wisniewski (DB, PHI) has used 3/3 elevations - must be signed to the 53 to play again",
+      "message": "Cole Wisniewski (DB, PHI) has used 4/3 elevations - must be signed to the 53 to play again",
       "evidence": {
-        "elevations_used": 3,
+        "elevations_used": 4,
         "elevation_dates": [
           "2026-10-17",
           "2026-11-07",
-          "2026-11-09"
+          "2026-11-09",
+          "2026-11-25"
         ]
       }
     },
@@ -2742,8 +2829,9 @@
     "sheet_status_stale": 21,
     "market_proj_gap": 5,
     "missing_active": 2,
+    "sheet_line_stale": 2,
     "ir_return_window": 48,
-    "elevation_limit": 39,
+    "elevation_limit": 41,
     "unconfirmed_report": 19,
     "dnp_but_projected": 1
   }
