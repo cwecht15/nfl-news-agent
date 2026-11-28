@@ -4,54 +4,122 @@
   "season": 2026,
   "week": 12,
   "sheet": "primary",
-  "generated_at": "2026-11-27T18:16:16+00:00",
+  "generated_at": "2026-11-28T00:46:32+00:00",
   "inputs": {
-    "snapshot_date": "2026-11-26",
+    "snapshot_date": "2026-11-27",
     "nflverse_date": "2026-11-27",
-    "injury_week_updated": "2026-11-27T18:16:15+00:00",
-    "roster_state_updated": "2026-11-27T18:16:11+00:00"
+    "injury_week_updated": "2026-11-28T00:46:31+00:00",
+    "roster_state_updated": "2026-11-28T00:46:28+00:00"
   },
   "alerts": [
     {
-      "type": "status_conflict",
-      "key": "status_conflict|00-0036862|12",
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0037741|12|OUT",
       "severity": "error",
-      "player": "Ben Skowronek",
-      "gsis_id": "00-0036862",
+      "player": "Jahan Dotson",
+      "gsis_id": "00-0037741",
       "pos": "WR",
-      "team": "PIT",
+      "team": "ATL",
       "sheet": "primary",
       "week": 12,
-      "message": "Ben Skowronek (WR, PIT) is projected Active (0.2 PPR) but roster status is IR (since 2026-11-27); eligible Wk 16",
+      "message": "Jahan Dotson (WR, ATL) is OUT (Hamstring) but projected for 6.6 PPR",
       "evidence": {
-        "roster_status": "IR",
-        "status_source": "nflverse",
-        "sheet_status": "ACTIVE",
-        "ppr": 0.2,
-        "slot": 4,
-        "earliest_return_week": 16
+        "game_status": "OUT",
+        "injury": "Hamstring",
+        "practice": {
+          "2026-11-25": "DNP",
+          "2026-11-26": "DNP",
+          "2026-11-27": "DNP"
+        },
+        "ppr": 6.6
       }
     },
     {
       "type": "out_but_projected",
-      "key": "out_but_projected|00-0036862|12|OUT",
+      "key": "out_but_projected|00-0036355|12|OUT",
       "severity": "error",
-      "player": "Ben Skowronek",
-      "gsis_id": "00-0036862",
-      "pos": "WR",
-      "team": "PIT",
+      "player": "Justin Herbert",
+      "gsis_id": "00-0036355",
+      "pos": "QB",
+      "team": "LAC",
       "sheet": "primary",
       "week": 12,
-      "message": "Ben Skowronek (WR, PIT) is OUT (Calf) but projected for 0.2 PPR",
+      "message": "Justin Herbert (QB, LAC) is OUT (Concussion) but projected for 14.0 PPR",
       "evidence": {
         "game_status": "OUT",
-        "injury": "Calf",
+        "injury": "Concussion",
         "practice": {
-          "2026-11-24": "DNP",
           "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
+          "2026-11-26": "DNP",
+          "2026-11-27": "DNP"
         },
-        "ppr": 0.2
+        "ppr": 14.0
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0038454|12|OUT",
+      "severity": "error",
+      "player": "Keaton Mitchell",
+      "gsis_id": "00-0038454",
+      "pos": "RB",
+      "team": "LAC",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Keaton Mitchell (RB, LAC) is OUT (Knee) but projected for 2.6 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Knee",
+        "practice": {
+          "2026-11-25": "DNP",
+          "2026-11-26": "DNP",
+          "2026-11-27": "DNP"
+        },
+        "ppr": 2.6
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0037834|12|OUT",
+      "severity": "error",
+      "player": "Brock Purdy",
+      "gsis_id": "00-0037834",
+      "pos": "QB",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Brock Purdy (QB, SF) is OUT (Ankle) but projected for 17.8 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Ankle",
+        "practice": {
+          "2026-11-25": "DNP",
+          "2026-11-26": "DNP",
+          "2026-11-27": "DNP"
+        },
+        "ppr": 17.8
+      }
+    },
+    {
+      "type": "out_but_projected",
+      "key": "out_but_projected|00-0040172|12|OUT",
+      "severity": "error",
+      "player": "Jordan Watkins",
+      "gsis_id": "00-0040172",
+      "pos": "WR",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Jordan Watkins (WR, SF) is OUT (Groin) but projected for 2.8 PPR",
+      "evidence": {
+        "game_status": "OUT",
+        "injury": "Groin",
+        "practice": {
+          "2026-11-25": "DNP",
+          "2026-11-26": "DNP",
+          "2026-11-27": "DNP"
+        },
+        "ppr": 2.8
       }
     },
     {
@@ -64,7 +132,7 @@
       "team": "BUF",
       "sheet": "primary",
       "week": 12,
-      "message": "KC@BUF: the sheet has -3.0 / 45.5, the market -1.5 / 30.5 (FP-BOTH) (odds pulled 2026-11-27 12:38:23-05:00)",
+      "message": "KC@BUF: the sheet has -3.0 / 45.5, the market -1.5 / 30.5 (FP-BOTH) (odds pulled 2026-11-27 19:00:45-05:00)",
       "evidence": {
         "game": "KC@BUF",
         "fp_flag": "FP-BOTH",
@@ -206,7 +274,7 @@
       "team": "DAL",
       "sheet": "primary",
       "week": 12,
-      "message": "PHI@DAL: the sheet has -8.5 / 48.0, the market -8.5 / 49.5 (FP-TOTAL) (odds pulled 2026-11-27 12:38:23-05:00)",
+      "message": "PHI@DAL: the sheet has -8.5 / 48.0, the market -8.5 / 49.5 (FP-TOTAL) (odds pulled 2026-11-27 19:00:45-05:00)",
       "evidence": {
         "game": "PHI@DAL",
         "fp_flag": "FP-TOTAL",
@@ -282,7 +350,7 @@
       "team": "DET",
       "sheet": "primary",
       "week": 12,
-      "message": "CHI@DET: the sheet has 1.5 / 55.5, the market -4.5 / 57.5 (FP-BOTH) (odds pulled 2026-11-27 12:38:23-05:00)",
+      "message": "CHI@DET: the sheet has 1.5 / 55.5, the market -4.5 / 57.5 (FP-BOTH) (odds pulled 2026-11-27 19:00:45-05:00)",
       "evidence": {
         "game": "CHI@DET",
         "fp_flag": "FP-BOTH",
@@ -451,7 +519,7 @@
         "roster_status": "FA",
         "status_source": "nflverse",
         "sheet_status": "PS",
-        "ppr": 0.3
+        "ppr": 0.0
       }
     },
     {
@@ -570,7 +638,7 @@
       "team": "LA",
       "sheet": "primary",
       "week": 12,
-      "message": "GB@LAR: the sheet has -2.5 / 43.5, the market -6.5 / 46.5 (FP-BOTH) (odds pulled 2026-11-27 12:38:23-05:00)",
+      "message": "GB@LAR: the sheet has -2.5 / 43.5, the market -6.5 / 46.5 (FP-BOTH) (odds pulled 2026-11-27 19:00:45-05:00)",
       "evidence": {
         "game": "GB@LAR",
         "fp_flag": "FP-BOTH",
@@ -716,6 +784,24 @@
       "message": "Aaron Rodgers (QB, PIT) sheet Status is ACTIVE but roster says FA",
       "evidence": {
         "roster_status": "FA",
+        "status_source": "news",
+        "sheet_status": "ACTIVE",
+        "ppr": 0.0
+      }
+    },
+    {
+      "type": "sheet_status_stale",
+      "key": "sheet_status_stale|00-0036862|12",
+      "severity": "warning",
+      "player": "Ben Skowronek",
+      "gsis_id": "00-0036862",
+      "pos": "WR",
+      "team": "PIT",
+      "sheet": "primary",
+      "week": 12,
+      "message": "Ben Skowronek (WR, PIT) sheet Status is ACTIVE but roster says IR",
+      "evidence": {
+        "roster_status": "IR",
         "status_source": "nflverse",
         "sheet_status": "ACTIVE",
         "ppr": 0.0
@@ -776,6 +862,28 @@
       }
     },
     {
+      "type": "sheet_line_stale",
+      "key": "sheet_line_stale|SF|12|SEA@SF",
+      "severity": "warning",
+      "player": "",
+      "gsis_id": null,
+      "pos": "",
+      "team": "SF",
+      "sheet": "primary",
+      "week": 12,
+      "message": "SEA@SF: the sheet has -3.0 / 43.5, the market 1.0 / 42.5 (FP-SPREAD) (odds pulled 2026-11-27 19:00:45-05:00)",
+      "evidence": {
+        "game": "SEA@SF",
+        "fp_flag": "FP-SPREAD",
+        "sheet_spread": -3.0,
+        "sheet_ou": 43.5,
+        "market_spread": 1.0,
+        "market_total": 42.5,
+        "spread_delta": 4.0,
+        "total_delta": -1.0
+      }
+    },
+    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0038640|12",
       "severity": "info",
@@ -811,26 +919,6 @@
           "2026-11-21",
           "2026-11-23"
         ]
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0037741|12",
-      "severity": "info",
-      "player": "Jahan Dotson",
-      "gsis_id": "00-0037741",
-      "pos": "WR",
-      "team": "ATL",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Jahan Dotson (WR, ATL) did not practice on the latest report (Hamstring); projected 6.6 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Hamstring",
-        "ppr": 6.6
       }
     },
     {
@@ -1198,26 +1286,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0041037|12",
-      "severity": "info",
-      "player": "Denzel Boston",
-      "gsis_id": "00-0041037",
-      "pos": "WR",
-      "team": "CLV",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Denzel Boston (WR, CLV) did not practice on the latest report (Quad); projected 10.2 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Quad",
-        "ppr": 10.2
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0037832|12",
       "severity": "info",
@@ -1514,26 +1582,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0038608|12",
-      "severity": "info",
-      "player": "Kayshon Boutte",
-      "gsis_id": "00-0038608",
-      "pos": "WR",
-      "team": "HST",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Kayshon Boutte (WR, HST) did not practice on the latest report (Hip); projected 5.5 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Hip",
-        "ppr": 5.5
-      }
-    },
-    {
       "type": "unconfirmed_report",
       "key": "unconfirmed_report|kenneth murray|12|ps_elevated",
       "severity": "info",
@@ -1627,26 +1675,6 @@
         "earliest_return_week": 6,
         "designated_return_date": "2026-11-12",
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040719|12",
-      "severity": "info",
-      "player": "Bhayshul Tuten",
-      "gsis_id": "00-0040719",
-      "pos": "RB",
-      "team": "JAX",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Bhayshul Tuten (RB, JAX) did not practice on the latest report (Ankle/Foot); projected 17.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Ankle/Foot",
-        "ppr": 17.8
       }
     },
     {
@@ -1863,44 +1891,6 @@
       }
     },
     {
-      "type": "market_only_player",
-      "key": "market_only_player|00-0040464|12|ints",
-      "severity": "info",
-      "player": "DJ Uiagalelei",
-      "gsis_id": "00-0040464",
-      "pos": "QB",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 12,
-      "message": "DJ Uiagalelei (QB, LAC) is quoted by the market (INT 0.73) but has no row on the sheet (odds pulled 2026-11-27 12:38-05:00)",
-      "evidence": {
-        "stat": "ints",
-        "market_mean": 0.7277386253,
-        "flag": "MKT-ONLY",
-        "n_books": 2
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0033885|12",
-      "severity": "info",
-      "player": "David Njoku",
-      "gsis_id": "00-0033885",
-      "pos": "TE",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 12,
-      "message": "David Njoku (TE, LAC) did not practice on the latest report (Shoulder); projected 4.7 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Shoulder",
-        "ppr": 4.7
-      }
-    },
-    {
       "type": "ir_return_window",
       "key": "ir_return_window|00-0034790|12",
       "severity": "info",
@@ -1916,46 +1906,6 @@
         "earliest_return_week": 12,
         "designated_return_date": null,
         "on_sheet": false
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0036355|12",
-      "severity": "info",
-      "player": "Justin Herbert",
-      "gsis_id": "00-0036355",
-      "pos": "QB",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Justin Herbert (QB, LAC) did not practice on the latest report (Concussion); projected 14.0 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Concussion",
-        "ppr": 14.0
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0038454|12",
-      "severity": "info",
-      "player": "Keaton Mitchell",
-      "gsis_id": "00-0038454",
-      "pos": "RB",
-      "team": "LAC",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Keaton Mitchell (RB, LAC) did not practice on the latest report (Knee); projected 2.6 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Knee",
-        "ppr": 2.6
       }
     },
     {
@@ -2655,46 +2605,6 @@
       }
     },
     {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0037834|12",
-      "severity": "info",
-      "player": "Brock Purdy",
-      "gsis_id": "00-0037834",
-      "pos": "QB",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Brock Purdy (QB, SF) did not practice on the latest report (Ankle); projected 17.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Ankle",
-        "ppr": 17.8
-      }
-    },
-    {
-      "type": "dnp_but_projected",
-      "key": "dnp_but_projected|00-0040172|12",
-      "severity": "info",
-      "player": "Jordan Watkins",
-      "gsis_id": "00-0040172",
-      "pos": "WR",
-      "team": "SF",
-      "sheet": "primary",
-      "week": 12,
-      "message": "Jordan Watkins (WR, SF) did not practice on the latest report (Groin); projected 2.8 PPR",
-      "evidence": {
-        "practice": {
-          "2026-11-25": "DNP",
-          "2026-11-26": "DNP"
-        },
-        "injury": "Groin",
-        "ppr": 2.8
-      }
-    },
-    {
       "type": "elevation_limit",
       "key": "elevation_limit|00-0034854|12",
       "severity": "info",
@@ -2911,17 +2821,15 @@
   "dismissed": [],
   "errors": [],
   "counts": {
-    "status_conflict": 2,
-    "out_but_projected": 1,
-    "sheet_line_stale": 4,
+    "out_but_projected": 5,
+    "sheet_line_stale": 5,
     "market_proj_gap": 15,
-    "sheet_status_stale": 9,
+    "sheet_status_stale": 10,
     "elevated_not_projected": 2,
     "missing_active": 3,
+    "status_conflict": 1,
     "ir_return_window": 45,
     "elevation_limit": 35,
-    "dnp_but_projected": 9,
-    "unconfirmed_report": 19,
-    "market_only_player": 1
+    "unconfirmed_report": 19
   }
 }
